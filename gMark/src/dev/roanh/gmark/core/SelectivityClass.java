@@ -18,43 +18,181 @@ public enum SelectivityClass{
 	 * nodes, also the only class associated with a
 	 * query of constant selectivity.
 	 */
-	ONE_ONE,
+	ONE_ONE("(1,=,1)"){
+		@Override
+		public SelectivityClass conjunction(SelectivityClass other){
+			switch(other){
+			case ONE_N:
+			case ONE_ONE:
+				return other;
+			case N_ONE:
+				return ONE_ONE;
+			case CROSS:
+			case EQUALS:
+			case GREATER:
+			case LESS:
+			case LESS_GREATER:
+				return ONE_N;
+			default:
+				return null;
+			}
+		}
+	},
 	/**
 	 * <code>(N,>,1)</code> a class between a growing
 	 * and a constant node, associated with a query
 	 * of linear selectivity.
 	 */
-	N_ONE,
+	N_ONE("(N,>,1)"){
+		@Override
+		public SelectivityClass negate(){
+			return ONE_N;
+		}
+
+		@Override
+		public SelectivityClass conjunction(SelectivityClass other){
+			switch(other){
+			case ONE_N:
+				return CROSS;
+			case ONE_ONE:
+			case N_ONE:
+			case CROSS:
+			case EQUALS:
+			case GREATER:
+			case LESS:
+			case LESS_GREATER:
+				return N_ONE;
+			default:
+				return null;
+			}
+		}
+	},
 	/**
 	 * <code>(1,<,N)</code> a class between a growing
 	 * and a constant node, associated with a query
 	 * of linear selectivity.
 	 */
-	ONE_N,
+	ONE_N("(1,<,N)"){
+		@Override
+		public SelectivityClass negate(){
+			return N_ONE;
+		}
+
+		@Override
+		public SelectivityClass conjunction(SelectivityClass other){
+			switch(other){
+			case ONE_N:
+			case ONE_ONE:
+				return other;
+			case N_ONE:
+				return ONE_ONE;
+			case CROSS:
+			case EQUALS:
+			case GREATER:
+			case LESS:
+			case LESS_GREATER:
+				return ONE_N;
+			default:
+				return null;
+			}
+		}
+	},
 	/**
 	 * <code>(N,=,N)</code> a class between growing
 	 * nodes, associated with a query of linear selectivity.
 	 */
-	EQUALS,
+	EQUALS("(N,=,N)"){
+		@Override
+		public SelectivityClass conjunction(SelectivityClass other){
+			return other;
+		}
+	},
 	/**
 	 * <code>(N,>,N)</code> a class between growing
 	 * nodes, where the edge in distribution is zipfian.
 	 * Associated with a query of linear selectivity.
 	 */
-	GREATER,
+	GREATER("(N,>,N)"){
+		@Override
+		public SelectivityClass negate(){
+			return LESS;
+		}
+
+		@Override
+		public SelectivityClass conjunction(SelectivityClass other){
+			switch(other){
+			case ONE_N:
+			case ONE_ONE:
+			case N_ONE:
+			case CROSS:
+			case GREATER:
+				return other;
+			case EQUALS:
+				return GREATER;
+			case LESS:
+			case LESS_GREATER:
+				return CROSS;
+			default:
+				return null;
+			}
+		}
+	},
 	/**
 	 * <code>(N,<,N)</code> a class between growing
 	 * nodes, where the edge out distribution is zipfian.
 	 * Associated with a query of linear selectivity.
 	 */
-	LESS,
+	LESS("(N,<,N)"){
+		@Override
+		public SelectivityClass negate(){
+			return GREATER;
+		}
+
+		@Override
+		public SelectivityClass conjunction(SelectivityClass other){
+			switch(other){
+			case ONE_N:
+			case ONE_ONE:
+			case N_ONE:
+			case LESS:
+			case CROSS:
+				return other;
+			case EQUALS:
+				return LESS;
+			case GREATER:
+			case LESS_GREATER:
+				return LESS_GREATER;
+			default:
+				return null;
+			}
+		}
+	},
 	/**
 	 * <code>(N,◇,N)</code> a class between growing
 	 * nodes where the edge in and out distributions
 	 * are both zipfian. Associated with a query of
 	 * linear selectivity.
 	 */
-	LESS_GREATER,
+	LESS_GREATER("(N,◇,N)"){
+		@Override
+		public SelectivityClass conjunction(SelectivityClass other){
+			switch(other){
+			case ONE_N:
+			case ONE_ONE:
+			case N_ONE:
+			case CROSS:
+				return other;
+			case EQUALS:
+			case GREATER:
+				return LESS_GREATER;
+			case LESS:
+			case LESS_GREATER:
+				return CROSS;
+			default:
+				return null;
+			}
+		}
+	},
 	/**
 	 * <code>(N,⨉,N)</code> a class between growing
 	 * nodes, this includes for example the transitive
@@ -63,5 +201,42 @@ public enum SelectivityClass{
 	 * This is also the only class associated with a
 	 * query of quadratic selectivity.
 	 */
-	CROSS
+	CROSS("(N,⨉,N)"){
+		@Override
+		public SelectivityClass conjunction(SelectivityClass other){
+			switch(other){
+			case ONE_N:
+			case ONE_ONE:
+			case N_ONE:
+				return other;
+			case CROSS:
+			case EQUALS:
+			case GREATER:
+			case LESS:
+			case LESS_GREATER:
+				return CROSS;
+			default:
+				return null;
+			}
+		}
+	};
+	
+	private final String name;
+	
+	private SelectivityClass(String name){
+		this.name = name;
+	}
+	
+	public SelectivityClass negate(){
+		return this;
+	}
+	
+	//public abstract SelectivityClass disjunction(SelectivityClass other);
+	
+	public abstract SelectivityClass conjunction(SelectivityClass other);
+	
+	@Override
+	public String toString(){
+		return name;
+	}
 }

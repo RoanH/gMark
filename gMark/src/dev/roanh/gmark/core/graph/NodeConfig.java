@@ -1,5 +1,19 @@
 package dev.roanh.gmark.core.graph;
 
 public class NodeConfig{
-
+	private String alias;
+	//vec size_t size
+	private boolean scalable;
+	//double proportion;
+	
+	/**
+	 * Checks if nodes of this type scale in number
+	 * with the size of the graph. If this is false
+	 * then nodes of this type are instead present
+	 * in a fixed quantity.
+	 * @return True if nodes of this type are scalable.
+	 */
+	public boolean isScalable(){
+		return scalable;
+	}
 }

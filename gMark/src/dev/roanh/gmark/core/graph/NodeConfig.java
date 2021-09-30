@@ -1,6 +1,7 @@
 package dev.roanh.gmark.core.graph;
 
 public class NodeConfig{
+	private int id;//also known as type or type id
 	private String alias;
 	//vec size_t size
 	private boolean scalable;

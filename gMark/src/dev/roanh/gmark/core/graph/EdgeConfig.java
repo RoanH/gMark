@@ -5,6 +5,7 @@ import dev.roanh.gmark.core.DistributionType;
 import dev.roanh.gmark.core.SelectivityClass;
 
 public class EdgeConfig{
+	private int id;//also known as symbol
 	private Distribution inDistribution;
 	private Distribution outDistribution;
 	private NodeConfig source;

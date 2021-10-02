@@ -4,6 +4,8 @@ import java.util.List;
 
 public class GraphConfig{
 	private List<NodeConfig> nodes;//nodes, types
+	//relation between nodes with a certain distribution
+	//all edges have a symbol
 	private List<EdgeConfig> edges;//edges, predicates
 	
 	
@@ -15,5 +17,9 @@ public class GraphConfig{
 	
 	public List<EdgeConfig> getEdges(){
 		return edges;
+	}
+	
+	public int getNodeCount(){
+		return nodes.size();
 	}
 }

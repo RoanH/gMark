@@ -26,4 +26,21 @@ public class UCRPQWorkload{
 	private int arity;
 	private Set<QueryShape> shapes;
 	//TODO selectivities
+	
+	
+	
+	
+	
+	
+	public int getMinimumConjuncts(){
+		return minConjuncts;
+	}
+	
+	public int getMaximumConjuncts(){
+		return maxConjuncts;
+	}
+	
+	public Set<QueryShape> getShapes(){
+		return shapes;
+	}
 }

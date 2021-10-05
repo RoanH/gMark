@@ -81,7 +81,7 @@ public class GraphTest{
 			Set<Intersection> parallel = printParallel(edgeGraph);
 			for(Intersection inter : parallel){
 				String name = inter.getIntersectionString();
-				Node n = edgeGraph.addNodeIfNotExists(name);
+				Node n = edgeGraph.addNodeIfNotExists(name, inter.size());
 				edgeGraph.addEdgeIfNotExists(inter.source, n);
 				edgeGraph.addEdgeIfNotExists(n, inter.target);
 			}
@@ -136,8 +136,9 @@ public class GraphTest{
 		}
 		
 		Set<Intersection> parallel = new HashSet<Intersection>();
-		reverseTasks.stream().map(ReverseTask::run).forEach(parallel::add);
-		//parallel.forEach(System.out::println);
+		//filter intersections past max length to reduce the graph size
+		reverseTasks.stream().map(ReverseTask::run).filter(Objects::nonNull).forEach(parallel::add);
+		parallel.forEach(System.out::println);
 		
 		return parallel;
 	}
@@ -227,6 +228,12 @@ public class GraphTest{
 			}
 		}
 		
+		private Node addNode(String id, int weight){
+			Node n = addNode(id);
+			n.weight = weight;
+			return n;
+		}
+		
 		private Node addNode(String id){
 			Node n = new Node(id);
 			nodes.add(n);
@@ -234,9 +241,9 @@ public class GraphTest{
 			return n;
 		}
 		
-		private Node addNodeIfNotExists(String id){
+		private Node addNodeIfNotExists(String id, int weight){
 			Node n = nodeMap.get(id);
-			return n == null ? addNode(id) : n;
+			return n == null ? addNode(id, weight) : n;
 		}
 	}
 	
@@ -263,6 +270,12 @@ public class GraphTest{
 		String name;
 		List<Edge> out = new ArrayList<Edge>();
 		List<Edge> in = new ArrayList<Edge>();
+		int weight = 1;
+		
+		private Node(String id, int weight){
+			this(id);
+			this.weight = weight;
+		}
 		
 		private Node(String id){
 			this.name = id;
@@ -294,13 +307,17 @@ public class GraphTest{
 			}
 		}
 		
+		private int size(){
+			return Math.max(firstPath.stream().mapToInt(n->n.weight).sum(), secondPath.stream().mapToInt(n->n.weight).sum());
+		}
+		
 		private String getIntersectionString(){
 			return "(" + firstPath.stream().map(n->n.name).reduce("", String::concat) + " ∩ " + secondPath.stream().map(n->n.name).reduce("", String::concat) + ")";
 		}
 		
 		@Override
 		public String toString(){
-			return source.name + getIntersectionString() + target;
+			return "[" + size() + "] " + source.name + getIntersectionString() + target;
 		}
 		
 		@Override

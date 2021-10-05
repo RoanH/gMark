@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GraphTest{
+	private static final int MAX_LEN = 6;//6
+	private static final int MAX_RECURSION = 4;//4
 
 	public static void main(String[] args){
 		Graph graph = new Graph();
@@ -51,9 +53,9 @@ public class GraphTest{
 //			System.out.println(e.source.id + " " + e.name + "-> " + e.target.id);
 //		}
 		
-		Edge[] hist = new Edge[6];
+		Edge[] hist = new Edge[MAX_LEN];
 		List<Edge[]> paths = new ArrayList<Edge[]>();
-		printPaths("", graph.nodeMap.get("1"), graph.nodeMap.get("12"), 6, hist, paths);
+		printPaths("", graph.nodeMap.get("1"), graph.nodeMap.get("12"), MAX_LEN, hist, paths);
 		
 		for(Edge[] p : paths){
 			System.out.println(Arrays.toString(p));
@@ -74,7 +76,7 @@ public class GraphTest{
 		}
 		
 		//build up the graph
-		for(int i = 0; i < 4; i++){
+		for(int i = 0; i < MAX_RECURSION; i++){
 			System.out.println("---------- " + i + " ----------");
 			Set<Intersection> parallel = printParallel(edgeGraph);
 			for(Intersection inter : parallel){
@@ -83,11 +85,14 @@ public class GraphTest{
 				edgeGraph.addEdgeIfNotExists(inter.source, n);
 				edgeGraph.addEdgeIfNotExists(n, inter.target);
 			}
+			System.out.println("Total nodes: " + edgeGraph.nodes.size() + ", total edges: " + edgeGraph.edges.size());
+			System.out.println("-----------------------");
 		}
 		
 		//draw some paths, which is rather simple as there are no cycles and all paths lead from src to trg
+		System.out.println("\n\nFinal queries:");
 		for(int i = 0; i < 10; i++){
-			System.out.println(drawPath(edgeGraph));
+			System.out.println(drawPath(edgeGraph).stream().map(Node::toString).reduce("", String::concat));
 		}
 	}
 	
@@ -132,7 +137,7 @@ public class GraphTest{
 		
 		Set<Intersection> parallel = new HashSet<Intersection>();
 		reverseTasks.stream().map(ReverseTask::run).forEach(parallel::add);
-		parallel.forEach(System.out::println);
+		//parallel.forEach(System.out::println);
 		
 		return parallel;
 	}

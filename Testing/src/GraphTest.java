@@ -7,7 +7,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 public class GraphTest{
 
@@ -69,10 +72,20 @@ public class GraphTest{
 			edgeGraph.addEdgeIfNotExists(p[p.length - 1].name, "trg");
 		}
 		
-		printParallel(edgeGraph);
+		//build up the graph
+		for(int i = 0; i < 3; i++){
+			System.out.println("---------- " + i + " ----------");
+			Set<Intersection> parallel = printParallel(edgeGraph);
+			for(Intersection inter : parallel){
+				String name = inter.getIntersectionString();
+				Node n = edgeGraph.addNodeIfNotExists(name);
+				edgeGraph.addEdgeIfNotExists(inter.source, n);
+				edgeGraph.addEdgeIfNotExists(n, inter.target);
+			}
+		}
 	}
 	
-	public static void printParallel(Graph g){
+	public static Set<GraphTest.Intersection> printParallel(Graph g){
 		Node source = g.nodeMap.get("src");
 		
 		Deque<Node> head = new ArrayDeque<Node>();
@@ -82,13 +95,13 @@ public class GraphTest{
 		//mark processed nodes
 		Set<Node> found = new HashSet<Node>();
 		
-		List<Runnable> reverseTasks = new ArrayList<Runnable>();
+		List<ReverseTask> reverseTasks = new ArrayList<ReverseTask>();
 		
 		while(!head.isEmpty()){
 			Node n = head.pop();//random?
-			System.out.println("Handling: " + n.name);
+			//System.out.println("Handling: " + n.name);
 			for(Edge e : n.out){//random?
-				System.out.println("out edge to: " + e.target.name);
+				//System.out.println("out edge to: " + e.target.name);
 				if(!found.contains(e.target)){
 					pred.put(e.target, n);
 					found.add(e.target);
@@ -99,10 +112,14 @@ public class GraphTest{
 			}
 		}
 		
-		reverseTasks.forEach(Runnable::run);
+		Set<Intersection> parallel = new HashSet<Intersection>();
+		reverseTasks.stream().map(ReverseTask::run).forEach(parallel::add);
+		parallel.forEach(System.out::println);
+		
+		return parallel;
 	}
 	
-	private static void reverseTask(Node n, Map<Node, Node> pred, Node source, Edge e){
+	private static Intersection reverseTask(Node n, Map<Node, Node> pred, Node source, Edge e){
 		//cycle it, we basically reverse the route how we got here
 		List<Node> secondPath = new ArrayList<Node>();
 		{
@@ -123,7 +140,8 @@ public class GraphTest{
 				do{
 					//System.out.println("back: " + prev);
 					firstPath.add(prev);
-					prev = pred.get(prev);
+					prev = pred.get(prev);//we would have to consider all predecessors to find all cycles, but this is expensive, instead we can randomise which
+					                      //nodes we select to get the same effect across a multitude of generated clauses
 					//if(prev == null){
 					//	throw new RuntimeException("back for " + prev + " is null");
 					//}
@@ -136,9 +154,16 @@ public class GraphTest{
 					offset++;
 				}
 				
-				System.out.println("parallel: " + firstPath.subList(offset, firstPath.size()) + " | " + secondPath.subList(offset, secondPath.size()));
+				//System.out.println("parallel: " + firstPath.subList(offset, firstPath.size()) + " | " + secondPath.subList(offset, secondPath.size()));
+				return new Intersection(
+					offset == 0 ? source : firstPath.get(offset - 1),
+					e.target,
+					firstPath.subList(offset, firstPath.size()),
+					secondPath.subList(offset, secondPath.size())
+				);
 			}
 		}
+		throw new RuntimeException("impossible state");
 	}
 	
 	public static void printPaths(String path, Node source, Node target, int maxLen, Edge[] hist, List<Edge[]> paths){
@@ -166,7 +191,11 @@ public class GraphTest{
 		private Map<String, Node> nodeMap = new HashMap<String, Node>();
 		
 		private void addEdge(String source, String target, String name){
-			edges.add(new Edge(nodeMap.get(source), nodeMap.get(target), name));
+			addEdge(nodeMap.get(source), nodeMap.get(target), name);
+		}
+		
+		private void addEdge(Node source, Node target, String name){
+			edges.add(new Edge(source, target, name));
 		}
 		
 		private void addEdge(int source, int target, String name){
@@ -179,10 +208,22 @@ public class GraphTest{
 			}
 		}
 		
-		private void addNode(String id){
+		private void addEdgeIfNotExists(Node source, Node target){
+			if(source.out.stream().noneMatch(e->e.target.equals(target))){
+				addEdge(source, target, null);
+			}
+		}
+		
+		private Node addNode(String id){
 			Node n = new Node(id);
 			nodes.add(n);
 			nodeMap.put(id, n);
+			return n;
+		}
+		
+		private Node addNodeIfNotExists(String id){
+			Node n = nodeMap.get(id);
+			return n == null ? addNode(id) : n;
 		}
 	}
 	
@@ -218,5 +259,56 @@ public class GraphTest{
 		public String toString(){
 			return name;
 		}
+	}
+	
+	private static final class Intersection{
+		private Node source;
+		private Node target;
+		private List<Node> firstPath;
+		private List<Node> secondPath;
+		
+		private Intersection(Node source, Node target, List<Node> firstPath, List<Node> secondPath){
+			this.source = source;
+			this.target = target;
+			
+			//use a consistent order on the intersection elements to avoid duplication
+			if(firstPath.hashCode() > secondPath.hashCode()){
+				this.firstPath = firstPath;
+				this.secondPath = secondPath;
+			}else{
+				this.firstPath = secondPath;
+				this.secondPath = firstPath;
+			}
+		}
+		
+		private String getIntersectionString(){
+			return "(" + firstPath.stream().map(n->n.name).reduce("", String::concat) + " ∩ " + secondPath.stream().map(n->n.name).reduce("", String::concat) + ")";
+		}
+		
+		@Override
+		public String toString(){
+			return source.name + getIntersectionString() + target;
+		}
+		
+		@Override
+		public int hashCode(){
+			return Objects.hash(source, target, (firstPath.hashCode() + secondPath.hashCode()));
+		}
+		
+		@Override
+		public boolean equals(Object other){
+			if(other instanceof Intersection){
+				Intersection obj = (Intersection)other;
+				return source.equals(obj.source) && target.equals(obj.target) && firstPath.equals(obj.firstPath) && secondPath.equals(obj.secondPath);
+			}else{
+				return false;
+			}
+		}
+	}
+	
+	@FunctionalInterface
+	public static abstract interface ReverseTask{
+		
+		public abstract Intersection run();
 	}
 }

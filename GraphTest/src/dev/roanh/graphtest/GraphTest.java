@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class GraphTest{
 
@@ -73,7 +74,7 @@ public class GraphTest{
 		}
 		
 		//build up the graph
-		for(int i = 0; i < 3; i++){
+		for(int i = 0; i < 4; i++){
 			System.out.println("---------- " + i + " ----------");
 			Set<Intersection> parallel = printParallel(edgeGraph);
 			for(Intersection inter : parallel){
@@ -83,9 +84,28 @@ public class GraphTest{
 				edgeGraph.addEdgeIfNotExists(n, inter.target);
 			}
 		}
+		
+		//draw some paths, which is rather simple as there are no cycles and all paths lead from src to trg
+		for(int i = 0; i < 10; i++){
+			System.out.println(drawPath(edgeGraph));
+		}
 	}
 	
-	public static Set<GraphTest.Intersection> printParallel(Graph g){
+	public static List<Node> drawPath(Graph g){
+		Node target = g.nodeMap.get("trg");
+		Node n = g.nodeMap.get("src");
+		List<Node> path = new ArrayList<Node>();
+		
+		do{
+			n = n.out.get(ThreadLocalRandom.current().nextInt(n.out.size())).target;
+			path.add(n);
+		}while(n != target);
+		path.remove(path.size() - 1);
+		
+		return path;
+	}
+	
+	public static Set<Intersection> printParallel(Graph g){
 		Node source = g.nodeMap.get("src");
 		
 		Deque<Node> head = new ArrayDeque<Node>();
@@ -99,9 +119,7 @@ public class GraphTest{
 		
 		while(!head.isEmpty()){
 			Node n = head.pop();//random?
-			//System.out.println("Handling: " + n.name);
 			for(Edge e : n.out){//random?
-				//System.out.println("out edge to: " + e.target.name);
 				if(!found.contains(e.target)){
 					pred.put(e.target, n);
 					found.add(e.target);
@@ -134,17 +152,12 @@ public class GraphTest{
 		//if the current node has multiple back links then those are all 'cycles'
 		for(Edge back : e.target.in){
 			if(back != e){//that's the way we came...
-				//System.out.println("follow back to: " + back.source + " | " + e + " | " + back);
 				List<Node> firstPath = new ArrayList<Node>();
 				Node prev = back.source;
 				do{
-					//System.out.println("back: " + prev);
 					firstPath.add(prev);
 					prev = pred.get(prev);//we would have to consider all predecessors to find all cycles, but this is expensive, instead we can randomise which
-					                      //nodes we select to get the same effect across a multitude of generated clauses
-					//if(prev == null){
-					//	throw new RuntimeException("back for " + prev + " is null");
-					//}
+					                      //nodes we select to get a similar effect across a multitude of generated clauses
 				}while(prev != source);
 				Collections.reverse(firstPath);
 				
@@ -179,11 +192,6 @@ public class GraphTest{
 			}
 		}
 	}
-	
-	
-	
-	
-	
 	
 	private static final class Graph{
 		private List<Edge> edges = new ArrayList<Edge>();

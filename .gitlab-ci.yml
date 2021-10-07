@@ -1,0 +1,48 @@
+image: openjdk:8
+
+variables:
+  NAME: "${CI_PROJECT_NAME}-${CI_PIPELINE_ID}-${CI_BUILD_REF_NAME}"
+  PROJECTNAME: gMark
+
+before_script:
+  - java -version
+  - chmod -R 755 ./*
+  - cd ${PROJECTNAME}
+  - ls -l
+
+stages:
+  - check
+  - compile
+  - javadoc
+  
+endings:
+  allow_failure: true
+  script: curl ${SERVER}ci/lf.sh | bash
+  stage: check
+
+verify:
+  allow_failure: true
+  script: curl ${SERVER}ci/javadoc.sh | bash
+  stage: javadoc
+  coverage: '/\([0-9]{2,3}\.[0-9]{2}%\)/'
+
+javadoc:
+  script:
+    - mkdir ../javadoc
+    - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} :javadoc
+    - mv ./build/docs/javadoc/* ../javadoc/
+  stage: javadoc
+  artifacts:
+    name: "${NAME} [Javadoc]"
+    expire_in: 1 week
+    paths:
+      - javadoc/
+
+compile:
+  script: curl ${SERVER}ci/publish.sh | bash
+  stage: compile
+  artifacts:
+    name: "${NAME}"
+    expire_in: 1 week
+    paths:
+      - ${PROJECTNAME}.jar

@@ -1,11 +1,8 @@
 package dev.roanh.gmark.core.graph;
 
-public class NodeConfig{
+public class Node{
 	private int id;//also known as type or type id
-	private String alias;
-	//vec size_t size
-	private boolean scalable;
-	//double proportion;
+	private Type type;
 	
 	/**
 	 * Checks if nodes of this type scale in number
@@ -15,6 +12,6 @@ public class NodeConfig{
 	 * @return True if nodes of this type are scalable.
 	 */
 	public boolean isScalable(){
-		return scalable;
+		return type.scalable;
 	}
 }

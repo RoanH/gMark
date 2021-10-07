@@ -4,12 +4,12 @@ import dev.roanh.gmark.core.Distribution;
 import dev.roanh.gmark.core.DistributionType;
 import dev.roanh.gmark.core.SelectivityClass;
 
-public class EdgeConfig{
+public class Edge{
 	private int id;//also known as symbol
 	private Distribution inDistribution;
 	private Distribution outDistribution;
-	private NodeConfig source;
-	private NodeConfig target;
+	private Node source;
+	private Node target;
 	
 	public SelectivityClass getSelectivty(){
 		if(!source.isScalable() && !target.isScalable()){

@@ -3,19 +3,19 @@ package dev.roanh.gmark.core.graph;
 import java.util.List;
 
 public class GraphConfig{
-	private List<NodeConfig> nodes;//nodes, types
+	private List<Node> nodes;//nodes, types
 	//relation between nodes with a certain distribution
 	//all edges have a symbol
-	private List<EdgeConfig> edges;//edges, predicates
+	private List<Edge> edges;//edges, predicates
 	
 	
 	
 	
-	public List<NodeConfig> getNodes(){
+	public List<Node> getNodes(){
 		return nodes;
 	}
 	
-	public List<EdgeConfig> getEdges(){
+	public List<Edge> getEdges(){
 		return edges;
 	}
 	

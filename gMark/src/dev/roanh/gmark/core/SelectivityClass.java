@@ -39,7 +39,7 @@ public enum SelectivityClass{
 		}
 	},
 	/**
-	 * <code>(N,>,1)</code> a class between a growing
+	 * <code>(N,&gt;,1)</code> a class between a growing
 	 * and a constant node, associated with a query
 	 * of linear selectivity.
 	 */
@@ -68,7 +68,7 @@ public enum SelectivityClass{
 		}
 	},
 	/**
-	 * <code>(1,<,N)</code> a class between a growing
+	 * <code>(1,&lt;,N)</code> a class between a growing
 	 * and a constant node, associated with a query
 	 * of linear selectivity.
 	 */
@@ -112,7 +112,7 @@ public enum SelectivityClass{
 	 * nodes, where the edge in distribution is zipfian.
 	 * Associated with a query of linear selectivity.
 	 */
-	GREATER("(N,>,N)"){
+	GREATER("(N,&gt;,N)"){
 		@Override
 		public SelectivityClass negate(){
 			return LESS;
@@ -142,7 +142,7 @@ public enum SelectivityClass{
 	 * nodes, where the edge out distribution is zipfian.
 	 * Associated with a query of linear selectivity.
 	 */
-	LESS("(N,<,N)"){
+	LESS("(N,&lt;,N)"){
 		@Override
 		public SelectivityClass negate(){
 			return GREATER;

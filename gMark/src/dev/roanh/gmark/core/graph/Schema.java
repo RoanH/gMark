@@ -33,4 +33,12 @@ public class Schema{
 	public List<Edge> getEdges(){
 		return edges;
 	}
+	
+	public int getTypeCount(){
+		return types.size();
+	}
+	
+	public int getPredicateCount(){
+		return predicates.size();
+	}
 }

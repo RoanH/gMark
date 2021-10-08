@@ -13,5 +13,8 @@ public class Main{
 		
 		System.out.println("Predicates:");
 		config.getPredicates().forEach(System.out::println);
+		
+		System.out.println("\nTypes:");
+		config.getTypes().forEach(System.out::println);
 	}
 }

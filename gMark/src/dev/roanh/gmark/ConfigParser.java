@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -16,8 +15,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -29,6 +26,7 @@ import org.xml.sax.SAXException;
 
 import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.core.graph.Type;
 
 public class ConfigParser{
 	private static final Function<Node, Element> TO_ELEMENT = n->(Element)n;
@@ -41,26 +39,14 @@ public class ConfigParser{
 			Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
 			xml.getDocumentElement().normalize();
 			
-			System.out.println("root: " + xml.getDocumentElement().getNodeName());
-			
 			List<Integer> sizes = stream(xml.getElementsByTagName("graph")).map(TO_ELEMENT).map(n->{
 				return n.getElementsByTagName("nodes").item(0);
 			}).map(Node::getTextContent).map(Integer::parseInt).collect(Collectors.toList());
 			
 			List<Predicate> predicates = parsePredicates(TO_ELEMENT.apply(xml.getElementsByTagName("predicates").item(0)));
+			List<Type> types = parseTypes(TO_ELEMENT.apply(xml.getElementsByTagName("types").item(0)));
 			
-			//xml.getDocumentElement().get
-			
-
-			
-			System.out.println(xml.getElementsByTagName("graph").item(0).getTextContent());
-			
-			
-			
-			
-			
-			return new Configuration(sizes, predicates, null, null, null);
-			
+			return new Configuration(sizes, predicates, types, null, null);
 		}catch(SAXException e){
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -71,13 +57,62 @@ public class ConfigParser{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
-		
-		return null;
+		//TODO throw a proper exception
+		throw new RuntimeException("Failed to parse configuration file.");
 	}
 	
+	private static final List<Type> parseTypes(Element elem){
+		Map<Integer, String> alias = new LinkedHashMap<Integer, String>();
+		Map<Integer, Double> prop = new HashMap<Integer, Double>();
+		Map<Integer, Integer> fixed = new HashMap<Integer, Integer>();
+		
+		stream(elem.getElementsByTagName("alias")).map(TO_ELEMENT).forEach(n->{
+			alias.put(Integer.parseInt(n.getAttribute("type")), n.getTextContent());
+		});
+		
+		stream(elem.getElementsByTagName("proportion")).map(TO_ELEMENT).forEach(n->{
+			prop.put(Integer.parseInt(n.getAttribute("type")), Double.parseDouble(n.getTextContent()));
+		});
+		
+		stream(elem.getElementsByTagName("fixed")).map(TO_ELEMENT).forEach(n->{
+			fixed.put(Integer.parseInt(n.getAttribute("type")), Integer.parseInt(n.getTextContent()));
+		});
+		
+		List<Type> types = new ArrayList<Type>(alias.size());
+		for(Entry<Integer, String> entry : alias.entrySet()){
+			Double proportion = prop.get(entry.getKey());
+			if(proportion == null){
+				types.add(new Type(entry.getKey(), entry.getValue(), fixed.get(entry.getKey())));
+			}else{
+				types.add(new Type(entry.getKey(), entry.getValue(), proportion));
+			}
+		}
+		
+		return types;
+	}
+	
+	/**
+	 * Parses the <code>predicates</code> section from the configuration XML.
+	 * This section has the follow format:
+	 * <pre>
+	 * &lt;predicates&gt;
+	 *     &lt;size&gt;4&lt;/size&gt;
+	 *     &lt;alias symbol="0"&gt;authors&lt;/alias&gt;
+	 *     &lt;proportion symbol="0"&gt;0.5&lt;/proportion&gt;
+	 * 
+	 *     &lt;alias symbol="1"&gt;publishedIn&lt;/alias&gt;
+	 *     &lt;proportion symbol="1"&gt;0.3&lt;&lt;/proportion&gt;
+	 *
+	 *     &lt;alias symbol="2"&gt;heldIn&lt;/alias&gt;
+	 *     &lt;proportion symbol="2"&gt;0.01&lt;/proportion&gt;
+	 * 
+	 *     &lt;alias symbol="3"&gt;extendedTo&lt;/alias&gt;
+	 *     &lt;proportion symbol="3"&gt;0.19&lt;/proportion&gt;
+	 * &lt;/predicates&gt;
+	 * </pre>
+	 * @param elem The element to parse.
+	 * @return The parsed predicates from the element.
+	 */
 	private static final List<Predicate> parsePredicates(Element elem){
 		Map<Integer, String> alias = new LinkedHashMap<Integer, String>();
 		Map<Integer, Double> prop = new HashMap<Integer, Double>();

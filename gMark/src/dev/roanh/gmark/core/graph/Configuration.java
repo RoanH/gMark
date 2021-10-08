@@ -36,4 +36,8 @@ public class Configuration{
 	public List<Predicate> getPredicates(){
 		return predicates;
 	}
+	
+	public List<Type> getTypes(){
+		return types;
+	}
 }

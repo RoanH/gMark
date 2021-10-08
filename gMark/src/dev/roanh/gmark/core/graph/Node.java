@@ -1,5 +1,6 @@
 package dev.roanh.gmark.core.graph;
 
+@Deprecated
 public class Node{
 	private int id;//also known as type or type id
 	private Type type;

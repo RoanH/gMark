@@ -5,12 +5,13 @@ import dev.roanh.gmark.core.DistributionType;
 import dev.roanh.gmark.core.SelectivityClass;
 
 public class Edge{
-	private int id;//also known as symbol
+	private Type source;
+	private Type target;
+	private Predicate symbol;//edge predicate
+	//TODO there is a edge_type -- use currently unknown
 	private Distribution inDistribution;
 	private Distribution outDistribution;
-	private Node source;
-	private Node target;
-	
+
 	public SelectivityClass getSelectivty(){
 		if(!source.isScalable() && !target.isScalable()){
 			return SelectivityClass.ONE_ONE;

@@ -29,6 +29,11 @@ public enum DistributionType{
 		return constructor.apply(data);
 	}
 	
+	@Override
+	public String toString(){
+		return name;
+	}
+	
 	public static final DistributionType getByName(String name){
 		for(DistributionType type : values()){
 			if(type.name.equalsIgnoreCase(name)){

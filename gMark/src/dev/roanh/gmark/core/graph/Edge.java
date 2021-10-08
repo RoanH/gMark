@@ -11,6 +11,14 @@ public class Edge{
 	//TODO there is a edge_type -- use currently unknown
 	private Distribution inDistribution;
 	private Distribution outDistribution;
+	
+	public Edge(Type source, Type target, Predicate symbol, Distribution in, Distribution out){
+		this.source = source;
+		this.target = target;
+		this.symbol = symbol;
+		inDistribution = in;
+		outDistribution = out;
+	}
 
 	public SelectivityClass getSelectivty(){
 		if(!source.isScalable() && !target.isScalable()){
@@ -28,5 +36,10 @@ public class Edge{
 		}else{
 			return SelectivityClass.EQUALS;
 		}
+	}
+	
+	@Override
+	public String toString(){
+		return "Edge[source=" + source.getID() + ",target=" + target.getID() + ",symbol=" + symbol.getID() + ",in=" + inDistribution.getType() + ",out=" + outDistribution.getType() + "]";
 	}
 }

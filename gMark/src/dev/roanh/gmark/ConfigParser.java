@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,8 +25,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import dev.roanh.gmark.core.Distribution;
 import dev.roanh.gmark.core.graph.Configuration;
+import dev.roanh.gmark.core.graph.Edge;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
 
 /**
@@ -51,8 +55,11 @@ public class ConfigParser{
 			
 			List<Predicate> predicates = parsePredicates(TO_ELEMENT.apply(xml.getElementsByTagName("predicates").item(0)));
 			List<Type> types = parseTypes(TO_ELEMENT.apply(xml.getElementsByTagName("types").item(0)));
+			Schema schema = parseSchema(TO_ELEMENT.apply(xml.getElementsByTagName("schema").item(0)), types, predicates);
 			
-			return new Configuration(sizes, predicates, types, null, null);
+			//TODO parse workloads -- which are generator specific now
+			
+			return new Configuration(sizes, schema, null);
 		}catch(SAXException e){
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -65,6 +72,25 @@ public class ConfigParser{
 		}
 		//TODO throw a proper exception
 		throw new RuntimeException("Failed to parse configuration file.");
+	}
+	
+	private static final Schema parseSchema(Element elem, List<Type> types, List<Predicate> predicates){
+		List<Edge> edges = new ArrayList<Edge>();
+		
+		stream(elem.getElementsByTagName("source")).map(TO_ELEMENT).forEach(s->{
+			Type source = types.get(Integer.parseInt(s.getAttribute("type")));
+			stream(s.getElementsByTagName("target")).map(TO_ELEMENT).forEach(t->{
+				edges.add(new Edge(
+					source,
+					types.get(Integer.parseInt(t.getAttribute("type"))),
+					predicates.get(Integer.parseInt(t.getAttribute("symbol"))),
+					Distribution.fromXML(TO_ELEMENT.apply(t.getElementsByTagName("indistribution").item(0))),
+					Distribution.fromXML(TO_ELEMENT.apply(t.getElementsByTagName("outdistribution").item(0)))
+				));
+			});
+		});
+		
+		return new Schema(edges, types, predicates);
 	}
 	
 	/**
@@ -90,7 +116,7 @@ public class ConfigParser{
 	 * &lt;/types&gt;
 	 * </pre>
 	 * @param elem The element to parse with the type data.
-	 * @return The types parsed from the element.
+	 * @return The types parsed from the element sorted by ID.
 	 */
 	private static final List<Type> parseTypes(Element elem){
 		Map<Integer, String> alias = new LinkedHashMap<Integer, String>();
@@ -118,6 +144,7 @@ public class ConfigParser{
 				types.add(new Type(entry.getKey(), entry.getValue(), proportion));
 			}
 		}
+		types.sort(Comparator.comparing(Type::getID));
 		
 		return types;
 	}
@@ -142,7 +169,7 @@ public class ConfigParser{
 	 * &lt;/predicates&gt;
 	 * </pre>
 	 * @param elem The element to parse with the predicate data.
-	 * @return The parsed predicates from the element.
+	 * @return The parsed predicates from the element sorted by ID.
 	 */
 	private static final List<Predicate> parsePredicates(Element elem){
 		Map<Integer, String> alias = new LinkedHashMap<Integer, String>();
@@ -160,6 +187,7 @@ public class ConfigParser{
 		for(Entry<Integer, String> entry : alias.entrySet()){
 			predicates.add(new Predicate(entry.getKey(), entry.getValue(), prop.get(entry.getKey())));
 		}
+		predicates.sort(Comparator.comparing(Predicate::getID));
 		
 		return predicates;
 	}

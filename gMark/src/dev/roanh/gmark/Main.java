@@ -6,6 +6,8 @@ import dev.roanh.gmark.core.graph.Configuration;
 
 public class Main{
 
+	//General assumption that type and symbol IDs are consecutive in the sense that
+	//for a total of 4 types these types have ID 0, 1, 2 and 3
 	public static void main(String[] args){
 		Configuration config = ConfigParser.parse(Paths.get("C:\\Users\\RoanH\\Downloads\\tmp\\gmark\\use-cases\\test.xml"));
 		
@@ -16,5 +18,8 @@ public class Main{
 		
 		System.out.println("\nTypes:");
 		config.getTypes().forEach(System.out::println);
+		
+		System.out.println("\nEdges:");
+		config.getSchema().getEdges().forEach(System.out::println);
 	}
 }

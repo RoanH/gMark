@@ -11,6 +11,10 @@ public class Predicate{
 		this.proportion = proportion;
 	}
 	
+	public int getID(){
+		return id;
+	}
+	
 	@Override
 	public String toString(){
 		return "Predicate[symbolID=" + id + ",alias=\"" + alias + "\",proportion=" + proportion + "]";

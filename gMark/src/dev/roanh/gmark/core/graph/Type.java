@@ -32,6 +32,10 @@ public class Type{
 		return scalable;
 	}
 	
+	public int getID(){
+		return id;
+	}
+	
 	@Override
 	public String toString(){
 		if(fixed == -1){

@@ -28,10 +28,16 @@ import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Type;
 
+/**
+ * Parser to read complete gmark task configurations.
+ * @author Roan
+ */
 public class ConfigParser{
+	//TODO better validation and exception handling
+	/**
+	 * Function to cast nodes to elements.
+	 */
 	private static final Function<Node, Element> TO_ELEMENT = n->(Element)n;
-	
-	
 	
 	//parse config xml
 	public static Configuration parse(Path file){
@@ -61,6 +67,31 @@ public class ConfigParser{
 		throw new RuntimeException("Failed to parse configuration file.");
 	}
 	
+	/**
+	 * Parses the <code>types</code> section of the configuration XML.
+	 * This section has the following format:
+	 * <pre>
+	 * &lt;types&gt;
+	 *     &lt;size&gt;5&lt;/size&gt;
+	 *     &lt;alias type="0"&gt;researcher&lt;/alias&gt;
+	 *     &lt;proportion type="0"&gt;0.5&lt;/proportion&gt;
+	 *
+	 *     &lt;alias type="1"&gt;paper&lt;/alias&gt;
+	 *     &lt;proportion type="1"&gt;0.3&lt;/proportion&gt;
+	 *
+	 *     &lt;alias type="2"&gt;journal&lt;/alias&gt;
+	 *     &lt;proportion type="2"&gt;0.1&lt;/proportion&gt;
+	 *
+	 *     &lt;alias type="3"&gt;conference&lt;/alias&gt;
+	 *     &lt;proportion type="3"&gt;0.1&lt;/proportion&gt;
+	 *
+	 *     &lt;alias type="4"&gt;city&lt;/alias&gt;
+	 *     &lt;fixed type="4"&gt;100&lt;/fixed&gt;
+	 * &lt;/types&gt;
+	 * </pre>
+	 * @param elem The element to parse with the type data.
+	 * @return The types parsed from the element.
+	 */
 	private static final List<Type> parseTypes(Element elem){
 		Map<Integer, String> alias = new LinkedHashMap<Integer, String>();
 		Map<Integer, Double> prop = new HashMap<Integer, Double>();
@@ -93,7 +124,7 @@ public class ConfigParser{
 	
 	/**
 	 * Parses the <code>predicates</code> section from the configuration XML.
-	 * This section has the follow format:
+	 * This section has the following format:
 	 * <pre>
 	 * &lt;predicates&gt;
 	 *     &lt;size&gt;4&lt;/size&gt;
@@ -110,7 +141,7 @@ public class ConfigParser{
 	 *     &lt;proportion symbol="3"&gt;0.19&lt;/proportion&gt;
 	 * &lt;/predicates&gt;
 	 * </pre>
-	 * @param elem The element to parse.
+	 * @param elem The element to parse with the predicate data.
 	 * @return The parsed predicates from the element.
 	 */
 	private static final List<Predicate> parsePredicates(Element elem){

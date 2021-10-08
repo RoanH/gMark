@@ -24,4 +24,16 @@ public class Configuration{
 	 * List of workloads to generate.
 	 */
 	private List<Workload> workloads;
+	
+	public Configuration(List<Integer> sizes, List<Predicate> predicates, List<Type> types, Schema schema, List<Workload> workloads){
+		this.graphs = sizes;
+		this.predicates = predicates;
+		this.types = types;
+		this.schema = schema;
+		this.workloads = workloads;
+	}
+	
+	public List<Predicate> getPredicates(){
+		return predicates;
+	}
 }

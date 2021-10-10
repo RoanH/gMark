@@ -16,7 +16,7 @@ public class SchemaGraph{
 		
 		for(Edge edge : schema.getEdges()){
 			SelectivityClass sel2 = edge.getSelectivty();
-			for(SelectivityClass sel1 : SelectivityClass.values()){
+			for(SelectivityClass sel1 : SelectivityClass.values()){//TODO why do we iterate all selectivity values?
 				transitions.get(edge.getSourceType()).put(sel1, new SchemaGraphTripple(edge.getPredicate(), edge.getTargetType(), sel1.conjunction(sel2)));
 				transitions.get(edge.getTargetType()).put(sel1, new SchemaGraphTripple(edge.getPredicate().getInverse(), edge.getTargetType(), sel1.conjunction(sel2.negate())));
 			}

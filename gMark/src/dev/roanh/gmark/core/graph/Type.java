@@ -1,6 +1,8 @@
 package dev.roanh.gmark.core.graph;
 
-public class Type{
+import dev.roanh.gmark.util.IDable;
+
+public class Type implements IDable{
 	private int id;//also called type
 	private String alias;//textual type name
 	private int fixed;//fixed number of nodes present of this type -- possibly not applicable if proportion is used (set to -1)
@@ -32,6 +34,7 @@ public class Type{
 		return scalable;
 	}
 	
+	@Override
 	public int getID(){
 		return id;
 	}

@@ -2,6 +2,7 @@ package dev.roanh.gmark.core.graph;
 
 import java.util.List;
 
+@Deprecated
 public class GraphConfig{
 	private List<Node> nodes;//nodes, types
 	//relation between nodes with a certain distribution

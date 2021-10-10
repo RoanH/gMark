@@ -19,6 +19,18 @@ public class Edge{
 		inDistribution = in;
 		outDistribution = out;
 	}
+	
+	public Type getSourceType(){
+		return source;
+	}
+	
+	public Type getTargetType(){
+		return target;
+	}
+	
+	public Predicate getPredicate(){
+		return symbol;
+	}
 
 	public SelectivityClass getSelectivty(){
 		if(!source.isScalable() && !target.isScalable()){

@@ -26,5 +26,8 @@ public class Main{
 		System.out.println("\nGs nodes:");
 		SchemaGraph gs = new SchemaGraph(config.getSchema());
 		gs.printNodes();
+		
+		System.out.println("\nGs edges:");
+		gs.printEdges();
 	}
 }

@@ -2,13 +2,13 @@ package dev.roanh.gmark.impl.ucrpq;
 
 import java.util.Random;
 
-import dev.roanh.gmark.core.graph.GraphConfig;
+import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.util.Util;
 
 public class UCRPQGenerator{
 	private Random random = new Random();
 	private UCRPQWorkload workloadConfig;
-	private GraphConfig graphConfig;
+	private Configuration config;
 	
 	
 	public UCRPQQuery generateQuery(){

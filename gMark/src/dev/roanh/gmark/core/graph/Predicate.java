@@ -1,5 +1,12 @@
 package dev.roanh.gmark.core.graph;
 
+/**
+ * Class describing predicates applied to graph
+ * edges, also called symbols. These predicates
+ * can also represent following an edge in its
+ * inverse direction from target to source.
+ * @author Roan
+ */
 public class Predicate{
 	private int id;//also called symbol
 	private String alias;//textual symbol name
@@ -17,6 +24,15 @@ public class Predicate{
 		this(predicate.id, predicate.alias, predicate.proportion);
 		isInverse = inverse;
 		this.inverse = predicate;
+	}
+	
+	/**
+	 * Gets the textual representation
+	 * for this symbol.
+	 * @return The predicate alias.
+	 */
+	public String getAlias(){
+		return alias;
 	}
 	
 	public int getID(){

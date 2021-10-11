@@ -6,7 +6,7 @@ public class Type implements IDable{
 	private int id;//also called type
 	private String alias;//textual type name
 	private int fixed;//fixed number of nodes present of this type -- possibly not applicable if proportion is used (set to -1)
-	protected boolean scalable;//TODO private
+	private boolean scalable;
 	private double proportion;//fraction of all nodes that have this type -- possibly not applicable if the node is present in a fixed quantity (set to nan)
 	
 	public Type(int id, String alias, int fixed){
@@ -14,6 +14,7 @@ public class Type implements IDable{
 		this.alias = alias;
 		this.fixed = fixed;
 		proportion = Double.NaN;
+		scalable = false;
 	}
 	
 	public Type(int id, String alias, double proportion){
@@ -21,6 +22,7 @@ public class Type implements IDable{
 		this.alias = alias;
 		this.proportion = proportion;
 		fixed = -1;
+		scalable = true;
 	}
 	
 	/**
@@ -32,6 +34,10 @@ public class Type implements IDable{
 	 */
 	public boolean isScalable(){
 		return scalable;
+	}
+	
+	public String getAlias(){
+		return alias;
 	}
 	
 	@Override

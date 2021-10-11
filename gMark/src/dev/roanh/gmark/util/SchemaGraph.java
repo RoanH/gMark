@@ -3,6 +3,7 @@ package dev.roanh.gmark.util;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Edge;
@@ -31,13 +32,19 @@ public class SchemaGraph{
 		List<Type> types = schema.getTypes();
 		for(int i = 0; i < transitions.size(); i++){
 			for(SelectivityClass cl : transitions.get(i).keySet()){
-				System.out.println(types.get(i).getID() + "," + cl);
+				System.out.println("(" + types.get(i).getAlias() + "," + cl + ")");
 			}
 		}
 	}
 	
 	public void printEdges(){
-		
+		List<Type> types = schema.getTypes();
+		for(int i = 0; i < transitions.size(); i++){
+			for(Entry<SelectivityClass, SchemaGraphTripple> entry : transitions.get(i).entrySet()){
+				SchemaGraphTripple trip = entry.getValue();
+				System.out.println("(" + types.get(i).getAlias() + "," + entry.getKey() + ") -> " + trip.predicate.getAlias() + " -> (" + trip.target.getAlias() + "," + trip.selectivity + ")");
+			}
+		}
 	}
 	
 	public static final class SchemaGraphTripple{

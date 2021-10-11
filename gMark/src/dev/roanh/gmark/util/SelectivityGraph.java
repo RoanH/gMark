@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import dev.roanh.gmark.core.SelectivityClass;
-import dev.roanh.gmark.core.graph.GraphConfig;
 import dev.roanh.gmark.core.graph.Schema;
 
 public class SelectivityGraph{

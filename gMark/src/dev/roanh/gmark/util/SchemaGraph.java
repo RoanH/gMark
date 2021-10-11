@@ -38,7 +38,9 @@ public class SchemaGraph extends Graph<SelectivityType, Predicate>{
 		}
 	}
 	
-	//public List<Path> get
+	public Set<SchemaGraphTripple> getOutEdges(Type type, SelectivityClass selectivity){
+		return transitions.get(type).get(selectivity);
+	}
 	
 	public void printNodes(){
 		List<Type> types = schema.getTypes();
@@ -60,7 +62,7 @@ public class SchemaGraph extends Graph<SelectivityType, Predicate>{
 		}
 	}
 	
-	private static final class SchemaGraphTripple{
+	public static final class SchemaGraphTripple{
 		private Predicate predicate;
 		private Type target;
 		private SelectivityClass selectivity;

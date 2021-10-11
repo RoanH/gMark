@@ -1,5 +1,7 @@
 package dev.roanh.gmark.core.graph;
 
+import java.util.Objects;
+
 import dev.roanh.gmark.util.IDable;
 
 public class Type implements IDable{
@@ -52,5 +54,15 @@ public class Type implements IDable{
 		}else{
 			return "Type[typeID=" + id + ",alias=\"" + alias + "\",fixed=" + fixed + "]";
 		}
+	}
+	
+	@Override
+	public boolean equals(Object other){
+		return other instanceof Type ? ((Type)other).id == id : false;
+	}
+	
+	@Override
+	public int hashCode(){
+		return Objects.hash(id);
 	}
 }

@@ -1,9 +1,12 @@
 package dev.roanh.gmark.util;
 
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Edge;
@@ -12,18 +15,25 @@ import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
 
 public class SchemaGraph extends Graph<SelectivityType, Predicate>{
-	private RangeList<Map<SelectivityClass, SchemaGraphTripple>> transitions;
+	private RangeList<Map<SelectivityClass, GraphNode<SelectivityType, SelectivityClass>>> index;
+	private RangeList<Map<SelectivityClass, Set<SchemaGraphTripple>>> transitions;
 	private Schema schema;
 
 	public SchemaGraph(Schema schema){
 		this.schema = schema;
-		transitions = new RangeList<Map<SelectivityClass, SchemaGraphTripple>>(schema.getTypeCount(), Util.selectivityMapSupplier());
+		transitions = new RangeList<Map<SelectivityClass, Set<SchemaGraphTripple>>>(schema.getTypeCount(), Util.selectivityMapSupplier());
+		index = new RangeList<Map<SelectivityClass, GraphNode<SelectivityType, SelectivityClass>>>(schema.getEdgeCount() * 2 * SelectivityClass.values().length, Util.selectivityMapSupplier());
 		
 		for(Edge edge : schema.getEdges()){
 			SelectivityClass sel2 = edge.getSelectivty();
 			for(SelectivityClass sel1 : SelectivityClass.values()){
-				transitions.get(edge.getSourceType()).put(sel1, new SchemaGraphTripple(edge.getPredicate(), edge.getTargetType(), sel1.conjunction(sel2)));
-				transitions.get(edge.getTargetType()).put(sel1, new SchemaGraphTripple(edge.getPredicate().getInverse(), edge.getTargetType(), sel1.conjunction(sel2.negate())));
+				transitions.get(edge.getSourceType()).computeIfAbsent(sel1, k->{
+					return new HashSet<SchemaGraphTripple>();
+				}).add(new SchemaGraphTripple(edge.getPredicate(), edge.getTargetType(), sel1.conjunction(sel2)));
+				transitions.get(edge.getTargetType()).computeIfAbsent(sel1, k->{
+					return new HashSet<SchemaGraphTripple>();
+				}).add(new SchemaGraphTripple(edge.getPredicate().getInverse(), edge.getTargetType(), sel1.conjunction(sel2.negate())));
+				
 			}
 		}
 	}
@@ -42,9 +52,10 @@ public class SchemaGraph extends Graph<SelectivityType, Predicate>{
 	public void printEdges(){
 		List<Type> types = schema.getTypes();
 		for(int i = 0; i < transitions.size(); i++){
-			for(Entry<SelectivityClass, SchemaGraphTripple> entry : transitions.get(i).entrySet()){
-				SchemaGraphTripple trip = entry.getValue();
-				System.out.println("(" + types.get(i).getAlias() + "," + entry.getKey() + ") -> " + trip.predicate.getAlias() + " -> (" + trip.target.getAlias() + "," + trip.selectivity + ")");
+			for(Entry<SelectivityClass, Set<SchemaGraphTripple>> entry : transitions.get(i).entrySet()){
+				for(SchemaGraphTripple trip : entry.getValue()){
+					System.out.println("(" + types.get(i).getAlias() + "," + entry.getKey() + ") -> " + trip.predicate.getAlias() + " -> (" + trip.target.getAlias() + "," + trip.selectivity + ")");
+				}
 			}
 		}
 	}
@@ -58,6 +69,21 @@ public class SchemaGraph extends Graph<SelectivityType, Predicate>{
 			this.predicate = predicate;
 			this.target = target;
 			this.selectivity = selectivity;
+		}
+		
+		@Override
+		public boolean equals(Object other){
+			if(other instanceof SchemaGraphTripple){
+				SchemaGraphTripple trip = (SchemaGraphTripple)other;
+				return trip.selectivity == selectivity && predicate.equals(trip.predicate) && target.equals(trip.target);
+			}else{
+				return false;
+			}
+		}
+		
+		@Override
+		public int hashCode(){
+			return Objects.hash(predicate, target, selectivity);
 		}
 	}
 }

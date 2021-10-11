@@ -41,4 +41,8 @@ public class Schema{
 	public int getPredicateCount(){
 		return predicates.size();
 	}
+	
+	public int getEdgeCount(){
+		return edges.size();
+	}
 }

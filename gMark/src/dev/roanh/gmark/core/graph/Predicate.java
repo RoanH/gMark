@@ -1,5 +1,7 @@
 package dev.roanh.gmark.core.graph;
 
+import java.util.Objects;
+
 /**
  * Class describing predicates applied to graph
  * edges, also called symbols. These predicates
@@ -46,5 +48,20 @@ public class Predicate{
 	@Override
 	public String toString(){
 		return "Predicate[symbolID=" + id + ",alias=\"" + alias + "\",proportion=" + proportion + "]";
+	}
+	
+	@Override
+	public boolean equals(Object other){
+		if(other instanceof Predicate){
+			Predicate p = (Predicate)other;
+			return p.id == id && p.isInverse == isInverse;
+		}else{
+			return false;
+		}
+	}
+	
+	@Override
+	public int hashCode(){
+		return Objects.hash(id, isInverse);
 	}
 }

@@ -1,12 +1,25 @@
 package dev.roanh.gmark.util;
 
-public class Graph<V, E>{
+import java.util.ArrayList;
+import java.util.List;
 
+public class Graph<V, E>{
+	private List<GraphNode<V, E>> nodes = new ArrayList<GraphNode<V, E>>();
+	private List<GraphEdge<V, E>> edges = new ArrayList<GraphEdge<V, E>>();
+	
+	public List<GraphNode<V, E>> getNodes(){
+		return nodes;
+	}
+	
+	public List<GraphEdge<V, E>> getEdges(){
+		return edges;
+	}
 	
 	
 	
 	public static class GraphNode<V, E>{
-		
+		private List<GraphEdge<V, E>> out;
+		private List<GraphEdge<V, E>> in;
 	}
 	
 	public static class GraphEdge<V, E>{

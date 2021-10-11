@@ -3,6 +3,7 @@ package dev.roanh.gmark;
 import java.nio.file.Paths;
 
 import dev.roanh.gmark.core.graph.Configuration;
+import dev.roanh.gmark.util.SchemaGraph;
 
 public class Main{
 
@@ -21,5 +22,9 @@ public class Main{
 		
 		System.out.println("\nEdges:");
 		config.getSchema().getEdges().forEach(System.out::println);
+		
+		System.out.println("\nGs nodes:");
+		SchemaGraph gs = new SchemaGraph(config.getSchema());
+		gs.printNodes();
 	}
 }

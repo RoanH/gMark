@@ -46,7 +46,7 @@ public class SelectivityGraph{
 	private static final class DistanceMatrix extends RangeMatrix<Map<SelectivityClass, Integer>>{
 		
 		private DistanceMatrix(int size){
-			super(size, ()->new EnumMap<SelectivityClass, Integer>(SelectivityClass.class));
+			super(size, Util.selectivityMapSupplier());
 		}
 		
 		private void overwrite(DistanceMatrix data){

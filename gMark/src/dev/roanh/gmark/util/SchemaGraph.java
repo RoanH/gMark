@@ -11,7 +11,7 @@ import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
 
-public class SchemaGraph{
+public class SchemaGraph extends Graph<SelectivityType, Predicate>{
 	private RangeList<Map<SelectivityClass, SchemaGraphTripple>> transitions;
 	private Schema schema;
 
@@ -27,6 +27,8 @@ public class SchemaGraph{
 			}
 		}
 	}
+	
+	//public List<Path> get
 	
 	public void printNodes(){
 		List<Type> types = schema.getTypes();
@@ -47,7 +49,7 @@ public class SchemaGraph{
 		}
 	}
 	
-	public static final class SchemaGraphTripple{
+	private static final class SchemaGraphTripple{
 		private Predicate predicate;
 		private Type target;
 		private SelectivityClass selectivity;

@@ -1,4 +1,4 @@
-package dev.roanh.gmark.impl.ucrpq;
+package dev.roanh.gmark.conjunct.rpq;
 
 import java.util.Set;
 
@@ -8,6 +8,7 @@ import dev.roanh.gmark.core.QueryShape;
  * Describes a workload of UCRPQ queries to generate.
  * @author Roan
  */
+@Deprecated
 public class UCRPQWorkload{
 	/**
 	 * Number of queries.

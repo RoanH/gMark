@@ -1,7 +1,8 @@
-package dev.roanh.gmark.impl.ucrpq;
+package dev.roanh.gmark.conjunct.rpq;
 
 import java.util.List;
 
+@Deprecated
 public class UCRPQQuery{
 	private List<Conjunct> conjuncts;
 	

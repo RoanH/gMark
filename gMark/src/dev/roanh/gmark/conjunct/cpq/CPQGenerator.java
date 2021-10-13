@@ -1,4 +1,4 @@
-package dev.roanh.gmark.impl.cpq;
+package dev.roanh.gmark.conjunct.cpq;
 
 import dev.roanh.gmark.util.SchemaGraph;
 import dev.roanh.gmark.util.SelectivityType;

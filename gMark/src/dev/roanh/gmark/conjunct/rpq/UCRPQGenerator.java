@@ -1,4 +1,4 @@
-package dev.roanh.gmark.impl.ucrpq;
+package dev.roanh.gmark.conjunct.rpq;
 
 import java.util.Random;
 
@@ -11,6 +11,7 @@ public class UCRPQGenerator{
 	private Configuration config;
 	
 	
+	@Deprecated
 	public UCRPQQuery generateQuery(){
 		switch(Util.selectRandom(random, workloadConfig.getShapes())){
 		case CHAIN:

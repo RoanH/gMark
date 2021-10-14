@@ -26,6 +26,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import dev.roanh.gmark.core.Distribution;
+import dev.roanh.gmark.core.DistributionType;
 import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Edge;
 import dev.roanh.gmark.core.graph.Predicate;
@@ -84,13 +85,18 @@ public class ConfigParser{
 					source,
 					types.get(Integer.parseInt(t.getAttribute("type"))),
 					predicates.get(Integer.parseInt(t.getAttribute("symbol"))),
-					Distribution.fromXML(TO_ELEMENT.apply(t.getElementsByTagName("indistribution").item(0))),
-					Distribution.fromXML(TO_ELEMENT.apply(t.getElementsByTagName("outdistribution").item(0)))
+					parseDistribution(t, "indistribution"),
+					parseDistribution(t, "outdistribution")
 				));
 			});
 		});
 		
 		return new Schema(edges, types, predicates);
+	}
+	
+	private static final Distribution parseDistribution(Element elem, String key){
+		NodeList items = elem.getElementsByTagName("indistribution");
+		return items.getLength() == 0 ? Distribution.UNDEFINED : Distribution.fromXML(TO_ELEMENT.apply(items.item(0)));
 	}
 	
 	/**
@@ -185,7 +191,7 @@ public class ConfigParser{
 		
 		List<Predicate> predicates = new ArrayList<Predicate>(alias.size());
 		for(Entry<Integer, String> entry : alias.entrySet()){
-			predicates.add(new Predicate(entry.getKey(), entry.getValue(), prop.get(entry.getKey())));
+			predicates.add(new Predicate(entry.getKey(), entry.getValue(), prop.getOrDefault(entry.getKey(), Double.NaN)));
 		}
 		predicates.sort(Comparator.comparing(Predicate::getID));
 		

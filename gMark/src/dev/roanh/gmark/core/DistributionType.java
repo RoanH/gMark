@@ -9,6 +9,7 @@ import dev.roanh.gmark.core.dist.UniformDistribution;
 import dev.roanh.gmark.core.dist.ZipfianDistribution;
 
 public enum DistributionType{
+	UNDEFINED("undefined", e->Distribution.UNDEFINED),
 	UNIFORM("uniform", UniformDistribution::new),
 	GAUSSIAN("gaussian", GaussianDistribution::new),
 	ZIPFIAN("zipfian", ZipfianDistribution::new);
@@ -25,7 +26,7 @@ public enum DistributionType{
 		return name;
 	}
 	
-	public Distribution newInstane(Element data){
+	public Distribution newInstance(Element data){
 		return constructor.apply(data);
 	}
 	

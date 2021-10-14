@@ -12,10 +12,11 @@ import java.util.Objects;
 public class Predicate{
 	private int id;//also called symbol
 	private String alias;//textual symbol name
-	private double proportion;//fraction of the graph edges that have this symbol
+	private double proportion;//fraction of the graph edges that have this symbol - set to NaN for not specified
 	private boolean isInverse = false;
 	private Predicate inverse = null;
 	
+	//prop is NaN for unknown, may want to change that
 	public Predicate(int id, String alias, double proportion){
 		this.id = id;
 		this.alias = alias;

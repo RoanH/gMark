@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import dev.roanh.gmark.core.graph.Edge;
-
 public class Graph<V, E>{
 	private Map<V, GraphNode<V, E>> nodeMap = new HashMap<V, GraphNode<V, E>>();
 	private List<GraphNode<V, E>> nodes = new ArrayList<GraphNode<V, E>>();
@@ -29,6 +27,7 @@ public class Graph<V, E>{
 		if(nodeMap.put(data, node) != null){
 			throw new IllegalStateException("TODO");
 		}
+		nodes.add(node);
 		return node;
 	}
 	

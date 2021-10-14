@@ -17,18 +17,38 @@ import dev.roanh.gmark.core.graph.Type;
  * @see SchemaGraph
  */
 public class SelectivityType{
+	/**
+	 * The node type associated with this selectivity type.
+	 */
 	private Type type;
+	/**
+	 * The selectivity class associated with this selectivity type.
+	 */
 	private SelectivityClass selectivity;
 	
+	/**
+	 * Constructs a new selectivity type with the
+	 * given type and selectivity class.
+	 * @param type The type for this selectivity type.
+	 * @param sel The selectivity class for this selectivity type.
+	 */
 	public SelectivityType(Type type, SelectivityClass sel){
 		this.type = type;
 		selectivity = sel;
 	}
 	
+	/**
+	 * Gets the node type for this selectivity type.
+	 * @return The node type for this selectivity type.
+	 */
 	public Type getType(){
 		return type;
 	}
 	
+	/**
+	 * Gets the selectivity class for this selectivity type.
+	 * @return The selectivity class for this selectivity type.
+	 */
 	public SelectivityClass getSelectivity(){
 		return selectivity;
 	}

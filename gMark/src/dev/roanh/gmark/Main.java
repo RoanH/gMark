@@ -29,5 +29,10 @@ public class Main{
 		
 		System.out.println("\nGs edges:");
 		gs.printEdges();
+		
+		System.out.println("\nGraph edges");
+		gs.getEdges().stream().forEach(e->{
+			System.out.println(e.getSource() + " via " + e.getData().getAlias() + " via " + e.getTarget());
+		});
 	}
 }

@@ -15,14 +15,15 @@ import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
 
 public class SchemaGraph extends Graph<SelectivityType, Predicate>{
-	private RangeList<Map<SelectivityClass, GraphNode<SelectivityType, SelectivityClass>>> index;
+	private RangeList<Map<SelectivityClass, GraphNode<SelectivityType, Predicate>>> index;
+	@Deprecated
 	private RangeList<Map<SelectivityClass, Set<SchemaGraphTripple>>> transitions;
 	private Schema schema;
 
 	public SchemaGraph(Schema schema){
 		this.schema = schema;
 		transitions = new RangeList<Map<SelectivityClass, Set<SchemaGraphTripple>>>(schema.getTypeCount(), Util.selectivityMapSupplier());
-		index = new RangeList<Map<SelectivityClass, GraphNode<SelectivityType, SelectivityClass>>>(schema.getEdgeCount() * 2 * SelectivityClass.values().length, Util.selectivityMapSupplier());
+		index = new RangeList<Map<SelectivityClass, GraphNode<SelectivityType, Predicate>>>(schema.getTypeCount() * SelectivityClass.values().length, Util.selectivityMapSupplier());
 		
 		for(Edge edge : schema.getEdges()){
 			SelectivityClass sel2 = edge.getSelectivty();
@@ -34,8 +35,14 @@ public class SchemaGraph extends Graph<SelectivityType, Predicate>{
 					return new HashSet<SchemaGraphTripple>();
 				}).add(new SchemaGraphTripple(edge.getPredicate().getInverse(), edge.getTargetType(), sel1.conjunction(sel2.negate())));
 				
+				resolve(edge.getSourceType(), sel1).addUniqueEdgeTo(resolve(edge.getTargetType(), sel1.conjunction(sel2)), edge.getPredicate());
+				resolve(edge.getTargetType(), sel1).addUniqueEdgeTo(resolve(edge.getTargetType(), sel1.conjunction(sel2.negate())), edge.getPredicate().getInverse());
 			}
 		}
+	}
+	
+	private GraphNode<SelectivityType, Predicate> resolve(Type type, SelectivityClass sel){
+		return index.get(type).computeIfAbsent(sel, k->addUniqueNode(new SelectivityType(type, sel)));
 	}
 	
 	public Set<SchemaGraphTripple> getOutEdges(Type type, SelectivityClass selectivity){

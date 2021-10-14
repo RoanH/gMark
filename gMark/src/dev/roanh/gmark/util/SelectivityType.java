@@ -47,4 +47,9 @@ public class SelectivityType{
 	public int hashCode(){
 		return Objects.hash(selectivity, type);
 	}
+	
+	@Override
+	public String toString(){
+		return "(" + type.getAlias() + "," + selectivity + ")";
+	}
 }

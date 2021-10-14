@@ -103,12 +103,14 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	public void mousePressed(MouseEvent e){
 		lastLocation = e.getPoint();
 		activeNode = findNode(lastLocation);
+		this.repaint();
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e){
 		lastLocation = null;
 		activeNode = null;
+		this.repaint();
 	}
 
 	@Override
@@ -144,7 +146,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 			FontMetrics fm = g.getFontMetrics();
 			
 			g.translate(location.x, location.y);
-			g.setColor(Color.WHITE);
+			g.setColor(this == activeNode ? Color.CYAN : Color.WHITE);
 			g.fill(shape);
 			g.setColor(Color.BLACK);
 			g.draw(shape);
@@ -173,12 +175,16 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		
 		private void paint(Graphics2D g){
 			if(source.equals(target)){
-				g.drawString(edgeLabel.apply(data.getData()), source.location.x + 2 * Node.RADIUS, source.location.y + 2 * Node.RADIUS);
+				g.setColor(source == activeNode ? Color.RED : Color.BLACK);
 				g.drawArc(source.location.x, target.location.y, 2 * Node.RADIUS, 2 * Node.RADIUS, 90, -270);
 				drawArrowHead(g, source.location.getX() + 1, source.location.getY() + Node.RADIUS + UNIT, source.location.getX() - 1, source.location.getY());
+				g.setColor(Color.BLACK);
+				g.drawString(edgeLabel.apply(data.getData()), source.location.x + 2 * Node.RADIUS, source.location.y + 2 * Node.RADIUS);
 			}else{
+				g.setColor((source == activeNode || target == activeNode) ? Color.RED : Color.BLACK);
 				g.drawLine(source.location.x, source.location.y, target.location.x, target.location.y);
 				drawArrowHead(g, source.location.getX(), source.location.getY(), target.location.getX(), target.location.getY());
+				g.setColor(Color.BLACK);
 				g.drawString(edgeLabel.apply(data.getData()), (source.location.x + target.location.x) / 2, (source.location.y + target.location.y) / 2);
 			}
 		}

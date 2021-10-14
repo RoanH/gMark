@@ -44,9 +44,9 @@ public class SchemaGraph extends Graph<SelectivityType, Predicate>{
 		return index.get(type).computeIfAbsent(sel, k->addUniqueNode(new SelectivityType(type, sel)));
 	}
 	
-	public Set<SchemaGraphTripple> getOutEdges(Type type, SelectivityClass selectivity){
-		return transitions.get(type).get(selectivity);
-	}
+//	public Set<SchemaGraphTripple> getOutEdges(Type type, SelectivityClass selectivity){
+//		return transitions.get(type).get(selectivity);
+//	}
 	
 	public void printNodes(){
 		List<Type> types = schema.getTypes();

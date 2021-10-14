@@ -8,6 +8,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * Utility class to model a graph with directed
+ * edges. Both edges and nodes are assumed to be
+ * unique, that is, no two edges or nodes exist
+ * that cannot be distinguished. Both vertices
+ * and edges support storing some form of data.
+ * @author Roan
+ * @param <V> Type of the data stored at vertices.
+ * @param <E> Type of the data stored at edges.
+ */
 public class Graph<V, E>{
 	private Map<V, GraphNode<V, E>> nodeMap = new HashMap<V, GraphNode<V, E>>();
 	private List<GraphNode<V, E>> nodes = new ArrayList<GraphNode<V, E>>();
@@ -21,10 +31,16 @@ public class Graph<V, E>{
 		return edges;
 	}
 	
+	public GraphNode<V, E> getNode(V data){
+		return nodeMap.get(data);
+	}
+	
 	//TODO assumed to be unique but not checked
+	//therefore data is also assumed to be unique
 	public GraphNode<V, E> addUniqueNode(V data){
 		GraphNode<V, E> node = new GraphNode<V, E>(this, data);
 		if(nodeMap.put(data, node) != null){
+			//TODO
 			throw new IllegalStateException("TODO");
 		}
 		nodes.add(node);
@@ -64,6 +80,14 @@ public class Graph<V, E>{
 			this.data = data;
 		}
 		
+		public Set<GraphEdge<V, E>> getOutEdges(){
+			return out;
+		}
+		
+		public Set<GraphEdge<V, E>> getInEdges(){
+			return in;
+		}
+		
 		public void addUniqueEdgeTo(GraphNode<V, E> target, E data){
 			graph.addUniqueEdge(this, target, data);
 		}
@@ -101,12 +125,20 @@ public class Graph<V, E>{
 			target.in.add(this);
 		}
 		
-		public GraphNode<V, E> getSource(){
+		public GraphNode<V, E> getSourceNode(){
 			return source;
 		}
 		
-		public GraphNode<V, E> getTarget(){
+		public GraphNode<V, E> getTargetNode(){
 			return target;
+		}
+		
+		public V getSource(){
+			return source.data;
+		}
+		
+		public V getTarget(){
+			return target.data;
 		}
 		
 		public E getData(){
@@ -115,7 +147,7 @@ public class Graph<V, E>{
 		
 		@Override
 		public String toString(){
-			return data.toString();
+			return data == null ? null : data.toString();
 		}
 		
 		@Override

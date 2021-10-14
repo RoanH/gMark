@@ -8,10 +8,10 @@ plugins{
 sourceSets{
 	main{
 		java{
-			srcDirs = ['src']
+			srcDirs = ['src', 'client']
 		}
 		resources{
-			srcDirs = ['src']
+			srcDirs = ['src', 'client']
 		}
 	}
 }

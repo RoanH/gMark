@@ -11,12 +11,12 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 
 import javax.swing.JPanel;
 
@@ -29,14 +29,20 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 * Serial ID.
 	 */
 	private static final long serialVersionUID = -3008224073658504239L;
-	@Deprecated
-	private Graph<V, E> graph;
 	private List<Node> nodes = new ArrayList<Node>();
 	private List<Edge> edges = new ArrayList<Edge>();
 	private Point lastLocation = null;
+	private Node activeNode = null;
+	private Function<V, String> nodeLabel;
+	private Function<E, String> edgeLabel;
 	
 	public GraphPanel(Graph<V, E> graph){
-		this.graph = graph;
+		this(graph, V::toString, E::toString);
+	}
+	
+	public GraphPanel(Graph<V, E> graph, Function<V, String> nodeLabel, Function<E, String> edgeLabel){
+		this.nodeLabel = nodeLabel;
+		this.edgeLabel = edgeLabel;
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 		
@@ -77,10 +83,8 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 
 	@Override
 	public void mouseDragged(MouseEvent e){
-		Node node = findNode(lastLocation);
-		System.out.println("node: " + node);
-		if(node != null){
-			node.move(e.getX() - lastLocation.x, e.getY() - lastLocation.y);
+		if(activeNode != null){
+			activeNode.move(e.getX() - lastLocation.x, e.getY() - lastLocation.y);
 		}
 		
 		lastLocation.move(e.getX(), e.getY());
@@ -98,11 +102,13 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	@Override
 	public void mousePressed(MouseEvent e){
 		lastLocation = e.getPoint();
+		activeNode = findNode(lastLocation);
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e){
 		lastLocation = null;
+		activeNode = null;
 	}
 
 	@Override
@@ -142,7 +148,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 			g.fill(shape);
 			g.setColor(Color.BLACK);
 			g.draw(shape);
-			String str = data.toString();
+			String str = nodeLabel.apply(data.getData());
 			int sw = g.getFontMetrics().stringWidth(str);
 			g.setColor(Color.WHITE);
 			g.fillRect(-sw / 2 - 1, y - fm.getHeight() + fm.getDescent(), sw + 2, fm.getHeight() + 1);
@@ -166,15 +172,18 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		}
 		
 		private void paint(Graphics2D g){
-			g.drawLine(source.location.x, source.location.y, target.location.x, target.location.y);
-			drawArrowHead(g);
+			if(source.equals(target)){
+				g.drawString(edgeLabel.apply(data.getData()), source.location.x + 2 * Node.RADIUS, source.location.y + 2 * Node.RADIUS);
+				g.drawArc(source.location.x, target.location.y, 2 * Node.RADIUS, 2 * Node.RADIUS, 90, -270);
+				drawArrowHead(g, source.location.getX() + 1, source.location.getY() + Node.RADIUS + UNIT, source.location.getX() - 1, source.location.getY());
+			}else{
+				g.drawLine(source.location.x, source.location.y, target.location.x, target.location.y);
+				drawArrowHead(g, source.location.getX(), source.location.getY(), target.location.getX(), target.location.getY());
+				g.drawString(edgeLabel.apply(data.getData()), (source.location.x + target.location.x) / 2, (source.location.y + target.location.y) / 2);
+			}
 		}
 		
-		private void drawArrowHead(Graphics2D g){
-			double x1 = source.location.getX();
-			double y1 = source.location.getY();
-			double x2 = target.location.getX();
-			double y2 = target.location.getY();
+		private void drawArrowHead(Graphics2D g, double x1, double y1, double x2, double y2){
 			double offset = Node.RADIUS;
 			
 			Path2D head = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);

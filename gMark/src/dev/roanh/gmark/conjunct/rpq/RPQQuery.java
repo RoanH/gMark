@@ -3,7 +3,7 @@ package dev.roanh.gmark.conjunct.rpq;
 import java.util.List;
 
 @Deprecated
-public class UCRPQQuery{
+public class RPQQuery{
 	private List<Conjunct> conjuncts;
 	
 	

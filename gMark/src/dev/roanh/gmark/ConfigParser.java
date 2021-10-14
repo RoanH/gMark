@@ -26,7 +26,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import dev.roanh.gmark.core.Distribution;
-import dev.roanh.gmark.core.DistributionType;
 import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Edge;
 import dev.roanh.gmark.core.graph.Predicate;

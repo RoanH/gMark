@@ -5,14 +5,14 @@ import java.util.Random;
 import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.util.Util;
 
-public class UCRPQGenerator{
+public class RPQGenerator{
 	private Random random = new Random();
-	private UCRPQWorkload workloadConfig;
+	private RPQWorkload workloadConfig;
 	private Configuration config;
 	
 	
 	@Deprecated
-	public UCRPQQuery generateQuery(){
+	public RPQQuery generateQuery(){
 		switch(Util.selectRandom(random, workloadConfig.getShapes())){
 		case CHAIN:
 			break;
@@ -32,7 +32,7 @@ public class UCRPQGenerator{
 		return null;
 	}
 	
-	public UCRPQQuery generateChainQuery(){
+	public RPQQuery generateChainQuery(){
 		int conjunctCount = Util.uniformRandom(random, workloadConfig.getMinimumConjuncts(), workloadConfig.getMaximumConjuncts());
 		
 		

@@ -9,7 +9,7 @@ import dev.roanh.gmark.core.QueryShape;
  * @author Roan
  */
 @Deprecated
-public class UCRPQWorkload{
+public class RPQWorkload{
 	/**
 	 * Number of queries.
 	 */

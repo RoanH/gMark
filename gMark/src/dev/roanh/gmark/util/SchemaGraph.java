@@ -1,7 +1,6 @@
 package dev.roanh.gmark.util;
 
 import java.util.Map;
-import java.util.Objects;
 
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Edge;
@@ -9,9 +8,27 @@ import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
 
+/**
+ * The schema graph is a graph that has selectivity types
+ * as its nodes. These nodes represent the combination of
+ * some node type and some selectivity class. There are
+ * directed labelled edges present between these selectivity
+ * type nodes. These edges indicate that it is possible to
+ * extend a path query with an edge with a certain label to
+ * end up at the target selectivity type.
+ * @author Roan
+ * @see SelectivityType
+ * @see Predicate
+ */
 public class SchemaGraph extends Graph<SelectivityType, Predicate>{
+	//TODO, move to constructor if not used anywhere else
 	private RangeList<Map<SelectivityClass, GraphNode<SelectivityType, Predicate>>> index;
 
+	/**
+	 * Constructs a new schema graph from the given schema.
+	 * @param schema The graph schema to build the schema
+	 *        graph from.
+	 */
 	public SchemaGraph(Schema schema){
 		index = new RangeList<Map<SelectivityClass, GraphNode<SelectivityType, Predicate>>>(schema.getTypeCount() * SelectivityClass.values().length, Util.selectivityMapSupplier());
 		
@@ -28,40 +45,21 @@ public class SchemaGraph extends Graph<SelectivityType, Predicate>{
 		return index.get(type).computeIfAbsent(sel, k->addUniqueNode(new SelectivityType(type, sel)));
 	}
 	
+	/**
+	 * Prints all the nodes in the schema graph
+	 * to the standard output.
+	 */
 	public void printNodes(){
 		getNodes().forEach(System.out::println);
 	}
 	
+	/**
+	 * Prints all the edges in the schema graph
+	 * to the standard output.
+	 */
 	public void printEdges(){
 		for(GraphEdge<SelectivityType, Predicate> edge : getEdges()){
 			System.out.println(edge.getSource() + " -> " + edge.getData().getAlias() + " -> " + edge.getTarget());
-		}
-	}
-	
-	public static final class SchemaGraphTripple{
-		private Predicate predicate;
-		private Type target;
-		private SelectivityClass selectivity;
-		
-		private SchemaGraphTripple(Predicate predicate, Type target, SelectivityClass selectivity){
-			this.predicate = predicate;
-			this.target = target;
-			this.selectivity = selectivity;
-		}
-		
-		@Override
-		public boolean equals(Object other){
-			if(other instanceof SchemaGraphTripple){
-				SchemaGraphTripple trip = (SchemaGraphTripple)other;
-				return trip.selectivity == selectivity && predicate.equals(trip.predicate) && target.equals(trip.target);
-			}else{
-				return false;
-			}
-		}
-		
-		@Override
-		public int hashCode(){
-			return Objects.hash(predicate, target, selectivity);
 		}
 	}
 }

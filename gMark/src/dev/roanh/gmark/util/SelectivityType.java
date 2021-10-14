@@ -53,6 +53,10 @@ public class SelectivityType{
 		return selectivity;
 	}
 	
+	public static final SelectivityType of(Type type, SelectivityClass sel){
+		return new SelectivityType(type, sel);
+	}
+	
 	@Override
 	public boolean equals(Object other){
 		if(other instanceof SelectivityType){

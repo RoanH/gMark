@@ -28,7 +28,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		}
 		
 		Deque<Predicate> path = new ArrayDeque<Predicate>();
-		//computeAllPaths(path, gs, maxLen, gs.getNode(source), gs.getNode(target));
+		computeAllPaths(path, gs, maxLen, gs.getNode(source), gs.getNode(target));
 	}
 	
 	private void computeAllPaths(Deque<Predicate> path, SchemaGraph gs, int maxLen, GraphNode<SelectivityType, Predicate> source, GraphNode<SelectivityType, Predicate> target){
@@ -47,6 +47,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	
 	private void addPath(Deque<Predicate> path){
 		//TODO also do not modify path
+		System.out.println("path: " + path);
 	}
 	
 	

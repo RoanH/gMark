@@ -106,6 +106,10 @@ public class Graph<V, E>{
 			graph.addUniqueEdge(this, target, data);
 		}
 		
+		public V getData(){
+			return data;
+		}
+		
 		@Override
 		public String toString(){
 			return data.toString();

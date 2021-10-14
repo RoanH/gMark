@@ -14,11 +14,21 @@ import java.util.Set;
  * unique, that is, no two edges or nodes exist
  * that cannot be distinguished. Both vertices
  * and edges support storing some form of data.
+ * The data stored at nodes is assumed to uniquely
+ * identify a given node. This class does not
+ * perform a lot of integrity checks in order
+ * to stay performant.
  * @author Roan
  * @param <V> Type of the data stored at vertices.
  * @param <E> Type of the data stored at edges.
  */
 public class Graph<V, E>{
+	/**
+	 * Map for efficient graph node lookup from
+	 * the data stored a specific node. Note that
+	 * it is assumed that there are no nodes that
+	 * store the same data.
+	 */
 	private Map<V, GraphNode<V, E>> nodeMap = new HashMap<V, GraphNode<V, E>>();
 	private List<GraphNode<V, E>> nodes = new ArrayList<GraphNode<V, E>>();
 	private List<GraphEdge<V, E>> edges = new ArrayList<GraphEdge<V, E>>();

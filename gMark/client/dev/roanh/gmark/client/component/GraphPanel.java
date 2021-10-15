@@ -346,6 +346,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		 *        the arrow head belongs to.
 		 */
 		private void drawArrowHead(Graphics2D g, double x1, double y1, double x2, double y2){
+			//Mathematical details: https://www.desmos.com/calculator/4wofflsoqx
 			double offset = Node.RADIUS;
 			
 			Path2D head = new Path2D.Double(Path2D.WIND_NON_ZERO, 3);

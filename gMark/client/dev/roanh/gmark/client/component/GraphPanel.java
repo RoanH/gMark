@@ -355,24 +355,20 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 					head.moveTo(x2, y2 + offset);
 					head.lineTo(x2 - UNIT, y2 + UNIT + offset);
 					head.lineTo(x2 + UNIT, y2 + UNIT + offset);
-					y2 += UNIT;
 				}else{
 					head.moveTo(x2, y2 - offset);
 					head.lineTo(x2 - UNIT, y2 - UNIT - offset);
 					head.lineTo(x2 + UNIT, y2 - UNIT - offset);
-					y2 -= UNIT;
 				}
 			}else if(Double.compare(y1, y2) == 0){
 				if(x1 > x2){
 					head.moveTo(x2 + offset, y2);
 					head.lineTo(x2 + UNIT + offset, y2 - UNIT);
 					head.lineTo(x2 + UNIT + offset, y2 + UNIT);
-					x2 += UNIT;
 				}else{
 					head.moveTo(x2 - offset, y2);
 					head.lineTo(x2 - UNIT - offset, y2 - UNIT);
 					head.lineTo(x2 - UNIT - offset, y2 + UNIT);
-					x2 -= UNIT;
 				}
 			}else{
 				double invrc = -1.0D / ((y1 - y2) / (x1 - x2));
@@ -384,10 +380,10 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 				double f2 = (dist - UNIT - offset) / dist;
 				
 				head.moveTo(x1 + (x2 - x1) * f1, y1 + (y2 - y1) * f1);
-				double tx = x1 + (x2 - x1) * f2;
-				double ty = y1 + (y2 - y1) * f2;
-				head.lineTo(tx + dx, ty + dy);
-				head.lineTo(tx - dx, ty - dy);
+				x2 = x1 + (x2 - x1) * f2;
+				y2 = y1 + (y2 - y1) * f2;
+				head.lineTo(x2 + dx, y2 + dy);
+				head.lineTo(x2 - dx, y2 - dy);
 			}
 			head.closePath();
 			g.fill(head);

@@ -35,7 +35,7 @@ public class Predicate{
 	 * @return The predicate alias.
 	 */
 	public String getAlias(){
-		return alias;
+		return isInverse ? (alias + "\u207B") : alias;
 	}
 	
 	public int getID(){

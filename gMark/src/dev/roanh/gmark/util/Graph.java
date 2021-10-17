@@ -69,6 +69,22 @@ public class Graph<V, E>{
 		addUniqueEdge(nodeMap.get(source), target, data);
 	}
 	
+	public void addUniqueEdge(V source, V target){
+		addUniqueEdge(nodeMap.get(source), nodeMap.get(target));
+	}
+	
+	public void addUniqueEdge(GraphNode<V, E> source, V target){
+		addUniqueEdge(source, nodeMap.get(target));
+	}
+	
+	public void addUniqueEdge(V source, GraphNode<V, E> target){
+		addUniqueEdge(nodeMap.get(source), target);
+	}
+	
+	public void addUniqueEdge(GraphNode<V, E> source, GraphNode<V, E> target){
+		addUniqueEdge(source, target, null);
+	}
+	
 	public void addUniqueEdge(GraphNode<V, E> source, GraphNode<V, E> target, E data){
 		//TODO this duplicate check is fairly expensive as is
 		for(GraphEdge<V, E> edge : source.out){
@@ -98,12 +114,36 @@ public class Graph<V, E>{
 			return in;
 		}
 		
+		public void addUniqueEdgeFrom(GraphNode<V, E> source, E data){
+			graph.addUniqueEdge(source, this, data);
+		}
+		
+		public void addUniqueEdgeFrom(V source, E data){
+			graph.addUniqueEdge(source, this, data);
+		}
+		
+		public void addUniqueEdgeFrom(GraphNode<V, E> source){
+			graph.addUniqueEdge(source, this);
+		}
+		
+		public void addUniqueEdgeFrom(V source){
+			graph.addUniqueEdge(source, this);
+		}
+		
 		public void addUniqueEdgeTo(GraphNode<V, E> target, E data){
 			graph.addUniqueEdge(this, target, data);
 		}
 		
 		public void addUniqueEdgeTo(V target, E data){
 			graph.addUniqueEdge(this, target, data);
+		}
+		
+		public void addUniqueEdgeTo(GraphNode<V, E> target){
+			graph.addUniqueEdge(this, target);
+		}
+		
+		public void addUniqueEdgeTo(V target){
+			graph.addUniqueEdge(this, target);
 		}
 		
 		public V getData(){
@@ -161,7 +201,7 @@ public class Graph<V, E>{
 		
 		@Override
 		public String toString(){
-			return data == null ? null : data.toString();
+			return data == null ? "GraphEdge" : data.toString();
 		}
 		
 		@Override

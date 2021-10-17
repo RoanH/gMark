@@ -2,14 +2,13 @@ package dev.roanh.gmark.util;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.Iterator;
 
 import dev.roanh.gmark.core.graph.Predicate;
 
 public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	private GraphNode<EdgeGraphData, Void> src;
 	private GraphNode<EdgeGraphData, Void> trg;
-
-	
 	
 	
 	
@@ -18,13 +17,11 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	
 	
 	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target){
-		//TODO properly label these two
-		src = addUniqueNode(new EdgeGraphData());
-		trg = addUniqueNode(new EdgeGraphData());
+		src = addUniqueNode(EdgeGraphData.ofEndpoint());
+		trg = addUniqueNode(EdgeGraphData.ofEndpoint());
 
 		for(GraphEdge<SelectivityType, Predicate> edge : gs.getEdges()){
-			//TODO these need proper metadata
-			addUniqueNode(new EdgeGraphData());
+			addUniqueNode(EdgeGraphData.of(edge.getData()));
 		}
 		
 		Deque<Predicate> path = new ArrayDeque<Predicate>();
@@ -46,8 +43,15 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	}
 	
 	private void addPath(Deque<Predicate> path){
-		//TODO also do not modify path
-		System.out.println("path: " + path);
+		src.addUniqueEdgeTo(EdgeGraphData.of(path.getFirst()));
+		Iterator<Predicate> iter = path.iterator();
+		EdgeGraphData last = EdgeGraphData.of(iter.next());
+		while(iter.hasNext()){
+			EdgeGraphData data = EdgeGraphData.of(iter.next());
+			addUniqueEdge(last, data);
+			last = data;
+		}
+		trg.addUniqueEdgeFrom(last);
 	}
 	
 	

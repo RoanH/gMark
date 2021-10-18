@@ -17,8 +17,8 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	
 	
 	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target){
-		src = addUniqueNode(EdgeGraphData.ofEndpoint());
-		trg = addUniqueNode(EdgeGraphData.ofEndpoint());
+		src = addUniqueNode(EdgeGraphData.of("source"));
+		trg = addUniqueNode(EdgeGraphData.of("target"));
 
 		for(GraphEdge<SelectivityType, Predicate> edge : gs.getEdges()){
 			addUniqueNode(EdgeGraphData.of(edge.getData()));

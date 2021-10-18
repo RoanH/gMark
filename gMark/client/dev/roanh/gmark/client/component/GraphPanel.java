@@ -319,14 +319,22 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 				g.setColor(source == activeNode ? Color.RED : Color.BLACK);
 				g.drawArc(source.location.x, target.location.y, 2 * Node.RADIUS, 2 * Node.RADIUS, 90, -270);
 				drawArrowHead(g, source.location.getX() + 1, source.location.getY() + Node.RADIUS + UNIT, source.location.getX() - 1, source.location.getY());
-				g.setColor(Color.BLACK);
-				g.drawString(edgeLabel.apply(data.getData()), source.location.x + 2 * Node.RADIUS, source.location.y + 2 * Node.RADIUS);
+				
+				E meta = data.getData();
+				if(meta != null){
+					g.setColor(Color.BLACK);
+					g.drawString(edgeLabel.apply(data.getData()), source.location.x + 2 * Node.RADIUS, source.location.y + 2 * Node.RADIUS);
+				}
 			}else{
 				g.setColor((source == activeNode || target == activeNode) ? Color.RED : Color.BLACK);
 				g.drawLine(source.location.x, source.location.y, target.location.x, target.location.y);
 				drawArrowHead(g, source.location.getX(), source.location.getY(), target.location.getX(), target.location.getY());
-				g.setColor(Color.BLACK);
-				g.drawString(edgeLabel.apply(data.getData()), (source.location.x + target.location.x) / 2, (source.location.y + target.location.y) / 2);
+				
+				E meta = data.getData();
+				if(meta != null){
+					g.setColor(Color.BLACK);
+					g.drawString(edgeLabel.apply(data.getData()), (source.location.x + target.location.x) / 2, (source.location.y + target.location.y) / 2);
+				}
 			}
 		}
 		

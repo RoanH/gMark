@@ -14,11 +14,21 @@ public class EdgeGraphData{
 		return new PredicateData(p);
 	}
 	
-	public static EdgeGraphData ofEndpoint(){
-		return new EndpointData();
+	public static EdgeGraphData of(String name){
+		return new EndpointData(name);
 	}
 	
 	private static class EndpointData extends EdgeGraphData{
+		private final String name;
+		
+		private EndpointData(String name){
+			this.name = name;
+		}
+		
+		@Override
+		public String toString(){
+			return name;
+		}
 		
 		@Override
 		public boolean equals(Object other){
@@ -31,6 +41,11 @@ public class EdgeGraphData{
 		
 		private PredicateData(Predicate p){
 			predicate = p;
+		}
+		
+		@Override
+		public String toString(){
+			return predicate.getAlias();
 		}
 		
 		@Override

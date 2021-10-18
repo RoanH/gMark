@@ -227,6 +227,13 @@ public enum SelectivityClass{
 		this.name = name;
 	}
 	
+	/**
+	 * Gets the negation of this selectivity class. Meaning
+	 * the effect of following an edge with this selectivity
+	 * class in the reverse direction. For example the selectivity
+	 * class <code>(N,&lt;,N)</code> becomes <code>(N,&gt;,N)</code>.
+	 * @return The negation of this selectivity class.
+	 */
 	public SelectivityClass negate(){
 		return this;
 	}

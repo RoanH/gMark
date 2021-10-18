@@ -49,6 +49,13 @@ public class Graph<V, E>{
 	//therefore data is also assumed to be unique
 	public GraphNode<V, E> addUniqueNode(V data){
 		GraphNode<V, E> node = new GraphNode<V, E>(this, data);
+		
+		GraphNode<V, E> existing = nodeMap.get(data);
+		if(existing != null){
+			return existing;
+		}
+		//should take care of everything
+		
 		if(nodeMap.put(data, node) != null){
 			//TODO
 			throw new IllegalStateException("TODO");

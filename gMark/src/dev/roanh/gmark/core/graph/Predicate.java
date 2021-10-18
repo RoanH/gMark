@@ -10,7 +10,12 @@ import java.util.Objects;
  * @author Roan
  */
 public class Predicate{
-	private int id;//also called symbol
+	/**
+	 * The unique ID of this predicate. This ID uniquely
+	 * identifies this predicate among all predicates.
+	 * Note that the inverse predicate has the same ID.
+	 */
+	private int id;
 	private String alias;//textual symbol name
 	private double proportion;//fraction of the graph edges that have this symbol - set to NaN for not specified
 	private boolean isInverse = false;
@@ -31,19 +36,35 @@ public class Predicate{
 	
 	/**
 	 * Gets the textual representation
-	 * for this symbol.
+	 * for this symbol. If this predicate
+	 * is inverted then this will include
+	 * a super script minus character at the end.
 	 * @return The predicate alias.
 	 */
 	public String getAlias(){
 		return isInverse ? (alias + "\u207B") : alias;
 	}
 	
-	public int getID(){
-		return id;
+	/**
+	 * Gets the inverse predicate for this predicate. The
+	 * inverse predicate basically indicates traversing an
+	 * edge with the predicate in the reverse direction
+	 * from target to source and is indicated by a super
+	 * script minus after the predicate symbol.
+	 * @return The inverse of this predicate.
+	 */
+	public Predicate getInverse(){
+		return inverse == null ? (inverse = new Predicate(this, !isInverse)) : inverse;
 	}
 	
-	public Predicate getInverse(){
-		return inverse == null ? new Predicate(this, !isInverse) : inverse;
+	/**
+	 * Gets the unique ID of this predicate. Uniquely identifies
+	 * this predicate among all predicates. Note that the
+	 * inverse predicate has the same ID.
+	 * @return The unique ID of this predicate.
+	 */
+	public int getID(){
+		return id;
 	}
 	
 	@Override

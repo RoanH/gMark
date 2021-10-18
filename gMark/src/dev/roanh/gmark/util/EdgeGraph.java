@@ -2,11 +2,16 @@ package dev.roanh.gmark.util;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import dev.roanh.gmark.core.graph.Predicate;
 
 public class EdgeGraph extends Graph<EdgeGraphData, Void>{
+	private Random random = ThreadLocalRandom.current();//TODO configurable
 	private GraphNode<EdgeGraphData, Void> src;
 	private GraphNode<EdgeGraphData, Void> trg;
 	
@@ -54,5 +59,49 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		trg.addUniqueEdgeFrom(last);
 	}
 	
+	private Set<EdgeGraphData> findParallel(){
+		Set<EdgeGraphData> parallel = new HashSet<EdgeGraphData>();
+		
+		for(GraphNode<EdgeGraphData, Void> node : getNodes()){
+			if(node.getInEdges().size() > 1){
+				parallel.add(reverseParallel(node));
+			}
+		}
+		
+		return parallel;
+	}
 	
+	private EdgeGraphData reverseParallel(GraphNode<EdgeGraphData, Void> target){
+		Set<GraphEdge<EdgeGraphData, Void>> in = target.getInEdges();
+		int[] indices = random.ints(0, in.size()).distinct().limit(2).sorted().toArray();
+		int index = 0;
+		
+		Deque<EdgeGraphData> first;
+		Deque<EdgeGraphData> second;
+		for(GraphEdge<EdgeGraphData, Void> edge : in){
+			if(index == indices[0]){
+				first = reverseToSource(edge);
+			}else if(index == indices[1]){
+				second = reverseToSource(edge);
+			}
+			index++;
+		}
+		
+		//TODO remove the shared path and make an intesrection edge graph data
+		
+	
+		return null;//TODO
+	}
+	
+	private Deque<EdgeGraphData> reverseToSource(GraphEdge<EdgeGraphData, Void> edge){
+		Deque<EdgeGraphData> path = new ArrayDeque<EdgeGraphData>();
+		path.addLast(edge.getSource());
+		
+		while(!edge.getSourceNode().equals(src)){
+			edge = Util.selectRandom(random, edge.getSourceNode().getInEdges());
+			path.addFirst(edge.getSource());
+		}
+		
+		return path;
+	}
 }

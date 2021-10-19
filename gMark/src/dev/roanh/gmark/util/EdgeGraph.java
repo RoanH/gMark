@@ -18,19 +18,15 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	
 	
 	
-	
-	//TODO predicate are not unique, probably should use the node instead, actually node should be neough? this was the point of edge graph data in the first place
-	
-	
 	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target){
 		src = addUniqueNode(EdgeGraphData.of("source"));
 		trg = addUniqueNode(EdgeGraphData.of("target"));
 
 		for(GraphEdge<SelectivityType, Predicate> edge : gs.getEdges()){
-			addUniqueNode(EdgeGraphData.of(edge.getData()));
+			addUniqueNode(EdgeGraphData.of(edge));
 		}
 		
-		Deque<Predicate> path = new ArrayDeque<Predicate>();
+		Deque<GraphEdge<SelectivityType, Predicate>> path = new ArrayDeque<GraphEdge<SelectivityType, Predicate>>();
 		computeAllPaths(path, gs, maxLen, gs.getNode(source), gs.getNode(target));
 		
 		//TODO more cycles
@@ -42,23 +38,23 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		}
 	}
 	
-	private void computeAllPaths(Deque<Predicate> path, SchemaGraph gs, int maxLen, GraphNode<SelectivityType, Predicate> source, GraphNode<SelectivityType, Predicate> target){
+	private void computeAllPaths(Deque<GraphEdge<SelectivityType, Predicate>> path, SchemaGraph gs, int maxLen, GraphNode<SelectivityType, Predicate> source, GraphNode<SelectivityType, Predicate> target){
 		if(source.equals(target)){
 			addPath(path);
 		}else if(maxLen == 0 || source.getOutEdges().isEmpty()){
 			return;
 		}else{
 			for(GraphEdge<SelectivityType, Predicate> edge : source.getOutEdges()){
-				path.push(edge.getData());
+				path.push(edge);
 				computeAllPaths(path, gs, maxLen - 1, edge.getTargetNode(), target);
 				path.pop();
 			}
 		}
 	}
 	
-	private void addPath(Deque<Predicate> path){
+	private void addPath(Deque<GraphEdge<SelectivityType, Predicate>> path){
 		src.addUniqueEdgeTo(EdgeGraphData.of(path.getFirst()));
-		Iterator<Predicate> iter = path.iterator();
+		Iterator<GraphEdge<SelectivityType, Predicate>> iter = path.iterator();
 		EdgeGraphData last = EdgeGraphData.of(iter.next());
 		while(iter.hasNext()){
 			EdgeGraphData data = EdgeGraphData.of(iter.next());

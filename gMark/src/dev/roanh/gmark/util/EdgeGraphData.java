@@ -4,6 +4,7 @@ import java.util.Deque;
 import java.util.Objects;
 
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.Graph.GraphEdge;
 
 public class EdgeGraphData{
 	
@@ -11,8 +12,8 @@ public class EdgeGraphData{
 	
 	
 	
-	public static EdgeGraphData of(Predicate p){
-		return new PredicateData(p);
+	public static EdgeGraphData of(GraphEdge<SelectivityType, Predicate> edge){
+		return new PredicateData(edge);
 	}
 	
 	public static EdgeGraphData of(String name){
@@ -97,25 +98,25 @@ public class EdgeGraphData{
 	}
 	
 	public static class PredicateData extends EdgeGraphData{
-		private Predicate predicate;
+		private GraphEdge<SelectivityType, Predicate> edge;
 		
-		private PredicateData(Predicate p){
-			predicate = p;
+		private PredicateData(GraphEdge<SelectivityType, Predicate> edge){
+			this.edge = edge;
 		}
 		
 		@Override
 		public String toString(){
-			return predicate.getAlias();
+			return edge.getData().getAlias();
 		}
 		
 		@Override
 		public int hashCode(){
-			return Objects.hash(predicate);
+			return Objects.hash(edge);
 		}
 		
 		@Override
 		public boolean equals(Object other){
-			return other instanceof PredicateData ? ((PredicateData)other).predicate == predicate : false;
+			return other instanceof PredicateData ? ((PredicateData)other).edge == edge : false;
 		}
 	}
 }

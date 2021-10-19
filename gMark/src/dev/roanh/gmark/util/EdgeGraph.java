@@ -53,15 +53,15 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	}
 	
 	private void addPath(Deque<GraphEdge<SelectivityType, Predicate>> path){
-		src.addUniqueEdgeTo(EdgeGraphData.of(path.getFirst()));
+		trg.addUniqueEdgeFrom(EdgeGraphData.of(path.getFirst()));
 		Iterator<GraphEdge<SelectivityType, Predicate>> iter = path.iterator();
 		EdgeGraphData last = EdgeGraphData.of(iter.next());
 		while(iter.hasNext()){
 			EdgeGraphData data = EdgeGraphData.of(iter.next());
-			addUniqueEdge(last, data);
+			addUniqueEdge(data, last);
 			last = data;
 		}
-		trg.addUniqueEdgeFrom(last);
+		src.addUniqueEdgeTo(last);
 	}
 	
 	private Set<IntersectionData> findParallel(){

@@ -25,7 +25,7 @@ public class GraphMark{
 		SchemaGraph gs = new SchemaGraph(config.getSchema());
 		//paper 1=1
 		SelectivityType src = SelectivityType.of(config.getTypes().get(1), SelectivityClass.ONE_ONE);
-		//extendedTo 1>N
+		//conference 1<N
 		SelectivityType trg = SelectivityType.of(config.getTypes().get(3), SelectivityClass.ONE_N);
 
 		EdgeGraph eg = new EdgeGraph(gs, 2, src, trg);

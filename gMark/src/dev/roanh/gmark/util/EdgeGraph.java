@@ -19,7 +19,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	
 	
 	
-	//TODO predicate are not unique, probably should use the node instead
+	//TODO predicate are not unique, probably should use the node instead, actually node should be neough? this was the point of edge graph data in the first place
 	
 	
 	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target){

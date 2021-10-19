@@ -10,6 +10,8 @@ import dev.roanh.gmark.client.component.GraphPanel;
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.core.graph.Type;
+import dev.roanh.gmark.util.ConfigGraph;
 import dev.roanh.gmark.util.EdgeGraph;
 import dev.roanh.gmark.util.EdgeGraphData;
 import dev.roanh.gmark.util.SchemaGraph;
@@ -21,13 +23,16 @@ public class GraphMark{
 	public static void main(String[] args){
 		Configuration config = ConfigParser.parse(Paths.get("C:\\Users\\RoanH\\Downloads\\tmp\\gmark\\use-cases\\test.xml"));
 		SchemaGraph gs = new SchemaGraph(config.getSchema());
+		//paper 1=1
 		SelectivityType src = SelectivityType.of(config.getTypes().get(1), SelectivityClass.ONE_ONE);
+		//extendedTo 1>N
 		SelectivityType trg = SelectivityType.of(config.getTypes().get(3), SelectivityClass.ONE_N);
 
 		EdgeGraph eg = new EdgeGraph(gs, 2, src, trg);
-		
+		ConfigGraph cg = new ConfigGraph(config);
 
 		JTabbedPane tabs = new JTabbedPane();
+		tabs.addTab("Config Graph", new GraphPanel<Type, Predicate>(cg, Type::getAlias, Predicate::getAlias));
 		tabs.addTab("Schema Graph", new GraphPanel<SelectivityType, Predicate>(gs, SelectivityType::toString, Predicate::getAlias));
 		tabs.addTab("Edge Graph", new GraphPanel<EdgeGraphData, Void>(eg));
 		

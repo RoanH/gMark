@@ -2,6 +2,8 @@ package dev.roanh.gmark.core.graph;
 
 import java.util.List;
 
+import dev.roanh.gmark.util.ConfigGraph;
+
 /**
  * Represents the schema configuration of a graph.
  * This includes the set of predicates (edge labels),
@@ -95,5 +97,15 @@ public class Schema{
 	 */
 	public int getEdgeCount(){
 		return edges.size();
+	}
+	
+	/**
+	 * Gets this schema in graph format where all types
+	 * are nodes and all edge configurations edges between
+	 * these type nodes.
+	 * @return This schema in graph format.
+	 */
+	public ConfigGraph asGraph(){
+		return new ConfigGraph(this);
 	}
 }

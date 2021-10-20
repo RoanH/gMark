@@ -29,7 +29,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		Deque<GraphEdge<SelectivityType, Predicate>> path = new ArrayDeque<GraphEdge<SelectivityType, Predicate>>();
 		computeAllPaths(path, gs, maxLen, gs.getNode(source), gs.getNode(target));
 		
-		//TODO add identity
+		//TODO add identity - note that we need to see how findParallel deals with that, probably it can choose either pick a path or a SINGLE id edge if it exists.
 		
 		//TODO more cycles
 		for(IntersectionData parallel : findParallel()){

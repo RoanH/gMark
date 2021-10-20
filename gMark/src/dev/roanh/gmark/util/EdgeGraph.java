@@ -29,6 +29,8 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		Deque<GraphEdge<SelectivityType, Predicate>> path = new ArrayDeque<GraphEdge<SelectivityType, Predicate>>();
 		computeAllPaths(path, gs, maxLen, gs.getNode(source), gs.getNode(target));
 		
+		//TODO add identity
+		
 		//TODO more cycles
 		for(IntersectionData parallel : findParallel()){
 			GraphNode<EdgeGraphData, Void> n = addUniqueNode(parallel);
@@ -36,6 +38,10 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 			n.addUniqueEdgeFrom(parallel.getSource());
 			n.addUniqueEdgeTo(parallel.getTarget());
 		}
+	}
+	
+	public void drawPath(){
+		//TODO return a valid path, should probably respect min/max length, should make sure to never follow identity edges
 	}
 	
 	private void computeAllPaths(Deque<GraphEdge<SelectivityType, Predicate>> path, SchemaGraph gs, int maxLen, GraphNode<SelectivityType, Predicate> source, GraphNode<SelectivityType, Predicate> target){

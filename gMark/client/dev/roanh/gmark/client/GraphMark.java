@@ -38,7 +38,10 @@ public class GraphMark{
 		tabs.addTab("Schema Graph", new GraphPanel<SelectivityType, Predicate>(gs, SelectivityType::toString, Predicate::getAlias));
 		tabs.addTab("Edge Graph", new GraphPanel<EdgeGraphData, Void>(eg));
 		
-		
+		//just print a few paths randomly
+		for(int i = 0; i < 10; i++){
+			eg.printPath();
+		}
 		
 		frame.add(tabs);
 		frame.setSize(800, 600);

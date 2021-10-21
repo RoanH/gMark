@@ -1,9 +1,11 @@
 package dev.roanh.gmark.util;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -15,10 +17,14 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	private Random random = ThreadLocalRandom.current();//TODO configurable
 	private GraphNode<EdgeGraphData, Void> src;
 	private GraphNode<EdgeGraphData, Void> trg;
-	
+	private int minLen;
+	private int maxLen;
 	
 	
 	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target){
+		minLen = 1;//TODO make configurable
+		this.maxLen = maxLen;
+		
 		src = addUniqueNode(EdgeGraphData.of("source"));
 		trg = addUniqueNode(EdgeGraphData.of("target"));
 
@@ -33,17 +39,48 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		//just pick one path and then check everytime if we can link back
 		//edge case: we could id a path that doesn't split
 		
-		//TODO more cycles
-		for(IntersectionData parallel : findParallel()){
-			GraphNode<EdgeGraphData, Void> n = addUniqueNode(parallel);
-			//TODO could have just saved the source and target as real nodes
-			n.addUniqueEdgeFrom(parallel.getSource());
-			n.addUniqueEdgeTo(parallel.getTarget());
+		//TODO make recursion a parameter
+		for(int i = 0; i < 5; i++){
+			for(IntersectionData parallel : findParallel()){
+				GraphNode<EdgeGraphData, Void> n = addUniqueNode(parallel);
+				//TODO could have just saved the source and target as real nodes
+				n.addUniqueEdgeFrom(parallel.getSource());
+				n.addUniqueEdgeTo(parallel.getTarget());
+			}
 		}
 	}
 	
-	public void drawPath(){
+	public void printPath(){
+		drawPath().stream().map(Object::toString).reduce((a, b)->a + "◦" + b).ifPresent(System.out::println);
+	}
+	
+	public List<GraphNode<EdgeGraphData, Void>> drawPath(){
 		//TODO return a valid path, should probably respect min/max length, should make sure to never follow identity edges
+		//TODO investigate performance
+		while(true){
+			List<GraphNode<EdgeGraphData, Void>> path = new ArrayList<GraphNode<EdgeGraphData, Void>>(maxLen);
+			
+			GraphNode<EdgeGraphData, Void> node = src;
+			int len = 0;
+			while(len < maxLen){
+				node = Util.selectRandom(random, node.getOutEdges()).getTargetNode();
+				if(!node.equals(trg)){
+					if(len + node.getData().size() <= maxLen){
+						path.add(node);
+					}else{
+						break;
+					}
+				}else{
+					if(len >= minLen){
+						return path;
+					}else{
+						break;
+					}
+				}
+			}
+			
+			return path;
+		}
 	}
 	
 //	private void computeIdentity(){

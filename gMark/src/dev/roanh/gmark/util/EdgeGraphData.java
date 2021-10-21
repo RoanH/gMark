@@ -6,7 +6,7 @@ import java.util.Objects;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.util.Graph.GraphEdge;
 
-public class EdgeGraphData{
+public abstract class EdgeGraphData{
 	
 	
 	
@@ -24,9 +24,11 @@ public class EdgeGraphData{
 		return new IntersectionData(source, target, first, second);
 	}
 	
-	protected static class IdentityData extends EdgeGraphData{
-		
-	}
+//	protected static class IdentityData extends EdgeGraphData{
+//		
+//	}
+	
+	public abstract int size();
 	
 	protected static class IntersectionData extends EdgeGraphData{
 		private EdgeGraphData source;
@@ -52,6 +54,7 @@ public class EdgeGraphData{
 		@Override
 		public String toString(){
 			StringBuilder builder = new StringBuilder();
+			builder.append('(');
 			for(EdgeGraphData data : first){
 				builder.append(data.toString());
 				builder.append('◦');
@@ -63,6 +66,7 @@ public class EdgeGraphData{
 				builder.append('◦');
 			}
 			builder.deleteCharAt(builder.length() - 1);
+			builder.append(')');
 			return builder.toString();
 		}
 		
@@ -81,6 +85,11 @@ public class EdgeGraphData{
 			}
 			return false;
 		}
+
+		@Override
+		public int size(){
+			return Math.max(first.stream().mapToInt(EdgeGraphData::size).sum(), second.stream().mapToInt(EdgeGraphData::size).sum());
+		}
 	}
 	
 	private static class EndpointData extends EdgeGraphData{
@@ -98,6 +107,11 @@ public class EdgeGraphData{
 		@Override
 		public boolean equals(Object other){
 			return other == this;
+		}
+
+		@Override
+		public int size(){
+			return 0;
 		}
 	}
 	
@@ -121,6 +135,11 @@ public class EdgeGraphData{
 		@Override
 		public boolean equals(Object other){
 			return other instanceof PredicateData ? ((PredicateData)other).edge == edge : false;
+		}
+
+		@Override
+		public int size(){
+			return 1;
 		}
 	}
 }

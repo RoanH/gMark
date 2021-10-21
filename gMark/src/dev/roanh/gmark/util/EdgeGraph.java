@@ -117,6 +117,13 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	private Set<IntersectionData> findParallel(){
 		Set<IntersectionData> parallel = new HashSet<IntersectionData>();
 		
+		//steps to consider ID
+		//1. consider all nodes even those with 1 in edge (not those with 0 though, aka src)
+		//2. reverse a path
+		//3. for each node of the reverse path check if an intersection with ID can be made
+		//4. if yes, do it with (probability ???, probably more chance if only 1 in edge) if not continue reversing
+		//5. if no ID cycles were found find a second reverse path if possible and make an intersection as normal
+		
 		for(GraphNode<EdgeGraphData, Void> node : getNodes()){
 			if(node.getInEdges().size() > 1){
 				parallel.add(reverseParallel(node));

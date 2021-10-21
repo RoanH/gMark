@@ -24,6 +24,10 @@ public class EdgeGraphData{
 		return new IntersectionData(source, target, first, second);
 	}
 	
+	protected static class IdentityData extends EdgeGraphData{
+		
+	}
+	
 	protected static class IntersectionData extends EdgeGraphData{
 		private EdgeGraphData source;
 		private EdgeGraphData target;

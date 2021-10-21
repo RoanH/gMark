@@ -44,6 +44,11 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		//TODO return a valid path, should probably respect min/max length, should make sure to never follow identity edges
 	}
 	
+//	private void computeIdentity(){
+//		//TODO this takes quadratic time
+//		for(G s : )
+//	}
+	
 	private void computeAllPaths(Deque<GraphEdge<SelectivityType, Predicate>> path, SchemaGraph gs, int maxLen, GraphNode<SelectivityType, Predicate> source, GraphNode<SelectivityType, Predicate> target){
 		if(source.equals(target)){
 			addPath(path);

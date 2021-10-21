@@ -21,7 +21,9 @@ public class RangeMatrix<T>{
 	
 	
 	
-	
+	public T get(IDable row, IDable col){
+		return get(row.getID(), col.getID());
+	}
 	
 	public T get(int row, int col){
 		//TODO

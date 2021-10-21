@@ -1,10 +1,10 @@
 package dev.roanh.gmark.util;
 
-import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import dev.roanh.gmark.core.SelectivityClass;
+import dev.roanh.gmark.core.graph.Edge;
 import dev.roanh.gmark.core.graph.Schema;
 
 public class SelectivityGraph{
@@ -26,20 +26,46 @@ public class SelectivityGraph{
 	
 	
 	
-	private static void computeDistanceMatrix(Schema schema){
+	private static DistanceMatrix computeDistanceMatrix(Schema schema){
 		int size = schema.getTypeCount();
 		int logSize = (int)Math.log(size) + 4;//TODO why does this use a natural log?
 		
 		DistanceMatrix matrix = new DistanceMatrix(size);
 		DistanceMatrix tmp = new DistanceMatrix(size);
 		
+		//add all length 1 paths
+		for(Edge edge : schema.getEdges()){
+			SelectivityClass sel = edge.getSelectivty();
+			matrix.get(edge.getSourceType(), edge.getTargetType()).put(sel, 1);
+			matrix.get(edge.getTargetType(), edge.getSourceType()).put(sel.negate(), 1);
+		}
 		
+		for(int step = 0; step < logSize; step++){
+			//make a copy of the matrix
+			tmp.overwrite(matrix);
+			
+			//for each source type
+			for(int i = 0; i < size; i++){
+				//for each target type
+				for(int j = 0; j < size; j++){
+					//for pairs of connected edges
+					for(int k = 0; k < size; k++){
+						for(Entry<SelectivityClass, Integer> first : tmp.get(i, k).entrySet()){
+							for(Entry<SelectivityClass, Integer> second : tmp.get(k, j).entrySet()){
+								//update length to be the minimum of an existing length and the current path
+								matrix.get(i, j).merge(
+									first.getKey().conjunction(second.getKey()),//result of following these two edges after each other
+									first.getValue() + second.getValue(),
+									Math::min
+								);
+							}
+						}
+					}
+				}
+			}
+		}
 		
-		
-		
-		
-		
-		
+		return matrix;
 	}
 	
 	private static final class DistanceMatrix extends RangeMatrix<Map<SelectivityClass, Integer>>{

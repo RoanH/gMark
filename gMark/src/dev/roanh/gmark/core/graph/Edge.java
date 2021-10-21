@@ -20,14 +20,17 @@ public class Edge{
 		outDistribution = out;
 	}
 	
+	//subject
 	public Type getSourceType(){
 		return source;
 	}
 	
+	//object
 	public Type getTargetType(){
 		return target;
 	}
 	
+	//symbol
 	public Predicate getPredicate(){
 		return symbol;
 	}

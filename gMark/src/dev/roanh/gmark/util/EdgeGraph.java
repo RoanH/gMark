@@ -30,6 +30,8 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		computeAllPaths(path, gs, maxLen, gs.getNode(source), gs.getNode(target));
 		
 		//TODO add identity - note that we need to see how findParallel deals with that, probably it can choose either pick a path or a SINGLE id edge if it exists.
+		//just pick one path and then check everytime if we can link back
+		//edge case: we could id a path that doesn't split
 		
 		//TODO more cycles
 		for(IntersectionData parallel : findParallel()){

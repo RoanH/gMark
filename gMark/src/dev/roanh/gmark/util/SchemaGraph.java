@@ -46,6 +46,38 @@ public class SchemaGraph extends Graph<SelectivityType, Predicate>{
 	}
 	
 	/**
+	 * Removes all nodes (and associated edges) from the schema graph that are not
+	 * reachable when drawing paths. All valid paths should start at a node with a
+	 * selectivity class of {@link SelectivityClass#ONE_ONE &lpar;1,=,1)} or
+	 * {@link SelectivityClass#EQUALS &lpar;N,=,N)}. Any node that is not reachable
+	 * from a node with one of these selectivity classes is removed together with all
+	 * the edges connected to it.
+	 */
+	public void removeUnreachable(){
+		int removed;
+		do{
+			removed = removeNodeIf(node->{
+				SelectivityClass sel = node.getData().getSelectivity();
+				if(sel == SelectivityClass.ONE_ONE || sel == SelectivityClass.EQUALS){
+					return false;
+				}else{
+					if(node.getInEdges().isEmpty()){
+						return true;
+					}else{
+						//ensure we remove nodes that only have a self loop
+						for(GraphEdge<SelectivityType, Predicate> edge : node.getInEdges()){
+							if(!edge.getSourceNode().equals(node)){
+								return false;
+							}
+						}
+						return true;
+					}
+				}
+			}).size();
+		}while(removed != 0);
+	}
+	
+	/**
 	 * Prints all the nodes in the schema graph
 	 * to the standard output.
 	 */

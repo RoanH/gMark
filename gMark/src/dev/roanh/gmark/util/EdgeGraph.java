@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.util.EdgeGraphData.IntersectionData;
 
 public class EdgeGraph extends Graph<EdgeGraphData, Void>{
@@ -25,8 +26,8 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		minLen = 1;//TODO make configurable
 		this.maxLen = maxLen;
 		
-		src = addUniqueNode(EdgeGraphData.of("source"));
-		trg = addUniqueNode(EdgeGraphData.of("target"));
+		src = addUniqueNode(EdgeGraphData.of("source", source));
+		trg = addUniqueNode(EdgeGraphData.of("target", target));
 
 		for(GraphEdge<SelectivityType, Predicate> edge : gs.getEdges()){
 			addUniqueNode(EdgeGraphData.of(edge));
@@ -125,12 +126,37 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		//5. if no ID cycles were found find a second reverse path if possible and make an intersection as normal
 		
 		for(GraphNode<EdgeGraphData, Void> node : getNodes()){
-			if(node.getInEdges().size() > 1){
-				parallel.add(reverseParallel(node));
+			if(!node.getInEdges().isEmpty()){
+				//TODO skip ID if looking for a quadratic query
+				if(/*node.getData().getSourceSelectivity() != Selectivity.QUADRATIC*/true){
+					IntersectionData data = reverseIdentity(node);
+					if(data != null){
+						System.out.println("id add: " + data);
+						parallel.add(data);
+					}
+				}
+				
+				if(node.getInEdges().size() > 1){
+					parallel.add(reverseParallel(node));
+				}
 			}
 		}
 		
 		return parallel;
+	}
+	
+	private IntersectionData reverseIdentity(GraphNode<EdgeGraphData, Void> target){
+		Deque<EdgeGraphData> path = reverseToSource(Util.selectRandom(random, target.getInEdges()));
+		Type type = target.getData().getSourceType();
+		
+		while(path.size() > 1){
+			if(path.peek().getTargetType().equals(type)){//TODO, there might be more, this always finds the largest cycle
+				return EdgeGraphData.of(path.pop(), target.getData(), path);
+			}
+			path.pop();
+		}
+		
+		return null;
 	}
 	
 	private IntersectionData reverseParallel(GraphNode<EdgeGraphData, Void> target){

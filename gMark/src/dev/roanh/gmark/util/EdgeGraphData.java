@@ -1,9 +1,11 @@
 package dev.roanh.gmark.util;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
 
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.util.Graph.GraphEdge;
 
 public abstract class EdgeGraphData{
@@ -11,24 +13,61 @@ public abstract class EdgeGraphData{
 	
 	
 	
-	
-	public static EdgeGraphData of(GraphEdge<SelectivityType, Predicate> edge){
+	public static PredicateData of(GraphEdge<SelectivityType, Predicate> edge){
 		return new PredicateData(edge);
 	}
 	
-	public static EdgeGraphData of(String name){
-		return new EndpointData(name);
+	public static EndpointData of(String name, SelectivityType type){
+		return new EndpointData(name, type);
 	}
 	
 	public static IntersectionData of(EdgeGraphData source, EdgeGraphData target, Deque<EdgeGraphData> first, Deque<EdgeGraphData> second){
 		return new IntersectionData(source, target, first, second);
 	}
 	
-//	protected static class IdentityData extends EdgeGraphData{
-//		
-//	}
+	public static IntersectionData of(EdgeGraphData source, EdgeGraphData target, Deque<EdgeGraphData> first){
+		Deque<EdgeGraphData> second = new ArrayDeque<EdgeGraphData>();
+		second.add(new IdentityData(source.getTargetType()));
+		return new IntersectionData(source, target, first, second);
+	}
+	
+	public static IdentityData of(Type type){
+		return new IdentityData(type);
+	}
 	
 	public abstract int size();
+	
+	public abstract Type getSourceType();
+	
+	public abstract Type getTargetType();
+
+	protected static class IdentityData extends EdgeGraphData{
+		private Type type;
+		
+		private IdentityData(Type type){
+			this.type = type;
+		}
+
+		@Override
+		public int size(){
+			return 0;
+		}
+
+		@Override
+		public Type getSourceType(){
+			return type;
+		}
+
+		@Override
+		public Type getTargetType(){
+			return type;
+		}
+		
+		@Override
+		public String toString(){
+			return "id";
+		}
+	}
 	
 	protected static class IntersectionData extends EdgeGraphData{
 		private EdgeGraphData source;
@@ -90,13 +129,25 @@ public abstract class EdgeGraphData{
 		public int size(){
 			return Math.max(first.stream().mapToInt(EdgeGraphData::size).sum(), second.stream().mapToInt(EdgeGraphData::size).sum());
 		}
+
+		@Override
+		public Type getSourceType(){
+			return source.getTargetType();
+		}
+
+		@Override
+		public Type getTargetType(){
+			return target.getSourceType();
+		}
 	}
 	
 	private static class EndpointData extends EdgeGraphData{
 		private final String name;
+		private final SelectivityType selType;
 		
-		private EndpointData(String name){
+		private EndpointData(String name, SelectivityType type){
 			this.name = name;
+			selType = type;
 		}
 		
 		@Override
@@ -112,6 +163,16 @@ public abstract class EdgeGraphData{
 		@Override
 		public int size(){
 			return 0;
+		}
+
+		@Override
+		public Type getSourceType(){
+			return selType.getType();
+		}
+
+		@Override
+		public Type getTargetType(){
+			return selType.getType();
 		}
 	}
 	
@@ -140,6 +201,16 @@ public abstract class EdgeGraphData{
 		@Override
 		public int size(){
 			return 1;
+		}
+
+		@Override
+		public Type getSourceType(){
+			return edge.getSource().getType();
+		}
+
+		@Override
+		public Type getTargetType(){
+			return edge.getTarget().getType();
 		}
 	}
 }

@@ -29,6 +29,8 @@ public class GraphMark{
 		SelectivityType trg = SelectivityType.of(config.getTypes().get(3), SelectivityClass.ONE_N);
 		//city 1<N
 		//SelectivityType trg = SelectivityType.of(config.getTypes().get(4), SelectivityClass.ONE_N);
+		//paper 1<N
+		//SelectivityType trg = SelectivityType.of(config.getTypes().get(1), SelectivityClass.ONE_N);
 
 		EdgeGraph eg = new EdgeGraph(gs, 2, src, trg);
 		ConfigGraph cg = new ConfigGraph(config);

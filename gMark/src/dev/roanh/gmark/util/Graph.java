@@ -41,8 +41,11 @@ public class Graph<V, E>{
 	 */
 	private List<GraphEdge<V, E>> edges = new ArrayList<GraphEdge<V, E>>();
 	
-	public void removeNodeIf(Predicate<GraphNode<V, E>> predicate){
-		nodes.stream().filter(predicate).collect(Collectors.toList()).forEach(GraphNode::remove);
+	//note, returned edges detached from the graph they still ref the graph but the rest of the graph does not ref them
+	public List<GraphNode<V, E>> removeNodeIf(Predicate<GraphNode<V, E>> predicate){
+		List<GraphNode<V, E>> toRemove = nodes.stream().filter(predicate).collect(Collectors.toList());
+		toRemove.forEach(GraphNode::remove);
+		return toRemove;
 	}
 	
 	/**

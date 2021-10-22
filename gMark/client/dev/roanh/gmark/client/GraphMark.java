@@ -14,6 +14,7 @@ import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.util.ConfigGraph;
 import dev.roanh.gmark.util.EdgeGraph;
 import dev.roanh.gmark.util.EdgeGraphData;
+import dev.roanh.gmark.util.Graph.GraphEdge;
 import dev.roanh.gmark.util.SchemaGraph;
 import dev.roanh.gmark.util.SelectivityType;
 
@@ -34,6 +35,27 @@ public class GraphMark{
 		ConfigGraph cg = new ConfigGraph(config);
 				
 		eg.removeNodeIf(n->n.getInEdges().size() + n.getOutEdges().size() == 0);
+		
+		int removed;
+		do{
+			removed = gs.removeNodeIf(node->{
+				SelectivityClass sel = node.getData().getSelectivity();
+				if(sel == SelectivityClass.ONE_ONE || sel == SelectivityClass.EQUALS){
+					return false;
+				}else{
+					if(node.getInEdges().isEmpty()){
+						return true;
+					}else{
+						for(GraphEdge<SelectivityType, Predicate> edge : node.getInEdges()){
+							if(!edge.getSourceNode().equals(node)){
+								return false;
+							}
+						}
+						return true;
+					}
+				}
+			}).size();
+		}while(removed != 0);
 
 		JTabbedPane tabs = new JTabbedPane();
 		tabs.addTab("Config Graph", new GraphPanel<Type, Predicate>(cg, Type::getAlias, Predicate::getAlias));

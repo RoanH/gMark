@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Utility class to model a graph with directed
@@ -38,6 +40,10 @@ public class Graph<V, E>{
 	 * List of all edges in this graph.
 	 */
 	private List<GraphEdge<V, E>> edges = new ArrayList<GraphEdge<V, E>>();
+	
+	public void removeNodeIf(Predicate<GraphNode<V, E>> predicate){
+		nodes.stream().filter(predicate).collect(Collectors.toList()).forEach(GraphNode::remove);
+	}
 	
 	/**
 	 * Gets a list of all nodes in this graph.
@@ -167,6 +173,21 @@ public class Graph<V, E>{
 		private GraphNode(Graph<V, E> graph, V data){
 			this.graph = graph;
 			this.data = data;
+		}
+		
+		//note about comod
+		//note all edges too
+		public void remove(){
+			for(GraphEdge<V, E> edge : out){
+				edge.target.in.remove(edge);
+			}
+			for(GraphEdge<V, E> edge : in){
+				edge.source.out.remove(edge);
+			}
+			graph.edges.removeAll(out);
+			graph.edges.removeAll(in);
+			graph.nodes.remove(this);
+			graph.nodeMap.remove(data);
 		}
 		
 		public Set<GraphEdge<V, E>> getOutEdges(){

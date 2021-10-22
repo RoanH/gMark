@@ -32,6 +32,8 @@ public class GraphMark{
 
 		EdgeGraph eg = new EdgeGraph(gs, 2, src, trg);
 		ConfigGraph cg = new ConfigGraph(config);
+				
+		eg.removeNodeIf(n->n.getInEdges().size() + n.getOutEdges().size() == 0);
 
 		JTabbedPane tabs = new JTabbedPane();
 		tabs.addTab("Config Graph", new GraphPanel<Type, Predicate>(cg, Type::getAlias, Predicate::getAlias));

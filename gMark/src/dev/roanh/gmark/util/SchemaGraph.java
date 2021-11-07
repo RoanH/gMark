@@ -30,7 +30,7 @@ public class SchemaGraph extends Graph<SelectivityType, Predicate>{
 	 *        graph from.
 	 */
 	public SchemaGraph(Schema schema){
-		index = new RangeList<Map<SelectivityClass, GraphNode<SelectivityType, Predicate>>>(schema.getTypeCount() * SelectivityClass.values().length, Util.selectivityMapSupplier());
+		index = new RangeList<Map<SelectivityClass, GraphNode<SelectivityType, Predicate>>>(schema.getTypeCount(), Util.selectivityMapSupplier());
 		
 		for(Edge edge : schema.getEdges()){
 			SelectivityClass sel2 = edge.getSelectivty();

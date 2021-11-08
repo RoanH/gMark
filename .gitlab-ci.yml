@@ -56,4 +56,4 @@ test:
   coverage: '/Total.*?([0-9]{1,3})%/'
   artifacts:
     reports:
-      junit: ./build/test-results/test/TEST-*.xml
+      junit: ./${PROJECTNAME}/build/test-results/test/TEST-*.xml

@@ -46,6 +46,17 @@ public class ConfigParser{
 	//parse config xml
 	public static Configuration parse(Path file){
 		try(InputStream in = Files.newInputStream(file)){
+			return parse(in);
+		}catch(IOException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//TODO throw a proper exception
+		throw new RuntimeException("Failed to parse configuration file.");
+	}
+		
+	public static Configuration parse(InputStream in){
+		try{
 			Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
 			xml.getDocumentElement().normalize();
 			

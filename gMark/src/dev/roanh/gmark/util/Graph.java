@@ -101,6 +101,15 @@ public class Graph<V, E>{
 		}
 	}
 	
+	public GraphEdge<V, E> getEdge(V source, V target){
+		return getEdge(source, target, null);
+	}
+	
+	public GraphEdge<V, E> getEdge(V source, V target, E data){
+		GraphNode<V, E> node = nodeMap.get(source);
+		return node == null ? null : node.getEdgeTo(target, data);
+	}
+	
 	public void addUniqueEdge(V source, V target, E data){
 		addUniqueEdge(nodeMap.get(source), nodeMap.get(target), data);
 	}
@@ -181,6 +190,7 @@ public class Graph<V, E>{
 		//note about comod
 		//note all edges too
 		public void remove(){
+			//manual edge removal to prevent co-modification
 			for(GraphEdge<V, E> edge : out){
 				edge.target.in.remove(edge);
 			}
@@ -191,6 +201,27 @@ public class Graph<V, E>{
 			graph.edges.removeAll(in);
 			graph.nodes.remove(this);
 			graph.nodeMap.remove(data);
+		}
+		
+		public GraphEdge<V, E> getEdgeTo(V target){
+			return getEdgeTo(target, null);
+		}
+		
+		public GraphEdge<V, E> getEdgeTo(V target, E data){
+			for(GraphEdge<V, E> edge : out){
+				if(edge.target.data.equals(target)){
+					if(edge.data == null){
+						if(data == null){
+							return edge;
+						}
+					}else{
+						if(edge.data.equals(data)){
+							return edge;
+						}
+					}
+				}
+			}
+			return null;
 		}
 		
 		public Set<GraphEdge<V, E>> getOutEdges(){
@@ -294,6 +325,12 @@ public class Graph<V, E>{
 			this.data = data;
 			source.out.add(this);
 			target.in.add(this);
+		}
+		
+		public void remove(){
+			source.out.remove(this);
+			target.in.remove(this);
+			source.graph.edges.remove(this);
 		}
 		
 		/**

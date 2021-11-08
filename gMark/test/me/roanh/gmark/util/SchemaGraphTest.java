@@ -2,6 +2,9 @@ package me.roanh.gmark.util;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import static dev.roanh.gmark.util.SelectivityType.of;
+import static dev.roanh.gmark.core.SelectivityClass.*;
+
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.ConfigParser;
@@ -11,9 +14,6 @@ import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.util.Graph.GraphEdge;
 import dev.roanh.gmark.util.SchemaGraph;
 import dev.roanh.gmark.util.SelectivityType;
-
-import static dev.roanh.gmark.util.SelectivityType.of;
-import static dev.roanh.gmark.core.SelectivityClass.*;
 
 public class SchemaGraphTest{
 	private Schema schema = ConfigParser.parse(ClassLoader.getSystemResourceAsStream("test.xml")).getSchema();

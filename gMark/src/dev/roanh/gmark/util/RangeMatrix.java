@@ -9,7 +9,7 @@ public class RangeMatrix<T>{
 	//square with element init
 	@SuppressWarnings("unchecked")
 	public RangeMatrix(int size, Supplier<T> init){
-		data = (T[][])new Object[size];
+		data = (T[][])new Object[size][size];
 		for(int i = 0; i < size; i++){
 			for(int j = 0; j < size; j++){
 				data[i][j] = init.get();

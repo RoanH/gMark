@@ -14,6 +14,7 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 	
 	
 	public SelectivityGraph(Schema schema, int maxLength){
+		index = new RangeList<Map<SelectivityClass, GraphNode<SelectivityType, Void>>>(schema.getTypeCount(), Util.selectivityMapSupplier());
 		
 		//compute distance between types (matrix)
 		//compute graph from matrix

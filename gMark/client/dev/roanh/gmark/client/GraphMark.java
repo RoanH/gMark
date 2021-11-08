@@ -15,6 +15,7 @@ import dev.roanh.gmark.util.ConfigGraph;
 import dev.roanh.gmark.util.EdgeGraph;
 import dev.roanh.gmark.util.EdgeGraphData;
 import dev.roanh.gmark.util.SchemaGraph;
+import dev.roanh.gmark.util.SelectivityGraph;
 import dev.roanh.gmark.util.SelectivityType;
 
 public class GraphMark{
@@ -34,6 +35,7 @@ public class GraphMark{
 
 		EdgeGraph eg = new EdgeGraph(gs, 2, src, trg);
 		ConfigGraph cg = new ConfigGraph(config);
+		SelectivityGraph sg = new SelectivityGraph(config.getSchema(), 2);
 				
 		eg.removeNodeIf(n->n.getInEdges().size() + n.getOutEdges().size() == 0);
 		gs.removeUnreachable();
@@ -42,6 +44,7 @@ public class GraphMark{
 		tabs.addTab("Config Graph", new GraphPanel<Type, Predicate>(cg, Type::getAlias, Predicate::getAlias));
 		tabs.addTab("Schema Graph", new GraphPanel<SelectivityType, Predicate>(gs, SelectivityType::toString, Predicate::getAlias));
 		tabs.addTab("Edge Graph", new GraphPanel<EdgeGraphData, Void>(eg));
+		tabs.addTab("Selectivity Graph", new GraphPanel<SelectivityType, Void>(sg));
 		
 		//just print a few paths randomly
 		for(int i = 0; i < 10; i++){

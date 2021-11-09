@@ -101,6 +101,14 @@ public class Graph<V, E>{
 		}
 	}
 	
+	public int getEdgeCount(){
+		return edges.size();
+	}
+	
+	public int getNodeCount(){
+		return nodes.size();
+	}
+	
 	public GraphEdge<V, E> getEdge(V source, V target){
 		return getEdge(source, target, null);
 	}

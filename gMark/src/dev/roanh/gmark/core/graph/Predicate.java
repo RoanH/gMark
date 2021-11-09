@@ -21,7 +21,7 @@ public class Predicate{
 	private boolean isInverse = false;
 	private Predicate inverse = null;
 	
-	//prop is NaN for unknown, may want to change that
+	//TODO prop is NaN for unknown, may want to change that
 	public Predicate(int id, String alias, double proportion){
 		this.id = id;
 		this.alias = alias;

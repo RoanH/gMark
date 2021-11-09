@@ -20,6 +20,14 @@ public class Edge{
 		outDistribution = out;
 	}
 	
+	public Distribution getInDistribution(){
+		return inDistribution;
+	}
+	
+	public Distribution getOutDistribution(){
+		return outDistribution;
+	}
+	
 	//subject
 	public Type getSourceType(){
 		return source;

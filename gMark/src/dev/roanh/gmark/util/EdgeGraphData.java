@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
 
+import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.util.Graph.GraphEdge;
@@ -40,7 +41,11 @@ public abstract class EdgeGraphData{
 	public abstract Type getSourceType();
 	
 	public abstract Type getTargetType();
+	
+	public abstract Selectivity getSourceSelectivity();
 
+	public abstract Selectivity getTargetSelectivity();
+	
 	protected static class IdentityData extends EdgeGraphData{
 		private Type type;
 		
@@ -66,6 +71,18 @@ public abstract class EdgeGraphData{
 		@Override
 		public String toString(){
 			return "id";
+		}
+
+		@Override
+		public Selectivity getSourceSelectivity(){
+			//unused, but this makes most sense
+			return type.isScalable() ? Selectivity.LINEAR : Selectivity.CONSTANT;
+		}
+
+		@Override
+		public Selectivity getTargetSelectivity(){
+			//unused, but this makes most sense
+			return type.isScalable() ? Selectivity.LINEAR : Selectivity.CONSTANT;
 		}
 	}
 	
@@ -139,6 +156,16 @@ public abstract class EdgeGraphData{
 		public Type getTargetType(){
 			return target.getSourceType();
 		}
+
+		@Override
+		public Selectivity getSourceSelectivity(){
+			return source.getTargetSelectivity();
+		}
+
+		@Override
+		public Selectivity getTargetSelectivity(){
+			return target.getSourceSelectivity();
+		}
 	}
 	
 	private static class EndpointData extends EdgeGraphData{
@@ -173,6 +200,16 @@ public abstract class EdgeGraphData{
 		@Override
 		public Type getTargetType(){
 			return selType.getType();
+		}
+
+		@Override
+		public Selectivity getSourceSelectivity(){
+			return selType.getSelectivity().getSelectivity();
+		}
+
+		@Override
+		public Selectivity getTargetSelectivity(){
+			return selType.getSelectivity().getSelectivity();
 		}
 	}
 	
@@ -211,6 +248,16 @@ public abstract class EdgeGraphData{
 		@Override
 		public Type getTargetType(){
 			return edge.getTarget().getType();
+		}
+
+		@Override
+		public Selectivity getSourceSelectivity(){
+			return edge.getSource().getSelectivity().getSelectivity();
+		}
+
+		@Override
+		public Selectivity getTargetSelectivity(){
+			return edge.getTarget().getSelectivity().getSelectivity();
 		}
 	}
 }

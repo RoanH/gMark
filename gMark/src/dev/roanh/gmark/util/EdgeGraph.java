@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
+import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.util.EdgeGraphData.IntersectionData;
@@ -127,8 +128,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		
 		for(GraphNode<EdgeGraphData, Void> node : getNodes()){
 			if(!node.getInEdges().isEmpty()){
-				//TODO skip ID if looking for a quadratic query
-				if(/*node.getData().getSourceSelectivity() != Selectivity.QUADRATIC*/true){
+				if(node.getData().getSourceSelectivity() != Selectivity.QUADRATIC){
 					IntersectionData data = reverseIdentity(node);
 					if(data != null){
 						System.out.println("id add: " + data);

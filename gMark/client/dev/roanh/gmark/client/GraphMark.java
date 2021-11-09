@@ -25,15 +25,19 @@ public class GraphMark{
 		Configuration config = ConfigParser.parse(Paths.get("C:\\Users\\RoanH\\Downloads\\tmp\\gmark\\use-cases\\test.xml"));
 		SchemaGraph gs = new SchemaGraph(config.getSchema());
 		//paper 1=1
-		SelectivityType src = SelectivityType.of(config.getTypes().get(1), SelectivityClass.ONE_ONE);
+		//SelectivityType src = SelectivityType.of(config.getTypes().get(1), SelectivityClass.ONE_ONE);
 		//conference 1<N
-		SelectivityType trg = SelectivityType.of(config.getTypes().get(3), SelectivityClass.ONE_N);
+		//SelectivityType trg = SelectivityType.of(config.getTypes().get(3), SelectivityClass.ONE_N);
 		//city 1<N
 		//SelectivityType trg = SelectivityType.of(config.getTypes().get(4), SelectivityClass.ONE_N);
 		//paper 1<N
 		//SelectivityType trg = SelectivityType.of(config.getTypes().get(1), SelectivityClass.ONE_N);
+		//journal 1=1
+		SelectivityType src = SelectivityType.of(config.getTypes().get(2), SelectivityClass.EQUALS);
+		//paper 1x1
+		SelectivityType trg = SelectivityType.of(config.getTypes().get(1), SelectivityClass.CROSS);
 
-		EdgeGraph eg = new EdgeGraph(gs, 2, src, trg);
+		EdgeGraph eg = new EdgeGraph(gs, 4, src, trg);
 		ConfigGraph cg = new ConfigGraph(config);
 		SelectivityGraph sg = new SelectivityGraph(config.getSchema(), 2);
 				

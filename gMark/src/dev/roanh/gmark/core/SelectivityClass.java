@@ -18,7 +18,7 @@ public enum SelectivityClass{
 	 * nodes, also the only class associated with a
 	 * query of constant selectivity.
 	 */
-	ONE_ONE("(1,=,1)"){
+	ONE_ONE("(1,=,1)", Selectivity.CONSTANT){
 		@Override
 		public SelectivityClass conjunction(SelectivityClass other){
 			switch(other){
@@ -43,7 +43,7 @@ public enum SelectivityClass{
 	 * and a constant node, associated with a query
 	 * of linear selectivity.
 	 */
-	N_ONE("(N,>,1)"){
+	N_ONE("(N,>,1)", Selectivity.LINEAR){
 		@Override
 		public SelectivityClass negate(){
 			return ONE_N;
@@ -72,7 +72,7 @@ public enum SelectivityClass{
 	 * and a constant node, associated with a query
 	 * of linear selectivity.
 	 */
-	ONE_N("(1,<,N)"){
+	ONE_N("(1,<,N)", Selectivity.LINEAR){
 		@Override
 		public SelectivityClass negate(){
 			return N_ONE;
@@ -101,7 +101,7 @@ public enum SelectivityClass{
 	 * <code>(N,=,N)</code> a class between growing
 	 * nodes, associated with a query of linear selectivity.
 	 */
-	EQUALS("(N,=,N)"){
+	EQUALS("(N,=,N)", Selectivity.LINEAR){
 		@Override
 		public SelectivityClass conjunction(SelectivityClass other){
 			return other;
@@ -112,7 +112,7 @@ public enum SelectivityClass{
 	 * nodes, where the edge in distribution is zipfian.
 	 * Associated with a query of linear selectivity.
 	 */
-	GREATER("(N,>,N)"){
+	GREATER("(N,>,N)", Selectivity.LINEAR){
 		@Override
 		public SelectivityClass negate(){
 			return LESS;
@@ -142,7 +142,7 @@ public enum SelectivityClass{
 	 * nodes, where the edge out distribution is zipfian.
 	 * Associated with a query of linear selectivity.
 	 */
-	LESS("(N,<,N)"){
+	LESS("(N,<,N)", Selectivity.LINEAR){
 		@Override
 		public SelectivityClass negate(){
 			return GREATER;
@@ -173,7 +173,7 @@ public enum SelectivityClass{
 	 * are both zipfian. Associated with a query of
 	 * linear selectivity.
 	 */
-	LESS_GREATER("(N,◇,N)"){
+	LESS_GREATER("(N,◇,N)", Selectivity.LINEAR){
 		@Override
 		public SelectivityClass conjunction(SelectivityClass other){
 			switch(other){
@@ -201,7 +201,7 @@ public enum SelectivityClass{
 	 * This is also the only class associated with a
 	 * query of quadratic selectivity.
 	 */
-	CROSS("(N,⨉,N)"){
+	CROSS("(N,⨉,N)", Selectivity.QUADRATIC){
 		@Override
 		public SelectivityClass conjunction(SelectivityClass other){
 			switch(other){
@@ -221,10 +221,33 @@ public enum SelectivityClass{
 		}
 	};
 	
+	/**
+	 * The display name of this selectivity class.
+	 */
 	private final String name;
+	/**
+	 * The selectivity associated with this selectivity class.
+	 */
+	private final Selectivity selectivity;
 	
-	private SelectivityClass(String name){
+	/**
+	 * Constructs a new selectivity class with the given
+	 * display name and selectivity.
+	 * @param name The display name of the selectivity class.
+	 * @param selectivity The selectivity of the selectivity class.
+	 */
+	private SelectivityClass(String name, Selectivity selectivity){
 		this.name = name;
+		this.selectivity = selectivity;
+	}
+	
+	/**
+	 * Gets the estimated selectivity value of a query
+	 * that belongs to this selectivity class.
+	 * @return The selectivity of this selectivity class.
+	 */
+	public Selectivity getSelectivity(){
+		return selectivity;
 	}
 	
 	/**

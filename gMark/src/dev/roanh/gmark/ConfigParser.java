@@ -105,7 +105,7 @@ public class ConfigParser{
 	}
 	
 	private static final Distribution parseDistribution(Element elem, String key){
-		NodeList items = elem.getElementsByTagName("indistribution");
+		NodeList items = elem.getElementsByTagName(key);
 		return items.getLength() == 0 ? Distribution.UNDEFINED : Distribution.fromXML(TO_ELEMENT.apply(items.item(0)));
 	}
 	

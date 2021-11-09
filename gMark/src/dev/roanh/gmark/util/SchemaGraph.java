@@ -35,10 +35,7 @@ public class SchemaGraph extends Graph<SelectivityType, Predicate>{
 		for(Edge edge : schema.getEdges()){
 			SelectivityClass sel2 = edge.getSelectivty();
 			for(SelectivityClass sel1 : SelectivityClass.values()){
-				//TODO remove debug prints
-				System.out.println(edge.getSourceType().getID() + "," + sel1 + " via " + edge.getPredicate().getID() + " to " + edge.getTargetType().getID() + "," + sel1.conjunction(sel2));
 				resolve(edge.getSourceType(), sel1).addUniqueEdgeTo(resolve(edge.getTargetType(), sel1.conjunction(sel2)), edge.getPredicate());
-				System.out.println(edge.getTargetType().getID() + "," + sel1 + " via " + (-edge.getPredicate().getID() - 1) + " to " + edge.getSourceType().getID() + "," + sel1.conjunction(sel2.negate()));
 				resolve(edge.getTargetType(), sel1).addUniqueEdgeTo(resolve(edge.getSourceType(), sel1.conjunction(sel2.negate())), edge.getPredicate().getInverse());
 			}
 		}

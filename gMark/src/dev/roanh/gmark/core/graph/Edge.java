@@ -8,7 +8,7 @@ public class Edge{
 	private Type source;
 	private Type target;
 	private Predicate symbol;//edge predicate
-	//TODO there is a edge_type -- use currently unknown
+	//TODO there is an edge_type -- use currently unknown
 	private Distribution inDistribution;
 	private Distribution outDistribution;
 	

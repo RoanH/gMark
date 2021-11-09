@@ -105,7 +105,7 @@ public class SelectivityClassTest{
 	}
 	
 	@Test
-	public void negateion(){
+	public void negation(){
 		assertEquals(ONE_N, N_ONE.negate());
 		assertEquals(N_ONE, ONE_N.negate());
 		assertEquals(GREATER, LESS.negate());

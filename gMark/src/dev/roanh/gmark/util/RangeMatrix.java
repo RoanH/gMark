@@ -4,14 +4,21 @@ import java.util.function.Supplier;
 
 public class RangeMatrix<T>{
 	private T[][] data;
-	private int size;
+	private int rows;
+	private int cols;
 	
 	//square with element init
-	@SuppressWarnings("unchecked")
 	public RangeMatrix(int size, Supplier<T> init){
-		data = (T[][])new Object[size][size];
-		for(int i = 0; i < size; i++){
-			for(int j = 0; j < size; j++){
+		this(size, size, init);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public RangeMatrix(int rows, int cols, Supplier<T> init){
+		this.rows = rows;
+		this.cols = cols;
+		data = (T[][])new Object[rows][cols];
+		for(int i = 0; i < rows; i++){
+			for(int j = 0; j < cols; j++){
 				data[i][j] = init.get();
 			}
 		}
@@ -29,7 +36,11 @@ public class RangeMatrix<T>{
 		data[row][col] = value;
 	}
 	
-	public int getSize(){
-		return size;
+	public int getRowCount(){
+		return rows;
+	}
+	
+	public int getColumnCount(){
+		return cols;
 	}
 }

@@ -3,6 +3,7 @@ package dev.roanh.gmark.util;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Edge;
 import dev.roanh.gmark.core.graph.Schema;
@@ -46,8 +47,28 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 	
 	
 	
+	//sel graph, matrix_of_paths, first_node (always -1?), len, star, path (return value)
+	public void generateRandomPath(){
+		
+		
+		
+		
+		
+		
+		
+	}
 	
-	
+	private DistanceMatrix computeNumberOfPaths(Selectivity selectivity, int length){
+		//TODO number of columns should be the type count
+		DistanceMatrix matrix = new DistanceMatrix(length + 1, -1);
+		
+		
+		
+		
+		
+		
+		return matrix;
+	}
 	
 	/**
 	 * Computes the shortest path between any two nodes in
@@ -101,12 +122,16 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 	private static final class DistanceMatrix extends RangeMatrix<Map<SelectivityClass, Integer>>{
 		
 		private DistanceMatrix(int size){
-			super(size, Util.selectivityMapSupplier());
+			this(size, size);
+		}
+		
+		private DistanceMatrix(int rows, int cols){
+			super(rows, cols, Util.selectivityMapSupplier());
 		}
 		
 		private void overwrite(DistanceMatrix data){
-			for(int i = 0; i < getSize(); i++){
-				for(int j = 0; j < getSize(); j++){
+			for(int i = 0; i < getRowCount(); i++){
+				for(int j = 0; j < getColumnCount(); j++){
 					Map<SelectivityClass, Integer> cell = get(i, j);
 					Map<SelectivityClass, Integer> other = data.get(i, j);
 					for(SelectivityClass sel : SelectivityClass.values()){

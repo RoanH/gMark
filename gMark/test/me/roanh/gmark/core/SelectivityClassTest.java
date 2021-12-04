@@ -1,8 +1,12 @@
 package me.roanh.gmark.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.Test;
+
+import dev.roanh.gmark.core.Selectivity;
+import dev.roanh.gmark.core.SelectivityClass;
 
 import static dev.roanh.gmark.core.SelectivityClass.*;
 
@@ -114,5 +118,38 @@ public class SelectivityClassTest{
 		assertEquals(EQUALS, EQUALS.negate());
 		assertEquals(LESS_GREATER, LESS_GREATER.negate());
 		assertEquals(ONE_ONE, ONE_ONE.negate());
+	}
+	
+	@Test
+	public void subclassConstant(){
+		for(SelectivityClass sel : values()){
+			if(sel == ONE_ONE){
+				assertEquals(Selectivity.CONSTANT, sel.getSelectivity());
+			}else{
+				assertNotEquals(Selectivity.CONSTANT, sel.getSelectivity());
+			}
+		}
+	}
+	
+	@Test
+	public void subclassLinear(){
+		for(SelectivityClass sel : values()){
+			if(sel != ONE_ONE && sel != CROSS){
+				assertEquals(Selectivity.LINEAR, sel.getSelectivity());
+			}else{
+				assertNotEquals(Selectivity.LINEAR, sel.getSelectivity());
+			}
+		}
+	}
+	
+	@Test
+	public void subclassQuadratic(){
+		for(SelectivityClass sel : values()){
+			if(sel == CROSS){
+				assertEquals(Selectivity.QUADRATIC, sel.getSelectivity());
+			}else{
+				assertNotEquals(Selectivity.QUADRATIC, sel.getSelectivity());
+			}
+		}
 	}
 }

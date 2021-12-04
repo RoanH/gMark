@@ -48,7 +48,7 @@ public class GraphMark{
 		tabs.addTab("Config Graph", new GraphPanel<Type, Predicate>(cg, Type::getAlias, Predicate::getAlias));
 		tabs.addTab("Schema Graph", new GraphPanel<SelectivityType, Predicate>(gs, SelectivityType::toString, Predicate::getAlias));
 		tabs.addTab("Edge Graph", new GraphPanel<EdgeGraphData, Void>(eg));
-		tabs.addTab("Selectivity Graph", new GraphPanel<SelectivityType, Void>(sg));
+		tabs.addTab("Selectivity Graph", new GraphPanel<SelectivityType, SelectivityClass>(sg));
 		
 		//just print a few paths randomly
 		for(int i = 0; i < 10; i++){

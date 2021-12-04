@@ -11,16 +11,16 @@ import dev.roanh.gmark.core.graph.Edge;
 import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
 
-public class SelectivityGraph extends Graph<SelectivityType, Void>{
+public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 	//TODO, move to constructor if not used anywhere else
 	//gmark: graph.neighbors.size()
-	private final RangeList<Map<SelectivityClass, GraphNode<SelectivityType, Void>>> index;
+	private final RangeList<Map<SelectivityClass, GraphNode<SelectivityType, SelectivityClass>>> index;
 	private final Schema schema;
 	
 	
 	public SelectivityGraph(Schema schema, int maxLength){
 		this.schema = schema;
-		index = new RangeList<Map<SelectivityClass, GraphNode<SelectivityType, Void>>>(schema.getTypeCount(), Util.selectivityMapSupplier());
+		index = new RangeList<Map<SelectivityClass, GraphNode<SelectivityType, SelectivityClass>>>(schema.getTypeCount(), Util.selectivityMapSupplier());
 		
 		//compute distance between types (matrix)
 		//compute graph from matrix
@@ -36,7 +36,7 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 						//if there exists a path of valid length from t1 to t2 with result selectivity class sel2
 						if(matrix.get(t1, t2).getOrDefault(sel2, Integer.MAX_VALUE) <= maxLength){
 							//add graph edge (t1, sel1) -> (t2, sel1 * sel2)
-							resolve(t1, sel1).addUniqueEdgeTo(resolve(t2, sel1.conjunction(sel2)));//TODO see todo higher up about labelling
+							resolve(t1, sel1).addUniqueEdgeTo(resolve(t2, sel1.conjunction(sel2)), sel2);//TODO see todo higher up about labelling
 						}
 					}
 				}
@@ -45,7 +45,7 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 	
 	}
 	
-	private GraphNode<SelectivityType, Void> resolve(Type type, SelectivityClass sel){
+	private GraphNode<SelectivityType, SelectivityClass> resolve(Type type, SelectivityClass sel){
 		return index.get(type).computeIfAbsent(sel, k->addUniqueNode(new SelectivityType(type, sel)));
 	}
 	
@@ -100,7 +100,7 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 			//TODO for some paths, e.g. CPQ's we never want a star so this test is redundant and expensive
 			//self loop test
 			boolean test = false;
-			for(GraphEdge<SelectivityType, Void> edge : index.get(currentNode).get(SelectivityClass.EQUALS).getOutEdges()){
+			for(GraphEdge<SelectivityType, SelectivityClass> edge : index.get(currentNode).get(SelectivityClass.EQUALS).getOutEdges()){
 				SelectivityType target = edge.getTarget();
 				if(target.getSelectivity() == SelectivityClass.EQUALS && target.getType().getID() == currentNode){
 					test = true;
@@ -117,7 +117,7 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 				
 				int rnd = Util.uniformRandom(1, matrix.get(i, currentNode).get(currentSel));
 				int acc = 0;
-				for(GraphEdge<SelectivityType, Void> edge : index.get(currentNode).get(currentSel).getOutEdges()){
+				for(GraphEdge<SelectivityType, SelectivityClass> edge : index.get(currentNode).get(currentSel).getOutEdges()){
 					SelectivityType target = edge.getTarget();
 					acc += matrix.get(i - 1, target.getType()).get(target.getSelectivity());
 					if(acc >= rnd){
@@ -148,9 +148,9 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 		for(int i = 1; i <= length; i++){
 			for(int j = 0; j < types; j++){
 				for(SelectivityClass sel : SelectivityClass.values()){
-					GraphNode<SelectivityType, Void> node = index.get(j).get(sel);
+					GraphNode<SelectivityType, SelectivityClass> node = index.get(j).get(sel);
 					if(node != null && node.getOutCount() > 0){
-						for(GraphEdge<SelectivityType, Void> edge : node.getOutEdges()){
+						for(GraphEdge<SelectivityType, SelectivityClass> edge : node.getOutEdges()){
 							SelectivityType target = edge.getTarget();
 							matrix.get(i, j).merge(
 								sel,

@@ -51,14 +51,15 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 	
 	
 	
-	public void generateRandomPath(Selectivity selectivity, int length){
-		generateRandomPath(selectivity, length, -1.0D);
+	//TODO consider a dedicated path return type
+	public List<PathSegment> generateRandomPath(Selectivity selectivity, int length){
+		return generateRandomPath(selectivity, length, -1.0D);
 	}
 	
 	//sel graph, matrix_of_paths, first_node (always -1?), len, star, path (return value)
 	//generate_random_path(g, pathmat, -1, nb_conjs, wconf.multiplicity, path);
 	//implementation assumes first node is always -1 (aka ommitted)
-	public void generateRandomPath(Selectivity selectivity, int length, double star){//multiplicity - double / star fraction of stars 0~1
+	public List<PathSegment> generateRandomPath(Selectivity selectivity, int length, double star){//multiplicity - double / star fraction of stars 0~1
 		DistanceMatrix matrix = computeNumberOfPaths(selectivity, length);
 		
 		int currentNode = 0;
@@ -113,7 +114,7 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 				path.add(new PathSegment(schema.getType(currentNode), SelectivityClass.EQUALS, schema.getType(currentNode), true));
 			}else{
 				int previousNode = currentNode;
-				SelectivityClass sel;
+				SelectivityClass sel = null;
 				
 				int rnd = Util.uniformRandom(1, matrix.get(i, currentNode).get(currentSel));
 				int acc = 0;
@@ -123,13 +124,15 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 					if(acc >= rnd){
 						currentNode = target.getTypeID();
 						currentSel = target.getSelectivity();
-						//sel = 
+						sel = edge.getData();
+						break;
 					}
 				}
+				path.add(new PathSegment(schema.getType(previousNode), sel, schema.getType(currentNode), false));
 			}
 		}
 		
-		
+		return path;
 	}
 	
 	private DistanceMatrix computeNumberOfPaths(Selectivity selectivity, int length){

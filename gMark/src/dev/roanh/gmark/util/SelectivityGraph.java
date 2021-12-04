@@ -54,7 +54,6 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 	public void generateRandomPath(Selectivity selectivity, int length){//multiplicity - double
 		DistanceMatrix matrix = computeNumberOfPaths(selectivity, length);
 		
-		int currentNode = 0;
 		SelectivityClass currentSel = SelectivityClass.EQUALS;
 		
 		int m = index.size();
@@ -68,9 +67,23 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 			throw new IllegalStateException("Failed to generate a random path");
 		}
 		
-		//int rnd = 
+		int rnd = Util.uniformRandom(1, paths);
+		int acc = 0;
+		int currentNode = 0;
+		for(int i = 0; i < m; i++){
+			acc += matrix.get(length, i).getOrDefault(SelectivityClass.EQUALS, 0);
+			if(acc >= rnd){
+				currentNode = i;
+				break;
+			}
+		}
 		
+		if(!matrix.get(length, currentNode).containsKey(currentSel)){
+			//TODO recosider this behaviour
+			throw new IllegalStateException("Failed to generate a random path");
+		}
 		
+		//TODO ...
 		
 		
 	}

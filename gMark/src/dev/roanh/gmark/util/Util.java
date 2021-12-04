@@ -33,7 +33,13 @@ public class Util{
 		return null;
 	}
 	
-	//min and max inclusive
+	/**
+	 * Generates a random integer between the given
+	 * minimum and maximum value (both inclusive).
+	 * @param min The minimum value.
+	 * @param max The maximum value.
+	 * @return The randomly generated value.
+	 */
 	public static int uniformRandom(int min, int max){
 		return min + getRandom().nextInt(max - min + 1);
 	}

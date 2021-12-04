@@ -11,6 +11,7 @@ import dev.roanh.gmark.core.graph.Type;
 
 public class SelectivityGraph extends Graph<SelectivityType, Void>{
 	//TODO, move to constructor if not used anywhere else
+	//gmark: graph.neighbors.size()
 	private RangeList<Map<SelectivityClass, GraphNode<SelectivityType, Void>>> index;
 	
 	
@@ -48,10 +49,26 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 	
 	
 	//sel graph, matrix_of_paths, first_node (always -1?), len, star, path (return value)
-	public void generateRandomPath(){
+	//generate_random_path(g, pathmat, -1, nb_conjs, wconf.multiplicity, path);
+	//implementation assumes first node is always -1 (aka ommitted)
+	public void generateRandomPath(Selectivity selectivity, int length){//multiplicity - double
+		DistanceMatrix matrix = computeNumberOfPaths(selectivity, length);
 		
+		int currentNode = 0;
+		SelectivityClass currentSel = SelectivityClass.EQUALS;
 		
+		int m = index.size();
+		int paths = 0;
+		for(int i = 0; i < m; i++){
+			paths += matrix.get(length, i).getOrDefault(SelectivityClass.EQUALS, 0);
+		}
+
+		if(paths == 0){
+			//TODO reconsider this behaviour
+			throw new IllegalStateException("Failed to generate a random path");
+		}
 		
+		//int rnd = 
 		
 		
 		

@@ -10,10 +10,20 @@ import java.util.function.Supplier;
 import dev.roanh.gmark.core.SelectivityClass;
 
 public class Util{
+	private static final ThreadLocal<Random> random = ThreadLocal.withInitial(Random::new);
+	
+	public static Random getRandom(){
+		return random.get();
+	}
+	
+	//thread local
+	public static void setRandomSeed(long seed){
+		random.get().setSeed(seed);
+	}
 
-	public static <T> T selectRandom(Random random, Collection<T> data){
+	public static <T> T selectRandom(Collection<T> data){
 		if(!data.isEmpty()){
-			int idx = random.nextInt(data.size());
+			int idx = getRandom().nextInt(data.size());
 			for(T item : data){
 				if(idx-- == 0){
 					return item;
@@ -24,8 +34,8 @@ public class Util{
 	}
 	
 	//min and max inclusive
-	public static int uniformRandom(Random random, int min, int max){
-		return min + random.nextInt(max - min + 1);
+	public static int uniformRandom(int min, int max){
+		return min + getRandom().nextInt(max - min + 1);
 	}
 	
 	public static <T> Supplier<Map<SelectivityClass, T>> selectivityMapSupplier(){

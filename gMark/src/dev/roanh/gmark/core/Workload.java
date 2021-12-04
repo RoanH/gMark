@@ -14,8 +14,8 @@ public abstract class Workload{
 	private int minLength;
 	private int maxLength;
 	private int arity;
-	private Set<QueryShape> shapes;
-	private Set<Selectivity> selectivities;
+	private Set<QueryShape> shapes;//TODO assert this is not empty, general validation of everything really
+	private Set<Selectivity> selectivities;//TODO assert this is not empty
 	
 	
 	

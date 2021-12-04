@@ -6,9 +6,7 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.graph.Predicate;
@@ -16,7 +14,6 @@ import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.util.EdgeGraphData.IntersectionData;
 
 public class EdgeGraph extends Graph<EdgeGraphData, Void>{
-	private Random random = ThreadLocalRandom.current();//TODO configurable
 	private GraphNode<EdgeGraphData, Void> src;
 	private GraphNode<EdgeGraphData, Void> trg;
 	private int minLen;
@@ -65,7 +62,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 			GraphNode<EdgeGraphData, Void> node = src;
 			int len = 0;
 			while(len < maxLen){
-				node = Util.selectRandom(random, node.getOutEdges()).getTargetNode();
+				node = Util.selectRandom(node.getOutEdges()).getTargetNode();
 				if(!node.equals(trg)){
 					if(len + node.getData().size() <= maxLen){
 						path.add(node);
@@ -146,7 +143,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	}
 	
 	private IntersectionData reverseIdentity(GraphNode<EdgeGraphData, Void> target){
-		Deque<EdgeGraphData> path = reverseToSource(Util.selectRandom(random, target.getInEdges()));
+		Deque<EdgeGraphData> path = reverseToSource(Util.selectRandom(target.getInEdges()));
 		Type type = target.getData().getSourceType();
 		
 		while(path.size() > 1){
@@ -161,7 +158,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	
 	private IntersectionData reverseParallel(GraphNode<EdgeGraphData, Void> target){
 		Set<GraphEdge<EdgeGraphData, Void>> in = target.getInEdges();
-		int[] indices = random.ints(0, in.size()).distinct().limit(2).toArray();
+		int[] indices = Util.getRandom().ints(0, in.size()).distinct().limit(2).toArray();
 		int index = 0;
 		
 		Deque<EdgeGraphData> first = null;
@@ -197,7 +194,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 //		}while(edge != null);//only the source node has no incoming edges
 		
 		while(!edge.getSourceNode().equals(src)){
-			edge = Util.selectRandom(random, edge.getSourceNode().getInEdges());
+			edge = Util.selectRandom(edge.getSourceNode().getInEdges());
 			path.addFirst(edge.getSource());
 		}
 		

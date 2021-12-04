@@ -53,6 +53,10 @@ public class SelectivityType{
 		return selectivity;
 	}
 	
+	public int getTypeID(){
+		return type.getID();
+	}
+	
 	public static final SelectivityType of(Type type, SelectivityClass sel){
 		return new SelectivityType(type, sel);
 	}

@@ -108,4 +108,12 @@ public class Schema{
 	public ConfigGraph asGraph(){
 		return new ConfigGraph(this);
 	}
+	
+	public Type getType(int id){
+		return types.get(id);
+	}
+	
+	public Predicate getPredicate(int id){
+		return predicates.get(id);
+	}
 }

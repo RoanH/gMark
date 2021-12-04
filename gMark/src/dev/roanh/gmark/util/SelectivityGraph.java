@@ -1,5 +1,7 @@
 package dev.roanh.gmark.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -12,10 +14,12 @@ import dev.roanh.gmark.core.graph.Type;
 public class SelectivityGraph extends Graph<SelectivityType, Void>{
 	//TODO, move to constructor if not used anywhere else
 	//gmark: graph.neighbors.size()
-	private RangeList<Map<SelectivityClass, GraphNode<SelectivityType, Void>>> index;
+	private final RangeList<Map<SelectivityClass, GraphNode<SelectivityType, Void>>> index;
+	private final Schema schema;
 	
 	
 	public SelectivityGraph(Schema schema, int maxLength){
+		this.schema = schema;
 		index = new RangeList<Map<SelectivityClass, GraphNode<SelectivityType, Void>>>(schema.getTypeCount(), Util.selectivityMapSupplier());
 		
 		//compute distance between types (matrix)
@@ -24,6 +28,7 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 		DistanceMatrix matrix = computeDistanceMatrix(schema);
 	
 		//TODO in the original codebase this creates links (t1,s1) --s2-> (t2,s1*s2) which would imply this graph is labelled?
+		//--> looks like these labels are used when drawing paths
 		for(Type t1 : schema.getTypes()){
 			for(Type t2 : schema.getTypes()){
 				for(SelectivityClass sel1 : SelectivityClass.values()){
@@ -31,7 +36,7 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 						//if there exists a path of valid length from t1 to t2 with result selectivity class sel2
 						if(matrix.get(t1, t2).getOrDefault(sel2, Integer.MAX_VALUE) <= maxLength){
 							//add graph edge (t1, sel1) -> (t2, sel1 * sel2)
-							resolve(t1, sel1).addUniqueEdgeTo(resolve(t2, sel1.conjunction(sel2)));
+							resolve(t1, sel1).addUniqueEdgeTo(resolve(t2, sel1.conjunction(sel2)));//TODO see todo higher up about labelling
 						}
 					}
 				}
@@ -46,44 +51,83 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 	
 	
 	
-	
+	public void generateRandomPath(Selectivity selectivity, int length){
+		generateRandomPath(selectivity, length, -1.0D);
+	}
 	
 	//sel graph, matrix_of_paths, first_node (always -1?), len, star, path (return value)
 	//generate_random_path(g, pathmat, -1, nb_conjs, wconf.multiplicity, path);
 	//implementation assumes first node is always -1 (aka ommitted)
-	public void generateRandomPath(Selectivity selectivity, int length){//multiplicity - double
+	public void generateRandomPath(Selectivity selectivity, int length, double star){//multiplicity - double / star fraction of stars 0~1
 		DistanceMatrix matrix = computeNumberOfPaths(selectivity, length);
 		
+		int currentNode = 0;
 		SelectivityClass currentSel = SelectivityClass.EQUALS;
 		
-		int m = index.size();
-		int paths = 0;
-		for(int i = 0; i < m; i++){
-			paths += matrix.get(length, i).getOrDefault(SelectivityClass.EQUALS, 0);
-		}
+		//TODO alternative never used branch in gmark here
+		{
+			int m = index.size();
+			int paths = 0;
+			for(int i = 0; i < m; i++){
+				paths += matrix.get(length, i).getOrDefault(SelectivityClass.EQUALS, 0);
+			}
 
-		if(paths == 0){
-			//TODO reconsider this behaviour
-			throw new IllegalStateException("Failed to generate a random path");
-		}
-		
-		int rnd = Util.uniformRandom(1, paths);
-		int acc = 0;
-		int currentNode = 0;
-		for(int i = 0; i < m; i++){
-			acc += matrix.get(length, i).getOrDefault(SelectivityClass.EQUALS, 0);
-			if(acc >= rnd){
-				currentNode = i;
-				break;
+			if(paths == 0){
+				//TODO reconsider this behaviour
+				throw new IllegalStateException("Failed to generate a random path");
+			}
+			
+			int rnd = Util.uniformRandom(1, paths);
+			int acc = 0;
+			for(int i = 0; i < m; i++){
+				acc += matrix.get(length, i).getOrDefault(SelectivityClass.EQUALS, 0);
+				if(acc >= rnd){
+					currentNode = i;
+					break;
+				}
 			}
 		}
 		
 		if(!matrix.get(length, currentNode).containsKey(currentSel)){
-			//TODO recosider this behaviour
+			//TODO reconsider this behaviour
 			throw new IllegalStateException("Failed to generate a random path");
 		}
 		
-		//TODO ...
+		//TODO there is some has star logic in gmark, this does nothing so it was not copied
+		List<PathSegment> path = new ArrayList<PathSegment>(length);
+		for(int i = length; i > 0; i--){
+			
+			//TODO for some paths, e.g. CPQ's we never want a star so this test is redundant and expensive
+			//self loop test
+			boolean test = false;
+			for(GraphEdge<SelectivityType, Void> edge : index.get(currentNode).get(SelectivityClass.EQUALS).getOutEdges()){
+				SelectivityType target = edge.getTarget();
+				if(target.getSelectivity() == SelectivityClass.EQUALS && target.getType().getID() == currentNode){
+					test = true;
+					break;
+				}
+			}
+			
+			if(test && Util.getRandom().nextDouble() <= star){
+				//TODO could also pushback entire graph edges -- would miss star status
+				path.add(new PathSegment(schema.getType(currentNode), SelectivityClass.EQUALS, schema.getType(currentNode), true));
+			}else{
+				int previousNode = currentNode;
+				SelectivityClass sel;
+				
+				int rnd = Util.uniformRandom(1, matrix.get(i, currentNode).get(currentSel));
+				int acc = 0;
+				for(GraphEdge<SelectivityType, Void> edge : index.get(currentNode).get(currentSel).getOutEdges()){
+					SelectivityType target = edge.getTarget();
+					acc += matrix.get(i - 1, target.getType()).get(target.getSelectivity());
+					if(acc >= rnd){
+						currentNode = target.getTypeID();
+						currentSel = target.getSelectivity();
+						//sel = 
+					}
+				}
+			}
+		}
 		
 		
 	}

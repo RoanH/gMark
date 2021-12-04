@@ -59,13 +59,35 @@ public class SelectivityGraph extends Graph<SelectivityType, Void>{
 	}
 	
 	private DistanceMatrix computeNumberOfPaths(Selectivity selectivity, int length){
-		//TODO number of columns should be the type count
-		DistanceMatrix matrix = new DistanceMatrix(length + 1, -1);
+		//TODO number of columns should be the type count, should find a better way to pass that maybe
+		int types = index.size();
+		DistanceMatrix matrix = new DistanceMatrix(length + 1, types);
 		
-		
-		
-		
-		
+		for(int j = 0; j < types; j++){
+			for(SelectivityClass sel : SelectivityClass.values()){
+				if(sel.getSelectivity() == selectivity){
+					matrix.get(0, j).put(sel, 1);
+				}
+			}
+		}
+
+		for(int i = 1; i <= length; i++){
+			for(int j = 0; j < types; j++){
+				for(SelectivityClass sel : SelectivityClass.values()){
+					GraphNode<SelectivityType, Void> node = index.get(j).get(sel);
+					if(node != null && node.getOutCount() > 0){
+						for(GraphEdge<SelectivityType, Void> edge : node.getOutEdges()){
+							SelectivityType target = edge.getTarget();
+							matrix.get(i, j).merge(
+								sel,
+								matrix.get(i - 1, target.getType()).get(target.getSelectivity()),
+								Integer::sum
+							);
+						}
+					}
+				}
+			}
+		}
 		
 		return matrix;
 	}

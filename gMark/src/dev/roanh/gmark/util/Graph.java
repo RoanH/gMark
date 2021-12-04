@@ -232,6 +232,14 @@ public class Graph<V, E>{
 			return null;
 		}
 		
+		public int getOutCount(){
+			return out.size();
+		}
+		
+		public int getInCount(){
+			return in.size();
+		}
+		
 		public Set<GraphEdge<V, E>> getOutEdges(){
 			return out;
 		}

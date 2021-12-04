@@ -28,6 +28,14 @@ public class RangeMatrix<T>{
 		return get(row.getID(), col.getID());
 	}
 	
+	public T get(int row, IDable col){
+		return get(row, col.getID());
+	}
+	
+	public T get(IDable row, int col){
+		return get(row.getID(), col);
+	}
+	
 	public T get(int row, int col){
 		return data[row][col];
 	}

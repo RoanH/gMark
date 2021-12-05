@@ -59,6 +59,7 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 	//sel graph, matrix_of_paths, first_node (always -1?), len, star, path (return value)
 	//generate_random_path(g, pathmat, -1, nb_conjs, wconf.multiplicity, path);
 	//implementation assumes first node is always -1 (aka ommitted)
+	//TODO currentNode and currentSel form a valid SelecitivityType see if we can rewrite the logic to use that
 	public List<PathSegment> generateRandomPath(Selectivity selectivity, int length, double star){//multiplicity - double / star fraction of stars 0~1
 		DistanceMatrix matrix = computeNumberOfPaths(selectivity, length);
 		
@@ -111,7 +112,7 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 			
 			if(test && Util.getRandom().nextDouble() <= star){
 				//TODO could also pushback entire graph edges -- would miss star status
-				path.add(new PathSegment(schema.getType(currentNode), SelectivityClass.EQUALS, schema.getType(currentNode), true));
+				path.add(PathSegment.of(schema, currentNode, SelectivityClass.EQUALS, currentNode, true));
 			}else{
 				int previousNode = currentNode;
 				SelectivityClass sel = null;
@@ -128,7 +129,7 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 						break;
 					}
 				}
-				path.add(new PathSegment(schema.getType(previousNode), sel, schema.getType(currentNode), false));
+				path.add(PathSegment.of(schema, previousNode, sel, currentNode, false));
 			}
 		}
 		

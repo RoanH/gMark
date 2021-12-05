@@ -7,6 +7,7 @@ import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.query.Conjunct;
+import dev.roanh.gmark.util.PathSegment;
 import dev.roanh.gmark.util.SelectivityGraph;
 import dev.roanh.gmark.util.Util;
 
@@ -21,7 +22,7 @@ public class ChainGenerator{
 		Selectivity selectivity = Util.selectRandom(workload.getSelectivities());
 		//TODO store selected selectivity info for the query we're working on
 		
-		//TODO draw path from selectivity graph
+		List<PathSegment> path = g.generateRandomPath(selectivity, conjunctNum);//TODO can also pass conjunct multiplicity rate
 		
 		for(int i = 0; i < conjunctNum; i++){
 			

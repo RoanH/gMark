@@ -20,11 +20,11 @@ public class SelectivityType{
 	/**
 	 * The node type associated with this selectivity type.
 	 */
-	private Type type;
+	private final Type type;
 	/**
 	 * The selectivity class associated with this selectivity type.
 	 */
-	private SelectivityClass selectivity;
+	private final SelectivityClass selectivity;
 	
 	/**
 	 * Constructs a new selectivity type with the

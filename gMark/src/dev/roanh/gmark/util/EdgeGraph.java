@@ -19,8 +19,11 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	private int minLen;
 	private int maxLen;
 	
-	
 	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target){
+		this(gs, maxLen, source, target, 5);
+	}
+	
+	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target, int recursion){
 		minLen = 1;//TODO make configurable
 		this.maxLen = maxLen;
 		
@@ -39,7 +42,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		//edge case: we could id a path that doesn't split
 		
 		//TODO make recursion a parameter
-		for(int i = 0; i < 5; i++){
+		for(int i = 0; i < recursion; i++){
 			for(IntersectionData parallel : findParallel()){
 				GraphNode<EdgeGraphData, Void> n = addUniqueNode(parallel);
 				//TODO could have just saved the source and target as real nodes

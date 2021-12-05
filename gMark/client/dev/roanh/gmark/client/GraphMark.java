@@ -9,9 +9,11 @@ import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.client.component.GraphPanel;
 import dev.roanh.gmark.conjunct.cpq.GeneratorCPQ;
 import dev.roanh.gmark.core.SelectivityClass;
+import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Type;
+import dev.roanh.gmark.query.shape.ChainGenerator;
 import dev.roanh.gmark.util.ConfigGraph;
 import dev.roanh.gmark.util.EdgeGraph;
 import dev.roanh.gmark.util.EdgeGraphData;
@@ -57,6 +59,8 @@ public class GraphMark{
 		}
 		
 		GeneratorCPQ.generateInnerCPQ(sg, gs, src, trg, 4, 5);
+		
+		System.out.println(new ChainGenerator().generate(config, Workload.getDummyInstance()));
 		
 		frame.add(tabs);
 		frame.setSize(800, 600);

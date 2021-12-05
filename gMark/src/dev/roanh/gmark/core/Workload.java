@@ -1,5 +1,6 @@
 package dev.roanh.gmark.core;
 
+import java.util.HashSet;
 import java.util.Set;
 
 //TODO need to redo gmark formats a bit, probably just add another param after workload size with type="cpq", rpq, etc keep this class for shared info
@@ -50,5 +51,26 @@ public abstract class Workload{
 	
 	public Set<Selectivity> getSelectivities(){
 		return selectivities;
+	}
+	
+	@Deprecated
+	public static Workload getDummyInstance(){
+		Workload wl = new Workload(){
+		};
+		
+		wl.size = 1;
+		wl.maxArity = 4;
+		wl.minArity = 1;
+		wl.maxLength = 6;
+		wl.minLength = 2;
+		wl.minConjuncts = 1;
+		wl.maxConjuncts = 4;
+		//TODO shapes
+		Set<Selectivity> sel = new HashSet<Selectivity>();
+		sel.add(Selectivity.LINEAR);
+		sel.add(Selectivity.QUADRATIC);
+		wl.selectivities = sel;
+		
+		return wl;
 	}
 }

@@ -67,6 +67,15 @@ public class Util{
 		return min + getRandom().nextInt(max - min + 1);
 	}
 	
+	/**
+	 * Returns a {@link Supplier} that constructs a new enum map
+	 * from the {@link SelectivityClass} enum to the given data type.
+	 * @param <T> The data type to map to.
+	 * @return A supplier that returns a map that maps from
+	 *         selectivity classes to the given data type.
+	 * @see Supplier
+	 * @see SelectivityClass
+	 */
 	public static <T> Supplier<Map<SelectivityClass, T>> selectivityMapSupplier(){
 		return ()->new EnumMap<SelectivityClass, T>(SelectivityClass.class);
 	}

@@ -3,7 +3,12 @@ package dev.roanh.gmark.util;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+import dev.roanh.gmark.conjunct.cpq.CPQ;
+import dev.roanh.gmark.conjunct.cpq.ConcatCPQ;
+import dev.roanh.gmark.conjunct.cpq.EdgeCPQ;
+import dev.roanh.gmark.conjunct.cpq.IntersectionCPQ;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Type;
@@ -46,6 +51,8 @@ public abstract class EdgeGraphData{
 
 	public abstract Selectivity getTargetSelectivity();
 	
+	public abstract CPQ toCPQ();
+	
 	protected static class IdentityData extends EdgeGraphData{
 		private Type type;
 		
@@ -83,6 +90,11 @@ public abstract class EdgeGraphData{
 		public Selectivity getTargetSelectivity(){
 			//unused, but this makes most sense
 			return type.isScalable() ? Selectivity.LINEAR : Selectivity.CONSTANT;
+		}
+
+		@Override
+		public CPQ toCPQ(){
+			return CPQ.IDENTITY;
 		}
 	}
 	
@@ -166,6 +178,14 @@ public abstract class EdgeGraphData{
 		public Selectivity getTargetSelectivity(){
 			return target.getSourceSelectivity();
 		}
+
+		@Override
+		public CPQ toCPQ(){
+			return new IntersectionCPQ(
+				first.size() == 1 ? first.getFirst().toCPQ() : new ConcatCPQ(first.stream().map(EdgeGraphData::toCPQ).collect(Collectors.toList())),
+				second.size() == 1 ? second.getFirst().toCPQ() : new ConcatCPQ(second.stream().map(EdgeGraphData::toCPQ).collect(Collectors.toList()))
+			);
+		}
 	}
 	
 	private static class EndpointData extends EdgeGraphData{
@@ -210,6 +230,12 @@ public abstract class EdgeGraphData{
 		@Override
 		public Selectivity getTargetSelectivity(){
 			return selType.getSelectivity().getSelectivity();
+		}
+
+		@Override
+		public CPQ toCPQ(){
+			//always an empty start or end of a path
+			return CPQ.IDENTITY;
 		}
 	}
 	
@@ -258,6 +284,11 @@ public abstract class EdgeGraphData{
 		@Override
 		public Selectivity getTargetSelectivity(){
 			return edge.getTarget().getSelectivity().getSelectivity();
+		}
+
+		@Override
+		public CPQ toCPQ(){
+			return new EdgeCPQ(edge.getData());
 		}
 	}
 }

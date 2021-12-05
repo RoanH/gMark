@@ -41,7 +41,6 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		//just pick one path and then check everytime if we can link back
 		//edge case: we could id a path that doesn't split
 		
-		//TODO make recursion a parameter
 		for(int i = 0; i < recursion; i++){
 			for(IntersectionData parallel : findParallel()){
 				GraphNode<EdgeGraphData, Void> n = addUniqueNode(parallel);

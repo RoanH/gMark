@@ -7,6 +7,7 @@ import javax.swing.JTabbedPane;
 
 import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.client.component.GraphPanel;
+import dev.roanh.gmark.conjunct.cpq.GeneratorCPQ;
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Predicate;
@@ -54,6 +55,8 @@ public class GraphMark{
 		for(int i = 0; i < 10; i++){
 			eg.printPath();
 		}
+		
+		GeneratorCPQ.generateInnerCPQ(sg, gs, src, trg, 4, 5);
 		
 		frame.add(tabs);
 		frame.setSize(800, 600);

@@ -13,12 +13,20 @@ public abstract class Workload{
 	private int maxConjuncts;
 	private int minLength;
 	private int maxLength;
-	private int arity;
+	private int minArity;
+	private int maxArity;
 	private Set<QueryShape> shapes;//TODO assert this is not empty, general validation of everything really
 	private Set<Selectivity> selectivities;//TODO assert this is not empty
 	
 	
 	
+	public int getMinArity(){
+		return minArity;
+	}
+	
+	public int getMaxArity(){
+		return maxArity;
+	}
 	
 	public int getMaxLength(){
 		return maxLength;

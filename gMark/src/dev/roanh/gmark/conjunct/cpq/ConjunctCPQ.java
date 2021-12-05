@@ -7,7 +7,11 @@ public class ConjunctCPQ extends Conjunct{
 	private CPQ cpq;
 	
 	public ConjunctCPQ(Variable source, Variable target, boolean star, CPQ cpq){
-		super(source, target, star);
 		this.cpq = cpq;
+	}
+
+	@Override
+	protected String getInnerString(){
+		return cpq.toString();
 	}
 }

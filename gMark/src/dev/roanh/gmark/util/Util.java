@@ -9,18 +9,41 @@ import java.util.function.Supplier;
 
 import dev.roanh.gmark.core.SelectivityClass;
 
+/**
+ * Class providing various small utilities as well
+ * as thread bound random operations.
+ * @author Roan
+ */
 public class Util{
+	/**
+	 * Random instances for each thread.
+	 */
 	private static final ThreadLocal<Random> random = ThreadLocal.withInitial(Random::new);
 	
+	/**
+	 * Gets a random instance bound to the current thread.
+	 * @return A thread local random instance.
+	 */
 	public static Random getRandom(){
 		return random.get();
 	}
 	
-	//thread local
+	/**
+	 * Sets the seed of the random instance for the current thread.
+	 * @param seed The new seed.
+	 * @see #getRandom()
+	 */
 	public static void setRandomSeed(long seed){
 		random.get().setSeed(seed);
 	}
 
+	/**
+	 * Randomly selects an element from the given collection.
+	 * @param <T> The element data type.
+	 * @param data The collection to pick an element from.
+	 * @return The selected element or <code>null</code>
+	 *         when the provided collection was empty.
+	 */
 	public static <T> T selectRandom(Collection<T> data){
 		if(!data.isEmpty()){
 			int idx = getRandom().nextInt(data.size());
@@ -48,6 +71,17 @@ public class Util{
 		return ()->new EnumMap<SelectivityClass, T>(SelectivityClass.class);
 	}
 	
+	/**
+	 * Applies the given function to the given data, unless the
+	 * data is <code>null</code> then <code>null</code> is returned
+	 * instead.
+	 * @param <T> The input data type.
+	 * @param <R> The output data type.
+	 * @param data The data to give to the function.
+	 * @param function The function to run on the data.
+	 * @return The result of applying the given function to the given
+	 *         data or <code>null</code> when the given data is <code>null</code>.
+	 */
 	public static <T, R> R applyOrNull(T data, Function<T, R> function){
 		return data == null ? null : function.apply(data);
 	}

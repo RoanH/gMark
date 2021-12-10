@@ -158,7 +158,7 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 							SelectivityType target = edge.getTarget();
 							matrix.get(i, j).merge(
 								sel,
-								matrix.get(i - 1, target.getType()).get(target.getSelectivity()),
+								matrix.get(i - 1, target.getType()).getOrDefault(target.getSelectivity(), 0),
 								Integer::sum
 							);
 						}

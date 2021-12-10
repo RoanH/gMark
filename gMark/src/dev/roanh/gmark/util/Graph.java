@@ -149,7 +149,7 @@ public class Graph<V, E>{
 	public void addUniqueEdge(GraphNode<V, E> source, GraphNode<V, E> target, E data){
 		//TODO this duplicate check is fairly expensive as is
 		for(GraphEdge<V, E> edge : source.out){
-			if(edge.target.equals(target)){
+			if(edge.target.equals(target) && Objects.equals(edge.data, data)){
 				return;
 			}
 		}

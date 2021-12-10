@@ -42,7 +42,7 @@ public class GraphMark{
 
 		EdgeGraph eg = new EdgeGraph(gs, 4, src, trg);
 		ConfigGraph cg = new ConfigGraph(config);
-		SelectivityGraph sg = new SelectivityGraph(config.getSchema(), 2);
+		SelectivityGraph sg = new SelectivityGraph(config.getSchema(), 4);
 				
 		eg.removeNodeIf(n->n.getInEdges().size() + n.getOutEdges().size() == 0);
 		gs.removeUnreachable();

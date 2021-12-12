@@ -84,13 +84,9 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		}
 	}
 	
-//	private void computeIdentity(){
-//		//TODO this takes quadratic time
-//		for(G s : )
-//	}
-	
+	//path can be empty if source connected to target
 	private void computeAllPaths(Deque<GraphEdge<SelectivityType, Predicate>> path, SchemaGraph gs, int maxLen, GraphNode<SelectivityType, Predicate> source, GraphNode<SelectivityType, Predicate> target){
-		if(source.equals(target)){
+		if(source.equals(target) && !path.isEmpty()){
 			addPath(path);
 		}else if(maxLen == 0 || source.getOutEdges().isEmpty()){
 			return;

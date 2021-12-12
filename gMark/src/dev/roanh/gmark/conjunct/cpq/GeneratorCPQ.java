@@ -37,6 +37,7 @@ public class GeneratorCPQ{
 	public static final Conjunct generateInnerCPQ(SelectivityGraph g, SchemaGraph gs, SelectivityType source, SelectivityType target, int maxLength, int maxRecursion){
 		EdgeGraph graph = new EdgeGraph(gs, maxLength, source, target, maxRecursion);
 		List<GraphNode<EdgeGraphData, Void>> path = graph.drawPath();
+		assert !path.isEmpty() : "path may not be empty!";
 		
 		CPQ cpq = path.size() == 1 ? path.get(0).getData().toCPQ() : new ConcatCPQ(
 			path.stream().map(GraphNode::getData).map(EdgeGraphData::toCPQ).collect(Collectors.toList())

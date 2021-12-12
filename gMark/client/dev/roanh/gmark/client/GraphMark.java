@@ -55,7 +55,7 @@ public class GraphMark{
 		tabs.addTab("Selectivity Graph", new GraphPanel<SelectivityType, SelectivityClass>(sg));
 		
 		//just print a few paths randomly
-		for(int i = 0; i < 10; i++){
+		for(int i = 0; i < 1000000; i++){
 			eg.printPath();
 		}
 		

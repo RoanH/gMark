@@ -58,7 +58,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	public List<GraphNode<EdgeGraphData, Void>> drawPath(){
 		//TODO return a valid path, should probably respect min/max length, should make sure to never follow identity edges
 		//TODO investigate performance
-		while(true){
+		find: while(true){
 			List<GraphNode<EdgeGraphData, Void>> path = new ArrayList<GraphNode<EdgeGraphData, Void>>(maxLen);
 			
 			GraphNode<EdgeGraphData, Void> node = src;
@@ -66,10 +66,12 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 			while(len < maxLen){
 				node = Util.selectRandom(node.getOutEdges()).getTargetNode();
 				if(!node.equals(trg)){
-					if(len + node.getData().size() <= maxLen){
+					int size = node.getData().size();
+					if(len + size <= maxLen){
 						path.add(node);
+						len += size;
 					}else{
-						break;//TODO this might return too early
+						break;
 					}
 				}else{
 					if(len >= minLen){
@@ -80,6 +82,10 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 				}
 			}
 			
+			assert path.size() >= minLen : "Path too short";
+			assert path.size() <= maxLen : "Path too long";
+			assert path.get(0).getInEdges().stream().map(GraphEdge::getSourceNode).anyMatch(src::equals) : "Start not connected to source";
+			assert path.get(path.size() - 1).getOutEdges().stream().map(GraphEdge::getTargetNode).anyMatch(trg::equals) : "Start not connected to source";
 			return path;
 		}
 	}

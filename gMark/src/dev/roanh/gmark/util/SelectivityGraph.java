@@ -121,7 +121,7 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 				int acc = 0;
 				for(GraphEdge<SelectivityType, SelectivityClass> edge : index.get(currentNode).get(currentSel).getOutEdges()){
 					SelectivityType target = edge.getTarget();
-					acc += matrix.get(i - 1, target.getType()).get(target.getSelectivity());
+					acc += matrix.get(i - 1, target.getType()).getOrDefault(target.getSelectivity(), 0);
 					if(acc >= rnd){
 						currentNode = target.getTypeID();
 						currentSel = target.getSelectivity();

@@ -43,6 +43,8 @@ public class ChainGenerator{
 			Variable var = new Variable(i);
 			conj.setData(variables.get(variables.size() - 1), var, segment.hasStar());
 			variables.add(var);
+			
+			conjuncts.add(conj);
 		}
 		
 		int arity = Math.min(Util.uniformRandom(workload.getMinArity(), workload.getMaxArity()), variables.size());//ensure arity <= |variables|

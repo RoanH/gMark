@@ -44,6 +44,6 @@ public class GeneratorCPQ{
 		
 		System.out.println("CPQ: " + cpq);
 		
-		return null;//TODO
+		return new ConjunctCPQ(cpq);
 	}
 }

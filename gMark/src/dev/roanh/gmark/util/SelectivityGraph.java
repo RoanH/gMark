@@ -136,7 +136,7 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 		return path;
 	}
 	
-	private DistanceMatrix computeNumberOfPaths(Selectivity selectivity, int length){
+	public DistanceMatrix computeNumberOfPaths(Selectivity selectivity, int length){
 		//TODO number of columns should be the type count, should find a better way to pass that maybe
 		int types = index.size();
 		DistanceMatrix matrix = new DistanceMatrix(length + 1, types);
@@ -177,7 +177,7 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 	 * @param schema The schema to compute the distance matrix for.
 	 * @return The distance matrix for the given graph schema.
 	 */
-	private static DistanceMatrix computeDistanceMatrix(Schema schema){
+	public static DistanceMatrix computeDistanceMatrix(Schema schema){
 		int size = schema.getTypeCount();
 		int logSize = (int)Math.log(size) + 4;//TODO why does this use a natural log?
 		
@@ -219,7 +219,7 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 		return matrix;
 	}
 	
-	private static final class DistanceMatrix extends RangeMatrix<Map<SelectivityClass, Integer>>{
+	public static final class DistanceMatrix extends RangeMatrix<Map<SelectivityClass, Integer>>{
 		
 		private DistanceMatrix(int size){
 			this(size, size);

@@ -103,6 +103,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		}
 	}
 	
+	//TODO can be an empty dequeue I guess
 	private void addPath(Deque<GraphEdge<SelectivityType, Predicate>> path){
 		trg.addUniqueEdgeFrom(EdgeGraphData.of(path.getFirst()));
 		Iterator<GraphEdge<SelectivityType, Predicate>> iter = path.iterator();

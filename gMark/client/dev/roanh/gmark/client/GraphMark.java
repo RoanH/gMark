@@ -1,5 +1,6 @@
 package dev.roanh.gmark.client;
 
+import java.io.Console;
 import java.nio.file.Paths;
 
 import javax.swing.JFrame;
@@ -58,9 +59,14 @@ public class GraphMark{
 			eg.printPath();
 		}
 		
-		GeneratorCPQ.generateInnerCPQ(sg, gs, src, trg, 4, 5);
+		//GeneratorCPQ.generateInnerCPQ(sg, gs, src, trg, 4, 5);
 		
-		System.out.println(new ChainGenerator().generate(config, Workload.getDummyInstance()));
+		System.out.println("\n\n\n\n\n\n\n\n\n");
+		
+		ChainGenerator generator = new ChainGenerator();
+		for(int i = 0; i < 10; i++){
+			System.out.println(generator.generate(config, Workload.getDummyInstance()));
+		}
 		
 		frame.add(tabs);
 		frame.setSize(800, 600);

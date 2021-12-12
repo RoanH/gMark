@@ -69,7 +69,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 					if(len + node.getData().size() <= maxLen){
 						path.add(node);
 					}else{
-						break;
+						break;//TODO this might return too early
 					}
 				}else{
 					if(len >= minLen){
@@ -105,6 +105,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	
 	//TODO can be an empty dequeue I guess
 	private void addPath(Deque<GraphEdge<SelectivityType, Predicate>> path){
+		System.out.println("add path: " + path);
 		trg.addUniqueEdgeFrom(EdgeGraphData.of(path.getFirst()));
 		Iterator<GraphEdge<SelectivityType, Predicate>> iter = path.iterator();
 		EdgeGraphData last = EdgeGraphData.of(iter.next());
@@ -136,8 +137,9 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 					}
 				}
 				
-				if(node.getInEdges().size() > 1){
-					parallel.add(reverseParallel(node));
+				IntersectionData intersect = reverseParallel(node);
+				if(intersect != null){
+					parallel.add(intersect);
 				}
 			}
 		}
@@ -160,6 +162,10 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	}
 	
 	private IntersectionData reverseParallel(GraphNode<EdgeGraphData, Void> target){
+		if(target.getInEdges().size() <= 1){
+			return null;
+		}
+		
 		Set<GraphEdge<EdgeGraphData, Void>> in = target.getInEdges();
 		int[] indices = Util.getRandom().ints(0, in.size()).distinct().limit(2).toArray();
 		int index = 0;
@@ -173,6 +179,11 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 				second = reverseToSource(edge);
 			}
 			index++;
+		}
+		
+		if(first.size() == 1 || second.size() == 1){
+			//this can happen when the target has an edge to the source
+			return null;
 		}
 		
 		System.out.println("paths: " + first + " / " + second);

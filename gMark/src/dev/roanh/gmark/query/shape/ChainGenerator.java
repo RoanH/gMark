@@ -40,7 +40,7 @@ public class ChainGenerator{
 			PathSegment segment = path.get(i);
 			Conjunct conj = GEN.generateConjunct(g, gs, segment.getSource(), segment.getTarget());
 			
-			Variable var = new Variable(i);
+			Variable var = new Variable(i + 1);
 			conj.setData(variables.get(variables.size() - 1), var, segment.hasStar());
 			variables.add(var);
 			

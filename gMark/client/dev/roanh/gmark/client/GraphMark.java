@@ -1,6 +1,5 @@
 package dev.roanh.gmark.client;
 
-import java.io.Console;
 import java.nio.file.Paths;
 
 import javax.swing.JFrame;
@@ -8,7 +7,6 @@ import javax.swing.JTabbedPane;
 
 import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.client.component.GraphPanel;
-import dev.roanh.gmark.conjunct.cpq.GeneratorCPQ;
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.graph.Configuration;
@@ -55,13 +53,13 @@ public class GraphMark{
 		tabs.addTab("Selectivity Graph", new GraphPanel<SelectivityType, SelectivityClass>(sg));
 		
 		//just print a few paths randomly
-		for(int i = 0; i < 10000000; i++){
-			eg.printPath();
-		}
+//		for(int i = 0; i < 10000000; i++){
+//			eg.printPath();
+//		}
 		
 		//GeneratorCPQ.generateInnerCPQ(sg, gs, src, trg, 4, 5);
 		
-		System.out.println("\n\n\n\n\n\n\n\n\n");
+//		System.out.println("\n\n\n\n\n\n\n\n\n");
 		
 		ChainGenerator generator = new ChainGenerator();
 		for(int i = 0; i < 10; i++){

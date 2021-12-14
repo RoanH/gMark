@@ -43,10 +43,12 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		
 		for(int i = 0; i < recursion; i++){
 			for(IntersectionData parallel : findParallel()){
-				GraphNode<EdgeGraphData, Void> n = addUniqueNode(parallel);
-				//TODO could have just saved the source and target as real nodes
-				n.addUniqueEdgeFrom(parallel.getSource());
-				n.addUniqueEdgeTo(parallel.getTarget());
+				if(parallel.size() <= maxLen){//TODO could factor in the distance to the source and target
+					GraphNode<EdgeGraphData, Void> n = addUniqueNode(parallel);
+					//TODO could have just saved the source and target as real nodes
+					n.addUniqueEdgeFrom(parallel.getSource());
+					n.addUniqueEdgeTo(parallel.getTarget());
+				}
 			}
 		}
 	}

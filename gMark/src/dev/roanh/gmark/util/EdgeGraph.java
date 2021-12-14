@@ -206,14 +206,17 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		return EdgeGraphData.of(source, target.getData(), first, second);
 	}
 	
+	/**
+	 * Reverses a path from the given edge all the way to source node of the graph.
+	 * The returned deque will contain from front to back all the nodes encountered
+	 * from the source node to a node connected to (out edge) the given edge. The
+	 * source node itself is not included in the result.
+	 * @param edge The edge to reverse.
+	 * @return A path of nodes leading to the given edge from the source.
+	 */
 	private Deque<EdgeGraphData> reverseToSource(GraphEdge<EdgeGraphData, Void> edge){
 		Deque<EdgeGraphData> path = new ArrayDeque<EdgeGraphData>();
 		path.addLast(edge.getSource());
-		
-//		do{
-//			path.addFirst(edge.getSource());
-//			edge = Util.selectRandom(random, edge.getSourceNode().getInEdges());
-//		}while(edge != null);//only the source node has no incoming edges
 		
 		while(!edge.getSourceNode().equals(src)){
 			edge = Util.selectRandom(edge.getSourceNode().getInEdges());

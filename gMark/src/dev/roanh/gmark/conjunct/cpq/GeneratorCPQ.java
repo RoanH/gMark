@@ -43,7 +43,7 @@ public class GeneratorCPQ{
 			path.stream().map(GraphNode::getData).map(EdgeGraphData::toCPQ).collect(Collectors.toList())
 		);
 		
-		System.out.println("CPQ: " + cpq);
+//		System.out.println("CPQ: " + cpq);
 		
 		return new ConjunctCPQ(cpq);
 	}

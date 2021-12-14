@@ -113,7 +113,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	
 	//TODO can be an empty dequeue I guess
 	private void addPath(Deque<GraphEdge<SelectivityType, Predicate>> path){
-		System.out.println("add path: " + path);
+//		System.out.println("add path: " + path);
 		trg.addUniqueEdgeFrom(EdgeGraphData.of(path.getFirst()));
 		Iterator<GraphEdge<SelectivityType, Predicate>> iter = path.iterator();
 		EdgeGraphData last = EdgeGraphData.of(iter.next());
@@ -140,7 +140,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 				if(node.getData().getSourceSelectivity() != Selectivity.QUADRATIC){
 					IntersectionData data = reverseIdentity(node);
 					if(data != null){
-						System.out.println("id add: " + data);
+//						System.out.println("id add: " + data);
 						parallel.add(data);
 					}
 				}
@@ -194,7 +194,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 			return null;
 		}
 		
-		System.out.println("paths: " + first + " / " + second);
+//		System.out.println("paths: " + first + " / " + second);
 		
 		//remove the shared prefix (always exists, at least src)
 		EdgeGraphData source = null;

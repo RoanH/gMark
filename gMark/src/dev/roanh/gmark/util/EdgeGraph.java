@@ -234,7 +234,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	 * graph where the edge in the drawn path are converted to nodes
 	 * and the path is attached to the edge graph source and target nodes.
 	 * @param path The path to add to the edge graph.
-	 * @see #computeAllPaths(Deque, SchemaGraph, int, GraphNode, GraphNode)
+	 * @see #computeAllPaths
 	 */
 	private void addPath(Deque<GraphEdge<SelectivityType, Predicate>> path){
 		assert !path.isEmpty() : "Path not allowed to be empty";
@@ -255,8 +255,8 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	 * intersection with some other path in the graph or with identity.
 	 * The intersections that are found are then returned.
 	 * @return The found intersections that could be made.
-	 * @see #reverseParallel(GraphNode)
-	 * @see #reverseIdentity(GraphNode)
+	 * @see #reverseParallel
+	 * @see #reverseIdentity
 	 */
 	private Set<IntersectionData> findParallel(){
 		Set<IntersectionData> parallel = new HashSet<IntersectionData>();
@@ -289,7 +289,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	 * @param target The target node to find identity intersections for.
 	 * @return The data for an identity intersection if it was found or
 	 *         <code>null</code> otherwise.
-	 * @see #reverseToSource(GraphEdge)
+	 * @see #reverseToSource
 	 */
 	private IntersectionData reverseIdentity(GraphNode<EdgeGraphData, Void> target){
 		if(target.getData().getSourceSelectivity() == Selectivity.QUADRATIC){

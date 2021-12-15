@@ -24,6 +24,7 @@ import dev.roanh.gmark.util.EdgeGraphData.IntersectionData;
  * the source node and end at the target node.
  * @author Roan
  * @see SchemaGraph
+ * @see EdgeGraphData
  */
 public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	/**
@@ -31,32 +32,62 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	 */
 	private GraphNode<EdgeGraphData, Void> src;
 	/**
-	 * The target node of all paths used to constrct teh edge graph.
+	 * The target node of all paths used to construct the edge graph.
 	 */
 	private GraphNode<EdgeGraphData, Void> trg;
+	/**
+	 * The maximum length of paths used to construct the graph.
+	 */
 	private int maxLen;
 	
+	/**
+	 * Constructs a new edge graph from the given schema graph. The
+	 * edge graph is built up using all paths of at most the given
+	 * maximum length between the given source and target node in
+	 * the schema graph. Drawn paths will then be recursively
+	 * intersected up to a maximum recursive depth of 5.
+	 * @param gs The schema graph.
+	 * @param maxLen The maximum length of paths to draw
+	 *        from the schema graph.
+	 * @param source The schema graph source node.
+	 * @param target The schema graph target node.
+	 * @see #EdgeGraph(SchemaGraph, int, SelectivityType, SelectivityType, int)
+	 */
 	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target){
 		this(gs, maxLen, source, target, 5);
 	}
 	
+	/**
+	 * Constructs a new edge graph from the given schema graph. The
+	 * edge graph is built up using all paths of at most the given
+	 * maximum length between the given source and target node in
+	 * the schema graph. Drawn paths will then be recursively
+	 * intersected up to the given maximum recursive depth.
+	 * @param gs The schema graph.
+	 * @param maxLen The maximum length of paths to draw
+	 *        from the schema graph.
+	 * @param source The schema graph source node.
+	 * @param target The schema graph target node.
+	 * @param recursion The maximum recursive depth.
+	 * @see #EdgeGraph(SchemaGraph, int, SelectivityType, SelectivityType)
+	 */
 	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target, int recursion){
 		this.maxLen = maxLen;
 		
+		//add source and target
 		src = addUniqueNode(EdgeGraphData.of("source", source));
 		trg = addUniqueNode(EdgeGraphData.of("target", target));
 
+		//add all schema graph edges at nodes
 		for(GraphEdge<SelectivityType, Predicate> edge : gs.getEdges()){
 			addUniqueNode(EdgeGraphData.of(edge));
 		}
 		
+		//draw paths in the schema graph to connect the nodes
 		Deque<GraphEdge<SelectivityType, Predicate>> path = new ArrayDeque<GraphEdge<SelectivityType, Predicate>>();
 		computeAllPaths(path, gs, maxLen, gs.getNode(source), gs.getNode(target));
 		
-		//TODO add identity - note that we need to see how findParallel deals with that, probably it can choose either pick a path or a SINGLE id edge if it exists.
-		//just pick one path and then check everytime if we can link back
-		//edge case: we could id a path that doesn't split
-		
+		//iteratively build up the graph
 		for(int i = 0; i < recursion; i++){
 			for(IntersectionData parallel : findParallel()){
 				if(parallel.size() <= maxLen){//TODO could factor in the distance to the source and target
@@ -69,17 +100,72 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		}
 	}
 	
+	/**
+	 * Gets the source node of the edge graph. Every node
+	 * in the edge graph can be reached from the source node.
+	 * @return The edge graph source node.
+	 */
+	public GraphNode<EdgeGraphData, Void> getSource(){
+		return src;
+	}
+	
+	/**
+	 * Gets the target node of the edge graph. The target
+	 * node is reachable by every node in the edge graph.
+	 * @return The edge graph target node.
+	 */
+	public GraphNode<EdgeGraphData, Void> getTarget(){
+		return trg;
+	}
+	
+	/**
+	 * Gets that maximum length of paths used to construct
+	 * the edge graph. This value is also used to bound the
+	 * length of paths drawn from the edge graph.
+	 * @return The maximum path length.
+	 * @see #drawPath()
+	 * @see #drawPath(int)
+	 */
+	public int getMaxLength(){
+		return maxLen;
+	}
+	
+	/**
+	 * Randomly draws a path from the edge graph using {@link #drawPath()}
+	 * and prints it to standard output.
+	 * @see #drawPath()
+	 */
 	public void printPath(){
 		drawPath().stream().map(Object::toString).reduce((a, b)->a + "◦" + b).ifPresent(System.out::println);
 	}
 	
+	/**
+	 * Draws a random path from the edge graph that starts at the
+	 * edge graph source node and ends at the edge graph target node.
+	 * The length of the path will be at least 1 and at most configured
+	 * edge graph maximum length.
+	 * @return The randomly drawn path.
+	 * @see #drawPath(int)
+	 * @see #getMaxLength()
+	 */
 	public List<GraphNode<EdgeGraphData, Void>> drawPath(){
 		return drawPath(1);
 	}
 	
+	/**
+	 * Draws a random path from the edge graph that starts at the
+	 * edge graph source node and ends at the edge graph target node.
+	 * The length of the path will be at least the given minimum length
+	 * and at most configured edge graph maximum length. Care should be
+	 * taken when passing large values for the minimum length as they
+	 * might cause a valid to path to never be found.
+	 * @param minLen The minimum length of the drawn path.
+	 * @return The randomly drawn path.
+	 * @see #drawPath()
+	 * @see #getMaxLength()
+	 */
 	public List<GraphNode<EdgeGraphData, Void>> drawPath(int minLen){
-		//TODO return a valid path, should probably respect min/max length, should make sure to never follow identity edges
-		//TODO investigate performance
+		//TODO investigate performance -- will loop forever if no path exists of at least minLen
 		find: while(true){
 			List<GraphNode<EdgeGraphData, Void>> path = new ArrayList<GraphNode<EdgeGraphData, Void>>(maxLen);
 			
@@ -116,7 +202,19 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		}
 	}
 	
-	//path can be empty if source connected to target
+	/**
+	 * Computes all paths from the given source node to the given
+	 * target node in the schema graph that at most the given max
+	 * length. These paths are then added to the edge graph with
+	 * their edges converted to nodes.
+	 * @param path The empty path deque to pass information
+	 *        between recursive calls of this subroutine.
+	 * @param gs The schema graph.
+	 * @param maxLen The maximum path length from source to target.
+	 * @param source The source node in the schema graph.
+	 * @param target The target node in the schema graph.
+	 * @see #addPath(Deque)
+	 */
 	private void computeAllPaths(Deque<GraphEdge<SelectivityType, Predicate>> path, SchemaGraph gs, int maxLen, GraphNode<SelectivityType, Predicate> source, GraphNode<SelectivityType, Predicate> target){
 		if(source.equals(target) && !path.isEmpty()){
 			addPath(path);
@@ -131,6 +229,13 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		}
 	}
 	
+	/**
+	 * Adds the given path drawn from the schema graph to the edge
+	 * graph where the edge in the drawn path are converted to nodes
+	 * and the path is attached to the edge graph source and target nodes.
+	 * @param path The path to add to the edge graph.
+	 * @see #computeAllPaths(Deque, SchemaGraph, int, GraphNode, GraphNode)
+	 */
 	private void addPath(Deque<GraphEdge<SelectivityType, Predicate>> path){
 		assert !path.isEmpty() : "Path not allowed to be empty";
 		

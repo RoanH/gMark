@@ -13,10 +13,27 @@ import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.util.EdgeGraphData.IntersectionData;
 
+/**
+ * The edge graph is a graph constructed from an input graph such that
+ * all edges in the original input graph are nodes in the edge graph. In
+ * addition, nodes are connected when there exists a node between them in
+ * the original graph. The purpose of the edge graph is to encode all
+ * possible paths between two preselected nodes in the input graph. For
+ * this purpose two special nodes are added to the edge graph to represent
+ * the source and target. All paths in the edge graph must originate from
+ * the source node and end at the target node.
+ * @author Roan
+ * @see SchemaGraph
+ */
 public class EdgeGraph extends Graph<EdgeGraphData, Void>{
+	/**
+	 * The source node of all paths used to construct the edge graph.
+	 */
 	private GraphNode<EdgeGraphData, Void> src;
+	/**
+	 * The target node of all paths used to constrct teh edge graph.
+	 */
 	private GraphNode<EdgeGraphData, Void> trg;
-	private int minLen;
 	private int maxLen;
 	
 	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target){
@@ -24,7 +41,6 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	}
 	
 	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target, int recursion){
-		minLen = 1;//TODO make configurable
 		this.maxLen = maxLen;
 		
 		src = addUniqueNode(EdgeGraphData.of("source", source));
@@ -58,6 +74,10 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	}
 	
 	public List<GraphNode<EdgeGraphData, Void>> drawPath(){
+		return drawPath(1);
+	}
+	
+	public List<GraphNode<EdgeGraphData, Void>> drawPath(int minLen){
 		//TODO return a valid path, should probably respect min/max length, should make sure to never follow identity edges
 		//TODO investigate performance
 		find: while(true){
@@ -87,10 +107,10 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 				}
 			}
 			
-//			assert path.size() >= minLen : "Path too short";
-//			assert path.size() <= maxLen : "Path too long";
-//			assert path.get(0).getInEdges().stream().map(GraphEdge::getSourceNode).anyMatch(src::equals) : "Start not connected to source";
-//			assert path.get(path.size() - 1).getOutEdges().stream().map(GraphEdge::getTargetNode).anyMatch(trg::equals) : "End not connected to target";
+			assert path.size() >= minLen : "Path too short";
+			assert path.size() <= maxLen : "Path too long";
+			assert path.get(0).getInEdges().stream().map(GraphEdge::getSourceNode).anyMatch(src::equals) : "Start not connected to source";
+			assert path.get(path.size() - 1).getOutEdges().stream().map(GraphEdge::getTargetNode).anyMatch(trg::equals) : "End not connected to target";
 			
 			return path;
 		}
@@ -111,9 +131,9 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		}
 	}
 	
-	//TODO can be an empty dequeue I guess
 	private void addPath(Deque<GraphEdge<SelectivityType, Predicate>> path){
-//		System.out.println("add path: " + path);
+		assert !path.isEmpty() : "Path not allowed to be empty";
+		
 		trg.addUniqueEdgeFrom(EdgeGraphData.of(path.getFirst()));
 		Iterator<GraphEdge<SelectivityType, Predicate>> iter = path.iterator();
 		EdgeGraphData last = EdgeGraphData.of(iter.next());
@@ -125,29 +145,27 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		src.addUniqueEdgeTo(last);
 	}
 	
+	/**
+	 * Attempts to find paths in the graph that can be used for an
+	 * intersection with some other path in the graph or with identity.
+	 * The intersections that are found are then returned.
+	 * @return The found intersections that could be made.
+	 * @see #reverseParallel(GraphNode)
+	 * @see #reverseIdentity(GraphNode)
+	 */
 	private Set<IntersectionData> findParallel(){
 		Set<IntersectionData> parallel = new HashSet<IntersectionData>();
 		
-		//steps to consider ID
-		//1. consider all nodes even those with 1 in edge (not those with 0 though, aka src)
-		//2. reverse a path
-		//3. for each node of the reverse path check if an intersection with ID can be made
-		//4. if yes, do it with (probability ???, probably more chance if only 1 in edge) if not continue reversing
-		//5. if no ID cycles were found find a second reverse path if possible and make an intersection as normal
-		
 		for(GraphNode<EdgeGraphData, Void> node : getNodes()){
 			if(!node.getInEdges().isEmpty()){
-				if(node.getData().getSourceSelectivity() != Selectivity.QUADRATIC){
-					IntersectionData data = reverseIdentity(node);
-					if(data != null){
-//						System.out.println("id add: " + data);
-						parallel.add(data);
-					}
+				IntersectionData data = reverseIdentity(node);
+				if(data != null){
+					parallel.add(data);
 				}
 				
-				IntersectionData intersect = reverseParallel(node);
-				if(intersect != null){
-					parallel.add(intersect);
+				data = reverseParallel(node);
+				if(data != null){
+					parallel.add(data);
 				}
 			}
 		}
@@ -155,12 +173,31 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		return parallel;
 	}
 	
+	/**
+	 * Attempts to find a section of a path from the given target node
+	 * to the source node that can be intersected with identity. This
+	 * is done by reversing a path from the given target node to the
+	 * source node of the graph and then checking for each path node
+	 * if it is of the same type as the target node. If such a path
+	 * node is found then data for an intersection is returned if the
+	 * final selectivity of the path is at most linear.
+	 * @param target The target node to find identity intersections for.
+	 * @return The data for an identity intersection if it was found or
+	 *         <code>null</code> otherwise.
+	 * @see #reverseToSource(GraphEdge)
+	 */
 	private IntersectionData reverseIdentity(GraphNode<EdgeGraphData, Void> target){
+		if(target.getData().getSourceSelectivity() == Selectivity.QUADRATIC){
+			//any path intersected with identity has at most linear selectivity
+			return null;
+		}
+		
 		Deque<EdgeGraphData> path = reverseToSource(Util.selectRandom(target.getInEdges()));
 		Type type = target.getData().getSourceType();
 		
 		while(path.size() > 1){
-			if(path.peek().getTargetType().equals(type)){//TODO, there might be more, this always finds the largest cycle
+			//TODO, there might be more, this always finds the largest cycle
+			if(path.peek().getTargetType().equals(type)){
 				return EdgeGraphData.of(path.pop(), target.getData(), path);
 			}
 			path.pop();
@@ -169,6 +206,17 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		return null;
 	}
 	
+	/**
+	 * Attempts to find two distinct paths from the given node back to the
+	 * source node of the graph. If two paths are found then the identical
+	 * prefix path is removed from both paths. This leaves two paths that
+	 * can start from the same node and end at the given target node. These
+	 * two paths are returned as the intersection data together with these
+	 * shared source and target nodes.
+	 * @param target The target node to find parallel paths to.
+	 * @return Data about two parallel paths or <code>null</code> if two
+	 *         paths like that were not found.
+	 */
 	private IntersectionData reverseParallel(GraphNode<EdgeGraphData, Void> target){
 		if(target.getInEdges().size() <= 1){
 			return null;
@@ -193,8 +241,6 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 			//this can happen when the target has an edge to the source
 			return null;
 		}
-		
-//		System.out.println("paths: " + first + " / " + second);
 		
 		//remove the shared prefix (always exists, at least src)
 		EdgeGraphData source = null;

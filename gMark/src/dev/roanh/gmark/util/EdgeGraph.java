@@ -193,8 +193,8 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 				}
 			}
 			
-			assert path.size() >= minLen : "Path too short";
-			assert path.size() <= maxLen : "Path too long";
+			assert path.stream().map(GraphNode::getData).mapToInt(EdgeGraphData::size).sum() >= minLen : "Path too short";
+			assert path.stream().map(GraphNode::getData).mapToInt(EdgeGraphData::size).sum() <= maxLen : "Path too long";
 			assert path.get(0).getInEdges().stream().map(GraphEdge::getSourceNode).anyMatch(src::equals) : "Start not connected to source";
 			assert path.get(path.size() - 1).getOutEdges().stream().map(GraphEdge::getTargetNode).anyMatch(trg::equals) : "End not connected to target";
 			

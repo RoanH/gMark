@@ -18,6 +18,18 @@ public class Query{
 		this.variables = variables;
 	}
 	
+	public int getArity(){
+		return variables.size();
+	}
+	
+	/**
+	 * Gets the number of conjuncts that make up this query.
+	 * @return The number of conjuncts in this query.
+	 */
+	public int getConjunctCount(){
+		return body.getConjunctCount();
+	}
+	
 	@Override
 	public String toString(){
 		StringJoiner lhs = new StringJoiner(",", "(", ")");

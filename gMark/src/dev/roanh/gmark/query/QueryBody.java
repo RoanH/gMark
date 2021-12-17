@@ -10,6 +10,10 @@ public class QueryBody{
 		this.conjuncts = conjuncts;
 	}
 	
+	public int getConjunctCount(){
+		return conjuncts.size();
+	}
+	
 	@Override
 	public String toString(){
 		StringJoiner joiner = new StringJoiner(",");

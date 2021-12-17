@@ -39,6 +39,8 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	 * The maximum length of paths used to construct the graph.
 	 */
 	private int maxLen;
+	private int baseMin = Integer.MAX_VALUE;
+	private int baseMax;
 	
 	/**
 	 * Constructs a new edge graph from the given schema graph. The
@@ -167,6 +169,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	public List<GraphNode<EdgeGraphData, Void>> drawPath(int minLen){
 		//TODO investigate performance -- will loop forever if no path exists of at least minLen
 		find: while(true){
+			System.out.println("attempt draw: " + minLen + " / " + baseMin + " / " + baseMax);
 			List<GraphNode<EdgeGraphData, Void>> path = new ArrayList<GraphNode<EdgeGraphData, Void>>(maxLen);
 			
 			GraphNode<EdgeGraphData, Void> node = src;
@@ -238,6 +241,9 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	 */
 	private void addPath(Deque<GraphEdge<SelectivityType, Predicate>> path){
 		assert !path.isEmpty() : "Path not allowed to be empty";
+		
+		baseMin = Math.min(baseMin, path.size() + 1);
+		baseMax = Math.max(baseMax, path.size() + 1);
 		
 		trg.addUniqueEdgeFrom(EdgeGraphData.of(path.getFirst()));
 		Iterator<GraphEdge<SelectivityType, Predicate>> iter = path.iterator();

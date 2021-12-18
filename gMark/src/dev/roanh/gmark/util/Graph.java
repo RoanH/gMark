@@ -123,10 +123,29 @@ public class Graph<V, E>{
 		return nodes.size();
 	}
 	
+	/**
+	 * Gets the unlabelled edge connecting the node associated
+	 * with the given source data and the node associated with
+	 * the given target data.
+	 * @param source The data to identify the source node.
+	 * @param target The data to identify the target node.
+	 * @return The edge connecting the source and target node
+	 *         or <code>null</code> if no such node exists.
+	 */
 	public GraphEdge<V, E> getEdge(V source, V target){
 		return getEdge(source, target, null);
 	}
 	
+	/**
+	 * Gets the edge with the given label data connecting the
+	 * node associated with the given source data and the node
+	 * associated with the given target data.
+	 * @param source The data to identify the source node.
+	 * @param target The data to identify the target node.
+	 * @param data The edge label data.
+	 * @return The edge connecting the source and target node
+	 *         or <code>null</code> if no such node exists.
+	 */
 	public GraphEdge<V, E> getEdge(V source, V target, E data){
 		GraphNode<V, E> node = nodeMap.get(source);
 		return node == null ? null : node.getEdgeTo(target, data);
@@ -286,10 +305,25 @@ public class Graph<V, E>{
 			graph.nodeMap.remove(data);
 		}
 		
+		/**
+		 * Gets the unlabelled edge connecting this node and
+		 * the node associated with the given target data.
+		 * @param target The data to identify the target node.
+		 * @return The edge connecting this node and target node
+		 *         or <code>null</code> if no such node exists.
+		 */
 		public GraphEdge<V, E> getEdgeTo(V target){
 			return getEdgeTo(target, null);
 		}
 		
+		/**
+		 * Gets the edge with the given label data connecting this
+		 * node and the node associated with the given target data.
+		 * @param target The data to identify the target node.
+		 * @param data The edge label data.
+		 * @return The edge connecting this node and target node
+		 *         or <code>null</code> if no such node exists.
+		 */
 		public GraphEdge<V, E> getEdgeTo(V target, E data){
 			for(GraphEdge<V, E> edge : out){
 				if(edge.target.data.equals(target)){
@@ -307,18 +341,34 @@ public class Graph<V, E>{
 			return null;
 		}
 		
+		/**
+		 * Gets the total number of outgoing edges this node has.
+		 * @return The total number of outgoing edges this node has.
+		 */
 		public int getOutCount(){
 			return out.size();
 		}
 		
+		/**
+		 * Gets the total number of incoming edges this node has.
+		 * @return The total number of incoming edges this node has.
+		 */
 		public int getInCount(){
 			return in.size();
 		}
 		
+		/**
+		 * Gets all the outgoing edges for this node.
+		 * @return All the outgoing edges for this node.
+		 */
 		public Set<GraphEdge<V, E>> getOutEdges(){
 			return out;
 		}
 		
+		/**
+		 * Gets all the incoming edges for this node.
+		 * @return All the incoming edges for this node.
+		 */
 		public Set<GraphEdge<V, E>> getInEdges(){
 			return in;
 		}

@@ -53,10 +53,22 @@ public class SelectivityType{
 		return selectivity;
 	}
 	
+	/**
+	 * Gets the ID of the type in this selectivity type.
+	 * @return The ID of the type in this selectivity type.
+	 * @see Type
+	 */
 	public int getTypeID(){
 		return type.getID();
 	}
 	
+	/**
+	 * Constructs a new selectivity type from the given
+	 * type and selectivity class.
+	 * @param type The type.
+	 * @param sel The selectivity class.
+	 * @return The newly constructed selectivity type.
+	 */
 	public static final SelectivityType of(Type type, SelectivityClass sel){
 		return new SelectivityType(type, sel);
 	}

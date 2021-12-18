@@ -46,6 +46,7 @@ public class RangeList<T> implements Iterable<T>{
 	 * @return The element at the given index.
 	 * @throws ArrayIndexOutOfBoundsException When the given index
 	 *         is out of bounds.
+	 * @see IDable
 	 */
 	public T get(IDable index){
 		return get(index.getID());
@@ -79,6 +80,7 @@ public class RangeList<T> implements Iterable<T>{
 	 * @param value The new data to store.
 	 * @throws ArrayIndexOutOfBoundsException When the given index
 	 *         is out of bounds.
+	 * @see IDable
 	 */
 	public void set(IDable index, T value){
 		set(index.getID(), value);

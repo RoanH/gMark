@@ -41,7 +41,13 @@ public class Graph<V, E>{
 	 */
 	private List<GraphEdge<V, E>> edges = new ArrayList<GraphEdge<V, E>>();
 	
-	//note, returned edges detached from the graph they still ref the graph but the rest of the graph does not ref them
+	/**
+	 * Removes all nodes from the graph that match the given predicate. The returned
+	 * nodes still reference the remaining nodes in the graph but remaining graph
+	 * nodes no longer reference the removed nodes.
+	 * @param predicate The predicate nodes should match to be removed.
+	 * @return A list of removed graph nodes.
+	 */
 	public List<GraphNode<V, E>> removeNodeIf(Predicate<GraphNode<V, E>> predicate){
 		List<GraphNode<V, E>> toRemove = nodes.stream().filter(predicate).collect(Collectors.toList());
 		toRemove.forEach(GraphNode::remove);
@@ -101,10 +107,18 @@ public class Graph<V, E>{
 		}
 	}
 	
+	/**
+	 * Gets the total number of edges in the graph.
+	 * @return The total number of edges in the graph.
+	 */
 	public int getEdgeCount(){
 		return edges.size();
 	}
 	
+	/**
+	 * Gets the total number of nodes in the graph.
+	 * @return The total number of nodes in the graph.
+	 */
 	public int getNodeCount(){
 		return nodes.size();
 	}
@@ -118,34 +132,88 @@ public class Graph<V, E>{
 		return node == null ? null : node.getEdgeTo(target, data);
 	}
 	
+	/**
+	 * Adds a new unique edge with the given label data from the node
+	 * associated with the given source data to the existing node
+	 * associated with the given target data.
+	 * @param source The data to identify the node to connect from with.
+	 * @param target The data to identify the node to connect to with.
+	 * @param data The edge label data.
+	 */
 	public void addUniqueEdge(V source, V target, E data){
 		addUniqueEdge(nodeMap.get(source), nodeMap.get(target), data);
 	}
 	
+	/**
+	 * Adds a new unique edge with the given label data from the given source
+	 * node to the existing node associated with the given target data.
+	 * @param source The source node to add an edge from.
+	 * @param target The data to identify the node to connect to with.
+	 * @param data The edge label data.
+	 */
 	public void addUniqueEdge(GraphNode<V, E> source, V target, E data){
 		addUniqueEdge(source, nodeMap.get(target), data);
 	}
 	
+	/**
+	 * Adds a new unique edge with the given label data to the given target node from
+	 * the existing node associated with the given source data.
+	 * @param source The data to identify the node to connect from with.
+	 * @param target The target node to add an edge to.
+	 * @param data The edge label data.
+	 */
 	public void addUniqueEdge(V source, GraphNode<V, E> target, E data){
 		addUniqueEdge(nodeMap.get(source), target, data);
 	}
 	
+	/**
+	 * Adds a new unique edge without any label from the node
+	 * associated with the given source data to the existing node
+	 * associated with the given target data.
+	 * @param source The data to identify the node to connect from with.
+	 * @param target The data to identify the node to connect to with.
+	 */
 	public void addUniqueEdge(V source, V target){
 		addUniqueEdge(nodeMap.get(source), nodeMap.get(target));
 	}
 	
+	/**
+	 * Adds a new unique edge without any label from the given source
+	 * node to the existing node associated with the given target data.
+	 * @param source The source node to add an edge from.
+	 * @param target The data to identify the node to connect to with.
+	 */
 	public void addUniqueEdge(GraphNode<V, E> source, V target){
 		addUniqueEdge(source, nodeMap.get(target));
 	}
 	
+	/**
+	 * Adds a new unique edge without any label to this node from
+	 * the existing node associated with the given source data.
+	 * @param source The data to identify the node to connect from with.
+	 * @param target The target node to add an edge to.
+	 */
 	public void addUniqueEdge(V source, GraphNode<V, E> target){
 		addUniqueEdge(nodeMap.get(source), target);
 	}
 	
+	/**
+	 * Adds a new unique edge without any label from the given source
+	 * node to the given target node to connect to.
+	 * @param source The source node to add an edge from.
+	 * @param target The target node to add an edge to.
+	 */
 	public void addUniqueEdge(GraphNode<V, E> source, GraphNode<V, E> target){
 		addUniqueEdge(source, target, null);
 	}
 	
+	/**
+	 * Adds a new unique edge with the given label data from the given source
+	 * node to the given target node to connect to.
+	 * @param source The source node to add an edge from.
+	 * @param target The target node to add an edge to.
+	 * @param data The edge label data.
+	 */
 	public void addUniqueEdge(GraphNode<V, E> source, GraphNode<V, E> target, E data){
 		//TODO this duplicate check is fairly expensive as is
 		for(GraphEdge<V, E> edge : source.out){
@@ -195,8 +263,15 @@ public class Graph<V, E>{
 			this.data = data;
 		}
 		
-		//note about comod
-		//note all edges too
+		/**
+		 * Removes this node from the graph. After removal it
+		 * will still reference other remaining graph nodes.<br>
+		 * Note: calling this function while iterating over the
+		 * nodes or edges in the graph will cause a co-modification
+		 * exception. For mass removal of nodes use
+		 * {@link Graph#removeNodeIf(Predicate)} instead.
+		 * @see Graph#removeNodeIf(Predicate)
+		 */
 		public void remove(){
 			//manual edge removal to prevent co-modification
 			for(GraphEdge<V, E> edge : out){
@@ -248,34 +323,78 @@ public class Graph<V, E>{
 			return in;
 		}
 		
+		/**
+		 * Adds a new unique edge with the given label data to this node from
+		 * the given source node to connect from.
+		 * @param source The source node to add an edge from.
+		 * @param data The edge label data.
+		 */
 		public void addUniqueEdgeFrom(GraphNode<V, E> source, E data){
 			graph.addUniqueEdge(source, this, data);
 		}
 		
+		/**
+		 * Adds a new unique edge with the given label data to this node from
+		 * the existing node associated with the given source data.
+		 * @param source The data to identify the node to connect from with.
+		 * @param data The edge label data.
+		 */
 		public void addUniqueEdgeFrom(V source, E data){
 			graph.addUniqueEdge(source, this, data);
 		}
 		
+		/**
+		 * Adds a new unique edge without any label to this node from
+		 * the given source node to connect from.
+		 * @param source The source node to add an edge from.
+		 */
 		public void addUniqueEdgeFrom(GraphNode<V, E> source){
 			graph.addUniqueEdge(source, this);
 		}
 		
+		/**
+		 * Adds a new unique edge without any label to this node from
+		 * the existing node associated with the given source data.
+		 * @param source The data to identify the node to connect from with.
+		 */
 		public void addUniqueEdgeFrom(V source){
 			graph.addUniqueEdge(source, this);
 		}
 		
+		/**
+		 * Adds a new unique edge with the given label data from this node to
+		 * the given target node to connect to.
+		 * @param target The target node to add an edge to.
+		 * @param data The edge label data.
+		 */
 		public void addUniqueEdgeTo(GraphNode<V, E> target, E data){
 			graph.addUniqueEdge(this, target, data);
 		}
 		
+		/**
+		 * Adds a new unique edge with the given label data from this node to
+		 * the existing node associated with the given target data.
+		 * @param target The data to identify the node to connect to with.
+		 * @param data The edge label data.
+		 */
 		public void addUniqueEdgeTo(V target, E data){
 			graph.addUniqueEdge(this, target, data);
 		}
 		
+		/**
+		 * Adds a new unique edge without any label from this node to
+		 * the given target node to connect to.
+		 * @param target The target node to add an edge to.
+		 */
 		public void addUniqueEdgeTo(GraphNode<V, E> target){
 			graph.addUniqueEdge(this, target);
 		}
 		
+		/**
+		 * Adds a new unique edge without any label from this node to
+		 * the existing node associated with the given target data.
+		 * @param target The data to identify the node to connect to with.
+		 */
 		public void addUniqueEdgeTo(V target){
 			graph.addUniqueEdge(this, target);
 		}
@@ -343,6 +462,10 @@ public class Graph<V, E>{
 			target.in.add(this);
 		}
 		
+		/**
+		 * Removes this node from the graph. After removal
+		 * this node still references remaining graph nodes.
+		 */
 		public void remove(){
 			source.out.remove(this);
 			target.in.remove(this);

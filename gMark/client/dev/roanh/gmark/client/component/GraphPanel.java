@@ -33,7 +33,7 @@ import dev.roanh.gmark.util.Graph.GraphNode;
  * random positions on the canvas.
  * @author Roan
  * @param <V> The graph node data type.
- * @param <E> The graoh edge data type.
+ * @param <E> The graph edge data type.
  */
 public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMotionListener{
 	/**

@@ -10,7 +10,7 @@ public enum ConjunctGenerator{
 	CPQ{
 		@Override
 		public Conjunct generateConjunct(SelectivityGraph gSel, SchemaGraph gs, SelectivityType start, SelectivityType end){
-			return GeneratorCPQ.generateInnerCPQ(gSel, gs, start, end, 4, 5, 1);//TODO args hardcoded
+			return GeneratorCPQ.generateInnerCPQ(gSel, gs, start, end, 1, 4, 5);//TODO args hardcoded
 		}
 	},
 	RPQ{

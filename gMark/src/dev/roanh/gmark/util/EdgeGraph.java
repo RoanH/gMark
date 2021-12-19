@@ -169,7 +169,7 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	public List<GraphNode<EdgeGraphData, Void>> drawPath(int minLen){
 		//TODO investigate performance -- will loop forever if no path exists of at least minLen
 		find: while(true){
-			System.out.println("attempt draw: " + minLen + " / " + baseMin + " / " + baseMax);
+			//System.out.println("attempt draw: " + minLen + " / " + baseMin + " / " + baseMax);
 			List<GraphNode<EdgeGraphData, Void>> path = new ArrayList<GraphNode<EdgeGraphData, Void>>(maxLen);
 			
 			GraphNode<EdgeGraphData, Void> node = src;

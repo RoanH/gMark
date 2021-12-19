@@ -11,6 +11,7 @@ import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.query.shape.ChainGenerator;
 import dev.roanh.gmark.util.ConfigGraph;
@@ -25,6 +26,8 @@ public class GraphMark{
 
 	public static void main(String[] args){
 		Configuration config = ConfigParser.parse(Paths.get("C:\\Users\\RoanH\\Downloads\\tmp\\gmark\\use-cases\\test.xml"));
+//		Configuration config = ConfigParser.parse(Paths.get("C:\\Users\\RoanH\\Downloads\\tmp\\gmark\\use-cases\\shop.xml"));
+		Schema schema = config.getSchema();
 		SchemaGraph gs = new SchemaGraph(config.getSchema());
 		//paper 1=1
 		//SelectivityType src = SelectivityType.of(config.getTypes().get(1), SelectivityClass.ONE_ONE);
@@ -39,11 +42,16 @@ public class GraphMark{
 		//paper 1x1
 		SelectivityType trg = SelectivityType.of(config.getTypes().get(1), SelectivityClass.CROSS);
 
-		EdgeGraph eg = new EdgeGraph(gs, 4, src, trg);
+		EdgeGraph eg = new EdgeGraph(gs, 4, src, trg, 10);
 		ConfigGraph cg = new ConfigGraph(config);
-		SelectivityGraph sg = new SelectivityGraph(config.getSchema(), 4);
+		SelectivityGraph sg = new SelectivityGraph(schema, 4);
+		
+//		System.out.println(sg.generateRandomPath(Selectivity.QUADRATIC, 1).get(0));
+//		src = SelectivityType.of(schema.getType("Purchase"), SelectivityClass.EQUALS);
+//		trg = SelectivityType.of(schema.getType("User"), SelectivityClass.CROSS);
+		
 				
-		eg.removeNodeIf(n->n.getInEdges().size() + n.getOutEdges().size() == 0);
+		//eg.removeNodeIf(n->n.getInEdges().size() + n.getOutEdges().size() == 0);
 		gs.removeUnreachable();
 
 		JTabbedPane tabs = new JTabbedPane();
@@ -52,19 +60,26 @@ public class GraphMark{
 		tabs.addTab("Edge Graph", new GraphPanel<EdgeGraphData, Void>(eg));
 		tabs.addTab("Selectivity Graph", new GraphPanel<SelectivityType, SelectivityClass>(sg));
 		
+		//TODO put back -ea VM arg
+		
 		//just print a few paths randomly
+//		long start = System.currentTimeMillis();
 //		for(int i = 0; i < 10000000; i++){
-//			eg.printPath();
+//			//eg.printPath();
+//			eg.drawPath();
 //		}
+//		System.out.println("10M in: " + (System.currentTimeMillis() - start));
 		
 		//GeneratorCPQ.generateInnerCPQ(sg, gs, src, trg, 4, 5);
 		
 //		System.out.println("\n\n\n\n\n\n\n\n\n");
 		
+		long start = System.currentTimeMillis();
 		ChainGenerator generator = new ChainGenerator();
 		for(int i = 0; i < 10; i++){
 			System.out.println(generator.generate(config, Workload.getDummyInstance()));
 		}
+		System.out.println("10 in: " + (System.currentTimeMillis() - start));
 		
 		frame.add(tabs);
 		frame.setSize(800, 600);

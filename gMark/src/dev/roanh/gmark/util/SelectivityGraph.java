@@ -90,7 +90,7 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 			}
 		}
 		
-		if(!matrix.get(length, currentNode).containsKey(currentSel)){
+		if(matrix.get(length, currentNode).getOrDefault(currentSel, 0) == 0){
 			//TODO reconsider this behaviour
 			throw new IllegalStateException("Failed to generate a random path");
 		}

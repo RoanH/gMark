@@ -34,4 +34,9 @@ public class PathSegment{
 			star
 		);
 	}
+	
+	@Override
+	public String toString(){
+		return "PathSegment[start=" + start + ",end=" + end + ",star=" + star + "]";
+	}
 }

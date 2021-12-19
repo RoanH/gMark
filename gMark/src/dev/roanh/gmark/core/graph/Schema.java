@@ -113,7 +113,15 @@ public class Schema{
 		return types.get(id);
 	}
 	
+	public Type getType(String alias){
+		return types.stream().filter(t->t.getAlias().equals(alias)).findAny().orElse(null);
+	}
+	
 	public Predicate getPredicate(int id){
 		return predicates.get(id);
+	}
+	
+	public Predicate getPredicate(String alias){
+		return predicates.stream().filter(p->p.getAlias().equals(alias)).findAny().orElse(null);
 	}
 }

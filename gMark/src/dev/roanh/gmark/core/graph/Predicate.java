@@ -67,6 +67,15 @@ public class Predicate{
 		return id;
 	}
 	
+	//TODO javadoc
+	public String toSQL(int id){
+		if(isInverse){
+			return "(SELECT trg AS src, src AS trg, label FROM edge) AS s" + id;
+		}else{
+			return "edge s" + id;
+		}
+	}
+	
 	@Override
 	public String toString(){
 		return "Predicate[symbolID=" + id + ",alias=\"" + alias + "\",proportion=" + proportion + "]";

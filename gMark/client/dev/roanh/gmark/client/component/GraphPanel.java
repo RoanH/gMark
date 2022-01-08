@@ -9,6 +9,7 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
@@ -296,6 +297,10 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		 * The actual graph edge this edge is associated with.
 		 */
 		private GraphEdge<V, E> data;
+		/**
+		 * The edge going in the opposite direction if it exists.
+		 */
+		private GraphEdge<V, E> twin;
 		
 		/**
 		 * Constructs a new edge with the given source
@@ -308,6 +313,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 			this.source = source;
 			this.target = target;
 			this.data = data;
+			twin = data.getTargetNode().getOutEdges().stream().filter(e->e.getTargetNode().equals(data.getSourceNode())).findAny().orElse(null);
 		}
 		
 		/**
@@ -322,18 +328,48 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 				
 				E meta = data.getData();
 				if(meta != null){
-					g.setColor(Color.BLACK);
 					g.drawString(edgeLabel.apply(data.getData()), source.location.x + 2 * Node.RADIUS, source.location.y + 2 * Node.RADIUS);
 				}
 			}else{
 				g.setColor((source == activeNode || target == activeNode) ? Color.RED : Color.BLACK);
-				g.drawLine(source.location.x, source.location.y, target.location.x, target.location.y);
-				drawArrowHead(g, source.location.getX(), source.location.getY(), target.location.getX(), target.location.getY());
-				
-				E meta = data.getData();
-				if(meta != null){
-					g.setColor(Color.BLACK);
-					g.drawString(edgeLabel.apply(data.getData()), (source.location.x + target.location.x) / 2, (source.location.y + target.location.y) / 2);
+				if(twin != null){
+					if(source.hashCode() > target.hashCode()){
+						AffineTransform transform = g.getTransform();
+						
+						g.translate(source.location.x, source.location.y);
+						double rad = Math.atan2(target.location.y - source.location.y, target.location.x - source.location.x);
+						g.rotate(rad);
+						int dist = (int)Math.hypot(target.location.x - source.location.x, target.location.y - source.location.y);
+						g.drawArc(0, -Node.RADIUS, dist, Node.RADIUS * 2, 0, 360);
+						
+						double x = dist / 4.0D - Node.RADIUS + UNIT;
+						int y = (int)Math.sqrt(Node.RADIUS * Node.RADIUS - (x * x * Node.RADIUS * Node.RADIUS) / ((dist / 4.0D) * (dist / 4.0D)));
+						drawArrowHead(g, Node.RADIUS, y, 0, 0);
+						drawArrowHead(g, dist - Node.RADIUS, -y, dist, 0);
+						g.setTransform(transform);
+						
+						E meta = data.getData();
+						if(meta != null){
+							g.drawString(
+								edgeLabel.apply(meta),
+								(source.location.x + target.location.x) / 2.0F + (float)(Math.sin(rad) * Node.RADIUS),
+								(source.location.y + target.location.y) / 2.0F + (float)(Math.cos(rad) * -Node.RADIUS)
+							);
+							meta = twin.getData();
+							g.drawString(
+								edgeLabel.apply(meta),
+								(source.location.x + target.location.x) / 2.0F - (float)(Math.sin(rad) * Node.RADIUS),
+								(source.location.y + target.location.y) / 2.0F - (float)(Math.cos(rad) * -Node.RADIUS)
+							);
+						}
+					}
+				}else{
+					g.drawLine(source.location.x, source.location.y, target.location.x, target.location.y);
+					drawArrowHead(g, source.location.getX(), source.location.getY(), target.location.getX(), target.location.getY());
+					E meta = data.getData();
+					if(meta != null){
+						g.drawString(edgeLabel.apply(meta), (source.location.x + target.location.x) / 2, (source.location.y + target.location.y) / 2);
+					}
 				}
 			}
 		}

@@ -100,6 +100,8 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 				}
 			}
 		}
+		
+		System.out.println(baseMin + " / " + baseMax);
 	}
 	
 	/**
@@ -242,8 +244,8 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	private void addPath(Deque<GraphEdge<SelectivityType, Predicate>> path){
 		assert !path.isEmpty() : "Path not allowed to be empty";
 		
-		baseMin = Math.min(baseMin, path.size() + 1);
-		baseMax = Math.max(baseMax, path.size() + 1);
+		baseMin = Math.min(baseMin, path.size());
+		baseMax = Math.max(baseMax, path.size());
 		
 		trg.addUniqueEdgeFrom(EdgeGraphData.of(path.getFirst()));
 		Iterator<GraphEdge<SelectivityType, Predicate>> iter = path.iterator();

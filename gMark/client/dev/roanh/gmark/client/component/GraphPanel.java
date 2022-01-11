@@ -368,7 +368,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 					drawArrowHead(g, source.location.getX(), source.location.getY(), target.location.getX(), target.location.getY());
 					E meta = data.getData();
 					if(meta != null){
-						g.drawString(edgeLabel.apply(meta), (source.location.x + target.location.x) / 2, (source.location.y + target.location.y) / 2);
+						g.drawString(edgeLabel.apply(meta), (source.location.x + target.location.x) / 2, (source.location.y + target.location.y) / 2 - UNIT);
 					}
 				}
 			}

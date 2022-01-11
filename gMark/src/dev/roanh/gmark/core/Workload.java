@@ -62,7 +62,7 @@ public abstract class Workload{
 		wl.maxArity = 4;
 		wl.minArity = 1;
 		wl.maxLength = 6;
-		wl.minLength = 2;//TODO remove or set to a higher value and solve issues
+		wl.minLength = 1;//TODO remove
 		wl.minConjuncts = 1;
 		wl.maxConjuncts = 4;
 		//TODO shapes

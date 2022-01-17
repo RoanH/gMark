@@ -1,4 +1,4 @@
-package me.roanh.gmark.util;
+package dev.roanh.gmark.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -14,9 +14,7 @@ import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.util.Graph.GraphEdge;
-import dev.roanh.gmark.util.SelectivityGraph;
 import dev.roanh.gmark.util.SelectivityGraph.DistanceMatrix;
-import dev.roanh.gmark.util.SelectivityType;
 
 public class SelectivityGraphTest{
 	private Schema schema = ConfigParser.parse(ClassLoader.getSystemResourceAsStream("test.xml")).getSchema();

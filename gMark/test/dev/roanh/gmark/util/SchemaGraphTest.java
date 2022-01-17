@@ -1,4 +1,4 @@
-package me.roanh.gmark.util;
+package dev.roanh.gmark.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,8 +13,6 @@ import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.util.Graph.GraphEdge;
-import dev.roanh.gmark.util.SchemaGraph;
-import dev.roanh.gmark.util.SelectivityType;
 
 public class SchemaGraphTest{
 	private Schema schema = ConfigParser.parse(ClassLoader.getSystemResourceAsStream("test.xml")).getSchema();

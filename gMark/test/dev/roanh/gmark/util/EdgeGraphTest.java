@@ -1,4 +1,4 @@
-package me.roanh.gmark.util;
+package dev.roanh.gmark.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -13,10 +13,6 @@ import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.exception.GenerationException;
-import dev.roanh.gmark.util.EdgeGraph;
-import dev.roanh.gmark.util.EdgeGraphData;
-import dev.roanh.gmark.util.SchemaGraph;
-import dev.roanh.gmark.util.SelectivityType;
 import dev.roanh.gmark.util.Graph.GraphEdge;
 import dev.roanh.gmark.util.Graph.GraphNode;
 

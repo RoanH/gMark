@@ -1,12 +1,9 @@
-package me.roanh.gmark.core;
+package dev.roanh.gmark.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.Test;
-
-import dev.roanh.gmark.core.Selectivity;
-import dev.roanh.gmark.core.SelectivityClass;
 
 import static dev.roanh.gmark.core.SelectivityClass.*;
 

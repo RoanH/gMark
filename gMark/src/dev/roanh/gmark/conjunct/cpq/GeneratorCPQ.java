@@ -3,6 +3,7 @@ package dev.roanh.gmark.conjunct.cpq;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.Conjunct;
 import dev.roanh.gmark.util.EdgeGraph;
 import dev.roanh.gmark.util.EdgeGraphData;
@@ -17,7 +18,7 @@ import dev.roanh.gmark.util.SelectivityType;
  */
 public class GeneratorCPQ{
 
-	public static final Conjunct generateInnerCPQ(SelectivityGraph g, SchemaGraph gs, SelectivityType source, SelectivityType target, int minLength, int maxLength, int maxRecursion){
+	public static final Conjunct generateInnerCPQ(SelectivityGraph g, SchemaGraph gs, SelectivityType source, SelectivityType target, int minLength, int maxLength, int maxRecursion) throws GenerationException{
 		EdgeGraph graph = new EdgeGraph(gs, maxLength, source, target, maxRecursion);
 		List<GraphNode<EdgeGraphData, Void>> path = graph.drawPath(minLength);
 		

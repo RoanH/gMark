@@ -3,6 +3,7 @@ package dev.roanh.gmark;
 import java.nio.file.Paths;
 
 import dev.roanh.gmark.core.graph.Configuration;
+import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.util.EdgeGraph;
 import dev.roanh.gmark.util.SchemaGraph;
 import dev.roanh.gmark.util.SelectivityType;
@@ -32,6 +33,11 @@ public class Main{
 		System.out.println("\nGs edges:");
 		gs.printEdges();
 		
-		EdgeGraph eg = new EdgeGraph(gs, 3, gs.getNodes().get(0).getData(), gs.getNodes().get(1).getData());
+		try{
+			EdgeGraph eg = new EdgeGraph(gs, 3, gs.getNodes().get(0).getData(), gs.getNodes().get(1).getData());
+		}catch(GenerationException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

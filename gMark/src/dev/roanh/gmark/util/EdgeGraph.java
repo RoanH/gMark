@@ -11,6 +11,7 @@ import java.util.Set;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Type;
+import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.util.EdgeGraphData.IntersectionData;
 
 /**
@@ -53,9 +54,11 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	 *        from the schema graph.
 	 * @param source The schema graph source node.
 	 * @param target The schema graph target node.
+	 * @throws GenerationException When there are no paths between
+	 *         the given source and target node.
 	 * @see #EdgeGraph(SchemaGraph, int, SelectivityType, SelectivityType, int)
 	 */
-	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target){
+	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target) throws GenerationException{
 		this(gs, maxLen, source, target, 5);
 	}
 	
@@ -71,9 +74,11 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	 * @param source The schema graph source node.
 	 * @param target The schema graph target node.
 	 * @param recursion The maximum recursive depth.
+	 * @throws GenerationException When there are no paths between
+	 *         the given source and target node.
 	 * @see #EdgeGraph(SchemaGraph, int, SelectivityType, SelectivityType)
 	 */
-	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target, int recursion){
+	public EdgeGraph(SchemaGraph gs, int maxLen, SelectivityType source, SelectivityType target, int recursion) throws GenerationException{
 		this.maxLen = maxLen;
 		
 		//add source and target
@@ -89,6 +94,10 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 		Deque<GraphEdge<SelectivityType, Predicate>> path = new ArrayDeque<GraphEdge<SelectivityType, Predicate>>();
 		computeAllPaths(path, gs, maxLen, gs.getNode(source), gs.getNode(target));
 		
+		if(getEdgeCount() == 0){
+			throw new GenerationException("No paths between edge graph source and target.");
+		}
+		
 		//iteratively build up the graph
 		for(int i = 0; i < recursion; i++){
 			for(IntersectionData parallel : findParallel()){
@@ -100,8 +109,6 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 				}
 			}
 		}
-		
-		System.out.println(baseMin + " / " + baseMax);
 	}
 	
 	/**

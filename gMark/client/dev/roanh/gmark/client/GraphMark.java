@@ -14,6 +14,7 @@ import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
+import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.shape.ChainGenerator;
 import dev.roanh.gmark.util.ConfigGraph;
 import dev.roanh.gmark.util.EdgeGraph;
@@ -27,7 +28,7 @@ import dev.roanh.gmark.util.SelectivityType;
 public class GraphMark{
 	private static final JFrame frame = new JFrame("gMark");
 
-	public static void main(String[] args){
+	public static void main(String[] args) throws GenerationException{
 		Configuration config = ConfigParser.parse(Paths.get("C:\\Users\\RoanH\\Downloads\\tmp\\gmark\\use-cases\\test.xml"));
 		//Configuration config = ConfigParser.parse(Paths.get("C:\\Users\\RoanH\\Downloads\\tmp\\gmark\\use-cases\\shop.xml"));
 		Schema schema = config.getSchema();

@@ -9,6 +9,7 @@ import dev.roanh.gmark.core.ConjunctGenerator;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.graph.Configuration;
+import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.Conjunct;
 import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.Variable;
@@ -21,7 +22,7 @@ import dev.roanh.gmark.util.Util;
 public class StarGenerator{
 	private static final ConjunctGenerator GEN = ConjunctGenerator.CPQ;//TODO derrive from workload
 
-	public Query generate(Configuration config, Workload workload){
+	public Query generate(Configuration config, Workload workload) throws GenerationException{
 		int conjunctNum = Util.uniformRandom(workload.getMinConjuncts(), workload.getMaxConjuncts());
 		List<Conjunct> conjuncts = new ArrayList<Conjunct>(conjunctNum);
 		List<Variable> variables = new ArrayList<Variable>(conjunctNum + 1);

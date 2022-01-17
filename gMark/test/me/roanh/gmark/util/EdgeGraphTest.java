@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Configuration;
+import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.util.EdgeGraph;
 import dev.roanh.gmark.util.EdgeGraphData;
 import dev.roanh.gmark.util.SchemaGraph;
@@ -28,7 +29,7 @@ public class EdgeGraphTest{
 	private static EdgeGraph graph;
 	
 	@BeforeAll
-	public static void constructGraph(){
+	public static void constructGraph() throws GenerationException{
 		graph = new EdgeGraph(gs, MAX_LENGTH, SOURCE, TARGET);
 	}
 	

@@ -10,6 +10,7 @@ import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Edge;
 import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
+import dev.roanh.gmark.exception.GenerationException;
 
 public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 	//TODO, move to constructor if not used anywhere else
@@ -49,10 +50,8 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 		return index.get(type).computeIfAbsent(sel, k->addUniqueNode(new SelectivityType(type, sel)));
 	}
 	
-	
-	
 	//TODO consider a dedicated path return type
-	public List<PathSegment> generateRandomPath(Selectivity selectivity, int length){
+	public List<PathSegment> generateRandomPath(Selectivity selectivity, int length) throws GenerationException{
 		return generateRandomPath(selectivity, length, -1.0D);
 	}
 	
@@ -60,7 +59,7 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 	//generate_random_path(g, pathmat, -1, nb_conjs, wconf.multiplicity, path);
 	//implementation assumes first node is always -1 (aka ommitted)
 	//TODO currentNode and currentSel form a valid SelecitivityType see if we can rewrite the logic to use that
-	public List<PathSegment> generateRandomPath(Selectivity selectivity, int length, double star){//multiplicity - double / star fraction of stars 0~1
+	public List<PathSegment> generateRandomPath(Selectivity selectivity, int length, double star) throws GenerationException{//multiplicity - double / star fraction of stars 0~1
 		DistanceMatrix matrix = computeNumberOfPaths(selectivity, length);
 		
 		int currentNode = 0;
@@ -75,8 +74,7 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 			}
 
 			if(paths == 0){
-				//TODO reconsider this behaviour
-				throw new IllegalStateException("Failed to generate a random path");
+				throw new GenerationException("Failed to generate a random path (no paths)");
 			}
 			
 			int rnd = Util.uniformRandom(1, paths);
@@ -91,15 +89,13 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 		}
 		
 		if(matrix.get(length, currentNode).getOrDefault(currentSel, 0) == 0){
-			//TODO reconsider this behaviour
-			throw new IllegalStateException("Failed to generate a random path");
+			throw new GenerationException("Failed to generate a random path");
 		}
 		
 		//TODO there is some has star logic in gmark, this does nothing so it was not copied
 		List<PathSegment> path = new ArrayList<PathSegment>(length);
 		for(int i = length; i > 0; i--){
 			
-			//TODO for some paths, e.g. CPQ's we never want a star so this test is redundant and expensive
 			//self loop test
 			boolean test = false;
 			for(GraphEdge<SelectivityType, SelectivityClass> edge : index.get(currentNode).get(SelectivityClass.EQUALS).getOutEdges()){

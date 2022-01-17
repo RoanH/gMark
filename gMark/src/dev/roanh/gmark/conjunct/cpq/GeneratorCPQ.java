@@ -18,9 +18,9 @@ import dev.roanh.gmark.util.SelectivityType;
  */
 public class GeneratorCPQ{
 
-	public static final Conjunct generateInnerCPQ(SelectivityGraph g, SchemaGraph gs, SelectivityType source, SelectivityType target, int minLength, int maxLength, int maxRecursion) throws GenerationException{
+	public static final Conjunct generateInnerCPQ(SelectivityGraph g, SchemaGraph gs, SelectivityType source, SelectivityType target, int maxLength, int maxRecursion) throws GenerationException{
 		EdgeGraph graph = new EdgeGraph(gs, maxLength, source, target, maxRecursion);
-		List<GraphNode<EdgeGraphData, Void>> path = graph.drawPath(minLength);
+		List<GraphNode<EdgeGraphData, Void>> path = graph.drawPath();
 		
 		assert !path.isEmpty() : "path may not be empty!";
 		

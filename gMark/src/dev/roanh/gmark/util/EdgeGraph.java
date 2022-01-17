@@ -37,10 +37,18 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	 */
 	private GraphNode<EdgeGraphData, Void> trg;
 	/**
-	 * The maximum length of paths used to construct the graph.
+	 * The maximum length of paths to use to construct the graph.
 	 */
 	private int maxLen;
+	/**
+	 * Length of the shortest path actually used to construct
+	 * the initial edge graph.
+	 */
 	private int baseMin = Integer.MAX_VALUE;
+	/**
+	 * Length of the longest path actually used to construct
+	 * the initial edge graph.
+	 */
 	private int baseMax;
 	
 	/**
@@ -112,6 +120,24 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	}
 	
 	/**
+	 * Gets the length of the shortest path used to construct
+	 * the initial edge graph.
+	 * @return The length of the shortest construction path.
+	 */
+	public int getBaseMinimum(){
+		return baseMin;
+	}
+	
+	/**
+	 * Gets the length of the longest path used to construct
+	 * the initial edge graph.
+	 * @return The length of the longest construction path.
+	 */
+	public int getBaseMaximum(){
+		return baseMax;
+	}
+	
+	/**
 	 * Gets the source node of the edge graph. Every node
 	 * in the edge graph can be reached from the source node.
 	 * @return The edge graph source node.
@@ -175,10 +201,8 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	 * @see #drawPath()
 	 * @see #getMaxLength()
 	 */
-	public List<GraphNode<EdgeGraphData, Void>> drawPath(int minLen){
-		//TODO investigate performance -- will loop forever if no path exists of at least minLen
+	protected List<GraphNode<EdgeGraphData, Void>> drawPath(int minLen){
 		find: while(true){
-			//System.out.println("attempt draw: " + minLen + " / " + baseMin + " / " + baseMax);
 			List<GraphNode<EdgeGraphData, Void>> path = new ArrayList<GraphNode<EdgeGraphData, Void>>(maxLen);
 			
 			GraphNode<EdgeGraphData, Void> node = src;
@@ -204,11 +228,6 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 					}
 				}
 			}
-			
-			assert path.stream().map(GraphNode::getData).mapToInt(EdgeGraphData::size).sum() >= minLen : "Path too short";
-			assert path.stream().map(GraphNode::getData).mapToInt(EdgeGraphData::size).sum() <= maxLen : "Path too long";
-			assert path.get(0).getInEdges().stream().map(GraphEdge::getSourceNode).anyMatch(src::equals) : "Start not connected to source";
-			assert path.get(path.size() - 1).getOutEdges().stream().map(GraphEdge::getTargetNode).anyMatch(trg::equals) : "End not connected to target";
 			
 			return path;
 		}
@@ -249,8 +268,6 @@ public class EdgeGraph extends Graph<EdgeGraphData, Void>{
 	 * @see #computeAllPaths
 	 */
 	private void addPath(Deque<GraphEdge<SelectivityType, Predicate>> path){
-		assert !path.isEmpty() : "Path not allowed to be empty";
-		
 		baseMin = Math.min(baseMin, path.size());
 		baseMax = Math.max(baseMax, path.size());
 		

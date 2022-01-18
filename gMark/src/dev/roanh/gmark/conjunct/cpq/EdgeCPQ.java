@@ -13,4 +13,9 @@ public class EdgeCPQ implements CPQ{
 	public String toString(){
 		return symbol.getAlias();
 	}
+
+	@Override
+	public String toSQL(){
+		return symbol.toSQL();
+	}
 }

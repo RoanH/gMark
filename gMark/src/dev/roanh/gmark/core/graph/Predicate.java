@@ -35,6 +35,15 @@ public class Predicate{
 	}
 	
 	/**
+	 * True if this predicate represents the inverted
+	 * form of the symbol (going from target to source).
+	 * @return True if this is an inverse predicate.
+	 */
+	public boolean isInverse(){
+		return isInverse;
+	}
+	
+	/**
 	 * Gets the textual representation
 	 * for this symbol. If this predicate
 	 * is inverted then this will include
@@ -67,12 +76,12 @@ public class Predicate{
 		return id;
 	}
 	
-	//TODO javadoc
-	public String toSQL(int id){
-		if(isInverse){
-			return "(SELECT trg AS src, src AS trg, label FROM edge) AS s" + id;
+	//selects all pairs
+	public String toSQL(){
+		if(isInverse()){
+			return "(SELECT trg AS src, src AS trg FROM edge WHERE label = " + id + ")";
 		}else{
-			return "edge s" + id;
+			return "(SELECT src, trg FROM edge WHERE label = " + id + ")";
 		}
 	}
 	

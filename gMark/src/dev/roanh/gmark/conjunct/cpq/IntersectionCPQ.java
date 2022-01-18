@@ -13,4 +13,10 @@ public class IntersectionCPQ implements CPQ{
 	public String toString(){
 		return "(" + first + " ∩ " + second + ")";
 	}
+
+	@Override
+	public String toSQL(){
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

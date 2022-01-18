@@ -18,4 +18,41 @@ public class ConcatCPQ implements CPQ{
 		}
 		return builder.toString();
 	}
+
+	@Override
+	public String toSQL(){
+		if(cpq.size() == 1){
+			return cpq.get(0).toSQL();
+		}
+		
+		StringBuilder buffer = new StringBuilder();
+		int n = cpq.size();
+		
+		buffer.append("(SELECT s0.src, s");
+		buffer.append(n - 1);
+		buffer.append(".trg FROM ");
+		for(int i = 0; i < n; i++){
+			buffer.append(cpq.get(i).toSQL());
+			buffer.append(" AS s");
+			buffer.append(i);
+			if(i < n - 1){
+				buffer.append(", ");
+			}
+		}
+		
+		buffer.append(" WHERE ");
+		for(int i = 0; i < n - 1; i++){
+			buffer.append("s");
+			buffer.append(i);
+			buffer.append(".trg = s");
+			buffer.append(i + 1);
+			buffer.append(".src");
+			if(i < n - 2){
+				buffer.append(" AND ");
+			}
+		}
+		
+		buffer.append(")");
+		return buffer.toString();
+	}
 }

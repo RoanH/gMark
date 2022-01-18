@@ -16,7 +16,6 @@ public class IntersectionCPQ implements CPQ{
 
 	@Override
 	public String toSQL(){
-		// TODO Auto-generated method stub
-		return null;
+		return "(" + first.toSQL() + " INTERSECT " + second.toSQL() + ")";
 	}
 }

@@ -54,6 +54,6 @@ public class ConversionTest{
 	
 	@Test
 	public void identityThrows(){
-		assertThrows(IllegalStateException.class, CPQ.IDENTITY.toSQL());
+		assertThrows(IllegalStateException.class, ()->CPQ.IDENTITY.toSQL());
 	}
 }

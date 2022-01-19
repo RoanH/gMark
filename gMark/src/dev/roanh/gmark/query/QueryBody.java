@@ -34,30 +34,41 @@ public class QueryBody implements SQL{
 		int n = conjuncts.size();
 		
 		buffer.append("WITH RECURSIVE ");
+		int extra = 0;
 		for(int i = 0; i < n; i++){
+			Conjunct conj = conjuncts.get(i);
+			
 			buffer.append('c');
 			buffer.append(i);
 			buffer.append("(src, trg) AS ");
-			buffer.append(conjuncts.get(i).toPartialSQL());
+			if(conj.hasStar()){
+				buffer.append("(SELECT edge.src, edge.src FROM edge UNION SELECT edge.trg, edge.trg FROM edge UNION ");
+			}
+			buffer.append(conj.toPartialSQL());
+			if(conj.hasStar()){
+				buffer.append("), c");
+				buffer.append(n + extra);
+				buffer.append("(src, trg) AS (SELECT src, trg FROM c");
+				buffer.append(i);
+				buffer.append("UNION SELECT head.src, tail.trg FROM c");
+				buffer.append(i);
+				buffer.append(" AS head, c");
+				buffer.append(n + extra);
+				buffer.append(" AS tail WHERE head.trg = tail.src)");
+				extra++;
+			}
+			
 			if(i < n - 1){
 				buffer.append(", ");
 			}
 		}
 		
-		
-		
-		
-		//return "(SELECT edge.src, edge.src FROM edge UNION SELECT edge.trg, edge.trg FROM edge UNION " + cpq.toSQL() + ")";
 
-//		file << ", c" << c << "(src, trg) AS (";
-//        file << "SELECT src, trg FROM c" << c - 1 << " UNION SELECT head.src, tail.trg FROM c" << c -1 << " as head, c" << c << " as tail WHERE head.trg = tail.src) ";
-//        c++;
-		
 		//TODO sel distinct
 		
 		
 		buffer.append("FROM ");
-		for(int i = 0; i < n; i++){
+		for(int i = 0; i < n + extra; i++){
 			buffer.append('c');
 			buffer.append(i);
 			if(i < n - 1){

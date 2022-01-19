@@ -30,7 +30,7 @@ public class StarGenerator{
 		SelectivityGraph g = new SelectivityGraph(config.getSchema(), workload.getMaxLength());
 		Selectivity selectivity = Util.selectRandom(workload.getSelectivities());
 		
-		//TODO schema graph is only required for CPQ it seems, consider moving it so it isn't constructed for RPQ
+		//TODO schema graph is only required for CPQ it seems, consider moving it so it isn't constructed for RPQ, probably store at the conjunct generator
 		SchemaGraph gs = new SchemaGraph(config.getSchema());
 		
 		PathSegment path = g.generateRandomPath(selectivity, 1).get(0);//TODO can also pass conjunct multiplicity rate

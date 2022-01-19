@@ -60,7 +60,7 @@ public abstract class Workload{
 		
 		wl.size = 1;
 		wl.maxArity = 4;
-		wl.minArity = 1;
+		wl.minArity = 0;
 		wl.maxLength = 6;
 		wl.minLength = 1;//TODO not used for CPQs so move to be RPQ specific together with max length (use diameter for CPQ)
 		wl.minConjuncts = 1;

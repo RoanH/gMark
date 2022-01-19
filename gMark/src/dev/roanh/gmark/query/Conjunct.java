@@ -1,8 +1,6 @@
 package dev.roanh.gmark.query;
 
-import dev.roanh.gmark.output.SQL;
-
-public abstract class Conjunct implements SQL{
+public abstract class Conjunct{
 	private Variable source;
 	private Variable target;
 	private boolean star;
@@ -26,6 +24,9 @@ public abstract class Conjunct implements SQL{
 	
 	//TODO should probably not be a thing
 	protected abstract String getInnerString();
+	
+	//does not have to respect star
+	protected abstract String toPartialSQL();
 	
 	@Override
 	public String toString(){

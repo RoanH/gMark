@@ -36,6 +36,14 @@ public class WorkloadRPQ extends Workload{
 	public int getMinLength(){
 		return minLength;
 	}
+	
+	public int getMinDisjuncts(){
+		return minDisjuncts;
+	}
+	
+	public int getMaxDisjuncts(){
+		return maxDisjuncts;
+	}
 
 	@Override
 	public WorkloadType getType(){

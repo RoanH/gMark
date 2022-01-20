@@ -62,6 +62,14 @@ public abstract class Workload implements IDable{
 	
 	public abstract int getMaxSelectivityGraphLength();//TODO reconsider
 	
+	public double getStarProbability(){
+		return starProbability;
+	}
+	
+	public int getSize(){
+		return size;
+	}
+	
 	public int getMinArity(){
 		return minArity;
 	}

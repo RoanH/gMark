@@ -9,6 +9,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import dev.roanh.gmark.conjunct.cpq.WorkloadCPQ;
 import dev.roanh.gmark.conjunct.rpq.WorkloadRPQ;
 import dev.roanh.gmark.core.DistributionType;
 import dev.roanh.gmark.core.QueryShape;
@@ -52,6 +53,18 @@ public class ConfigParserTest{
 		assertEquals(4, wl.getMaxDisjuncts());
 		assertEquals(1, wl.getMinLength());
 		assertEquals(3, wl.getMaxLength());
+	}
+	
+	@Test
+	public void workloadCPQ(){
+		Workload workload = config.getWorkloadByID(1);
+		
+		assertEquals(WorkloadType.CPQ, workload.getType());
+		assertTrue(workload instanceof WorkloadCPQ);
+		
+		WorkloadCPQ wl = (WorkloadCPQ)workload;
+		assertEquals(5, wl.getMaxRecursion());
+		assertEquals(4, wl.getMaxDiameter());
 	}
 	
 	@Test

@@ -61,7 +61,9 @@ public class Query implements SQL{
 		StringBuffer buffer = new StringBuffer();
 		for(int i = 0; i < bodies.size(); i++){
 			buffer.append(bodies.get(i).toSQL(variables));
-			buffer.append(" UNION ");
+			if(i < bodies.size() - 1){
+				buffer.append(" UNION ");
+			}
 		}
 		buffer.append(";");
 		return buffer.toString();

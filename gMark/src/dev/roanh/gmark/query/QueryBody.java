@@ -80,7 +80,7 @@ public class QueryBody{
 			}
 		}
 		
-		buffer.append("FROM ");
+		buffer.append(" FROM ");
 		for(int i = 0; i < n + extra; i++){
 			buffer.append('c');
 			buffer.append(i);
@@ -107,7 +107,6 @@ public class QueryBody{
 			}
 		}
 		
-		buffer.append(";");
 		return buffer.toString();
 	}
 	

@@ -15,6 +15,7 @@ import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.exception.GenerationException;
+import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.shape.ChainGenerator;
 import dev.roanh.gmark.util.ConfigGraph;
 import dev.roanh.gmark.util.EdgeGraph;
@@ -92,9 +93,12 @@ public class GraphMark{
 		
 		long start = System.currentTimeMillis();
 		ChainGenerator generator = new ChainGenerator();
-		for(int i = 0; i < 100000; i++){
+		for(int i = 0; i < 1; i++){
 			try{
-				System.out.println(generator.generate(config, Workload.getDummyInstance()));
+				Query query = generator.generate(config, Workload.getDummyInstance());
+				System.out.println(query);
+				System.out.println("========== SQL ==========");
+				System.out.println(query.toSQL());
 			}catch(Exception e){
 				System.err.println("Error generating query: " + e.getMessage());
 				e.printStackTrace();

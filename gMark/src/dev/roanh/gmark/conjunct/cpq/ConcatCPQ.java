@@ -28,9 +28,9 @@ public class ConcatCPQ implements CPQ{
 		StringBuilder buffer = new StringBuilder();
 		int n = cpq.size();
 		
-		buffer.append("(SELECT s0.src, s");
+		buffer.append("(SELECT s0.src AS src, s");
 		buffer.append(n - 1);
-		buffer.append(".trg FROM ");
+		buffer.append(".trg AS trg FROM ");
 		for(int i = 0; i < n; i++){
 			buffer.append(cpq.get(i).toSQL());
 			buffer.append(" AS s");

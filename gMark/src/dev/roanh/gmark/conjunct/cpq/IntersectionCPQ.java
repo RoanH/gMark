@@ -7,6 +7,10 @@ public class IntersectionCPQ implements CPQ{
 	public IntersectionCPQ(CPQ first, CPQ second){
 		this.first = first;
 		this.second = second;
+		if(first == CPQ.IDENTITY){
+			this.first = this.second;
+			this.second = CPQ.IDENTITY;
+		}
 	}
 	
 	@Override
@@ -16,6 +20,10 @@ public class IntersectionCPQ implements CPQ{
 
 	@Override
 	public String toSQL(){
-		return "(" + first.toSQL() + " INTERSECT " + second.toSQL() + ")";
+		if(second == CPQ.IDENTITY){
+			return "(SELECT ii.src AS src, ii.trg AS trg FROM " + first.toSQL() + " AS ii WHERE ii.src = ii.trg)";
+		}else{
+			return "(" + first.toSQL() + " INTERSECT " + second.toSQL() + ")";
+		}
 	}
 }

@@ -2,6 +2,7 @@ package dev.roanh.gmark.conjunct.cpq;
 
 import org.w3c.dom.Element;
 
+import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.WorkloadType;
 
@@ -11,9 +12,20 @@ public class WorkloadCPQ extends Workload{
 
 	public WorkloadCPQ(Element elem){
 		super(elem);
-		// TODO Auto-generated constructor stub
+		Element size = ConfigParser.getElement(elem, "size");
+		
+		maxDiameter = Integer.parseInt(ConfigParser.getElement(size, "diameter").getAttribute("max"));
+		maxRecursion = Integer.parseInt(ConfigParser.getElement(size, "recursion").getAttribute("max"));
 	}
 
+	public int getMaxDiameter(){
+		return maxDiameter;
+	}
+	
+	public int getMaxRecursion(){
+		return maxRecursion;
+	}
+	
 	@Override
 	public WorkloadType getType(){
 		return WorkloadType.CPQ;

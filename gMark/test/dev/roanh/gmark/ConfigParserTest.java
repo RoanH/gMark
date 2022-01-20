@@ -1,11 +1,18 @@
 package dev.roanh.gmark;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.core.DistributionType;
+import dev.roanh.gmark.core.QueryShape;
+import dev.roanh.gmark.core.Selectivity;
+import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Edge;
 
@@ -15,6 +22,40 @@ public class ConfigParserTest{
 	@BeforeAll
 	public static void parseConfig(){
 		config = ConfigParser.parse(ClassLoader.getSystemResourceAsStream("test.xml"));
+	}
+	
+	@Test
+	public void workload(){
+		Workload workload = config.getWorkloadByID(2);
+		
+		assertEquals(2, workload.getID());
+		assertEquals(3, workload.getMinConjuncts());
+		assertEquals(4, workload.getMaxConjuncts());
+		assertEquals(0.5D, workload.getStarProbability());
+		assertEquals(0, workload.getMinArity());
+		assertEquals(4, workload.getMaxArity());
+		
+		Set<QueryShape> shapes = workload.getShapes();
+		for(QueryShape shape : QueryShape.values()){
+			switch(shape){
+			case CHAIN:
+			case CYCLE:
+				assertTrue(shapes.contains(shape));
+				break;
+			default:
+				assertFalse(shapes.contains(shape));
+				break;
+			}
+		}
+		
+		Set<Selectivity> sels = workload.getSelectivities();
+		for(Selectivity sel : Selectivity.values()){
+			if(sel == Selectivity.CONSTANT || sel == Selectivity.QUADRATIC){
+				assertTrue(sels.contains(sel));
+			}else{
+				assertFalse(sels.contains(sel));
+			}
+		}
 	}
 	
 	@Test

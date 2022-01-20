@@ -1,5 +1,6 @@
 package dev.roanh.gmark.core;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.w3c.dom.Element;
@@ -23,8 +24,8 @@ public abstract class Workload implements IDable{
 	 * Probability that a conjunct has a Kleene star above it.
 	 */
 	private double starProbability;
-	private Set<QueryShape> shapes;//TODO assert this is not empty, general validation of everything really
-	private Set<Selectivity> selectivities;//TODO assert this is not empty
+	private Set<QueryShape> shapes = new HashSet<QueryShape>();//TODO assert this is not empty, general validation of everything really
+	private Set<Selectivity> selectivities = new HashSet<Selectivity>();//TODO assert this is not empty
 	
 	protected Workload(Element elem){
 		id = Integer.parseInt(elem.getAttribute("id"));

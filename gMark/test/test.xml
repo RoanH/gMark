@@ -153,10 +153,10 @@
 		<arity min="0" max="4"/>
 
 		<!-- we want only linear queries, but not constant nor quadratic -->
-		<selectivity constant="1" linear="1" quadratic="1"/>
+		<selectivity constant="1" linear="0" quadratic="1"/>
 
 		<!-- we want to have in the workload chains and stars, but not cycles, etc. -->
-		<type chain="1" star="1" cycle="1" starchain="1"/>
+		<type chain="1" star="0" cycle="1" starchain="0"/>
 	</workload>
 
 </generator>

@@ -9,10 +9,12 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import dev.roanh.gmark.conjunct.rpq.WorkloadRPQ;
 import dev.roanh.gmark.core.DistributionType;
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.Workload;
+import dev.roanh.gmark.core.WorkloadType;
 import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Edge;
 
@@ -25,15 +27,32 @@ public class ConfigParserTest{
 	}
 	
 	@Test
+	public void legacyWorkloadRPQ(){
+		Workload workload = config.getWorkloadByID(0);
+		
+		assertEquals(WorkloadType.RPQ, workload.getType());
+		assertTrue(workload instanceof WorkloadRPQ);
+		
+		WorkloadRPQ wl = (WorkloadRPQ)workload;
+		assertEquals(1, wl.getMinDisjuncts());
+		assertEquals(3, wl.getMaxDisjuncts());
+		assertEquals(2, wl.getMinLength());
+		assertEquals(4, wl.getMaxLength());
+	}
+	
+	@Test
 	public void workload(){
 		Workload workload = config.getWorkloadByID(2);
 		
 		assertEquals(2, workload.getID());
+		assertEquals(50, workload.getSize());
+		assertEquals(WorkloadType.RPQ, workload.getType());
 		assertEquals(3, workload.getMinConjuncts());
 		assertEquals(4, workload.getMaxConjuncts());
 		assertEquals(0.5D, workload.getStarProbability());
 		assertEquals(0, workload.getMinArity());
 		assertEquals(4, workload.getMaxArity());
+		assertEquals(3, workload.getMaxSelectivityGraphLength());
 		
 		Set<QueryShape> shapes = workload.getShapes();
 		for(QueryShape shape : QueryShape.values()){

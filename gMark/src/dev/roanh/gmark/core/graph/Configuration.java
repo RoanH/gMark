@@ -34,4 +34,17 @@ public class Configuration{
 	public Schema getSchema(){
 		return schema;
 	}
+	
+	public List<Workload> getWorkloads(){
+		return workloads;
+	}
+	
+	public Workload getWorkloadByID(int id){
+		for(Workload wl : workloads){
+			if(wl.getID() == id){
+				return wl;
+			}
+		}
+		return null;
+	}
 }

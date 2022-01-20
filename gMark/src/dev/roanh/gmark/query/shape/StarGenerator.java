@@ -27,7 +27,7 @@ public class StarGenerator{
 		List<Conjunct> conjuncts = new ArrayList<Conjunct>(conjunctNum);
 		List<Variable> variables = new ArrayList<Variable>(conjunctNum + 1);
 		
-		SelectivityGraph g = new SelectivityGraph(config.getSchema(), workload.getMaxLength());
+		SelectivityGraph g = new SelectivityGraph(config.getSchema(), workload.getMaxSelectivityGraphLength());
 		Selectivity selectivity = Util.selectRandom(workload.getSelectivities());
 		
 		//TODO schema graph is only required for CPQ it seems, consider moving it so it isn't constructed for RPQ, probably store at the conjunct generator

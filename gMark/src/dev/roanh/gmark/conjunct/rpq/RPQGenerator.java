@@ -7,7 +7,7 @@ import dev.roanh.gmark.util.Util;
 
 public class RPQGenerator{
 	private Random random = new Random();
-	private RPQWorkload workloadConfig;
+	private WorkloadRPQ workloadConfig;
 	private Configuration config;
 	
 }

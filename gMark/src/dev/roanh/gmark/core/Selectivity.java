@@ -13,14 +13,14 @@ public enum Selectivity{
 	 * Typically this is seen for queries that select nodes
 	 * that are present in a fixed quantity in the graph.
 	 */
-	CONSTANT,
+	CONSTANT("constant"),
 	/**
 	 * The most common selectivity value. This indicates
 	 * queries that select more results when the graph grows
 	 * in size and the number of results select grows in
 	 * a linear fashion with the graph size.
 	 */
-	LINEAR,
+	LINEAR("linear"),
 	/**
 	 * This selectivity value indicates that the number of
 	 * results selected by a query grows much faster than
@@ -28,5 +28,25 @@ public enum Selectivity{
 	 * is typically seen for queries that perform a Cartesian
 	 * product.
 	 */
-	QUADRATIC;
+	QUADRATIC("quadratic");
+	
+	private final String name;
+	
+	private Selectivity(String name){
+		this.name = name;
+	}
+	
+	@Override
+	public String toString(){
+		return name;
+	}
+	
+	public static Selectivity getByName(String name){
+		for(Selectivity sel : values()){
+			if(sel.name.equals(name)){
+				return sel;
+			}
+		}
+		return null;
+	}
 }

@@ -13,31 +13,31 @@ public class Main{
 	//General assumption that type and symbol IDs are consecutive in the sense that
 	//for a total of 4 types these types have ID 0, 1, 2 and 3
 	public static void main(String[] args){
-		Configuration config = ConfigParser.parse(Paths.get("C:\\Users\\RoanH\\Downloads\\tmp\\gmark\\use-cases\\test.xml"));
+		Configuration config = ConfigParser.parse(Paths.get("./test/test.xml"));
 		
 		
 		
-		System.out.println("Predicates:");
-		config.getPredicates().forEach(System.out::println);
+//		System.out.println("Predicates:");
+//		config.getPredicates().forEach(System.out::println);
+//		
+//		System.out.println("\nTypes:");
+//		config.getTypes().forEach(System.out::println);
+//		
+//		System.out.println("\nEdges:");
+//		config.getSchema().getEdges().forEach(System.out::println);
+//		
+//		System.out.println("\nGs nodes:");
+//		SchemaGraph gs = new SchemaGraph(config.getSchema());
+//		gs.printNodes();
+//		
+//		System.out.println("\nGs edges:");
+//		gs.printEdges();
 		
-		System.out.println("\nTypes:");
-		config.getTypes().forEach(System.out::println);
-		
-		System.out.println("\nEdges:");
-		config.getSchema().getEdges().forEach(System.out::println);
-		
-		System.out.println("\nGs nodes:");
-		SchemaGraph gs = new SchemaGraph(config.getSchema());
-		gs.printNodes();
-		
-		System.out.println("\nGs edges:");
-		gs.printEdges();
-		
-		try{
-			EdgeGraph eg = new EdgeGraph(gs, 3, gs.getNodes().get(0).getData(), gs.getNodes().get(1).getData());
-		}catch(GenerationException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try{
+//			EdgeGraph eg = new EdgeGraph(gs, 3, gs.getNodes().get(0).getData(), gs.getNodes().get(1).getData());
+//		}catch(GenerationException e){
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 }

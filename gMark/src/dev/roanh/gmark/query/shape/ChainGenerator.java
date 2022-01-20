@@ -26,7 +26,7 @@ public class ChainGenerator{
 		int conjunctNum = Util.uniformRandom(workload.getMinConjuncts(), workload.getMaxConjuncts());
 		List<Conjunct> conjuncts = new ArrayList<Conjunct>(conjunctNum);
 		
-		SelectivityGraph g = new SelectivityGraph(config.getSchema(), workload.getMaxLength());
+		SelectivityGraph g = new SelectivityGraph(config.getSchema(), workload.getMaxSelectivityGraphLength());
 		Selectivity selectivity = Util.selectRandom(workload.getSelectivities());
 		//TODO store selected selectivity info for the query we're working on
 		

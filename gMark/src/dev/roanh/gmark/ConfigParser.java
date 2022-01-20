@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,11 +22,14 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import dev.roanh.gmark.core.Distribution;
+import dev.roanh.gmark.core.Workload;
+import dev.roanh.gmark.core.WorkloadType;
 import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Edge;
 import dev.roanh.gmark.core.graph.Predicate;
@@ -59,18 +63,20 @@ public class ConfigParser{
 		try{
 			Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
 			xml.getDocumentElement().normalize();
+			Element root = xml.getDocumentElement();
 			
-			List<Integer> sizes = stream(xml.getElementsByTagName("graph")).map(TO_ELEMENT).map(n->{
+			List<Integer> sizes = stream(root, "graph").map(n->{
 				return n.getElementsByTagName("nodes").item(0);
 			}).map(Node::getTextContent).map(Integer::parseInt).collect(Collectors.toList());
 			
-			List<Predicate> predicates = parsePredicates(TO_ELEMENT.apply(xml.getElementsByTagName("predicates").item(0)));
-			List<Type> types = parseTypes(TO_ELEMENT.apply(xml.getElementsByTagName("types").item(0)));
-			Schema schema = parseSchema(TO_ELEMENT.apply(xml.getElementsByTagName("schema").item(0)), types, predicates);
+			List<Predicate> predicates = parsePredicates(getElement(root, "predicates"));
+			List<Type> types = parseTypes(getElement(root, "types"));
+			Schema schema = parseSchema(getElement(root, "schema"), types, predicates);
 			
-			//TODO parse workloads -- which are generator specific now
+			List<Workload> workloads = stream(root, "workload").map(WorkloadType::parse).collect(Collectors.toList());
+			//TODO check workloads have a distinct ID
 			
-			return new Configuration(sizes, schema, null);
+			return new Configuration(sizes, schema, workloads);
 		}catch(SAXException e){
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -88,9 +94,9 @@ public class ConfigParser{
 	private static final Schema parseSchema(Element elem, List<Type> types, List<Predicate> predicates){
 		List<Edge> edges = new ArrayList<Edge>();
 		
-		stream(elem.getElementsByTagName("source")).map(TO_ELEMENT).forEach(s->{
+		stream(elem, "source").forEach(s->{
 			Type source = types.get(Integer.parseInt(s.getAttribute("type")));
-			stream(s.getElementsByTagName("target")).map(TO_ELEMENT).forEach(t->{
+			stream(s, "target").forEach(t->{
 				edges.add(new Edge(
 					source,
 					types.get(Integer.parseInt(t.getAttribute("type"))),
@@ -139,15 +145,15 @@ public class ConfigParser{
 		Map<Integer, Double> prop = new HashMap<Integer, Double>();
 		Map<Integer, Integer> fixed = new HashMap<Integer, Integer>();
 		
-		stream(elem.getElementsByTagName("alias")).map(TO_ELEMENT).forEach(n->{
+		stream(elem, "alias").forEach(n->{
 			alias.put(Integer.parseInt(n.getAttribute("type")), n.getTextContent());
 		});
 		
-		stream(elem.getElementsByTagName("proportion")).map(TO_ELEMENT).forEach(n->{
+		stream(elem, "proportion").forEach(n->{
 			prop.put(Integer.parseInt(n.getAttribute("type")), Double.parseDouble(n.getTextContent()));
 		});
 		
-		stream(elem.getElementsByTagName("fixed")).map(TO_ELEMENT).forEach(n->{
+		stream(elem, "fixed").forEach(n->{
 			fixed.put(Integer.parseInt(n.getAttribute("type")), Integer.parseInt(n.getTextContent()));
 		});
 		
@@ -191,11 +197,11 @@ public class ConfigParser{
 		Map<Integer, String> alias = new LinkedHashMap<Integer, String>();
 		Map<Integer, Double> prop = new HashMap<Integer, Double>();
 		
-		stream(elem.getElementsByTagName("alias")).map(TO_ELEMENT).forEach(n->{
+		stream(elem, "alias").forEach(n->{
 			alias.put(Integer.parseInt(n.getAttribute("symbol")), n.getTextContent());
 		});
 		
-		stream(elem.getElementsByTagName("proportion")).map(TO_ELEMENT).forEach(n->{
+		stream(elem, "proportion").forEach(n->{
 			prop.put(Integer.parseInt(n.getAttribute("symbol")), Double.parseDouble(n.getTextContent()));
 		});
 		
@@ -208,11 +214,26 @@ public class ConfigParser{
 		return predicates;
 	}
 	
-	private static final <T> Stream<Node> stream(NodeList list){
+	public static final Stream<Element> stream(Element elem, String name){
+		return stream(elem.getElementsByTagName(name)).map(TO_ELEMENT);
+	}
+	
+	public static final Stream<Node> stream(NodeList list){
 		Builder<Node> builder = Stream.builder();
 		for(int i = 0; i < list.getLength(); i++){
 			builder.add(list.item(i));
 		}
 		return builder.build();
+	}
+	
+	public static final Element getElement(Element elem, String name){
+		return TO_ELEMENT.apply(elem.getElementsByTagName(name).item(0));
+	}
+	
+	public static final void forEach(NamedNodeMap data, BiConsumer<String, String> consumer){
+		for(int i = 0; i < data.getLength(); i++){
+			Node item = data.item(i);
+			consumer.accept(item.getNodeName(), item.getNodeValue());
+		}
 	}
 }

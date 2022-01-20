@@ -22,8 +22,6 @@ public class ConversionTest{
 	private static final CPQ concat0 = new ConcatCPQ(Arrays.asList(label0, label1, label1, label1i));
 	private static final CPQ concat1 = new ConcatCPQ(Arrays.asList(label1));
 	
-	
-	
 	@Test
 	public void concatToSQL(){
 		assertEquals(

@@ -95,7 +95,7 @@ public class GraphMark{
 		ChainGenerator generator = new ChainGenerator();
 		for(int i = 0; i < 1; i++){
 			try{
-				Query query = generator.generate(config, Workload.getDummyInstance());
+				Query query = generator.generate(config, config.getWorkloadByID(1));
 				System.out.println(query);
 				System.out.println("========== SQL ==========");
 				System.out.println(query.toSQL());

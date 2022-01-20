@@ -1,11 +1,14 @@
 package dev.roanh.gmark.query;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.StringJoiner;
 
-import dev.roanh.gmark.output.SQL;
-
-public class QueryBody implements SQL{
+public class QueryBody{
 	private List<Conjunct> conjuncts;
 	
 	public QueryBody(List<Conjunct> conjuncts) throws IllegalArgumentException{
@@ -28,15 +31,19 @@ public class QueryBody implements SQL{
 		return joiner.toString();
 	}
 
-	@Override
-	public String toSQL(){
+	protected String toSQL(List<Variable> lhs){
 		StringBuilder buffer = new StringBuilder();
 		int n = conjuncts.size();
+		Map<Variable, List<Conjunct>> varMap = new HashMap<Variable, List<Conjunct>>();
+		Map<Conjunct, Integer> idMap = new HashMap<Conjunct, Integer>();
 		
 		buffer.append("WITH RECURSIVE ");
 		int extra = 0;
 		for(int i = 0; i < n; i++){
 			Conjunct conj = conjuncts.get(i);
+			varMap.computeIfAbsent(conj.getSource(), v->new ArrayList<Conjunct>()).add(conj);
+			varMap.computeIfAbsent(conj.getTarget(), v->new ArrayList<Conjunct>()).add(conj);
+			idMap.put(conj, i);
 			
 			buffer.append('c');
 			buffer.append(i);
@@ -63,9 +70,15 @@ public class QueryBody implements SQL{
 			}
 		}
 		
-
-		//TODO sel distinct
-		
+		//just need one occurence
+		buffer.append(" SELECT DISTINCT ");
+		for(int i = 0; i < lhs.size(); i++){
+			Variable var = lhs.get(i);
+			buffer.append(conjunctVarToSQL(var, varMap.get(var).get(0), idMap));
+			if(i < lhs.size() - 1){
+				buffer.append(", ");
+			}
+		}
 		
 		buffer.append("FROM ");
 		for(int i = 0; i < n + extra; i++){
@@ -76,11 +89,35 @@ public class QueryBody implements SQL{
 			}
 		}
 		
-		//buffer.append("WHERE")
+		buffer.append(" WHERE ");
+		Iterator<Entry<Variable, List<Conjunct>>> iter = varMap.entrySet().iterator();
+		while(iter.hasNext()){
+			Entry<Variable, List<Conjunct>> data = iter.next();
+			List<Conjunct> conjuncts = data.getValue();
+			Variable var = data.getKey();
+			
+			//compare the first with all others
+			for(int i = 1; i < conjuncts.size(); i++){
+				buffer.append(conjunctVarToSQL(var, conjuncts.get(0), idMap));
+				buffer.append(" = ");
+				buffer.append(conjunctVarToSQL(var, conjuncts.get(i), idMap));
+				if(iter.hasNext() && i < conjuncts.size() - 1){
+					buffer.append(" AND ");
+				}
+			}
+		}
 		
-		
-		
-		// TODO Auto-generated method stub
-		return null;
+		buffer.append(";");
+		return buffer.toString();
+	}
+	
+	private static String conjunctVarToSQL(Variable var, Conjunct conj, Map<Conjunct, Integer> idMap){
+		if(var.equals(conj.getSource())){
+			return "c" + idMap.get(conj) + ".src";
+		}else if(var.equals(conj.getTarget())){
+			return "c" + idMap.get(conj) + ".trg";
+		}else{
+			return null;
+		}
 	}
 }

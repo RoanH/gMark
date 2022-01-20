@@ -22,6 +22,14 @@ public abstract class Conjunct{
 		return star;
 	}
 	
+	public Variable getSource(){
+		return source;
+	}
+	
+	public Variable getTarget(){
+		return target;
+	}
+	
 	//TODO should probably not be a thing
 	protected abstract String getInnerString();
 	

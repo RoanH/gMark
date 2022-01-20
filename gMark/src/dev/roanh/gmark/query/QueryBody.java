@@ -37,7 +37,7 @@ public class QueryBody{
 		Map<Variable, List<Conjunct>> varMap = new HashMap<Variable, List<Conjunct>>();
 		Map<Conjunct, Integer> idMap = new HashMap<Conjunct, Integer>();
 		
-		buffer.append("WITH RECURSIVE ");
+		buffer.append("(WITH RECURSIVE ");
 		int extra = 0;
 		for(int i = 0; i < n; i++){
 			Conjunct conj = conjuncts.get(i);
@@ -70,13 +70,17 @@ public class QueryBody{
 			}
 		}
 		
-		//just need one occurence
-		buffer.append(" SELECT DISTINCT ");
-		for(int i = 0; i < lhs.size(); i++){
-			Variable var = lhs.get(i);
-			buffer.append(conjunctVarToSQL(var, varMap.get(var).get(0), idMap));
-			if(i < lhs.size() - 1){
-				buffer.append(", ");
+		if(lhs.isEmpty()){
+			buffer.append(" SELECT \"true\" FROM edge WHERE EXISTS (SELECT *");
+		}else{
+			//just need one occurrence
+			buffer.append(" SELECT DISTINCT ");
+			for(int i = 0; i < lhs.size(); i++){
+				Variable var = lhs.get(i);
+				buffer.append(conjunctVarToSQL(var, varMap.get(var).get(0), idMap));
+				if(i < lhs.size() - 1){
+					buffer.append(", ");
+				}
 			}
 		}
 		
@@ -89,24 +93,33 @@ public class QueryBody{
 			}
 		}
 		
-		buffer.append(" WHERE ");
-		Iterator<Entry<Variable, List<Conjunct>>> iter = varMap.entrySet().iterator();
-		while(iter.hasNext()){
-			Entry<Variable, List<Conjunct>> data = iter.next();
-			List<Conjunct> conjuncts = data.getValue();
-			Variable var = data.getKey();
-			
-			//compare the first with all others
-			for(int i = 1; i < conjuncts.size(); i++){
-				buffer.append(conjunctVarToSQL(var, conjuncts.get(0), idMap));
-				buffer.append(" = ");
-				buffer.append(conjunctVarToSQL(var, conjuncts.get(i), idMap));
-				if(iter.hasNext() && i < conjuncts.size() - 1){
+		//a single conjunct shares no variables with other conjuncts or itself
+		if(conjuncts.size() > 1){
+			buffer.append(" WHERE ");
+			Iterator<Entry<Variable, List<Conjunct>>> iter = varMap.entrySet().iterator();
+			while(iter.hasNext()){
+				Entry<Variable, List<Conjunct>> data = iter.next();
+				List<Conjunct> conjuncts = data.getValue();
+				Variable var = data.getKey();
+				
+				//compare the first with all others
+				for(int i = 1; i < conjuncts.size(); i++){
+					buffer.append(conjunctVarToSQL(var, conjuncts.get(0), idMap));
+					buffer.append(" = ");
+					buffer.append(conjunctVarToSQL(var, conjuncts.get(i), idMap));
 					buffer.append(" AND ");
 				}
 			}
+			
+			//remove trailing AND
+			buffer.delete(buffer.length() - 5, buffer.length());
 		}
 		
+		if(lhs.isEmpty()){
+			buffer.append(")");
+		}
+		
+		buffer.append(")");
 		return buffer.toString();
 	}
 	

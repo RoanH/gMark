@@ -2,6 +2,7 @@ package dev.roanh.gmark.conjunct.rpq;
 
 import org.w3c.dom.Element;
 
+import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.WorkloadType;
 
@@ -10,10 +11,6 @@ import dev.roanh.gmark.core.WorkloadType;
  * @author Roan
  */
 public class WorkloadRPQ extends Workload{
-	/**
-	 * Probability that a conjunct has a Kleene star above.
-	 */
-	private double multiplicity;
 	private int minDisjuncts;
 	private int maxDisjuncts;
 	private int minLength;
@@ -21,7 +18,15 @@ public class WorkloadRPQ extends Workload{
 	
 	public WorkloadRPQ(Element elem){
 		super(elem);
-		// TODO Auto-generated constructor stub
+		Element size = ConfigParser.getElement(elem, "size");
+		
+		Element disj = ConfigParser.getElement(size, "disjuncts");
+		minDisjuncts = Integer.parseInt(disj.getAttribute("min"));
+		maxDisjuncts = Integer.parseInt(disj.getAttribute("max"));
+		
+		Element len = ConfigParser.getElement(size, "length");
+		minLength = Integer.parseInt(len.getAttribute("min"));
+		maxLength = Integer.parseInt(len.getAttribute("max"));
 	}
 	
 	public int getMaxLength(){

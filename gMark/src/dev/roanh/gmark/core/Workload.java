@@ -12,13 +12,16 @@ import dev.roanh.gmark.util.IDable;
 public abstract class Workload implements IDable{
 	private int id;
 	/**
-	 * Number of queries.
+	 * Number of queries in this workload.
 	 */
 	private int size;
 	private int minConjuncts;
 	private int maxConjuncts;
 	private int minArity;
 	private int maxArity;
+	/**
+	 * Probability that a conjunct has a Kleene star above it.
+	 */
 	private double starProbability;
 	private Set<QueryShape> shapes;//TODO assert this is not empty, general validation of everything really
 	private Set<Selectivity> selectivities;//TODO assert this is not empty

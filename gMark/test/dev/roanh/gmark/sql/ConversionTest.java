@@ -27,7 +27,7 @@ public class ConversionTest{
 	@Test
 	public void concatToSQL(){
 		assertEquals(
-			"(SELECT s0.src, s3.trg FROM"
+			"(SELECT s0.src AS src, s3.trg AS trg FROM"
 			+ " (SELECT src, trg FROM edge WHERE label = 0) AS s0,"
 			+ " (SELECT src, trg FROM edge WHERE label = 1) AS s1,"
 			+ " (SELECT src, trg FROM edge WHERE label = 1) AS s2,"

@@ -41,6 +41,20 @@ public class ConfigParserTest{
 	}
 	
 	@Test
+	public void workloadRPQ(){
+		Workload workload = config.getWorkloadByID(2);
+		
+		assertEquals(WorkloadType.RPQ, workload.getType());
+		assertTrue(workload instanceof WorkloadRPQ);
+		
+		WorkloadRPQ wl = (WorkloadRPQ)workload;
+		assertEquals(2, wl.getMinDisjuncts());
+		assertEquals(4, wl.getMaxDisjuncts());
+		assertEquals(1, wl.getMinLength());
+		assertEquals(3, wl.getMaxLength());
+	}
+	
+	@Test
 	public void workload(){
 		Workload workload = config.getWorkloadByID(2);
 		

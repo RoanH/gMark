@@ -10,15 +10,16 @@ import dev.roanh.gmark.util.IDable;
 //TODO need to redo gmark formats a bit, probably just add another param after workload size with type="cpq", rpq, etc keep this class for shared info
 
 public abstract class Workload implements IDable{
+	private int id;
 	/**
 	 * Number of queries.
 	 */
-	private int id;
 	private int size;
 	private int minConjuncts;
 	private int maxConjuncts;
 	private int minArity;
 	private int maxArity;
+	private double starProbability;
 	private Set<QueryShape> shapes;//TODO assert this is not empty, general validation of everything really
 	private Set<Selectivity> selectivities;//TODO assert this is not empty
 	
@@ -26,10 +27,18 @@ public abstract class Workload implements IDable{
 		id = Integer.parseInt(elem.getAttribute("id"));
 		size = Integer.parseInt(elem.getAttribute("size"));
 		
+		//conjuncts
+		Element conj = ConfigParser.getElement(ConfigParser.getElement(elem, "size"), "conjuncts");
+		minConjuncts = Integer.parseInt(conj.getAttribute("min"));
+		maxConjuncts = Integer.parseInt(conj.getAttribute("max"));
 		
+		//star
+		starProbability = Double.parseDouble(ConfigParser.getElement(elem, "multiplicity").getAttribute("star"));
 		
-		
-		
+		//arity
+		Element arity = ConfigParser.getElement(elem, "arity");
+		minArity = Integer.parseInt(arity.getAttribute("min"));
+		maxArity = Integer.parseInt(arity.getAttribute("max"));
 		
 		//selectivities
 		ConfigParser.forEach(ConfigParser.getElement(elem, "selectivity").getAttributes(), (key, value)->{

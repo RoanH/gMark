@@ -22,6 +22,11 @@ public class QueryBody{
 		return conjuncts.size();
 	}
 	
+	public double getMultiplicity(){
+		long stars = conjuncts.stream().filter(Conjunct::hasStar).count();
+		return ((double)stars) / conjuncts.size();
+	}
+	
 	@Override
 	public String toString(){
 		StringJoiner joiner = new StringJoiner(",");

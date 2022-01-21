@@ -50,23 +50,24 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 		return index.get(type).computeIfAbsent(sel, k->addUniqueNode(new SelectivityType(type, sel)));
 	}
 	
-	//TODO consider a dedicated path return type
-	public List<PathSegment> generateRandomPath(Selectivity selectivity, int length) throws GenerationException{
-		return generateRandomPath(selectivity, length, -1.0D);
+	public List<PathSegment> generateRandomPath(Selectivity selectivity, int length, double star) throws GenerationException{
+		return generateRandomPath(selectivity, null, length, star);
 	}
 	
-	//sel graph, matrix_of_paths, first_node (always -1?), len, star, path (return value)
+	//sel graph, matrix_of_paths, first_node, len, star, path (return value)
 	//generate_random_path(g, pathmat, -1, nb_conjs, wconf.multiplicity, path);
-	//implementation assumes first node is always -1 (aka ommitted)
 	//TODO currentNode and currentSel form a valid SelecitivityType see if we can rewrite the logic to use that
-	public List<PathSegment> generateRandomPath(Selectivity selectivity, int length, double star) throws GenerationException{//multiplicity - double / star fraction of stars 0~1
+	//TODO consider a dedicated return type
+	//multiplicity - double / star fraction of stars 0~1
+	public List<PathSegment> generateRandomPath(Selectivity selectivity, SelectivityType start, int length, double star) throws GenerationException{
 		DistanceMatrix matrix = computeNumberOfPaths(selectivity, length);
 		
 		int currentNode = 0;
 		SelectivityClass currentSel = SelectivityClass.EQUALS;
 		
-		//TODO alternative never used branch in gmark here
-		{
+		if(start != null){
+			currentNode = start.getTypeID();
+		}else{
 			int m = index.size();
 			int paths = 0;
 			for(int i = 0; i < m; i++){
@@ -92,7 +93,6 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 			throw new GenerationException("Failed to generate a random path");
 		}
 		
-		//TODO there is some has star logic in gmark, this does nothing so it was not copied
 		List<PathSegment> path = new ArrayList<PathSegment>(length);
 		for(int i = length; i > 0; i--){
 			
@@ -107,7 +107,6 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 			}
 			
 			if(test && Util.getRandom().nextDouble() <= star){
-				//TODO could also pushback entire graph edges -- would miss star status
 				path.add(PathSegment.of(schema, currentNode, SelectivityClass.EQUALS, currentNode, true));
 			}else{
 				int previousNode = currentNode;

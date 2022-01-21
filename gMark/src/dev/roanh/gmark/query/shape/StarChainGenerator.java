@@ -14,8 +14,19 @@ import dev.roanh.gmark.query.Variable;
 import dev.roanh.gmark.util.PathSegment;
 import dev.roanh.gmark.util.Util;
 
+/**
+ * A query generator that generates queries with the
+ * conjuncts arranged in a star-chain shape. Specifically,
+ * there is one long chain of conjuncts and each end point
+ * has a number of conjuncts attached to it to form a star.
+ * @author Roan
+ */
 public class StarChainGenerator extends ShapeGenerator{
 
+	/**
+	 * Constructs a new generator for star-chain shaped queries.
+	 * @param workload The workload specification.
+	 */
 	public StarChainGenerator(Workload workload){
 		super(workload);
 	}

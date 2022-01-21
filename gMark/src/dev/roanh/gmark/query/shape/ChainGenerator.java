@@ -14,8 +14,19 @@ import dev.roanh.gmark.query.Variable;
 import dev.roanh.gmark.util.PathSegment;
 import dev.roanh.gmark.util.Util;
 
+/**
+ * A query generator that generates queries with the
+ * conjuncts arranged in a chain shape. Specifically,
+ * the target variable of a conjunct is the same as
+ * the source variable of the next conjunct in the chain.
+ * @author Roan
+ */
 public class ChainGenerator extends ShapeGenerator{
 	
+	/**
+	 * Constructs a new generator for chain shaped queries.
+	 * @param workload The workload specification.
+	 */
 	public ChainGenerator(Workload workload){
 		super(workload);
 	}

@@ -14,8 +14,20 @@ import dev.roanh.gmark.query.Variable;
 import dev.roanh.gmark.util.PathSegment;
 import dev.roanh.gmark.util.Util;
 
+/**
+ * A query generator that generates queries with the
+ * conjuncts arranged in a cycle shape. Specifically,
+ * the conjuncts form a chain with the last conjunct
+ * target variable being the same as the source variable
+ * of the first conjunct.
+ * @author Roan
+ */
 public class CycleGenerator extends ShapeGenerator{
 
+	/**
+	 * Constructs a new generator for cycle shaped queries.
+	 * @param workload The workload specification.
+	 */
 	public CycleGenerator(Workload workload){
 		super(workload);
 	}

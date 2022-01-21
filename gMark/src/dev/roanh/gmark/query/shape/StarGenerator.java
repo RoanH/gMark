@@ -15,8 +15,18 @@ import dev.roanh.gmark.util.PathSegment;
 import dev.roanh.gmark.util.SelectivityType;
 import dev.roanh.gmark.util.Util;
 
+/**
+ * A query generator that generates queries with the
+ * conjuncts arranged in a star shape. Specifically,
+ * all the conjuncts share the same source variable.
+ * @author Roan
+ */
 public class StarGenerator extends ShapeGenerator{
 
+	/**
+	 * Constructs a new generator for star shaped queries.
+	 * @param workload The workload specification.
+	 */
 	public StarGenerator(Workload workload){
 		super(workload);
 	}

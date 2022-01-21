@@ -5,13 +5,14 @@ import java.util.function.Function;
 import dev.roanh.gmark.query.shape.ChainGenerator;
 import dev.roanh.gmark.query.shape.CycleGenerator;
 import dev.roanh.gmark.query.shape.ShapeGenerator;
+import dev.roanh.gmark.query.shape.StarChainGenerator;
 import dev.roanh.gmark.query.shape.StarGenerator;
 
 public enum QueryShape{
 	CHAIN("chain", ChainGenerator::new),
 	STAR("star", StarGenerator::new),
 	CYCLE("cycle", CycleGenerator::new),
-	STARCHAIN("starchain", null);//TODO
+	STARCHAIN("starchain", StarChainGenerator::new);
 	
 	private final String name;
 	private Function<Workload, ShapeGenerator> ctor;

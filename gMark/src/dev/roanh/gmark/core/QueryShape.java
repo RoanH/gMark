@@ -19,6 +19,10 @@ public enum QueryShape{
 		this.name = name;
 		this.ctor = ctor;
 	}
+
+	public String getName(){
+		return name;
+	}
 	
 	public ShapeGenerator getQueryGenerator(Workload workload){
 		return ctor.apply(workload);

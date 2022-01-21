@@ -22,6 +22,7 @@ import dev.roanh.gmark.util.EdgeGraph;
 import dev.roanh.gmark.util.EdgeGraphData;
 import dev.roanh.gmark.util.Graph;
 import dev.roanh.gmark.util.Graph.GraphNode;
+import dev.roanh.util.Util;
 import dev.roanh.gmark.util.SchemaGraph;
 import dev.roanh.gmark.util.SelectivityGraph;
 import dev.roanh.gmark.util.SelectivityType;
@@ -30,6 +31,8 @@ public class GraphMark{
 	private static final JFrame frame = new JFrame("gMark");
 
 	public static void main(String[] args) throws GenerationException{
+		Util.installUI();
+		
 		Configuration config = ConfigParser.parse(Paths.get("./test/test.xml"));
 		//Configuration config = ConfigParser.parse(Paths.get("C:\\Users\\RoanH\\Downloads\\tmp\\gmark\\use-cases\\shop.xml"));
 		Schema schema = config.getSchema();
@@ -76,6 +79,7 @@ public class GraphMark{
 		tabs.addTab("Edge Graph", new GraphPanel<EdgeGraphData, Void>(eg));
 		tabs.addTab("Selectivity Graph", new GraphPanel<SelectivityType, SelectivityClass>(sg));
 		tabs.addTab("Ref", buildRefGraph());
+		tabs.addTab("Query", new QueryTab());
 		
 		//TODO put back -ea VM arg
 		
@@ -91,21 +95,21 @@ public class GraphMark{
 		
 //		System.out.println("\n\n\n\n\n\n\n\n\n");
 		
-		config.getWorkloads().forEach(wl->System.out.println("wl: " + wl.getID()));
-		
-		long start = System.currentTimeMillis();
-		for(int i = 0; i < 1; i++){
-			try{
-				Query query = QueryGenerator.generateQuery(config.getWorkloadByID(1));//1 is for CPQs
-				System.out.println(query);
-				System.out.println("========== SQL ==========");
-				System.out.println(query.toSQL());
-			}catch(Exception e){
-				System.err.println("Error generating query: " + e.getMessage());
-				e.printStackTrace();
-			}
-		}
-		System.out.println("10 in: " + (System.currentTimeMillis() - start));
+//		config.getWorkloads().forEach(wl->System.out.println("wl: " + wl.getID()));
+//		
+//		long start = System.currentTimeMillis();
+//		for(int i = 0; i < 1; i++){
+//			try{
+//				Query query = QueryGenerator.generateQuery(config.getWorkloadByID(1));//1 is for CPQs
+//				System.out.println(query);
+//				System.out.println("========== SQL ==========");
+//				System.out.println(query.toSQL());
+//			}catch(Exception e){
+//				System.err.println("Error generating query: " + e.getMessage());
+//				e.printStackTrace();
+//			}
+//		}
+//		System.out.println("10 in: " + (System.currentTimeMillis() - start));
 		
 		frame.add(tabs);
 		frame.setSize(800, 600);

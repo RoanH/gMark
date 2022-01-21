@@ -1,5 +1,6 @@
 package dev.roanh.gmark.core;
 
+import java.util.Locale;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -23,6 +24,10 @@ public enum WorkloadType{
 		this.name = name;
 		this.constructor = ctor;
 		this.conjGen = conjGen;
+	}
+	
+	public String getName(){
+		return name.toUpperCase(Locale.ROOT);
 	}
 	
 	public ConjunctGenerator getConjunctGenerator(Workload workload){

@@ -16,7 +16,7 @@ import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.Query;
-import dev.roanh.gmark.query.shape.ChainGenerator;
+import dev.roanh.gmark.query.QueryGenerator;
 import dev.roanh.gmark.util.ConfigGraph;
 import dev.roanh.gmark.util.EdgeGraph;
 import dev.roanh.gmark.util.EdgeGraphData;
@@ -94,10 +94,9 @@ public class GraphMark{
 		config.getWorkloads().forEach(wl->System.out.println("wl: " + wl.getID()));
 		
 		long start = System.currentTimeMillis();
-		ChainGenerator generator = new ChainGenerator();
 		for(int i = 0; i < 1; i++){
 			try{
-				Query query = generator.generate(config.getWorkloadByID(1));
+				Query query = QueryGenerator.generateQuery(config.getWorkloadByID(1));//1 is for CPQs
 				System.out.println(query);
 				System.out.println("========== SQL ==========");
 				System.out.println(query.toSQL());

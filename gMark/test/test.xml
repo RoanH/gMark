@@ -135,7 +135,7 @@
 		<selectivity constant="1" linear="1" quadratic="1"/>
 
 		<!-- we want to have in the workload chains and stars, but not cycles, etc. -->
-		<type chain="1" star="1" cycle="1" starchain="1"/>
+		<type chain="1" star="1" cycle="0" starchain="0"/>
 	</workload>
 	
 	<workload id="2" size="50" type="rpq">

@@ -12,7 +12,6 @@ import dev.roanh.gmark.query.Conjunct;
 import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.Variable;
 import dev.roanh.gmark.util.PathSegment;
-import dev.roanh.gmark.util.SelectivityGraph;
 import dev.roanh.gmark.util.Util;
 
 public class ChainGenerator extends ShapeGenerator{
@@ -23,29 +22,24 @@ public class ChainGenerator extends ShapeGenerator{
 
 	@Override
 	public Query generateQuery() throws GenerationException{
-		int conjunctNum = Util.uniformRandom(workload.getMinConjuncts(), workload.getMaxConjuncts());
+		int conjunctNum = randomConjunctNumber();
 		List<Conjunct> conjuncts = new ArrayList<Conjunct>(conjunctNum);
 		
-		SelectivityGraph g = new SelectivityGraph(workload.getGraphSchema(), workload.getMaxSelectivityGraphLength());
-		Selectivity selectivity = Util.selectRandom(workload.getSelectivities());
+		Selectivity selectivity = randomSelectivity();
 		//TODO store selected selectivity info for the query we're working on
 		
-		List<PathSegment> path = g.generateRandomPath(selectivity, conjunctNum, workload.getStarProbability());
+		List<PathSegment> path = gSel.generateRandomPath(selectivity, conjunctNum, workload.getStarProbability());
 		
-		List<Variable> variables = new ArrayList<Variable>(conjunctNum + 1);
+		List<Variable> variables = createVariables(conjunctNum + 1);
 		variables.add(new Variable(0));
 		for(int i = 0; i < conjunctNum; i++){
 			PathSegment segment = path.get(i);
-			Conjunct conj = conjGen.generateConjunct(g, segment.getSource(), segment.getTarget());
-			
-			Variable var = new Variable(i + 1);
-			conj.setData(variables.get(variables.size() - 1), var, segment.hasStar());
-			variables.add(var);
-			
+			Conjunct conj = conjGen.generateConjunct(gSel, segment.getSource(), segment.getTarget());
+			conj.setData(variables.get(i), variables.get(i + 1), segment.hasStar());
 			conjuncts.add(conj);
 		}
 		
-		int arity = Math.min(Util.uniformRandom(workload.getMinArity(), workload.getMaxArity()), variables.size());//ensure arity <= |variables|
+		int arity = randomArity(variables.size());
 		if(arity == 1){
 			variables = Collections.singletonList(variables.get(0));
 		}else if(arity == 2){

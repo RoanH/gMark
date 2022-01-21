@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import dev.roanh.gmark.core.ConjunctGenerator;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.exception.GenerationException;
@@ -16,10 +15,14 @@ import dev.roanh.gmark.util.PathSegment;
 import dev.roanh.gmark.util.SelectivityGraph;
 import dev.roanh.gmark.util.Util;
 
-public class ChainGenerator{
+public class ChainGenerator extends ShapeGenerator{
 	
-	public Query generate(Workload workload) throws GenerationException{
-		ConjunctGenerator conjGen = workload.getConjunctGenerator();
+	public ChainGenerator(Workload workload){
+		super(workload);
+	}
+
+	@Override
+	public Query generateQuery() throws GenerationException{
 		int conjunctNum = Util.uniformRandom(workload.getMinConjuncts(), workload.getMaxConjuncts());
 		List<Conjunct> conjuncts = new ArrayList<Conjunct>(conjunctNum);
 		

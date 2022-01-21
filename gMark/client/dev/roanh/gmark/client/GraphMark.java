@@ -1,6 +1,10 @@
 package dev.roanh.gmark.client;
 
 import java.awt.Color;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.swing.JFrame;
@@ -30,7 +34,7 @@ import dev.roanh.gmark.util.SelectivityType;
 public class GraphMark{
 	private static final JFrame frame = new JFrame("gMark");
 
-	public static void main(String[] args) throws GenerationException{
+	public static void main(String[] args) throws GenerationException, IOException{
 		Util.installUI();
 		
 		Configuration config = ConfigParser.parse(Paths.get("./test/test.xml"));
@@ -115,6 +119,30 @@ public class GraphMark{
 		frame.setSize(800, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
+		
+//		triplesToSQL(
+//			Paths.get("C:\\Users\\RoanH\\Downloads\\Capita Selecta\\gmark\\play-graph.txt0.txt"),
+//			Paths.get("C:\\Users\\RoanH\\Downloads\\Capita Selecta\\gmark\\test10k.sql")
+//		);
+	}
+	
+	private static void triplesToSQL(Path triples, Path target) throws IOException{
+		if(Files.notExists(target)){
+			try(PrintWriter out = new PrintWriter(Files.newBufferedWriter(target))){
+				out.print("INSERT INTO edge VALUES ");
+				boolean first = true;
+				for(String line : Files.readAllLines(triples)){
+					if(!first){
+						out.print(", ");
+					}else{
+						first = false;
+					}
+					String[] args = line.split(" ");
+					out.print("(" + args[0] + ", " + args[1] + ", " + args[2] + ")");
+				}
+				out.println(";");
+			}
+		}
 	}
 	
 	private static GraphPanel<SelectivityType, Predicate> buildRefGraph(){

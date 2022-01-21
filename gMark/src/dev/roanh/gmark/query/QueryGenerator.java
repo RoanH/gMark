@@ -2,6 +2,7 @@ package dev.roanh.gmark.query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.exception.GenerationException;
@@ -23,12 +24,12 @@ public class QueryGenerator{
 	}
 	
 	public static List<Query> generateQueries(Workload workload){
-		ShapeGenerator gen = Util.selectRandom(workload.getShapes()).getQueryGenerator(workload);
+		List<ShapeGenerator> generators = workload.getShapes().stream().map(s->s.getQueryGenerator(workload)).collect(Collectors.toList());
 		List<Query> queries = new ArrayList<Query>(workload.getSize());
 		
 		while(queries.size() < workload.getSize()){
 			try{
-				queries.add(gen.generateQuery());
+				queries.add(Util.selectRandom(generators).generateQuery());
 			}catch(GenerationException e){
 				//e.printStackTrace();
 				//TODO better handling or a bound?

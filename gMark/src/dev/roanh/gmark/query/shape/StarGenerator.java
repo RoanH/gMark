@@ -8,43 +8,38 @@ import java.util.List;
 import dev.roanh.gmark.core.ConjunctGenerator;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.Workload;
-import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.Conjunct;
 import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.Variable;
 import dev.roanh.gmark.util.PathSegment;
-import dev.roanh.gmark.util.SchemaGraph;
 import dev.roanh.gmark.util.SelectivityGraph;
 import dev.roanh.gmark.util.SelectivityType;
 import dev.roanh.gmark.util.Util;
 
 public class StarGenerator{
-	private static final ConjunctGenerator GEN = ConjunctGenerator.CPQ;//TODO derrive from workload
 
-	public Query generate(Configuration config, Workload workload) throws GenerationException{
+	public Query generate(Workload workload) throws GenerationException{
+		ConjunctGenerator conjGen = workload.getConjunctGenerator();
 		int conjunctNum = Util.uniformRandom(workload.getMinConjuncts(), workload.getMaxConjuncts());
 		List<Conjunct> conjuncts = new ArrayList<Conjunct>(conjunctNum);
 		List<Variable> variables = new ArrayList<Variable>(conjunctNum + 1);
 		
-		SelectivityGraph g = new SelectivityGraph(config.getSchema(), workload.getMaxSelectivityGraphLength());
+		SelectivityGraph g = new SelectivityGraph(workload.getGraphSchema(), workload.getMaxSelectivityGraphLength());
 		Selectivity selectivity = Util.selectRandom(workload.getSelectivities());
 		
-		//TODO schema graph is only required for CPQ it seems, consider moving it so it isn't constructed for RPQ, probably store at the conjunct generator
-		SchemaGraph gs = new SchemaGraph(config.getSchema());
-		
-		PathSegment path = g.generateRandomPath(selectivity, 1).get(0);//TODO can also pass conjunct multiplicity rate
+		PathSegment path = g.generateRandomPath(selectivity, 1, workload.getStarProbability()).get(0);
 	
 		SelectivityType sourceType = path.getSource();
-		Conjunct first = GEN.generateConjunct(g, gs, sourceType, path.getTarget());
+		Conjunct first = conjGen.generateConjunct(g, sourceType, path.getTarget());
 		variables.add(new Variable(0));
 		variables.add(new Variable(1));
 		first.setData(variables.get(0), variables.get(1), path.hasStar());
 		conjuncts.add(first);
 		
 		for(int i = 1; i < conjunctNum; i++){
-			path = g.generateRandomPath(selectivity, 1).get(0);//TODO multiplicity
-			Conjunct conj = GEN.generateConjunct(g, gs, sourceType, path.getTarget());
+			path = g.generateRandomPath(selectivity, 1, workload.getStarProbability()).get(0);
+			Conjunct conj = conjGen.generateConjunct(g, sourceType, path.getTarget());
 			Variable var = new Variable(i + 1);
 			variables.add(var);
 			conj.setData(variables.get(0), var, path.hasStar());

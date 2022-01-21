@@ -2,6 +2,7 @@ package dev.roanh.gmark.core.graph;
 
 import java.util.List;
 
+import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.util.ConfigGraph;
 
 /**

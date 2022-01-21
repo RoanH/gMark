@@ -6,6 +6,7 @@ import java.util.Set;
 import org.w3c.dom.Element;
 
 import dev.roanh.gmark.ConfigParser;
+import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.util.IDable;
 
 //TODO need to redo gmark formats a bit, probably just add another param after workload size with type="cpq", rpq, etc keep this class for shared info
@@ -26,8 +27,10 @@ public abstract class Workload implements IDable{
 	private double starProbability;
 	private Set<QueryShape> shapes = new HashSet<QueryShape>();//TODO assert this is not empty, general validation of everything really
 	private Set<Selectivity> selectivities = new HashSet<Selectivity>();//TODO assert this is not empty
+	private Schema schema;
 	
-	protected Workload(Element elem){
+	protected Workload(Element elem, Schema schema){
+		this.schema = schema;
 		id = Integer.parseInt(elem.getAttribute("id"));
 		size = Integer.parseInt(elem.getAttribute("size"));
 		
@@ -62,6 +65,14 @@ public abstract class Workload implements IDable{
 	public abstract WorkloadType getType();
 	
 	public abstract int getMaxSelectivityGraphLength();//TODO reconsider
+	
+	public ConjunctGenerator getConjunctGenerator(){
+		return getType().getConjunctGenerator(this);
+	}
+	
+	public Schema getGraphSchema(){
+		return schema;
+	}
 	
 	public double getStarProbability(){
 		return starProbability;

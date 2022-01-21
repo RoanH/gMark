@@ -27,10 +27,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.Distribution;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.WorkloadType;
-import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Edge;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Schema;
@@ -73,7 +73,7 @@ public class ConfigParser{
 			List<Type> types = parseTypes(getElement(root, "types"));
 			Schema schema = parseSchema(getElement(root, "schema"), types, predicates);
 			
-			List<Workload> workloads = stream(root, "workload").map(WorkloadType::parse).collect(Collectors.toList());
+			List<Workload> workloads = stream(root, "workload").map(data->WorkloadType.parse(data, schema)).collect(Collectors.toList());
 			//TODO check workloads have a distinct ID
 			
 			return new Configuration(sizes, schema, workloads);

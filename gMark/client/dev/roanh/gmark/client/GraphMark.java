@@ -8,9 +8,9 @@ import javax.swing.JTabbedPane;
 
 import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.client.component.GraphPanel;
+import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.Workload;
-import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
@@ -30,7 +30,7 @@ public class GraphMark{
 	private static final JFrame frame = new JFrame("gMark");
 
 	public static void main(String[] args) throws GenerationException{
-		Configuration config = ConfigParser.parse(Paths.get("C:\\Users\\RoanH\\Downloads\\tmp\\gmark\\use-cases\\test.xml"));
+		Configuration config = ConfigParser.parse(Paths.get("./test/test.xml"));
 		//Configuration config = ConfigParser.parse(Paths.get("C:\\Users\\RoanH\\Downloads\\tmp\\gmark\\use-cases\\shop.xml"));
 		Schema schema = config.getSchema();
 		SchemaGraph gs = new SchemaGraph(config.getSchema());
@@ -91,11 +91,13 @@ public class GraphMark{
 		
 //		System.out.println("\n\n\n\n\n\n\n\n\n");
 		
+		config.getWorkloads().forEach(wl->System.out.println("wl: " + wl.getID()));
+		
 		long start = System.currentTimeMillis();
 		ChainGenerator generator = new ChainGenerator();
 		for(int i = 0; i < 1; i++){
 			try{
-				Query query = generator.generate(config, config.getWorkloadByID(1));
+				Query query = generator.generate(config.getWorkloadByID(1));
 				System.out.println(query);
 				System.out.println("========== SQL ==========");
 				System.out.println(query.toSQL());

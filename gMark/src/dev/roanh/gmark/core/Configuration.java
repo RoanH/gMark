@@ -1,8 +1,10 @@
-package dev.roanh.gmark.core.graph;
+package dev.roanh.gmark.core;
 
 import java.util.List;
 
-import dev.roanh.gmark.core.Workload;
+import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.core.graph.Schema;
+import dev.roanh.gmark.core.graph.Type;
 
 //basically a configuration tells gMark what to generate
 public class Configuration{

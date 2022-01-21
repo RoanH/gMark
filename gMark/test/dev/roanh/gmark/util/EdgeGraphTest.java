@@ -10,8 +10,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.ConfigParser;
+import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.SelectivityClass;
-import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.util.Graph.GraphEdge;
 import dev.roanh.gmark.util.Graph.GraphNode;

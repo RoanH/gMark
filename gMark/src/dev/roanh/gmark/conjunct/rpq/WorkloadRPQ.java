@@ -5,6 +5,7 @@ import org.w3c.dom.Element;
 import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.WorkloadType;
+import dev.roanh.gmark.core.graph.Schema;
 
 /**
  * Describes a workload of RPQ queries to generate.
@@ -16,8 +17,8 @@ public class WorkloadRPQ extends Workload{
 	private int minLength;
 	private int maxLength;
 	
-	public WorkloadRPQ(Element elem){
-		super(elem);
+	public WorkloadRPQ(Element elem, Schema schema){
+		super(elem, schema);
 		Element size = ConfigParser.getElement(elem, "size");
 		
 		Element disj = ConfigParser.getElement(size, "disjuncts");

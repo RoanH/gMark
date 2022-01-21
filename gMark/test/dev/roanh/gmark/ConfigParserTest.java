@@ -11,12 +11,12 @@ import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.conjunct.cpq.WorkloadCPQ;
 import dev.roanh.gmark.conjunct.rpq.WorkloadRPQ;
+import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.DistributionType;
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.WorkloadType;
-import dev.roanh.gmark.core.graph.Configuration;
 import dev.roanh.gmark.core.graph.Edge;
 
 public class ConfigParserTest{

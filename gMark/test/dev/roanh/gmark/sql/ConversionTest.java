@@ -11,7 +11,7 @@ import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.conjunct.cpq.CPQ;
 import dev.roanh.gmark.conjunct.cpq.ConcatCPQ;
 import dev.roanh.gmark.conjunct.cpq.EdgeCPQ;
-import dev.roanh.gmark.core.graph.Configuration;
+import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.graph.Predicate;
 
 public class ConversionTest{

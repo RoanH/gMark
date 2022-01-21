@@ -1,6 +1,6 @@
 package dev.roanh.gmark.util;
 
-import dev.roanh.gmark.core.graph.Configuration;
+import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;

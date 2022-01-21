@@ -2,7 +2,7 @@ package dev.roanh.gmark;
 
 import java.nio.file.Paths;
 
-import dev.roanh.gmark.core.graph.Configuration;
+import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.util.EdgeGraph;
 import dev.roanh.gmark.util.SchemaGraph;

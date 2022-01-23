@@ -44,7 +44,7 @@ public class StarChainGenerator extends ShapeGenerator{
 		//TODO store selected selectivity info for the query we're working on
 
 		List<PathSegment> path = gSel.generateRandomPath(selectivity, n1, workload.getStarProbability());
-		List<Variable> variables = createVariables(n1 + n2 + n3);
+		List<Variable> variables = createVariables(n1 + n2 + n3 + 1);
 		for(int i = 0; i < n1; i++){
 			PathSegment segment = path.get(i);
 			Conjunct conj = conjGen.generateConjunct(gSel, segment.getSource(), segment.getTarget());

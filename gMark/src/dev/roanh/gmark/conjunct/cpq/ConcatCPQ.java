@@ -3,9 +3,21 @@ package dev.roanh.gmark.conjunct.cpq;
 import java.util.List;
 import java.util.StringJoiner;
 
+/**
+ * CPQ modelling the concatenation of the number of CPQs.
+ * @author Roan
+ */
 public class ConcatCPQ implements CPQ{
+	/**
+	 * In order the concatenated CPQs.
+	 */
 	private List<CPQ> cpq;
 	
+	/**
+	 * Constructs a new concat CPQ with the
+	 * given list of CPQs to concatenate.
+	 * @param cpq The CPQs to concatenate.
+	 */
 	public ConcatCPQ(List<CPQ> cpq){
 		this.cpq = cpq;
 	}

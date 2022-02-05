@@ -17,7 +17,7 @@ public class QueryGenerator{
 			try{
 				return gen.generateQuery();
 			}catch(GenerationException e){
-				//e.printStackTrace();
+				e.printStackTrace();
 				//TODO better handling or a bound?
 			}
 		}
@@ -30,7 +30,9 @@ public class QueryGenerator{
 		while(queries.size() < workload.getSize()){
 			try{
 				queries.add(Util.selectRandom(generators).generateQuery());
-			}catch(GenerationException e){
+				//System.out.println("done: " + queries.size());
+			}catch(Exception e){
+				System.err.println("fail: " + e.getMessage());
 				//e.printStackTrace();
 				//TODO better handling or a bound?
 			}

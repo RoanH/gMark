@@ -48,13 +48,17 @@ public class GraphMark{
 		//city 1<N
 		//SelectivityType trg = SelectivityType.of(config.getTypes().get(4), SelectivityClass.ONE_N);
 		//paper 1<N
-		SelectivityType trg = SelectivityType.of(config.getTypes().get(1), SelectivityClass.ONE_N);
+		//SelectivityType trg = SelectivityType.of(config.getTypes().get(1), SelectivityClass.ONE_N);
 		//journal 1=1
-		SelectivityType src = SelectivityType.of(config.getTypes().get(2), SelectivityClass.ONE_ONE);
+		//SelectivityType src = SelectivityType.of(config.getTypes().get(2), SelectivityClass.ONE_ONE);
+		//journal N=N
+		SelectivityType src = SelectivityType.of(config.getTypes().get(2), SelectivityClass.EQUALS);
 		//paper 1x1
 		//SelectivityType trg = SelectivityType.of(config.getTypes().get(1), SelectivityClass.CROSS);
+		//paper NxN
+		SelectivityType trg = SelectivityType.of(config.getTypes().get(1), SelectivityClass.CROSS);
 
-		int maxLen = 1;
+		int maxLen = 3;
 		
 		EdgeGraph eg = new EdgeGraph(gs, maxLen, src, trg, 10);
 		ConfigGraph cg = new ConfigGraph(config);
@@ -83,6 +87,7 @@ public class GraphMark{
 		tabs.addTab("Edge Graph", new GraphPanel<EdgeGraphData, Void>(eg));
 		tabs.addTab("Selectivity Graph", new GraphPanel<SelectivityType, SelectivityClass>(sg));
 		tabs.addTab("Ref", buildRefGraph());
+		tabs.addTab("Sel Ref", buildSelRefGraph());
 		tabs.addTab("Query", new QueryTab());
 		
 		//TODO put back -ea VM arg
@@ -178,6 +183,41 @@ public class GraphMark{
 		
 		
 		GraphPanel<SelectivityType, Predicate> p = new GraphPanel<SelectivityType, Predicate>(g, SelectivityType::toString, Predicate::getAlias);
+		p.setBackground(Color.WHITE);
+		return p;
+	}
+	
+	private static GraphPanel<SelectivityType, Void> buildSelRefGraph(){
+		System.out.println("build sel ref graph");
+		
+		Type t1 = new Type(0, "T1", 0.0D);
+		Type t2 = new Type(1, "T2", 0.0D);
+		Type t3 = new Type(2, "T3", 0.0D);
+		
+		Graph<SelectivityType, Void> g = new Graph<SelectivityType, Void>();
+		GraphNode<SelectivityType, Void> n1 = g.addUniqueNode(SelectivityType.of(t1, SelectivityClass.EQUALS));
+		GraphNode<SelectivityType, Void> n2 = g.addUniqueNode(SelectivityType.of(t2, SelectivityClass.EQUALS));
+		GraphNode<SelectivityType, Void> n3 = g.addUniqueNode(SelectivityType.of(t3, SelectivityClass.GREATER));
+		GraphNode<SelectivityType, Void> n4 = g.addUniqueNode(SelectivityType.of(t2, SelectivityClass.CROSS));
+		
+		n1.addUniqueEdgeTo(n1);
+		n2.addUniqueEdgeTo(n2);
+		n3.addUniqueEdgeTo(n3);
+		n4.addUniqueEdgeTo(n4);
+		
+		n1.addUniqueEdgeTo(n2);
+		n1.addUniqueEdgeTo(n3);
+		n1.addUniqueEdgeTo(n4);
+		
+		n2.addUniqueEdgeTo(n1);
+		n2.addUniqueEdgeTo(n4);
+		n2.addUniqueEdgeTo(n3);
+		
+		n3.addUniqueEdgeTo(n4);
+		
+		n4.addUniqueEdgeTo(n3);
+		
+		GraphPanel<SelectivityType, Void> p = new GraphPanel<SelectivityType, Void>(g);
 		p.setBackground(Color.WHITE);
 		return p;
 	}

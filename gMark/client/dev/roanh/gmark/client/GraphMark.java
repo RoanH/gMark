@@ -14,13 +14,10 @@ import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.client.component.GraphPanel;
 import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.SelectivityClass;
-import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.exception.GenerationException;
-import dev.roanh.gmark.query.Query;
-import dev.roanh.gmark.query.QueryGenerator;
 import dev.roanh.gmark.util.ConfigGraph;
 import dev.roanh.gmark.util.EdgeGraph;
 import dev.roanh.gmark.util.EdgeGraphData;
@@ -34,7 +31,7 @@ import dev.roanh.gmark.util.SelectivityType;
 public class GraphMark{
 	private static final JFrame frame = new JFrame("gMark");
 
-	public static void main(String[] args) throws GenerationException, IOException{
+	public static void main(String[] args) throws GenerationException{
 		Util.installUI();
 		
 		Configuration config = ConfigParser.parse(Paths.get("./test/test.xml"));
@@ -63,22 +60,6 @@ public class GraphMark{
 		EdgeGraph eg = new EdgeGraph(gs, maxLen, src, trg, 10);
 		ConfigGraph cg = new ConfigGraph(config);
 		SelectivityGraph sg = new SelectivityGraph(schema, maxLen);
-		
-		System.out.println(eg.drawPath());
-		
-//		System.out.println(sg.generateRandomPath(Selectivity.QUADRATIC, 1).get(0));
-//		src = SelectivityType.of(schema.getType("Purchase"), SelectivityClass.EQUALS);
-//		trg = SelectivityType.of(schema.getType("User"), SelectivityClass.CROSS);
-		
-		
-//		try{
-//			Thread.sleep(10000);
-//		}catch(InterruptedException e){
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-				
-		//eg.removeNodeIf(n->n.getInEdges().size() + n.getOutEdges().size() == 0);
 		gs.removeUnreachable();
 
 		JTabbedPane tabs = new JTabbedPane();
@@ -89,36 +70,6 @@ public class GraphMark{
 		tabs.addTab("Ref", buildRefGraph());
 		tabs.addTab("Sel Ref", buildSelRefGraph());
 		tabs.addTab("Query", new QueryTab());
-		
-		//TODO put back -ea VM arg
-		
-		//just print a few paths randomly
-//		long start = System.currentTimeMillis();
-//		for(int i = 0; i < 10000000; i++){
-//			//eg.printPath();
-//			eg.drawPath();
-//		}
-//		System.out.println("10M in: " + (System.currentTimeMillis() - start));
-		
-		//GeneratorCPQ.generateInnerCPQ(sg, gs, src, trg, 4, 5);
-		
-//		System.out.println("\n\n\n\n\n\n\n\n\n");
-		
-//		config.getWorkloads().forEach(wl->System.out.println("wl: " + wl.getID()));
-//		
-//		long start = System.currentTimeMillis();
-//		for(int i = 0; i < 1; i++){
-//			try{
-//				Query query = QueryGenerator.generateQuery(config.getWorkloadByID(1));//1 is for CPQs
-//				System.out.println(query);
-//				System.out.println("========== SQL ==========");
-//				System.out.println(query.toSQL());
-//			}catch(Exception e){
-//				System.err.println("Error generating query: " + e.getMessage());
-//				e.printStackTrace();
-//			}
-//		}
-//		System.out.println("10 in: " + (System.currentTimeMillis() - start));
 		
 		frame.add(tabs);
 		frame.setSize(800, 600);

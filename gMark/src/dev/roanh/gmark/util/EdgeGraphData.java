@@ -260,7 +260,7 @@ public abstract class EdgeGraphData{
 		
 		@Override
 		public int hashCode(){
-			return Objects.hash(source, target, first, second);
+			return Objects.hash(source, target, first.hashCode() * second.hashCode());
 		}
 		
 		@Override

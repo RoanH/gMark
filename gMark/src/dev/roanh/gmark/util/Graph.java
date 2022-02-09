@@ -92,7 +92,7 @@ public class Graph<V, E>{
 	 * a new node is not added to the graph and the existing node
 	 * is returned instead.
 	 * @param data The data to associated with the node.
-	 * @return The (newly added) node that is assocaited
+	 * @return The (newly added) node that is associated
 	 *         with the given data.
 	 */
 	public GraphNode<V, E> addUniqueNode(V data){

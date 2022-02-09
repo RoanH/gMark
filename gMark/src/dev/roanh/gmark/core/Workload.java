@@ -1,5 +1,6 @@
 package dev.roanh.gmark.core;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,6 +12,7 @@ import dev.roanh.gmark.util.IDable;
 
 //TODO need to redo gmark formats a bit, probably just add another param after workload size with type="cpq", rpq, etc keep this class for shared info
 
+//TODO do we want validation for the settings?
 public abstract class Workload implements IDable{
 	private int id;
 	/**
@@ -26,7 +28,7 @@ public abstract class Workload implements IDable{
 	 */
 	private double starProbability;
 	private Set<QueryShape> shapes = new HashSet<QueryShape>();//TODO assert this is not empty, general validation of everything really
-	private Set<Selectivity> selectivities = new HashSet<Selectivity>();//TODO assert this is not empty
+	private Set<Selectivity> selectivities = new HashSet<Selectivity>();//TODO assert this is not empty -- note, should check on generation (possibly a validate method) since this can change now
 	private Schema schema;
 	
 	protected Workload(Element elem, Schema schema){
@@ -76,6 +78,46 @@ public abstract class Workload implements IDable{
 	
 	public double getStarProbability(){
 		return starProbability;
+	}
+	
+	public void setMinArity(int arity){
+		minArity = arity;
+	}
+	
+	public void setMaxArity(int arity){
+		maxArity = arity;
+	}
+	
+	public void setMinConjuncts(int conj){
+		minConjuncts = conj;
+	}
+	
+	public void setMaxConjuncts(int conj){
+		maxConjuncts = conj;
+	}
+	
+	public void addSelectivities(Selectivity... selectivities){
+		Arrays.stream(selectivities).forEach(this.selectivities::add);
+	}
+	
+	public void removeSelectivities(Selectivity... selectivities){
+		Arrays.stream(selectivities).forEach(this.selectivities::remove);
+	}
+	
+	public void addShapes(QueryShape... shapes){
+		Arrays.stream(shapes).forEach(this.shapes::add);
+	}
+	
+	public void removeShapes(QueryShape... shapes){
+		Arrays.stream(shapes).forEach(this.shapes::remove);
+	}
+	
+	public void setSize(int size){
+		this.size = size;
+	}
+	
+	public void setStarProbability(double factor){
+		starProbability = factor;
 	}
 	
 	public int getSize(){

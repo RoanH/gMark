@@ -18,6 +18,14 @@ public class WorkloadCPQ extends Workload{
 		maxDiameter = Integer.parseInt(ConfigParser.getElement(size, "diameter").getAttribute("max"));
 		maxRecursion = Integer.parseInt(ConfigParser.getElement(size, "recursion").getAttribute("max"));
 	}
+	
+	public void setMaxDiameter(int diameter){
+		maxDiameter = diameter;
+	}
+	
+	public void setMaxRecursion(int recursion){
+		maxRecursion = recursion;
+	}
 
 	public int getMaxDiameter(){
 		return maxDiameter;

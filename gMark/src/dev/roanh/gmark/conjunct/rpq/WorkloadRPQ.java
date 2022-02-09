@@ -30,6 +30,22 @@ public class WorkloadRPQ extends Workload{
 		maxLength = Integer.parseInt(len.getAttribute("max"));
 	}
 	
+	public void setMaxLength(int len){
+		maxLength = len;
+	}
+	
+	public void setMinLength(int len){
+		minLength = len;
+	}
+	
+	public void setMaxDisjuncts(int disj){
+		maxDisjuncts = disj;
+	}
+	
+	public void setMinDisjuncts(int disj){
+		minDisjuncts = disj;
+	}
+	
 	public int getMaxLength(){
 		return maxLength;
 	}

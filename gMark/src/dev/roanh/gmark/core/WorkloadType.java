@@ -12,8 +12,21 @@ import dev.roanh.gmark.conjunct.rpq.GeneratorRPQ;
 import dev.roanh.gmark.conjunct.rpq.WorkloadRPQ;
 import dev.roanh.gmark.core.graph.Schema;
 
+/**
+ * Enum specifying all the different concrete workload types.
+ * @author Roan
+ * @see Workload
+ */
 public enum WorkloadType{
+	/**
+	 * Implementation of a workload that uses regular
+	 * path queries (RPQ) to fill conjuncts.
+	 */
 	RPQ("rpq", WorkloadRPQ::new, GeneratorRPQ::new),
+	/**
+	 * Implementation of a workload that uses conjunctive
+	 * path queries (CPQ) to fill conjuncts.
+	 */
 	CPQ("cpq", WorkloadCPQ::new, GeneratorCPQ::new);
 	
 	private String name;
@@ -34,7 +47,7 @@ public enum WorkloadType{
 		return conjGen.apply(workload);
 	}
 	
-	public static Workload parse(Element elem, Schema schema){
+	public static final Workload parse(Element elem, Schema schema){
 		for(WorkloadType type : values()){
 			if(type.name.equals(elem.getAttribute("type"))){
 				return type.constructor.apply(elem, schema);

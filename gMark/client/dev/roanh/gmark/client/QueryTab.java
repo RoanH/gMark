@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -37,7 +38,7 @@ public class QueryTab extends JPanel{
 	private Executor executor = Executors.newSingleThreadExecutor();
 	private static final FileExtension XML_EXT = FileSelector.registerFileExtension("XML Files", "xml");
 	private JPanel info = new JPanel(new GridLayout(1, 0));
-	private JTabbedPane queries = new JTabbedPane();
+	private JPanel queries = new JPanel(new BorderLayout());
 
 	public QueryTab(){
 		super(new BorderLayout());
@@ -70,8 +71,8 @@ public class QueryTab extends JPanel{
 				
 				JPanel details = new JPanel(new GridLayout(0, 1));
 				details.add(new JLabel("Size: " + wl.getSize()));
-				details.add(new JLabel("Conjuncts: " + wl.getMinConjuncts() + " ~ " + wl.getMaxConjuncts()));
-				details.add(new JLabel("Arity: " + wl.getMinArity() + " ~ " + wl.getMaxArity()));
+				details.add(new JLabel("Conjuncts: " + wl.getMinConjuncts() + " - " + wl.getMaxConjuncts()));
+				details.add(new JLabel("Arity: " + wl.getMinArity() + " - " + wl.getMaxArity()));
 				details.add(new JLabel("Multiplicity (star probablility): " + wl.getStarProbability()));
 				details.add(new JLabel("Selectivity: " + wl.getSelectivities().stream().map(Selectivity::getName).reduce((a, b)->a + ", " + b).get()));
 				details.add(new JLabel("Shapes: " + wl.getShapes().stream().map(QueryShape::getName).reduce((a, b)->a + ", " + b).get()));
@@ -94,6 +95,7 @@ public class QueryTab extends JPanel{
 				QuerySet data = QueryGenerator.generateQueries(wl);
 				SwingUtilities.invokeLater(()->{
 					queries.removeAll();
+					JTabbedPane queryTabs = new JTabbedPane();
 					for(int i = 0; i < data.getSize(); i++){
 						Query query = data.get(i);
 
@@ -111,8 +113,35 @@ public class QueryTab extends JPanel{
 						queryTab.add(rule, BorderLayout.PAGE_START);
 						queryTab.add(new JScrollPane(sql), BorderLayout.CENTER);
 
-						queries.addTab("Query " + i, queryTab);
+						queryTabs.addTab("Query " + i, queryTab);
 					}
+					
+					JPanel details = new JPanel(new GridLayout(0, 1));
+					details.add(new JLabel("Generation Time: " + (data.getGenerationTime() / 1000) + "ms"));
+					details.add(new JLabel("Arity: " + data.getMinArity() + " - " + data.getMaxArity() + " (" + data.getBinaryQueryCount() + " queries are binary)"));
+					details.add(new JLabel("Number of conjuncts: " + data.getMinConjuncts() + " - " + data.getMaxConjuncts()));
+					
+					StringBuilder buffer = new StringBuilder("Shapes: ");
+					for(QueryShape shape : QueryShape.values()){
+						buffer.append(shape.getName());
+						buffer.append(String.format(" (%.0f%%)", 100.0D * data.getShapeFraction(shape)));
+						buffer.append(", ");
+					}
+					buffer.delete(buffer.length() - 2, buffer.length());
+					details.add(new JLabel(buffer.toString()));
+					
+					buffer = new StringBuilder("Selectivities: ");
+					for(Selectivity sel : Selectivity.values()){
+						buffer.append(sel.getName());
+						buffer.append(String.format(" (%.0f%%)", 100.0D * data.getSelectivityFraction(sel)));
+						buffer.append(", ");
+					}
+					buffer.delete(buffer.length() - 2, buffer.length());
+					details.add(new JLabel(buffer.toString()));
+					
+					queries.add(details, BorderLayout.PAGE_START);
+					queries.add(queryTabs, BorderLayout.CENTER);
+					
 					queries.revalidate();
 					queries.repaint();
 				});

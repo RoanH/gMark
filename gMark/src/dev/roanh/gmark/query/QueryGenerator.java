@@ -26,10 +26,14 @@ public class QueryGenerator{
 	}
 	
 	public static QuerySet generateQueries(Workload workload) throws GenerationException{
-		return generateQueries(workload, workload.getSize());
+		return generateQueries(workload, workload.getSize(), null);
 	}
 	
-	public static QuerySet generateQueries(Workload workload, int n) throws GenerationException{
+	public static QuerySet generateQueries(Workload workload, ProgressListener listener) throws GenerationException{
+		return generateQueries(workload, workload.getSize(), listener);
+	}
+	
+	public static QuerySet generateQueries(Workload workload, int n, ProgressListener listener) throws GenerationException{
 		GenerationException.rethrow(workload::validate);
 		
 		long start = System.currentTimeMillis();
@@ -45,8 +49,17 @@ public class QueryGenerator{
 				//e.printStackTrace();
 				//TODO better handling or a bound?
 			}
+			
+			if(listener != null){
+				listener.update(queries.size(), n);
+			}
 		}
 		
 		return new QuerySet(queries, System.currentTimeMillis() - start);
+	}
+	
+	public static abstract interface ProgressListener{
+		
+		public abstract void update(int done, int total);
 	}
 }

@@ -1,9 +1,9 @@
 package dev.roanh.gmark.client;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -11,8 +11,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
@@ -25,6 +25,7 @@ import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.QueryGenerator;
+import dev.roanh.gmark.query.QueryGenerator.ProgressListener;
 import dev.roanh.gmark.query.QuerySet;
 import dev.roanh.util.Dialog;
 import dev.roanh.util.FileSelector;
@@ -92,7 +93,23 @@ public class QueryTab extends JPanel{
 	private void genWorkload(Workload wl){
 		executor.execute(()->{
 			try{
-				QuerySet data = QueryGenerator.generateQueries(wl);
+				JProgressBar progress = new JProgressBar(0, wl.getSize());
+				ProgressListener listener = (done, total)->{
+					progress.setValue(done);
+					progress.repaint();
+				};
+				
+				SwingUtilities.invokeLater(()->{
+					queries.removeAll();
+					JPanel content = new JPanel(new FlowLayout(FlowLayout.CENTER));
+					content.add(progress);
+					queries.add(content, BorderLayout.CENTER);
+					queries.revalidate();
+					queries.repaint();
+				});
+				
+				QuerySet data = QueryGenerator.generateQueries(wl, listener);
+				
 				SwingUtilities.invokeLater(()->{
 					queries.removeAll();
 					JTabbedPane queryTabs = new JTabbedPane();

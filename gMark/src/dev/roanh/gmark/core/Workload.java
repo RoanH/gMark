@@ -148,70 +148,155 @@ public abstract class Workload implements IDable{
 		return starProbability;
 	}
 	
+	/**
+	 * Sets the minimum arity allowed for
+	 * queries generated according to this workload.
+	 * @param arity The new minimum query arity.
+	 */
 	public void setMinArity(int arity){
 		minArity = arity;
 	}
 	
+	/**
+	 * Sets the maximum arity allowed for
+	 * queries generated according to this workload.
+	 * @param arity The new maximum query arity.
+	 */
 	public void setMaxArity(int arity){
 		maxArity = arity;
 	}
 	
+	/**
+	 * Sets the minimum number of conjuncts allowed for
+	 * queries generated according to this workload.
+	 * @param conj The new minimum number of conjuncts.
+	 */
 	public void setMinConjuncts(int conj){
 		minConjuncts = conj;
 	}
 	
+	/**
+	 * Sets the maximum number of conjuncts allowed for
+	 * queries generated according to this workload.
+	 * @param conj The new maximum number of conjuncts.
+	 */
 	public void setMaxConjuncts(int conj){
 		maxConjuncts = conj;
 	}
 	
+	/**
+	 * Adds the given selectivities as valid selectivities for
+	 * queries generated for this workload.
+	 * @param selectivities The selectivities to add.
+	 */
 	public void addSelectivities(Selectivity... selectivities){
 		Arrays.stream(selectivities).forEach(this.selectivities::add);
 	}
 	
+	/**
+	 * Removes the given selectivities as valid selectivities for
+	 * queries generated for this workload.
+	 * @param selectivities The selectivities to remove.
+	 */
 	public void removeSelectivities(Selectivity... selectivities){
 		Arrays.stream(selectivities).forEach(this.selectivities::remove);
 	}
 	
+	/**
+	 * Adds the given shapes as valid shapes for
+	 * queries generated for this workload.
+	 * @param shapes The shapes to add.
+	 */
 	public void addShapes(QueryShape... shapes){
 		Arrays.stream(shapes).forEach(this.shapes::add);
 	}
 	
+	/**
+	 * Removes the given shapes as valid shapes for
+	 * queries generated for this workload.
+	 * @param shapes The shapes to remove.
+	 */
 	public void removeShapes(QueryShape... shapes){
 		Arrays.stream(shapes).forEach(this.shapes::remove);
 	}
 	
+	/**
+	 * Sets the total number of queries that should
+	 * be generated for this workload.
+	 * @param size The total number of queries for this workload.
+	 */
 	public void setSize(int size){
 		this.size = size;
 	}
 	
+	/**
+	 * Gets the probability that a conjunct has
+	 * a Kleene star above it (as a fraction).
+	 * @param factor The conjunct Kleene star probability.
+	 */
 	public void setStarProbability(double factor){
 		starProbability = factor;
 	}
 	
+	/**
+	 * Gets the total number of queries that should
+	 * be generated for this workload.
+	 * @return The total number of queries for this workload.
+	 */
 	public int getSize(){
 		return size;
 	}
 	
+	/**
+	 * Gets the minimum arity allowed for queries
+	 * in this workload.
+	 * @return The minimum arity.
+	 */
 	public int getMinArity(){
 		return minArity;
 	}
 	
+	/**
+	 * Gets the maximum arity allowed for queries
+	 * in this workload.
+	 * @return The maximum arity.
+	 */
 	public int getMaxArity(){
 		return maxArity;
 	}
 	
+	/**
+	 * Gets the minimum number of conjuncts allowed
+	 * for queries in this workload.
+	 * @return The minimum number of conjuncts.
+	 */
 	public int getMinConjuncts(){
 		return minConjuncts;
 	}
 	
+	/**
+	 * Gets the maximum number of conjuncts allowed
+	 * for queries in this workload.
+	 * @return The maximum number of conjuncts.
+	 */
 	public int getMaxConjuncts(){
 		return maxConjuncts;
 	}
 	
+	/**
+	 * Gets all the shapes allowed for queries
+	 * in this workload.
+	 * @return All allowed query shapes.
+	 */
 	public Set<QueryShape> getShapes(){
 		return shapes;
 	}
 	
+	/**
+	 * Gets all the selectivities allowed for
+	 * queries in this workload.
+	 * @return All allowed query selectivities.
+	 */
 	public Set<Selectivity> getSelectivities(){
 		return selectivities;
 	}

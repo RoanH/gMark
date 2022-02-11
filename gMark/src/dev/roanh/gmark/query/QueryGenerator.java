@@ -26,12 +26,16 @@ public class QueryGenerator{
 	}
 	
 	public static List<Query> generateQueries(Workload workload) throws GenerationException{
+		return generateQueries(workload, workload.getSize());
+	}
+	
+	public static List<Query> generateQueries(Workload workload, int n) throws GenerationException{
 		GenerationException.rethrow(workload::validate);
 		
 		List<ShapeGenerator> generators = workload.getShapes().stream().map(s->s.getQueryGenerator(workload)).collect(Collectors.toList());
-		List<Query> queries = new ArrayList<Query>(workload.getSize());
+		List<Query> queries = new ArrayList<Query>(n);
 		
-		while(queries.size() < workload.getSize()){
+		while(queries.size() < n){
 			try{
 				queries.add(Util.selectRandom(generators).generateQuery());
 				//System.out.println("done: " + queries.size());

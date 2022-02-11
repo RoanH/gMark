@@ -93,7 +93,7 @@ public class QueryBody{
 		for(int i = 0; i < n + extra; i++){
 			buffer.append('c');
 			buffer.append(i);
-			if(i < n - 1){
+			if(i < n + extra - 1){
 				buffer.append(", ");
 			}
 		}

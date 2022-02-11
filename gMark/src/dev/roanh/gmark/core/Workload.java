@@ -12,6 +12,7 @@ import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.QueryGenerator;
+import dev.roanh.gmark.query.QuerySet;
 import dev.roanh.gmark.util.IDable;
 
 /**
@@ -136,7 +137,7 @@ public abstract class Workload implements IDable{
 		return QueryGenerator.generateQuery(this);
 	}
 	
-	public List<Query> generateQueries() throws GenerationException{
+	public QuerySet generateQueries() throws GenerationException{
 		return QueryGenerator.generateQueries(this);
 	}
 	

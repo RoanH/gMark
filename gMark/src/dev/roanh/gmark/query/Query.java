@@ -3,13 +3,13 @@ package dev.roanh.gmark.query;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.output.SQL;
 
 public class Query implements SQL{
-	//TODO in gmark a query also stores some stats about itself, but really those can be derrived
 	private List<Variable> variables;//specifically the projected ones (LHS)
 	/**
 	 * All the bodies for this query. Note that currently
@@ -26,8 +26,40 @@ public class Query implements SQL{
 		this.variables = variables;
 	}
 	
+	public boolean hasShape(QueryShape shape){
+		return bodies.stream().anyMatch(body->body.getShape().equals(shape));
+	}
+	
+	public List<QueryShape> getShapes(){
+		return bodies.stream().map(QueryBody::getShape).collect(Collectors.toList());
+	}
+	
+	public boolean hasSelectivity(Selectivity selectivity){
+		return bodies.stream().anyMatch(body->body.getSelectivity().equals(selectivity));
+	}
+	
+	public List<Selectivity> getSelectivities(){
+		return bodies.stream().map(QueryBody::getSelectivity).collect(Collectors.toList());
+	}
+	
+	public int getMinConjuncts(){
+		return bodies.stream().mapToInt(QueryBody::getConjunctCount).min().orElse(0);
+	}
+	
+	public int getMaxConjuncts(){
+		return bodies.stream().mapToInt(QueryBody::getConjunctCount).max().orElse(0);
+	}
+	
+	public boolean isBinary(){
+		return getArity() == 0;
+	}
+	
 	public int getArity(){
 		return variables.size();
+	}
+	
+	public List<QueryBody> getBodies(){
+		return bodies;
 	}
 	
 	/**

@@ -24,6 +24,7 @@ import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.QueryGenerator;
+import dev.roanh.gmark.query.QuerySet;
 import dev.roanh.util.Dialog;
 import dev.roanh.util.FileSelector;
 import dev.roanh.util.FileSelector.FileExtension;
@@ -90,10 +91,10 @@ public class QueryTab extends JPanel{
 	private void genWorkload(Workload wl){
 		executor.execute(()->{
 			try{
-				List<Query> data = QueryGenerator.generateQueries(wl);
+				QuerySet data = QueryGenerator.generateQueries(wl);
 				SwingUtilities.invokeLater(()->{
 					queries.removeAll();
-					for(int i = 0; i < data.size(); i++){
+					for(int i = 0; i < data.getSize(); i++){
 						Query query = data.get(i);
 
 						JTextArea sql = new JTextArea(query.toSQL());

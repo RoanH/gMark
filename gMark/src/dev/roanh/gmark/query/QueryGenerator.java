@@ -25,13 +25,14 @@ public class QueryGenerator{
 		}
 	}
 	
-	public static List<Query> generateQueries(Workload workload) throws GenerationException{
+	public static QuerySet generateQueries(Workload workload) throws GenerationException{
 		return generateQueries(workload, workload.getSize());
 	}
 	
-	public static List<Query> generateQueries(Workload workload, int n) throws GenerationException{
+	public static QuerySet generateQueries(Workload workload, int n) throws GenerationException{
 		GenerationException.rethrow(workload::validate);
 		
+		long start = System.currentTimeMillis();
 		List<ShapeGenerator> generators = workload.getShapes().stream().map(s->s.getQueryGenerator(workload)).collect(Collectors.toList());
 		List<Query> queries = new ArrayList<Query>(n);
 		
@@ -46,6 +47,6 @@ public class QueryGenerator{
 			}
 		}
 		
-		return queries;
+		return new QuerySet(queries, System.currentTimeMillis() - start);
 	}
 }

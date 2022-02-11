@@ -21,6 +21,7 @@ import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.Workload;
+import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.QueryGenerator;
 import dev.roanh.util.Dialog;
@@ -88,31 +89,36 @@ public class QueryTab extends JPanel{
 	
 	private void genWorkload(Workload wl){
 		executor.execute(()->{
-			List<Query> data = QueryGenerator.generateQueries(wl);
-			SwingUtilities.invokeLater(()->{
-				queries.removeAll();
-				for(int i = 0; i < data.size(); i++){
-					Query query = data.get(i);
-					
-					JTextArea sql = new JTextArea(query.toSQL());
-					sql.setLineWrap(true);
-					sql.setEditable(false);
-					sql.setBackground(this.getBackground());
-					
-					JTextArea rule = new JTextArea(query.toString());
-					rule.setLineWrap(true);
-					rule.setEditable(false);
-					rule.setBackground(this.getBackground());
-					
-					JPanel queryTab = new JPanel(new BorderLayout());
-					queryTab.add(rule, BorderLayout.PAGE_START);
-					queryTab.add(new JScrollPane(sql), BorderLayout.CENTER);
-					
-					queries.addTab("Query " + i, queryTab);
-				}
-				queries.revalidate();
-				queries.repaint();
-			});
+			try{
+				List<Query> data = QueryGenerator.generateQueries(wl);
+				SwingUtilities.invokeLater(()->{
+					queries.removeAll();
+					for(int i = 0; i < data.size(); i++){
+						Query query = data.get(i);
+
+						JTextArea sql = new JTextArea(query.toSQL());
+						sql.setLineWrap(true);
+						sql.setEditable(false);
+						sql.setBackground(this.getBackground());
+
+						JTextArea rule = new JTextArea(query.toString());
+						rule.setLineWrap(true);
+						rule.setEditable(false);
+						rule.setBackground(this.getBackground());
+
+						JPanel queryTab = new JPanel(new BorderLayout());
+						queryTab.add(rule, BorderLayout.PAGE_START);
+						queryTab.add(new JScrollPane(sql), BorderLayout.CENTER);
+
+						queries.addTab("Query " + i, queryTab);
+					}
+					queries.revalidate();
+					queries.repaint();
+				});
+			}catch(GenerationException e){
+				// TODO Auto-generated catch block -- report
+				e.printStackTrace();
+			}
 		});
 	}
 }

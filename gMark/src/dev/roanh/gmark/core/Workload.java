@@ -2,33 +2,68 @@ package dev.roanh.gmark.core;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.w3c.dom.Element;
 
 import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.core.graph.Schema;
+import dev.roanh.gmark.exception.GenerationException;
+import dev.roanh.gmark.query.Query;
+import dev.roanh.gmark.query.QueryGenerator;
 import dev.roanh.gmark.util.IDable;
 
-//TODO need to redo gmark formats a bit, probably just add another param after workload size with type="cpq", rpq, etc keep this class for shared info
-
-//TODO do we want validation for the settings?
+/**
+ * Represents a workload with all the important arguments required
+ * for query generation. Conjuncts specific settings are managed
+ * by subclasses of this class.
+ * @author Roan
+ * @see WorkloadType
+ */
 public abstract class Workload implements IDable{
+	/**
+	 * The unique ID of this workload.
+	 */
 	private final int id;
 	/**
 	 * Number of queries in this workload.
 	 */
 	private int size;
+	/**
+	 * The minimum number of conjuncts in queries
+	 * generated in this workload.
+	 */
 	private int minConjuncts;
+	/**
+	 * The maximum number of conjuncts in queries
+	 * generated in this workload.
+	 */
 	private int maxConjuncts;
+	/**
+	 * The minimum arity of queries generated
+	 * in this workload (0 is allowed).
+	 */
 	private int minArity;
+	/**
+	 * Them maximum arity of queries generated
+	 * in this workload.
+	 */
 	private int maxArity;
 	/**
 	 * Probability that a conjunct has a Kleene star above it.
 	 */
 	private double starProbability;
-	private Set<QueryShape> shapes = new HashSet<QueryShape>();//TODO assert this is not empty, general validation of everything really
-	private Set<Selectivity> selectivities = new HashSet<Selectivity>();//TODO assert this is not empty -- note, should check on generation (possibly a validate method) since this can change now
+	/**
+	 * Set of valid queries shapes for queries
+	 * generated in this workload.
+	 */
+	private Set<QueryShape> shapes = new HashSet<QueryShape>();
+	/**
+	 * Set of valid query selectivities for queries
+	 * generated in this workload.
+	 */
+	private Set<Selectivity> selectivities = new HashSet<Selectivity>();
 	private Schema schema;
 	
 	protected Workload(Element elem, Schema schema){
@@ -68,6 +103,13 @@ public abstract class Workload implements IDable{
 	
 	public abstract int getMaxSelectivityGraphLength();//TODO reconsider
 	
+	/**
+	 * Validates this workload by checking that all of the arguments
+	 * are valid and usable for query generation. Subclasses should
+	 * override this method to validate their own arguments.
+	 * @throws IllegalStateException When it is determined that the
+	 *         workload is not valid.
+	 */
 	public void validate() throws IllegalStateException{
 		if(minArity < 0){
 			throw new IllegalStateException("Minimum arity cannot be negative.");
@@ -88,6 +130,14 @@ public abstract class Workload implements IDable{
 
 	public ConjunctGenerator getConjunctGenerator(){
 		return getType().getConjunctGenerator(this);
+	}
+	
+	public Query generateSingleQuery() throws GenerationException{
+		return QueryGenerator.generateQuery(this);
+	}
+	
+	public List<Query> generateQueries() throws GenerationException{
+		return QueryGenerator.generateQueries(this);
 	}
 	
 	public Schema getGraphSchema(){

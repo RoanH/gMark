@@ -30,6 +30,13 @@ public class GenerationException extends Exception{
 		super(reason, cause);
 	}
 	
+	/**
+	 * Executes the given runnable and rethrows any exception
+	 * it throws as a new {@link #GenerationException}.
+	 * @param runnable The runnable to execute.
+	 * @throws GenerationException The rethrown exception if
+	 *         executing the runnable threw an exception.
+	 */
 	public static final void rethrow(GenerationRunnable runnable) throws GenerationException{
 		try{
 			runnable.run();
@@ -38,8 +45,16 @@ public class GenerationException extends Exception{
 		}
 	}
 	
+	/**
+	 * Runnable interface that can throw exceptions.
+	 * @author Roan
+	 */
 	public static abstract interface GenerationRunnable{
 		
+		/**
+		 * Executes this runnable.
+		 * @throws Exception When some exception occurs.
+		 */
 		public abstract void run() throws Exception;
 	}
 }

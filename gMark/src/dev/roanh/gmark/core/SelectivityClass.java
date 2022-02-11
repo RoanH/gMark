@@ -261,7 +261,7 @@ public enum SelectivityClass{
 		return this;
 	}
 	
-	//public abstract SelectivityClass disjunction(SelectivityClass other);
+	//TODO public abstract SelectivityClass disjunction(SelectivityClass other);
 	
 	public abstract SelectivityClass conjunction(SelectivityClass other);
 	

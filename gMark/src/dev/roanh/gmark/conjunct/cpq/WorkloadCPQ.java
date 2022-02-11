@@ -36,6 +36,17 @@ public class WorkloadCPQ extends Workload{
 	}
 	
 	@Override
+	public void validate() throws IllegalStateException{
+		super.validate();
+		
+		if(maxDiameter < 1){
+			throw new IllegalStateException("Maximum diamter cannot be less than 1.");
+		}else if(maxRecursion < 0){
+			throw new IllegalStateException("Maximum recursion cannot be negative.");
+		}
+	}
+	
+	@Override
 	public WorkloadType getType(){
 		return WorkloadType.CPQ;
 	}

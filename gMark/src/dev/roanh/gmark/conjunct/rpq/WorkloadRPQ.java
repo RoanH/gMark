@@ -61,6 +61,21 @@ public class WorkloadRPQ extends Workload{
 	public int getMaxDisjuncts(){
 		return maxDisjuncts;
 	}
+	
+	@Override
+	public void validate() throws IllegalStateException{
+		super.validate();
+		
+		if(minDisjuncts < 1){
+			throw new IllegalStateException("Minimum number of disjuncts cannot be less than 1.");
+		}else if(minDisjuncts > maxDisjuncts){
+			throw new IllegalStateException("Minimum number of disjuncts cannot be more than the maximum number of disjuncts.");
+		}else if(minLength < 1){
+			throw new IllegalStateException("Minimum length cannot be less than 1.");
+		}else if(minLength > maxLength){
+			throw new IllegalStateException("Minimum length cannot be greater than the maximum length.");
+		}
+	}
 
 	@Override
 	public WorkloadType getType(){

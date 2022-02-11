@@ -29,4 +29,17 @@ public class GenerationException extends Exception{
 	public GenerationException(String reason, Throwable cause){
 		super(reason, cause);
 	}
+	
+	public static final void rethrow(GenerationRunnable runnable) throws GenerationException{
+		try{
+			runnable.run();
+		}catch(Exception e){
+			throw new GenerationException(e.getMessage(), e);
+		}
+	}
+	
+	public static abstract interface GenerationRunnable{
+		
+		public abstract void run() throws Exception;
+	}
 }

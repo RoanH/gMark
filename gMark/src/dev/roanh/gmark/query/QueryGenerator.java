@@ -11,7 +11,9 @@ import dev.roanh.gmark.util.Util;
 
 public class QueryGenerator{
 
-	public static Query generateQuery(Workload workload){
+	public static Query generateQuery(Workload workload) throws GenerationException{
+		GenerationException.rethrow(workload::validate);
+		
 		ShapeGenerator gen = Util.selectRandom(workload.getShapes()).getQueryGenerator(workload);
 		while(true){
 			try{
@@ -23,7 +25,9 @@ public class QueryGenerator{
 		}
 	}
 	
-	public static List<Query> generateQueries(Workload workload){
+	public static List<Query> generateQueries(Workload workload) throws GenerationException{
+		GenerationException.rethrow(workload::validate);
+		
 		List<ShapeGenerator> generators = workload.getShapes().stream().map(s->s.getQueryGenerator(workload)).collect(Collectors.toList());
 		List<Query> queries = new ArrayList<Query>(workload.getSize());
 		

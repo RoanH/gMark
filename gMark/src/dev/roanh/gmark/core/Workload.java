@@ -14,7 +14,7 @@ import dev.roanh.gmark.util.IDable;
 
 //TODO do we want validation for the settings?
 public abstract class Workload implements IDable{
-	private int id;
+	private final int id;
 	/**
 	 * Number of queries in this workload.
 	 */
@@ -68,6 +68,24 @@ public abstract class Workload implements IDable{
 	
 	public abstract int getMaxSelectivityGraphLength();//TODO reconsider
 	
+	public void validate() throws IllegalStateException{
+		if(minArity < 0){
+			throw new IllegalStateException("Minimum arity cannot be negative.");
+		}else if(minArity > maxArity){
+			throw new IllegalStateException("Minimum arity cannot be greater than the maximum arity.");
+		}else if(minConjuncts < 1){
+			throw new IllegalStateException("Minimum number of conjuncts cannot be less than 1.");
+		}else if(minConjuncts > maxConjuncts){
+			throw new IllegalStateException("Minimum number of conjuncts cannot be greater than the maximum number of conjuncts.");
+		}else if(shapes.isEmpty()){
+			throw new IllegalStateException("Workload cannot have no allowed query shapes.");
+		}else if(selectivities.isEmpty()){
+			throw new IllegalStateException("Workload cannot have no allowed selectivities.");
+		}else if(0.0D > starProbability || 1.0D < starProbability){
+			throw new IllegalStateException("Star probability has to be in range 0.0~1.0.");
+		}
+	}
+
 	public ConjunctGenerator getConjunctGenerator(){
 		return getType().getConjunctGenerator(this);
 	}

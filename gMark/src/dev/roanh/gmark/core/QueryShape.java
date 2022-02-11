@@ -84,9 +84,9 @@ public enum QueryShape{
 	 *         name or <code>null</code> if not query
 	 *         shape was found for the given name.
 	 */
-	public static QueryShape getByName(String name){
+	public static final QueryShape getByName(String name){
 		for(QueryShape shape : values()){
-			if(shape.name.equals(name)){
+			if(shape.name.equalsIgnoreCase(name)){
 				return shape;
 			}
 		}

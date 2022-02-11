@@ -30,12 +30,24 @@ public enum Selectivity{
 	 */
 	QUADRATIC("quadratic");
 	
+	/**
+	 * The name of this selectivity (as used in configuration files).
+	 */
 	private final String name;
 	
+	/**
+	 * Constructs a new selectivity with the given name.
+	 * @param name The selectivity name (as used in configuration files).
+	 */
 	private Selectivity(String name){
 		this.name = name;
 	}
 	
+	/**
+	 * Gets the name of this selectivity. This is the same
+	 * name that is also used for configuration files.
+	 * @return The name of this selectivity.
+	 */
 	public String getName(){
 		return name;
 	}
@@ -45,9 +57,17 @@ public enum Selectivity{
 		return name;
 	}
 	
-	public static Selectivity getByName(String name){
+	/**
+	 * Gets the selectivity identified by the given name.
+	 * This name is also used for configuration files.
+	 * @param name The name of the selectivity to get.
+	 * @return The selectivity with the given name or
+	 *         <code>null</code> if no selectivity with
+	 *         the given name was found.
+	 */
+	public static final Selectivity getByName(String name){
 		for(Selectivity sel : values()){
-			if(sel.name.equals(name)){
+			if(sel.name.equalsIgnoreCase(name)){
 				return sel;
 			}
 		}

@@ -40,6 +40,10 @@ public class CycleGenerator extends ShapeGenerator{
 		int n1 = conjunctNum / 2;
 		int n2 = conjunctNum - n1;
 		
+		if(n1 == 0){
+			throw new GenerationException("Cycle needs at least 2 conjuncts.");
+		}
+		
 		Selectivity selectivity = randomSelectivity();
 		//TODO store selected selectivity info for the query we're working on
 		

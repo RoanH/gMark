@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.exception.GenerationException;
@@ -35,9 +36,7 @@ public class ChainGenerator extends ShapeGenerator{
 	public Query generateQuery() throws GenerationException{
 		int conjunctNum = randomConjunctNumber();
 		List<Conjunct> conjuncts = new ArrayList<Conjunct>(conjunctNum);
-		
 		Selectivity selectivity = randomSelectivity();
-		//TODO store selected selectivity info for the query we're working on
 		
 		List<PathSegment> path = gSel.generateRandomPath(selectivity, conjunctNum, workload.getStarProbability());
 		
@@ -61,6 +60,6 @@ public class ChainGenerator extends ShapeGenerator{
 			}
 		}
 		
-		return new Query(conjuncts, variables);
+		return new Query(conjuncts, variables, selectivity, QueryShape.CHAIN);
 	}
 }

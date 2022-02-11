@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 
+import dev.roanh.gmark.core.QueryShape;
+import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.output.SQL;
 
 public class Query implements SQL{
@@ -15,9 +17,8 @@ public class Query implements SQL{
 	 */
 	private List<QueryBody> bodies;
 	
-	public Query(List<Conjunct> conjuncts, List<Variable> variables){
-		this.bodies = Collections.singletonList(new QueryBody(conjuncts));
-		this.variables = variables;
+	public Query(List<Conjunct> conjuncts, List<Variable> variables, Selectivity selectivity, QueryShape shape){
+		this(new QueryBody(conjuncts, selectivity, shape), variables);
 	}
 	
 	public Query(QueryBody body, List<Variable> variables){

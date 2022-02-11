@@ -8,14 +8,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.StringJoiner;
 
+import dev.roanh.gmark.core.QueryShape;
+import dev.roanh.gmark.core.Selectivity;
+
 public class QueryBody{
 	private List<Conjunct> conjuncts;
+	private Selectivity selectivity;
+	private QueryShape shape;
 	
-	public QueryBody(List<Conjunct> conjuncts) throws IllegalArgumentException{
+	public QueryBody(List<Conjunct> conjuncts, Selectivity selectivity, QueryShape shape) throws IllegalArgumentException{
 		this.conjuncts = conjuncts;
 		if(conjuncts.isEmpty()){
 			throw new IllegalArgumentException("Query body cannot have no conjuncts.");
 		}
+		this.selectivity = selectivity;
+		this.shape = shape;
 	}
 	
 	public int getConjunctCount(){
@@ -25,6 +32,14 @@ public class QueryBody{
 	public double getMultiplicity(){
 		long stars = conjuncts.stream().filter(Conjunct::hasStar).count();
 		return ((double)stars) / conjuncts.size();
+	}
+	
+	public Selectivity getSelectivity(){
+		return selectivity;
+	}
+	
+	public QueryShape getShape(){
+		return shape;
 	}
 	
 	@Override

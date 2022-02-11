@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.exception.GenerationException;
@@ -36,6 +37,7 @@ public class CycleGenerator extends ShapeGenerator{
 	public Query generateQuery() throws GenerationException{
 		int conjunctNum = randomConjunctNumber();
 		List<Conjunct> conjuncts = new ArrayList<Conjunct>(conjunctNum);
+		Selectivity selectivity = randomSelectivity();
 		
 		int n1 = conjunctNum / 2;
 		int n2 = conjunctNum - n1;
@@ -43,9 +45,6 @@ public class CycleGenerator extends ShapeGenerator{
 		if(n1 == 0){
 			throw new GenerationException("Cycle needs at least 2 conjuncts.");
 		}
-		
-		Selectivity selectivity = randomSelectivity();
-		//TODO store selected selectivity info for the query we're working on
 		
 		List<PathSegment> path = gSel.generateRandomPath(selectivity, n1, workload.getStarProbability());
 		List<Variable> variables = createVariables(n1 + n2);
@@ -75,6 +74,6 @@ public class CycleGenerator extends ShapeGenerator{
 			}
 		}
 		
-		return new Query(conjuncts, variables);
+		return new Query(conjuncts, variables, selectivity, QueryShape.CYCLE);
 	}
 }

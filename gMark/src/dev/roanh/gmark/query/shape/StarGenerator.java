@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.exception.GenerationException;
@@ -36,9 +37,7 @@ public class StarGenerator extends ShapeGenerator{
 		int conjunctNum = randomConjunctNumber();
 		List<Conjunct> conjuncts = new ArrayList<Conjunct>(conjunctNum);
 		List<Variable> variables = createVariables(conjunctNum + 1);
-		
 		Selectivity selectivity = randomSelectivity();
-		//TODO store selected selectivity info for the query we're working on
 		
 		PathSegment path = gSel.generateRandomPath(selectivity, 1, workload.getStarProbability()).get(0);
 	
@@ -65,6 +64,6 @@ public class StarGenerator extends ShapeGenerator{
 			}
 		}
 		
-		return new Query(conjuncts, variables);
+		return new Query(conjuncts, variables, selectivity, QueryShape.STAR);
 	}
 }

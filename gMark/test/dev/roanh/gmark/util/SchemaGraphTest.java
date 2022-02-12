@@ -3,6 +3,8 @@ package dev.roanh.gmark.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.BeforeAll;
+
 import static dev.roanh.gmark.util.SelectivityType.of;
 import static dev.roanh.gmark.core.SelectivityClass.*;
 
@@ -12,12 +14,22 @@ import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
+import dev.roanh.gmark.exception.ConfigException;
 import dev.roanh.gmark.util.Graph.GraphEdge;
 
 public class SchemaGraphTest{
-	private Schema schema = ConfigParser.parse(ClassLoader.getSystemResourceAsStream("test.xml")).getSchema();
+	private static Schema schema;
 	private SchemaGraph gs = new SchemaGraph(schema);
 
+	@BeforeAll
+	public static void parseConfig(){
+		try{
+			schema = ConfigParser.parse(ClassLoader.getSystemResourceAsStream("test.xml")).getSchema();
+		}catch(ConfigException e){
+			e.printStackTrace();
+		}
+	}
+	
 	@Test
 	public void fullCheck(){
 		//types

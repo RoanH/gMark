@@ -34,42 +34,42 @@ public class GraphMark{
 	public static void main(String[] args) throws GenerationException{
 		Util.installUI();
 		
-		Configuration config = ConfigParser.parse(Paths.get("./test/test.xml"));
-		//Configuration config = ConfigParser.parse(Paths.get("C:\\Users\\RoanH\\Downloads\\tmp\\gmark\\use-cases\\shop.xml"));
-		Schema schema = config.getSchema();
-		SchemaGraph gs = new SchemaGraph(config.getSchema());
-		//paper 1=1
-		//SelectivityType src = SelectivityType.of(config.getTypes().get(1), SelectivityClass.ONE_ONE);
-		//conference 1<N
-		//SelectivityType trg = SelectivityType.of(config.getTypes().get(3), SelectivityClass.ONE_N);
-		//city 1<N
-		//SelectivityType trg = SelectivityType.of(config.getTypes().get(4), SelectivityClass.ONE_N);
-		//paper 1<N
-		//SelectivityType trg = SelectivityType.of(config.getTypes().get(1), SelectivityClass.ONE_N);
-		//journal 1=1
-		//SelectivityType src = SelectivityType.of(config.getTypes().get(2), SelectivityClass.ONE_ONE);
-		//journal N=N
-		SelectivityType src = SelectivityType.of(config.getTypes().get(2), SelectivityClass.EQUALS);
-		//paper 1x1
-		//SelectivityType trg = SelectivityType.of(config.getTypes().get(1), SelectivityClass.CROSS);
-		//paper NxN
-		SelectivityType trg = SelectivityType.of(config.getTypes().get(1), SelectivityClass.CROSS);
+//		Configuration config = ConfigParser.parse(Paths.get("./test/test.xml"));
+//		//Configuration config = ConfigParser.parse(Paths.get("C:\\Users\\RoanH\\Downloads\\tmp\\gmark\\use-cases\\shop.xml"));
+//		Schema schema = config.getSchema();
+//		SchemaGraph gs = new SchemaGraph(config.getSchema());
+//		//paper 1=1
+//		//SelectivityType src = SelectivityType.of(config.getTypes().get(1), SelectivityClass.ONE_ONE);
+//		//conference 1<N
+//		//SelectivityType trg = SelectivityType.of(config.getTypes().get(3), SelectivityClass.ONE_N);
+//		//city 1<N
+//		//SelectivityType trg = SelectivityType.of(config.getTypes().get(4), SelectivityClass.ONE_N);
+//		//paper 1<N
+//		//SelectivityType trg = SelectivityType.of(config.getTypes().get(1), SelectivityClass.ONE_N);
+//		//journal 1=1
+//		//SelectivityType src = SelectivityType.of(config.getTypes().get(2), SelectivityClass.ONE_ONE);
+//		//journal N=N
+//		SelectivityType src = SelectivityType.of(config.getTypes().get(2), SelectivityClass.EQUALS);
+//		//paper 1x1
+//		//SelectivityType trg = SelectivityType.of(config.getTypes().get(1), SelectivityClass.CROSS);
+//		//paper NxN
+//		SelectivityType trg = SelectivityType.of(config.getTypes().get(1), SelectivityClass.CROSS);
 
-		int maxLen = 3;
-		
-		EdgeGraph eg = new EdgeGraph(gs, maxLen, src, trg, 10);
-		ConfigGraph cg = new ConfigGraph(config);
-		SelectivityGraph sg = new SelectivityGraph(schema, maxLen);
-		gs.removeUnreachable();
-
+//		int maxLen = 3;
+//		
+//		EdgeGraph eg = new EdgeGraph(gs, maxLen, src, trg, 10);
+//		ConfigGraph cg = new ConfigGraph(config);
+//		SelectivityGraph sg = new SelectivityGraph(schema, maxLen);
+//		gs.removeUnreachable();
+//
 		JTabbedPane tabs = new JTabbedPane();
-		tabs.addTab("Config Graph", new GraphPanel<Type, Predicate>(cg, Type::getAlias, Predicate::getAlias));
-		tabs.addTab("Schema Graph", new GraphPanel<SelectivityType, Predicate>(gs, SelectivityType::toString, Predicate::getAlias));
-		tabs.addTab("Edge Graph", new GraphPanel<EdgeGraphData, Void>(eg));
-		tabs.addTab("Selectivity Graph", new GraphPanel<SelectivityType, SelectivityClass>(sg));
-		tabs.addTab("Ref", buildRefGraph());
-		tabs.addTab("Sel Ref", buildSelRefGraph());
-		tabs.addTab("Query", new QueryTab());
+//		tabs.addTab("Config Graph", new GraphPanel<Type, Predicate>(cg, Type::getAlias, Predicate::getAlias));
+//		tabs.addTab("Schema Graph", new GraphPanel<SelectivityType, Predicate>(gs, SelectivityType::toString, Predicate::getAlias));
+//		tabs.addTab("Edge Graph", new GraphPanel<EdgeGraphData, Void>(eg));
+//		tabs.addTab("Selectivity Graph", new GraphPanel<SelectivityType, SelectivityClass>(sg));
+//		tabs.addTab("Ref", buildRefGraph());
+//		tabs.addTab("Sel Ref", buildSelRefGraph());
+		tabs.addTab("Query Generation", new QueryTab());
 		
 		frame.add(tabs);
 		frame.setSize(800, 600);

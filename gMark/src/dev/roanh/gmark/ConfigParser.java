@@ -35,6 +35,7 @@ import dev.roanh.gmark.core.graph.Edge;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
+import dev.roanh.gmark.exception.ConfigException;
 
 /**
  * Parser to read complete gmark task configurations.
@@ -48,7 +49,7 @@ public class ConfigParser{
 	private static final Function<Node, Element> TO_ELEMENT = n->(Element)n;
 	
 	//parse config xml
-	public static Configuration parse(Path file){
+	public static final Configuration parse(Path file) throws ConfigException{
 		try(InputStream in = Files.newInputStream(file)){
 			return parse(in);
 		}catch(IOException e){
@@ -59,7 +60,7 @@ public class ConfigParser{
 		throw new RuntimeException("Failed to parse configuration file.");
 	}
 		
-	public static Configuration parse(InputStream in){
+	public static final Configuration parse(InputStream in) throws ConfigException{
 		try{
 			Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
 			xml.getDocumentElement().normalize();

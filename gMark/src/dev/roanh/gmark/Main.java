@@ -1,5 +1,7 @@
 package dev.roanh.gmark;
 
+import java.nio.file.Paths;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -7,6 +9,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+
+import dev.roanh.gmark.core.Configuration;
+import dev.roanh.gmark.exception.ConfigException;
 
 public class Main{
 
@@ -35,8 +40,21 @@ public class Main{
 	}
 	
 	private static void handleInput(CommandLine cli){
-		//TODO
+		if(!cli.hasOption('c')){
+			System.out.println("No configuration file provided.");
+			return;
+		}
 		
-		
+		try{
+			Configuration config = ConfigParser.parse(Paths.get(cli.getOptionValue('c')));
+			
+			//TODO, probably print some statistics
+			
+			//TODO continue
+			
+		}catch(ConfigException e){
+			System.out.println("Failed to parse the given configuration file: " + e.getMessage());
+			return;
+		}
 	}
 }

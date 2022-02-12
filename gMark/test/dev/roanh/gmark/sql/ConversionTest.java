@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.ConfigParser;
@@ -13,14 +14,29 @@ import dev.roanh.gmark.conjunct.cpq.ConcatCPQ;
 import dev.roanh.gmark.conjunct.cpq.EdgeCPQ;
 import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.exception.ConfigException;
 
 public class ConversionTest{
-	private static final Configuration config = ConfigParser.parse(ClassLoader.getSystemResourceAsStream("test.xml"));
-	private static final CPQ label0 = new EdgeCPQ(config.getPredicates().get(0));
-	private static final CPQ label1 = new EdgeCPQ(config.getPredicates().get(1));
-	private static final CPQ label1i = new EdgeCPQ(config.getPredicates().get(1).getInverse());
-	private static final CPQ concat0 = new ConcatCPQ(Arrays.asList(label0, label1, label1, label1i));
-	private static final CPQ concat1 = new ConcatCPQ(Arrays.asList(label1));
+	private static Configuration config;
+	private static CPQ label0;
+	private static CPQ label1;
+	private static CPQ label1i;
+	private static CPQ concat0;
+	private static CPQ concat1;
+	
+	@BeforeAll
+	public static void parseConfig(){
+		try{
+			config = ConfigParser.parse(ClassLoader.getSystemResourceAsStream("test.xml"));
+			label0 = new EdgeCPQ(config.getPredicates().get(0));
+			label1 = new EdgeCPQ(config.getPredicates().get(1));
+			label1i = new EdgeCPQ(config.getPredicates().get(1).getInverse());
+			concat0 = new ConcatCPQ(Arrays.asList(label0, label1, label1, label1i));
+			concat1 = new ConcatCPQ(Arrays.asList(label1));
+		}catch(ConfigException e){
+			e.printStackTrace();
+		}
+	}
 	
 	@Test
 	public void concatToSQL(){

@@ -22,6 +22,7 @@ import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.Workload;
+import dev.roanh.gmark.exception.ConfigException;
 import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.QueryGenerator;
@@ -64,32 +65,37 @@ public class QueryTab extends JPanel{
 	private void openWorkload(){
 		Path file = Dialog.showFileOpenDialog(XML_EXT);
 		if(file != null){
-			Configuration config = ConfigParser.parse(file);
-			info.removeAll();
-			for(Workload wl : config.getWorkloads()){
-				JPanel wlInfo = new JPanel(new BorderLayout());
-				wlInfo.setBorder(BorderFactory.createTitledBorder(wl.getType().getName() + " Workload " + wl.getID()));
-				
-				JPanel details = new JPanel(new GridLayout(0, 1));
-				details.add(new JLabel("Size: " + wl.getSize()));
-				details.add(new JLabel("Conjuncts: " + wl.getMinConjuncts() + " - " + wl.getMaxConjuncts()));
-				details.add(new JLabel("Arity: " + wl.getMinArity() + " - " + wl.getMaxArity()));
-				details.add(new JLabel("Multiplicity (star probablility): " + wl.getStarProbability()));
-				details.add(new JLabel("Selectivity: " + wl.getSelectivities().stream().map(Selectivity::getName).reduce((a, b)->a + ", " + b).get()));
-				details.add(new JLabel("Shapes: " + wl.getShapes().stream().map(QueryShape::getName).reduce((a, b)->a + ", " + b).get()));
-				wlInfo.add(details, BorderLayout.CENTER);
-				
-				JButton gen = new JButton("Generate queries");
-				wlInfo.add(gen, BorderLayout.PAGE_END);
-				gen.addActionListener(e->genWorkload(wl));
-				
-				info.add(wlInfo);
+			try{
+				Configuration config = ConfigParser.parse(file);
+				info.removeAll();
+				for(Workload wl : config.getWorkloads()){
+					JPanel wlInfo = new JPanel(new BorderLayout());
+					wlInfo.setBorder(BorderFactory.createTitledBorder(wl.getType().getName() + " Workload " + wl.getID()));
+
+					JPanel details = new JPanel(new GridLayout(0, 1));
+					details.add(new JLabel("Size: " + wl.getSize()));
+					details.add(new JLabel("Conjuncts: " + wl.getMinConjuncts() + " - " + wl.getMaxConjuncts()));
+					details.add(new JLabel("Arity: " + wl.getMinArity() + " - " + wl.getMaxArity()));
+					details.add(new JLabel("Multiplicity (star probablility): " + wl.getStarProbability()));
+					details.add(new JLabel("Selectivity: " + wl.getSelectivities().stream().map(Selectivity::getName).reduce((a, b)->a + ", " + b).get()));
+					details.add(new JLabel("Shapes: " + wl.getShapes().stream().map(QueryShape::getName).reduce((a, b)->a + ", " + b).get()));
+					wlInfo.add(details, BorderLayout.CENTER);
+
+					JButton gen = new JButton("Generate queries");
+					wlInfo.add(gen, BorderLayout.PAGE_END);
+					gen.addActionListener(e->genWorkload(wl));
+
+					info.add(wlInfo);
+				}
+				this.revalidate();
+				this.repaint();
+			}catch(ConfigException e){
+				//TODO handle properly
+				e.printStackTrace();
 			}
-			this.revalidate();
-			this.repaint();
 		}
 	}
-	
+
 	private void genWorkload(Workload wl){
 		executor.execute(()->{
 			try{

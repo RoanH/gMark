@@ -18,13 +18,18 @@ import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.WorkloadType;
 import dev.roanh.gmark.core.graph.Edge;
+import dev.roanh.gmark.exception.ConfigException;
 
 public class ConfigParserTest{
 	private static Configuration config;
 
 	@BeforeAll
 	public static void parseConfig(){
-		config = ConfigParser.parse(ClassLoader.getSystemResourceAsStream("test.xml"));
+		try{
+			config = ConfigParser.parse(ClassLoader.getSystemResourceAsStream("test.xml"));
+		}catch(ConfigException e){
+			e.printStackTrace();
+		}
 	}
 	
 	@Test

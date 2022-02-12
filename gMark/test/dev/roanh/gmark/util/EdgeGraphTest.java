@@ -12,21 +12,30 @@ import org.junit.jupiter.api.Test;
 import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.SelectivityClass;
+import dev.roanh.gmark.exception.ConfigException;
 import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.util.Graph.GraphEdge;
 import dev.roanh.gmark.util.Graph.GraphNode;
 
 public class EdgeGraphTest{
 	private static final int MAX_LENGTH = 4;
-	private static final Configuration config = ConfigParser.parse(ClassLoader.getSystemResourceAsStream("test.xml"));
-	private static final SelectivityType SOURCE = SelectivityType.of(config.getTypes().get(2), SelectivityClass.EQUALS);
-	private static final SelectivityType TARGET = SelectivityType.of(config.getTypes().get(1), SelectivityClass.CROSS);
-	private static final SchemaGraph gs = new SchemaGraph(config.getSchema());
+	private static Configuration config;
+	private static SelectivityType source;
+	private static SelectivityType target;
+	private static SchemaGraph gs;
 	private static EdgeGraph graph;
 	
 	@BeforeAll
 	public static void constructGraph() throws GenerationException{
-		graph = new EdgeGraph(gs, MAX_LENGTH, SOURCE, TARGET);
+		try{
+			config = ConfigParser.parse(ClassLoader.getSystemResourceAsStream("test.xml"));
+			source = SelectivityType.of(config.getTypes().get(2), SelectivityClass.EQUALS);
+			target = SelectivityType.of(config.getTypes().get(1), SelectivityClass.CROSS);
+			gs = new SchemaGraph(config.getSchema());
+			graph = new EdgeGraph(gs, MAX_LENGTH, source, target);
+		}catch(ConfigException e){
+			e.printStackTrace();
+		}
 	}
 	
 	@Test

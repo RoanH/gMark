@@ -1,0 +1,81 @@
+<generator>
+	<predicates>
+		<size>4</size>
+		<alias symbol="0">authors</alias>
+		<proportion symbol="0">0.5</proportion>
+
+		<alias symbol="1">publishedIn</alias>
+		<proportion symbol="1">0.3</proportion>
+
+		<alias symbol="2">heldIn</alias>
+		<proportion symbol="2">0.01</proportion>
+
+		<alias symbol="3">extendedTo</alias>
+		<proportion symbol="3">0.19</proportion>
+	</predicates>
+
+	<types>
+		<size>5</size>
+		<alias type="0">researcher</alias>
+		<proportion type="0">0.5</proportion>
+
+		<alias type="1">paper</alias>
+		<proportion type="1">0.3</proportion>
+
+		<alias type="2">journal</alias>
+		<proportion type="2">0.1</proportion>
+
+		<alias type="3">conference</alias>
+		<proportion type="3">0.1</proportion>
+	</types>
+
+	<schema>
+		<source type="0"> <!-- researcher -->
+			<target type="1" symbol="0" edge_type="0"> <!-- authors a paper -->
+				<indistribution type="gaussian">
+					<mu>3</mu>
+					<sigma>1</sigma>
+				</indistribution>
+				<outdistribution type="zipfian">
+					<alpha>2.5</alpha>
+				</outdistribution>
+			</target>
+		</source>
+
+		<source type="1"> <!-- paper -->
+			<target type="3" symbol="1" edge_type="1"> <!-- published in a conference -->
+				<indistribution type="gaussian">
+					<mu>40</mu>
+					<sigma>10</sigma>
+				</indistribution>
+				<outdistribution type="uniform">
+					<min>1</min>
+					<max>1</max>
+				</outdistribution>
+			</target>
+
+			<target type="2" symbol="3" edge_type="2"> <!-- extended to a journal -->
+				<indistribution type="zipfian">
+					<alpha>2.5</alpha>
+				</indistribution>
+				<outdistribution type="uniform">
+					<min>0</min>
+					<max>1</max>
+				</outdistribution>
+			</target>
+		</source>
+	</schema>
+	
+	<workload id="0" size="50" type="cpq">
+		<size>
+			<conjuncts min="3" max="4"/>
+			<recursion max="5"/>
+			<diameter max="4"/>
+		</size>
+
+		<multiplicity star="0.5"/>
+		<arity min="0" max="4"/>
+		<selectivity constant="1" linear="1" quadratic="1"/>
+		<type chain="1" star="1" cycle="1" starchain="1"/>
+	</workload>
+</generator>

@@ -352,14 +352,14 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 						if(meta != null){
 							g.drawString(
 								edgeLabel.apply(meta),
-								(source.location.x + target.location.x) / 2.0F + (float)(Math.sin(rad) * Node.RADIUS),
-								(source.location.y + target.location.y) / 2.0F + (float)(Math.cos(rad) * -Node.RADIUS)
+								(source.location.x + target.location.x) / 2.0F + (float)(Math.sin(rad) * (2 + Node.RADIUS)),
+								(source.location.y + target.location.y) / 2.0F + (float)(Math.cos(rad) * -(2 + Node.RADIUS))
 							);
 							meta = twin.getData();
 							g.drawString(
 								edgeLabel.apply(meta),
-								(source.location.x + target.location.x) / 2.0F - (float)(Math.sin(rad) * Node.RADIUS),
-								(source.location.y + target.location.y) / 2.0F - (float)(Math.cos(rad) * -Node.RADIUS)
+								(source.location.x + target.location.x) / 2.0F - (float)(Math.sin(rad) * (-2 + Node.RADIUS)),
+								(source.location.y + target.location.y) / 2.0F - (float)(Math.cos(rad) * -(-2 + Node.RADIUS))
 							);
 						}
 					}

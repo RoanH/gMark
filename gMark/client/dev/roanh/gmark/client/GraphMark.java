@@ -28,6 +28,7 @@ public class GraphMark{
 //		tabs.addTab("Sel Ref", buildSelRefGraph());
 		tabs.addTab("Query Generation", new QueryTab());
 		tabs.addTab("Example", new ExampleTab());
+//		tabs.addTab("Social Network", buildRefGraph3());
 		
 		frame.add(tabs);
 		frame.setSize(1000, 800);
@@ -58,6 +59,23 @@ public class GraphMark{
 				out.println(";");
 			}
 		}
+	}
+	
+	@Deprecated
+	private static GraphPanel<String, String> buildRefGraph3(){
+		Graph<String, String> g = new Graph<String, String>();
+		
+		GraphNode<String, String> alice = g.addUniqueNode("Alice");
+		GraphNode<String, String> bob = g.addUniqueNode("Bob");
+		GraphNode<String, String> charlie = g.addUniqueNode("Charlie");
+		
+		g.addUniqueEdge("Alice", "Bob", "knows");
+		g.addUniqueEdge("Bob", "Alice", "knows");
+		g.addUniqueEdge("Alice", "Charlie", "knows");
+		
+		GraphPanel<String, String> p = new GraphPanel<String, String>(g);
+		p.setBackground(Color.WHITE);
+		return p;
 	}
 	
 	@Deprecated

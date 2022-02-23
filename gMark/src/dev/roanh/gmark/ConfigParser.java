@@ -18,14 +18,12 @@ import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.Distribution;
@@ -38,11 +36,11 @@ import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.exception.ConfigException;
 
 /**
- * Parser to read complete gmark task configurations.
+ * Parser to read complete gMark task configurations.
  * @author Roan
  */
 public class ConfigParser{
-	//TODO better validation and exception handling
+	//TODO better validation
 	/**
 	 * Function to cast nodes to elements.
 	 */
@@ -53,11 +51,8 @@ public class ConfigParser{
 		try(InputStream in = Files.newInputStream(file)){
 			return parse(in);
 		}catch(IOException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new ConfigException(e);
 		}
-		//TODO throw a proper exception
-		throw new RuntimeException("Failed to parse configuration file.");
 	}
 		
 	public static final Configuration parse(InputStream in) throws ConfigException{
@@ -75,21 +70,14 @@ public class ConfigParser{
 			Schema schema = parseSchema(getElement(root, "schema"), types, predicates);
 			
 			List<Workload> workloads = stream(root, "workload").map(data->WorkloadType.parse(data, schema)).collect(Collectors.toList());
-			//TODO check workloads have a distinct ID
+			if(workloads.size() != workloads.stream().mapToInt(Workload::getID).distinct().count()){
+				throw new ConfigException("Not all workloads have a distinct ID.");
+			}
 			
 			return new Configuration(sizes, schema, workloads);
-		}catch(SAXException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}catch(IOException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}catch(ParserConfigurationException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}catch(Exception e){
+			throw new ConfigException(e);
 		}
-		//TODO throw a proper exception
-		throw new RuntimeException("Failed to parse configuration file.");
 	}
 	
 	private static final Schema parseSchema(Element elem, List<Type> types, List<Predicate> predicates){

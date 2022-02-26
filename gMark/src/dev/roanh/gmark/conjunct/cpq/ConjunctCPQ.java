@@ -23,7 +23,7 @@ public class ConjunctCPQ extends Conjunct{
 
 	@Override
 	protected void writePartialXML(IndentWriter writer){
-		cpq.
+		cpq.writeXML(writer);
 	}
 
 	@Override

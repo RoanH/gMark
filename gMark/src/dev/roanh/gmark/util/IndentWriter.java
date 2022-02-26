@@ -20,7 +20,7 @@ public class IndentWriter{
 			for(int i = 0; i < indent; i += BUFFER.length){
 				content.append(BUFFER, 0, Math.min(BUFFER.length, indent - i));
 			}
-			newLine = true;
+			newLine = false;
 		}
 		content.append(str);
 	}

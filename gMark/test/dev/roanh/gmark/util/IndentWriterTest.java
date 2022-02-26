@@ -41,4 +41,11 @@ public class IndentWriterTest{
 		writer.print("test2");
 		assertEquals("            test\n            test2", writer.toString());
 	}
+	@Test
+	public void indentTest5(){
+		IndentWriter writer = new IndentWriter(12);
+		writer.print("test");
+		writer.print("hello");
+		assertEquals("            testhello", writer.toString());
+	}
 }

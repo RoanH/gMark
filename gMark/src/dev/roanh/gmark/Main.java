@@ -27,6 +27,7 @@ public class Main{
 		options.addOption(Option.builder("w").longOpt("workload").hasArg().argName("file").desc("Triggers workload generation, a previous generated input workload can be provided to generate concrete syntaxes for").build());
 		options.addOption(Option.builder("g").longOpt("graph").hasArgs().optionalArg(true).argName("size").desc("Triggers graph generation, a graph size can be provided (overrides the ones set in the configuration file)").build());
 		options.addOption(Option.builder("o").longOpt("output").hasArg().argName("folder").desc("The folder to write the generated output to").build());
+		options.addOption(Option.builder("f").longOpt("force").desc("Overwrite existing files if present").build());
 		
 		CommandLineParser parser = new DefaultParser();
 		try{
@@ -37,7 +38,9 @@ public class Main{
 		}catch(ParseException ignore){
 		}
 		
-		new HelpFormatter().printHelp("gmark", options, true);
+		HelpFormatter help = new HelpFormatter();
+		help.setWidth(80);
+		help.printHelp("gmark", options, true);
 	}
 	
 	private static void handleInput(CommandLine cli){

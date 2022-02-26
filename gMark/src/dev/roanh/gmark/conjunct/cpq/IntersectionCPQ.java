@@ -31,7 +31,7 @@ public class IntersectionCPQ implements CPQ{
 
 	@Override
 	public void writeXML(IndentWriter writer){
-		writer.println("<cpq type=\"intersect\">");
+		writer.println("<cpq type=\"intersect\">", 2);
 		first.writeXML(writer);
 		second.writeXML(writer);
 		writer.println(2, "</cpq>");

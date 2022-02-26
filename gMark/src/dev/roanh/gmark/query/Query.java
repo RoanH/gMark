@@ -109,7 +109,11 @@ public class Query implements SQL, XML{
 		writer.println("<query>", 2);		
 		
 		writer.println("<head>", 2);
-		variables.forEach(var->writer.println(var.toString()));
+		variables.forEach(var->{
+			writer.print("<var>");
+			writer.print(var.toString());
+			writer.println("</var>");
+		});
 		writer.println(2, "</head>");
 		
 		writer.println("<bodies>", 2);

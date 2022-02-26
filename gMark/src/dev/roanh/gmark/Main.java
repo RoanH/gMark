@@ -24,8 +24,9 @@ public class Main{
 		options.addOption("h", "help", false, "Prints this help text");
 		options.addOption(Option.builder("c").longOpt("config").hasArg().argName("file").desc("The workload and graph configuration file").build());
 		options.addOption(Option.builder("s").longOpt("syntax").hasArgs().argName("syntax").desc("The concrete syntax(es) to output").build());
-		options.addOption(Option.builder("w").longOpt("workload").hasArg().argName("file").desc("The directory to write the generated workload to").build());
-		options.addOption(Option.builder("g").longOpt("graph").hasArg().argName("file").desc("The file to write the generated graph to").build());
+		options.addOption(Option.builder("w").longOpt("workload").hasArg().argName("file").desc("Triggers workload generation, a previous generated input workload can be provided to generate concrete syntaxes for").build());
+		options.addOption(Option.builder("g").longOpt("graph").hasArgs().optionalArg(true).argName("size").desc("Triggers graph generation, a graph size can be provided (overrides the ones set in the configuration file)").build());
+		options.addOption(Option.builder("o").longOpt("output").hasArg().argName("folder").desc("The folder to write the generated output to").build());
 		
 		CommandLineParser parser = new DefaultParser();
 		try{
@@ -36,7 +37,7 @@ public class Main{
 		}catch(ParseException ignore){
 		}
 		
-		new HelpFormatter().printHelp("gmark", options);
+		new HelpFormatter().printHelp("gmark", options, true);
 	}
 	
 	private static void handleInput(CommandLine cli){
@@ -51,6 +52,17 @@ public class Main{
 			//TODO, probably print some statistics
 			
 			//TODO continue
+			
+			//generate graphs
+			if(cli.hasOption('g')){
+				
+			}
+			
+			//generate workloads
+			if(cli.hasOption('w')){
+				
+			}
+			
 			
 		}catch(ConfigException e){
 			System.out.println("Failed to parse the given configuration file: " + e.getMessage());

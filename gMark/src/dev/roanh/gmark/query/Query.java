@@ -8,8 +8,10 @@ import java.util.stream.Collectors;
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.output.SQL;
+import dev.roanh.gmark.output.XML;
+import dev.roanh.gmark.util.IndentWriter;
 
-public class Query implements SQL{
+public class Query implements SQL, XML{
 	private List<Variable> variables;//specifically the projected ones (LHS)
 	/**
 	 * All the bodies for this query. Note that currently
@@ -100,5 +102,20 @@ public class Query implements SQL{
 		}
 		buffer.append(";");
 		return buffer.toString();
+	}
+
+	@Override
+	public void writeXML(IndentWriter writer){
+		writer.println("<query>", 2);		
+		
+		writer.println("<head>", 2);
+		variables.forEach(var->writer.println(var.toString()));
+		writer.println(2, "</head>");
+		
+		writer.println("<bodies>", 2);
+		bodies.forEach(body->body.writeXML(writer));
+		writer.println(2, "</bodies>");
+		
+		writer.println(2, "<query>");
 	}
 }

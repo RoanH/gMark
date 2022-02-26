@@ -1,7 +1,8 @@
 package dev.roanh.gmark.output;
 
-public interface SQL{
+public abstract interface SQL{
 
+	//TODO indent writer
 	//has to be wrapped in () at the outer level and select a src-trg pair table
 	public abstract String toSQL();
 }

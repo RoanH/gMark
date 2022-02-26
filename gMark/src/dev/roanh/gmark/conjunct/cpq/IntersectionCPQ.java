@@ -1,5 +1,7 @@
 package dev.roanh.gmark.conjunct.cpq;
 
+import dev.roanh.gmark.util.IndentWriter;
+
 public class IntersectionCPQ implements CPQ{
 	private CPQ first;
 	private CPQ second;
@@ -25,5 +27,13 @@ public class IntersectionCPQ implements CPQ{
 		}else{
 			return "(" + first.toSQL() + " INTERSECT " + second.toSQL() + ")";
 		}
+	}
+
+	@Override
+	public void writeXML(IndentWriter writer){
+		writer.println("<cpq type=\"intersect\">");
+		first.writeXML(writer);
+		second.writeXML(writer);
+		writer.println(2, "</cpq>");
 	}
 }

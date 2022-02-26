@@ -10,8 +10,10 @@ import java.util.StringJoiner;
 
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
+import dev.roanh.gmark.output.XML;
+import dev.roanh.gmark.util.IndentWriter;
 
-public class QueryBody{
+public class QueryBody implements XML{
 	private List<Conjunct> conjuncts;
 	private Selectivity selectivity;
 	private QueryShape shape;
@@ -151,5 +153,12 @@ public class QueryBody{
 		}else{
 			return null;
 		}
+	}
+
+	@Override
+	public void writeXML(IndentWriter writer){
+		writer.println("<body>", 2);
+		conjuncts.forEach(conj->conj.writeXML(writer));
+		writer.println(2, "</body>");
 	}
 }

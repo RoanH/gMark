@@ -1,6 +1,10 @@
 package dev.roanh.gmark.query;
 
-public abstract class Conjunct{
+import dev.roanh.gmark.core.WorkloadType;
+import dev.roanh.gmark.output.XML;
+import dev.roanh.gmark.util.IndentWriter;
+
+public abstract class Conjunct implements XML{
 	private Variable source;
 	private Variable target;
 	private boolean star;
@@ -36,8 +40,26 @@ public abstract class Conjunct{
 	//does not have to respect star
 	protected abstract String toPartialSQL();
 	
+	protected abstract void writePartialXML(IndentWriter writer);
+	
+	public abstract WorkloadType getType();
+	
 	@Override
 	public String toString(){
 		return "(" + source + "," + getInnerString() + "," + target + ")";
+	}
+
+	@Override
+	public void writeXML(IndentWriter writer){
+		writer.print("<conjunct src=\"");
+		writer.print(source.toString());
+		writer.print("\" trg=\"");
+		writer.print(target.toString());
+		writer.print("\" type=\"");
+		writer.print(getType().getID());
+		writer.println("\">", 2);
+		
+		writePartialXML(writer);
+		writer.println(2, "</conjunct>");
 	}
 }

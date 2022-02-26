@@ -3,6 +3,8 @@ package dev.roanh.gmark.conjunct.cpq;
 import java.util.List;
 import java.util.StringJoiner;
 
+import dev.roanh.gmark.util.IndentWriter;
+
 /**
  * CPQ modelling the concatenation of the number of CPQs.
  * @author Roan
@@ -66,5 +68,12 @@ public class ConcatCPQ implements CPQ{
 		
 		buffer.append(")");
 		return buffer.toString();
+	}
+
+	@Override
+	public void writeXML(IndentWriter writer){
+		writer.println("<cpq type=\"concat\">", 2);
+		cpq.forEach(c->c.writeXML(writer));
+		writer.println(2, "</cpq>");
 	}
 }

@@ -15,10 +15,6 @@ public class IndentWriter{
 		this.indent = indent;
 	}
 	
-	public void append(String str){
-		print(str);
-	}
-
 	public void print(String str){
 		if(newLine){
 			for(int i = 0; i < indent; i += BUFFER.length){
@@ -35,6 +31,16 @@ public class IndentWriter{
 		newLine = true;
 	}
 	
+	public void println(String str, int indentIncrease){
+		println(str);
+		indent += indentIncrease;
+	}
+	
+	public void println(int indentDecrease, String str){
+		indent -= indentDecrease;
+		println(str);
+	}
+	
 	public void increaseIndent(int n){
 		indent += n;
 	}
@@ -45,6 +51,10 @@ public class IndentWriter{
 	
 	public void setIndent(int n){
 		indent = n;
+	}
+	
+	public void print(int i){
+		print(String.valueOf(i));
 	}
 	
 	@Override

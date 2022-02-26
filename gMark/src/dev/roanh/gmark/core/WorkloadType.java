@@ -43,6 +43,10 @@ public enum WorkloadType{
 		return name.toUpperCase(Locale.ROOT);
 	}
 	
+	public String getID(){
+		return name;
+	}
+	
 	public ConjunctGenerator getConjunctGenerator(Workload workload){
 		return conjGen.apply(workload);
 	}

@@ -4,6 +4,8 @@ import java.util.List;
 
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
+import dev.roanh.gmark.output.XML;
+import dev.roanh.gmark.util.IndentWriter;
 
 /**
  * Represents a collection of several generated queries
@@ -11,7 +13,7 @@ import dev.roanh.gmark.core.Selectivity;
  * the whole set of generated queries.
  * @author Roan
  */
-public class QuerySet{
+public class QuerySet implements XML{
 	private List<Query> queries;
 	private long generationTime;
 	
@@ -75,5 +77,12 @@ public class QuerySet{
 	
 	public double getSelectivityFraction(Selectivity selectivity){
 		return (double)getSelectivityTotal(selectivity) / (double)queries.size();
+	}
+
+	@Override
+	public void writeXML(IndentWriter writer){
+		writer.println("<queries>", 2);
+		queries.forEach(query->query.writeXML(writer));
+		writer.println(2, "</queries>");
 	}
 }

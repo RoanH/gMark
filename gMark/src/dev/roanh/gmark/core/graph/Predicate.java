@@ -2,6 +2,9 @@ package dev.roanh.gmark.core.graph;
 
 import java.util.Objects;
 
+import dev.roanh.gmark.output.XML;
+import dev.roanh.gmark.util.IndentWriter;
+
 /**
  * Class describing predicates applied to graph
  * edges, also called symbols. These predicates
@@ -9,7 +12,7 @@ import java.util.Objects;
  * inverse direction from target to source.
  * @author Roan
  */
-public class Predicate{
+public class Predicate implements XML{
 	/**
 	 * The unique ID of this predicate. This ID uniquely
 	 * identifies this predicate among all predicates.
@@ -103,5 +106,12 @@ public class Predicate{
 	@Override
 	public int hashCode(){
 		return Objects.hash(id, isInverse);
+	}
+
+	@Override
+	public void writeXML(IndentWriter writer){
+		writer.print(isInverse() ? "<symbol inverse=\"true\">" : "<symbol>");
+		writer.print(id);
+		writer.println("</symbol>");
 	}
 }

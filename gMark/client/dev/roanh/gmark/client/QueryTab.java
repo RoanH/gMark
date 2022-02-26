@@ -3,6 +3,8 @@ package dev.roanh.gmark.client;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -18,6 +20,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import dev.roanh.gmark.ConfigParser;
+import dev.roanh.gmark.OutputWriter;
 import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
@@ -41,25 +44,51 @@ public class QueryTab extends JPanel{
 	private static final FileExtension XML_EXT = FileSelector.registerFileExtension("XML Files", "xml");
 	private JPanel info = new JPanel(new GridLayout(1, 0));
 	private JPanel queries = new JPanel(new BorderLayout());
+	private JButton save = new JButton("Save generated workload");
+	private QuerySet data = null;
 
 	public QueryTab(){
 		super(new BorderLayout());
 		
 		info.setBorder(BorderFactory.createTitledBorder("Workload Info"));
-		queries.setBorder(BorderFactory.createTitledBorder("Queries"));
-		
+		info.add(new JLabel("No configuration file selected, please open one..."));
 		this.add(info, BorderLayout.PAGE_START);
+
+		queries.setBorder(BorderFactory.createTitledBorder("Queries"));
+		queries.add(new JLabel("No workload generated, please generate one..."), BorderLayout.PAGE_START);
 		this.add(queries, BorderLayout.CENTER);
 		
 		JPanel buttons = new JPanel(new GridLayout(1, 0));
+		buttons.setBorder(BorderFactory.createTitledBorder("Controls"));
 		
 		JButton open = new JButton("Open Configuration");
-		buttons.add(open, BorderLayout.PAGE_END);
+		buttons.add(open);
 		open.addActionListener(e->openWorkload());
 		
-		
+		save.setEnabled(false);
+		buttons.add(save);
+		save.addActionListener(e->saveWorkload());
 		
 		this.add(buttons, BorderLayout.PAGE_END);
+	}
+	
+	private void saveWorkload(){
+		synchronized(data){
+			Path folder = Dialog.showFolderOpenDialog();
+			
+			try{
+				if(Files.walk(folder).findFirst().isPresent()){
+					if(!Dialog.showConfirmDialog("The selected folder is not empty, some files\nmay be overwritten, do you want to continue?")){
+						return;
+					}
+				}
+				
+				OutputWriter.writeGeneratedQueries(data, folder, true);
+			}catch(IOException e){
+				// TODO Auto-generated catch block -- show error dialog
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	private void openWorkload(){
@@ -114,7 +143,10 @@ public class QueryTab extends JPanel{
 					queries.repaint();
 				});
 				
-				QuerySet data = QueryGenerator.generateQueries(wl, listener);
+				QuerySet queryData = QueryGenerator.generateQueries(wl, listener);
+				synchronized(this){
+					data = queryData;
+				}
 				
 				SwingUtilities.invokeLater(()->{
 					queries.removeAll();
@@ -165,6 +197,7 @@ public class QueryTab extends JPanel{
 					queries.add(details, BorderLayout.PAGE_START);
 					queries.add(queryTabs, BorderLayout.CENTER);
 					
+					save.setEnabled(true);
 					queries.revalidate();
 					queries.repaint();
 				});

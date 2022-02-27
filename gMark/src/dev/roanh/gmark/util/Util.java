@@ -98,6 +98,13 @@ public class Util{
 		return data == null ? null : function.apply(data);
 	}
 	
+	/**
+	 * Checks if the given folder is empty or not.
+	 * @param folder The folder to check.
+	 * @return True if the given folder does not
+	 *         contain any files or folders.
+	 * @throws IOException When an IOException occurs.
+	 */
 	public static boolean isEmpty(Path folder) throws IOException{
 		return !Files.walk(folder).filter(path->!path.equals(folder)).findFirst().isPresent();
 	}

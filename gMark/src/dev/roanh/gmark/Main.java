@@ -25,6 +25,11 @@ import dev.roanh.gmark.query.QueryGenerator;
 import dev.roanh.gmark.query.QueryGenerator.ProgressListener;
 import dev.roanh.gmark.util.Util;
 
+/**
+ * Main class of the command line version of
+ * the application, responsible for command handling.
+ * @author Roan
+ */
 public class Main{
 
 	/**
@@ -55,6 +60,10 @@ public class Main{
 		help.printHelp("gmark", options, true);
 	}
 	
+	/**
+	 * Handles the input arguments.
+	 * @param cli The command line argument.
+	 */
 	private static void handleInput(CommandLine cli){
 		if(!cli.hasOption('o')){
 			System.out.println("No output folder specified.");
@@ -69,6 +78,10 @@ public class Main{
 		}
 	}
 	
+	/**
+	 * Handles input when a complete configuration file is provided.
+	 * @param cli The command line arguments.
+	 */
 	private static void handleConfigurationInput(CommandLine cli){
 		try{
 			Configuration config = ConfigParser.parse(Paths.get(cli.getOptionValue('c')));
@@ -126,13 +139,28 @@ public class Main{
 		}
 	}
 	
+	/**
+	 * Handles input when a generated workload file is provided.
+	 * @param cli The command line arguments.
+	 */
 	private static void handleWorkloadInput(CommandLine cli){
 		//TODO -- requires workload XML parsing
 	}
 	
+	/**
+	 * Progress listener that report progress to
+	 * standard out at 10% intervals.
+	 * @author Roan
+	 */
 	private static final class ProgressReporter implements ProgressListener{
-		private int last = Integer.MIN_VALUE;
+		/**
+		 * The last completion count progress was reported.
+		 */
+		private int last = 0;
 		
+		/**
+		 * Constructs a new progress reporter.
+		 */
 		private ProgressReporter(){
 			System.out.print("Progress: ");
 		}

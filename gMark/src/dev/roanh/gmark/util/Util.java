@@ -1,5 +1,8 @@
 package dev.roanh.gmark.util;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
@@ -93,5 +96,9 @@ public class Util{
 	 */
 	public static <T, R> R applyOrNull(T data, Function<T, R> function){
 		return data == null ? null : function.apply(data);
+	}
+	
+	public static boolean isEmpty(Path folder) throws IOException{
+		return !Files.walk(folder).filter(path->!path.equals(folder)).findFirst().isPresent();
 	}
 }

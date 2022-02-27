@@ -32,6 +32,7 @@ import dev.roanh.gmark.output.ConcreteSyntax;
 import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.QueryGenerator;
 import dev.roanh.gmark.query.QueryGenerator.ProgressListener;
+import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.query.QuerySet;
 import dev.roanh.util.Dialog;
 import dev.roanh.util.FileSelector;
@@ -79,7 +80,7 @@ public class QueryTab extends JPanel{
 			Path folder = Dialog.showFolderOpenDialog();
 			
 			try{
-				if(Files.walk(folder).filter(path->!path.equals(folder)).findFirst().isPresent()){
+				if(!Util.isEmpty(folder)){
 					if(!Dialog.showConfirmDialog("The selected folder is not empty, some files\nmay be overwritten, do you want to continue?")){
 						return;
 					}

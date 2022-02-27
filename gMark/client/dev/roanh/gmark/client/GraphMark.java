@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
+import dev.roanh.gmark.Main;
 import dev.roanh.gmark.client.component.GraphPanel;
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Predicate;
@@ -21,6 +22,11 @@ public class GraphMark{
 	private static final JFrame frame = new JFrame("gMark");
 
 	public static void main(String[] args){
+		if(args.length != 0){
+			Main.main(args);
+			return;
+		}
+		
 		Util.installUI();
 		
 		JTabbedPane tabs = new JTabbedPane();

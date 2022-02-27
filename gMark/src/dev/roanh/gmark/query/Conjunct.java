@@ -1,10 +1,10 @@
 package dev.roanh.gmark.query;
 
 import dev.roanh.gmark.core.WorkloadType;
-import dev.roanh.gmark.output.XML;
+import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
 
-public abstract class Conjunct implements XML{
+public abstract class Conjunct implements OutputXML{
 	private Variable source;
 	private Variable target;
 	private boolean star;

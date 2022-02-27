@@ -6,6 +6,7 @@ import java.awt.GridLayout;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -27,6 +28,7 @@ import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.exception.ConfigException;
 import dev.roanh.gmark.exception.GenerationException;
+import dev.roanh.gmark.output.ConcreteSyntax;
 import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.QueryGenerator;
 import dev.roanh.gmark.query.QueryGenerator.ProgressListener;
@@ -41,7 +43,7 @@ public class QueryTab extends JPanel{
 	 */
 	private static final long serialVersionUID = -7906116640679412583L;
 	private Executor executor = Executors.newSingleThreadExecutor();
-	private static final FileExtension XML_EXT = FileSelector.registerFileExtension("XML Files", "xml");
+	private static final FileExtension XML_EXT = FileSelector.registerFileExtension("OutputXML Files", "xml");
 	private JPanel info = new JPanel(new GridLayout(1, 0));
 	private JPanel queries = new JPanel(new BorderLayout());
 	private JButton save = new JButton("Save generated workload");
@@ -77,13 +79,13 @@ public class QueryTab extends JPanel{
 			Path folder = Dialog.showFolderOpenDialog();
 			
 			try{
-				if(Files.walk(folder).findFirst().isPresent()){
+				if(Files.walk(folder).filter(path->!path.equals(folder)).findFirst().isPresent()){
 					if(!Dialog.showConfirmDialog("The selected folder is not empty, some files\nmay be overwritten, do you want to continue?")){
 						return;
 					}
 				}
 				
-				OutputWriter.writeGeneratedQueries(data, folder, true);
+				OutputWriter.writeGeneratedQueries(data, folder, Arrays.asList(ConcreteSyntax.values()), true);
 			}catch(IOException e){
 				// TODO Auto-generated catch block -- show error dialog
 				e.printStackTrace();

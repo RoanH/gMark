@@ -7,11 +7,11 @@ import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
-import dev.roanh.gmark.output.SQL;
-import dev.roanh.gmark.output.XML;
+import dev.roanh.gmark.output.OutputSQL;
+import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
 
-public class Query implements SQL, XML{
+public class Query implements OutputSQL, OutputXML{
 	private List<Variable> variables;//specifically the projected ones (LHS)
 	/**
 	 * All the bodies for this query. Note that currently

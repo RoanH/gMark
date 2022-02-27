@@ -10,7 +10,7 @@ import dev.roanh.gmark.core.graph.Type;
 /**
  * A configuration contains all the information on the graphs
  * and workloads gMark needs to generate and is typically
- * read from a configuration XML file.
+ * read from a configuration OutputXML file.
  * @author Roan
  * @see ConfigParser
  * @see Workload

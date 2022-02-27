@@ -4,7 +4,7 @@ import java.util.List;
 
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
-import dev.roanh.gmark.output.XML;
+import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
@@ -13,7 +13,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * the whole set of generated queries.
  * @author Roan
  */
-public class QuerySet implements XML{
+public class QuerySet implements OutputXML{
 	private List<Query> queries;
 	private long generationTime;
 	

@@ -105,7 +105,7 @@ public class ConfigParser{
 	}
 	
 	/**
-	 * Parses the <code>types</code> section of the configuration XML.
+	 * Parses the <code>types</code> section of the configuration OutputXML.
 	 * This section has the following format:
 	 * <pre>
 	 * &lt;types&gt;
@@ -161,7 +161,7 @@ public class ConfigParser{
 	}
 	
 	/**
-	 * Parses the <code>predicates</code> section from the configuration XML.
+	 * Parses the <code>predicates</code> section from the configuration OutputXML.
 	 * This section has the following format:
 	 * <pre>
 	 * &lt;predicates&gt;

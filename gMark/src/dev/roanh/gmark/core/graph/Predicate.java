@@ -2,7 +2,7 @@ package dev.roanh.gmark.core.graph;
 
 import java.util.Objects;
 
-import dev.roanh.gmark.output.XML;
+import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
@@ -12,7 +12,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * inverse direction from target to source.
  * @author Roan
  */
-public class Predicate implements XML{
+public class Predicate implements OutputXML{
 	/**
 	 * The unique ID of this predicate. This ID uniquely
 	 * identifies this predicate among all predicates.

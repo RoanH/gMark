@@ -10,10 +10,10 @@ import java.util.StringJoiner;
 
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
-import dev.roanh.gmark.output.XML;
+import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
 
-public class QueryBody implements XML{
+public class QueryBody implements OutputXML{
 	private List<Conjunct> conjuncts;
 	private Selectivity selectivity;
 	private QueryShape shape;

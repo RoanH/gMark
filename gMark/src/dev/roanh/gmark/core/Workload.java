@@ -2,7 +2,6 @@ package dev.roanh.gmark.core;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.w3c.dom.Element;
@@ -129,22 +128,50 @@ public abstract class Workload implements IDable{
 		}
 	}
 
+	/**
+	 * Gets a generator for generating conjuncts
+	 * according to this workload configuration.
+	 * @return A worklaod conjunct generator.
+	 */
 	public ConjunctGenerator getConjunctGenerator(){
 		return getType().getConjunctGenerator(this);
 	}
 	
+	/**
+	 * Generates a single queries according to the parameters
+	 * specified in this workload configuration.
+	 * @return The generated query.
+	 * @throws GenerationException When an exception
+	 *         occurs when generating the query.
+	 */
 	public Query generateSingleQuery() throws GenerationException{
 		return QueryGenerator.generateQuery(this);
 	}
 	
+	/**
+	 * Generates workload according to the parameters
+	 * specified in this workload configuration.
+	 * @return The generated queries.
+	 * @throws GenerationException When an exception
+	 *         occurs when generating queries.
+	 */
 	public QuerySet generateQueries() throws GenerationException{
 		return QueryGenerator.generateQueries(this);
 	}
 	
+	/**
+	 * Gets the graph schema for this workload.
+	 * @return The graph schema for this workload.
+	 */
 	public Schema getGraphSchema(){
 		return schema;
 	}
 	
+	/**
+	 * Gets the probability that a conjunct has a
+	 * Kleene star above it for this workload.
+	 * @return The Kleene start probability.
+	 */
 	public double getStarProbability(){
 		return starProbability;
 	}

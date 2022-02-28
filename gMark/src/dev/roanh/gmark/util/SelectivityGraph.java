@@ -12,40 +12,65 @@ import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.exception.GenerationException;
 
+/**
+ * The selectivity graph is a directed graph between
+ * {@link SelectivityType selectivity types}. Given some
+ * maximum path length this graph shows between which selectivity
+ * types a path of length at most the given maximum path length
+ * exists. Originally the selectivity graph is unlabelled, but
+ * within gMark it is labelled with the selectivity class needed
+ * to follow an edge. That is the links are as follows
+ * <code>(t1,s1) --s2-> (t2,s1*s2)</code>.
+ * @author Roan
+ * @see SelectivityType
+ * @see SelectivityClass
+ * @see Schema
+ */
 public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
-	//TODO, move to constructor if not used anywhere else
-	//gmark: graph.neighbors.size()
+	/**
+	 * Efficient lookup index for the graph from selectivity type to graph node.
+	 */
 	private final RangeList<Map<SelectivityClass, GraphNode<SelectivityType, SelectivityClass>>> index;
+	/**
+	 * The graph schema used to construct
+	 */
 	private final Schema schema;
 	
-	
+	/**
+	 * Constructs a new selectivity graph based off the
+	 * given graph schema and with the given maximum path length.
+	 * @param schema The graph schema to use.
+	 * @param maxLength The maximum path length.
+	 */
 	public SelectivityGraph(Schema schema, int maxLength){
 		this.schema = schema;
 		index = new RangeList<Map<SelectivityClass, GraphNode<SelectivityType, SelectivityClass>>>(schema.getTypeCount(), Util.selectivityMapSupplier());
-		
-		//compute distance between types (matrix)
-		//compute graph from matrix
-		
 		DistanceMatrix matrix = computeDistanceMatrix(schema);
 	
-		//TODO in the original codebase this creates links (t1,s1) --s2-> (t2,s1*s2) which would imply this graph is labelled?
-		//--> looks like these labels are used when drawing paths
+		//add graph edges
 		for(Type t1 : schema.getTypes()){
 			for(Type t2 : schema.getTypes()){
 				for(SelectivityClass sel1 : SelectivityClass.values()){
 					for(SelectivityClass sel2 : SelectivityClass.values()){
 						//if there exists a path of valid length from t1 to t2 with result selectivity class sel2
 						if(matrix.get(t1, t2).getOrDefault(sel2, Integer.MAX_VALUE) <= maxLength){
-							//add graph edge (t1, sel1) -> (t2, sel1 * sel2)
-							resolve(t1, sel1).addUniqueEdgeTo(resolve(t2, sel1.conjunction(sel2)), sel2);//TODO see todo higher up about labelling
+							//add graph edge (t1, sel1) --sel2-> (t2, sel1 * sel2)
+							resolve(t1, sel1).addUniqueEdgeTo(resolve(t2, sel1.conjunction(sel2)), sel2);
 						}
 					}
 				}
 			}
 		}
-	
 	}
 	
+	/**
+	 * Resolves the given selectivity type presented as
+	 * a type and selectivity class to the associated
+	 * graph node adding a new node if required.
+	 * @param type The type of the selectivity type.
+	 * @param sel The selectivity of the selectivity type.
+	 * @return The graph node associated with the given selectivity type.
+	 */
 	private GraphNode<SelectivityType, SelectivityClass> resolve(Type type, SelectivityClass sel){
 		return index.get(type).computeIfAbsent(sel, k->addUniqueNode(new SelectivityType(type, sel)));
 	}
@@ -132,8 +157,7 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 	}
 	
 	public DistanceMatrix computeNumberOfPaths(Selectivity selectivity, int length){
-		//TODO number of columns should be the type count, should find a better way to pass that maybe
-		int types = index.size();
+		int types = schema.getTypeCount();
 		DistanceMatrix matrix = new DistanceMatrix(length + 1, types);
 		
 		for(int j = 0; j < types; j++){

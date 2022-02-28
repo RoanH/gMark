@@ -20,7 +20,7 @@ import dev.roanh.gmark.exception.GenerationException;
  * exists. Originally the selectivity graph is unlabelled, but
  * within gMark it is labelled with the selectivity class needed
  * to follow an edge. That is the links are as follows
- * <code>(t1,s1) --s2-> (t2,s1*s2)</code>.
+ * <code>(t1,s1) --s2-&gt; (t2,s1*s2)</code>.
  * @author Roan
  * @see SelectivityType
  * @see SelectivityClass

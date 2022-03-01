@@ -75,18 +75,50 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 		return index.get(type).computeIfAbsent(sel, k->addUniqueNode(new SelectivityType(type, sel)));
 	}
 	
+	/**
+	 * Randomly generates a path through the selectivity graph with
+	 * the requested length that ends at a node with the given
+	 * selectivity (meaning that this is also the selectivity of
+	 * the path as a whole). Finally, the multiplicity of the path
+	 * can be specified (Kleene star probability).
+	 * @param selectivity The selectivity of the path to generate.
+	 * @param length The length of the path to generate.
+	 * @param star The probability that a path segment can have a Kleene
+	 *        star above it, should be between 0 and 1.
+	 * @return A list of path segments representing the edges in the generated path.
+	 * @throws GenerationException When something going wrong while
+	 *         generating the path. Most likely meaning not valid
+	 *         path was found satisfying all the requirements.
+	 * @see #generateRandomPath(Selectivity, SelectivityType, int, double)
+	 */
 	public List<PathSegment> generateRandomPath(Selectivity selectivity, int length, double star) throws GenerationException{
 		return generateRandomPath(selectivity, null, length, star);
 	}
 	
-	//sel graph, matrix_of_paths, first_node, len, star, path (return value)
-	//generate_random_path(g, pathmat, -1, nb_conjs, wconf.multiplicity, path);
-	//TODO currentNode and currentSel form a valid SelecitivityType see if we can rewrite the logic to use that
-	//TODO consider a dedicated return type
-	//multiplicity - double / star fraction of stars 0~1
+	/**
+	 * Randomly generates a path through the selectivity graph with
+	 * the requested length that ends at a node with the given
+	 * selectivity (meaning that this is also the selectivity of
+	 * the path as a whole). Optionally a starting selectivity 
+	 * type can be provided. Finally, the multiplicity of the path
+	 * can be specified (Kleene star probability).
+	 * @param selectivity The selectivity of the path to generate.
+	 * @param start The selectivity type to start from, if this is
+	 *        <code>null</code> the path is started from any node
+	 *        that has the {@link SelectivityClass#EQUALS} selectivity.
+	 * @param length The length of the path to generate.
+	 * @param star The probability that a path segment can have a Kleene
+	 *        star above it, should be between 0 and 1.
+	 * @return A list of path segments representing the edges in the generated path.
+	 * @throws GenerationException When something going wrong while
+	 *         generating the path. Most likely meaning not valid
+	 *         path was found satisfying all the requirements.
+	 * @see #generateRandomPath(Selectivity, int, double)
+	 */
 	public List<PathSegment> generateRandomPath(Selectivity selectivity, SelectivityType start, int length, double star) throws GenerationException{
 		DistanceMatrix matrix = computeNumberOfPaths(selectivity, length);
 		
+		//TODO currentNode and currentSel form a valid SelecitivityType see if we can rewrite the logic to use that
 		int currentNode = 0;
 		SelectivityClass currentSel = SelectivityClass.EQUALS;
 		
@@ -156,6 +188,14 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 		return path;
 	}
 	
+	/**
+	 * Computes a distance matrix containing for each pair of
+	 * selectivity types how many paths of at most the given
+	 * maximum length and with the given selectivity exist.
+	 * @param selectivity The selectivity of the paths to count.
+	 * @param length The maximum length of the paths to count.
+	 * @return The number of paths for each pair of selectivity types.
+	 */
 	public DistanceMatrix computeNumberOfPaths(Selectivity selectivity, int length){
 		int types = schema.getTypeCount();
 		DistanceMatrix matrix = new DistanceMatrix(length + 1, types);
@@ -238,16 +278,42 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 		return matrix;
 	}
 	
+	/**
+	 * Matrix that encoder pair wise information for
+	 * all selectivity types in a graph.
+	 * @author Roan
+	 */
 	public static final class DistanceMatrix extends RangeMatrix<Map<SelectivityClass, Integer>>{
 		
+		/**
+		 * Constructs a new square distance matrix
+		 * with the given dimensions. Note that these
+		 * dimensions only apply to the type part of
+		 * the selectivity types stored in this matrix.
+		 * @param size The matrix dimensions (number of node types).
+		 */
 		private DistanceMatrix(int size){
 			this(size, size);
 		}
 		
+		/**
+		 * Constructs a new distance matrix with the given
+		 * dimensions. Note that these dimensions only apply
+		 * to the type part of the selectivity types stored 
+		 * in this matrix.
+		 * @param rows The number of rows in the matrix.
+		 * @param cols The number of columns in the matrix.
+		 */
 		private DistanceMatrix(int rows, int cols){
 			super(rows, cols, Util.selectivityMapSupplier());
 		}
 		
+		/**
+		 * Overwrites all the data in this matrix with
+		 * data from the given other matrix effectively
+		 * making this matrix a copy of the given matrix.
+		 * @param data The matrix to copy from.
+		 */
 		private void overwrite(DistanceMatrix data){
 			for(int i = 0; i < getRowCount(); i++){
 				for(int j = 0; j < getColumnCount(); j++){

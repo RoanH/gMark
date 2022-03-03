@@ -4,27 +4,67 @@ import java.util.Objects;
 
 import dev.roanh.gmark.util.IDable;
 
+/**
+ * Represents a single type in a graph schema.
+ * A type encoded information about the number
+ * of nodes of that specific type in a concrete
+ * graph instance.
+ * @author Roan
+ */
 public class Type implements IDable{
-	private int id;//also called type
-	private String alias;//textual type name
-	private int fixed;//fixed number of nodes present of this type -- possibly not applicable if proportion is used (set to -1)
-	private boolean scalable;
-	private double proportion;//fraction of all nodes that have this type -- possibly not applicable if the node is present in a fixed quantity (set to nan)
+	/**
+	 * The ID of this type.
+	 */
+	private final int id;
+	/**
+	 * The textual alias name for this type.
+	 */
+	private String alias;
+	/**
+	 * If this nodes of this type are present in
+	 * a fixed quantity in a concrete graph instance
+	 * then this is the number of nodes of this
+	 * type present in the graph. Otherwise this
+	 * value is <code>null</code>.
+	 */
+	private Integer fixed;
+	/**
+	 * If this nodes of this type are present as
+	 * a proportion of all nodes in a concrete
+	 * graph instance then this is the fraction
+	 * of nodes of this type present in the graph.
+	 * Otherwise this value is <code>null</code>.
+	 */
+	private Double proportion;
 	
+	/**
+	 * Constructs a new type with the given id, alias
+	 * and fixed presence quantity.
+	 * @param id The ID of this type.
+	 * @param alias The alias name of this type.
+	 * @param fixed The number of nodes in a concrete
+	 *        graph instance that are of this type.
+	 */
 	public Type(int id, String alias, int fixed){
 		this.id = id;
 		this.alias = alias;
 		this.fixed = fixed;
-		proportion = Double.NaN;
-		scalable = false;
+		proportion = null;
 	}
 	
+	/**
+	 * Constructs a new type with the given id, alias
+	 * and proportional presence quantity.
+	 * @param id The ID of this type.
+	 * @param alias The alias name of this type.
+	 * @param proportion The fraction of all nodes
+	 *        in a concrete graph instance that are of this type.
+	 */
 	public Type(int id, String alias, double proportion){
 		this.id = id;
 		this.alias = alias;
 		this.proportion = proportion;
-		fixed = -1;
-		scalable = true;
+		fixed = null;
 	}
 	
 	/**
@@ -35,9 +75,49 @@ public class Type implements IDable{
 	 * @return True if nodes of this type are scalable.
 	 */
 	public boolean isScalable(){
-		return scalable;
+		return fixed == null;
 	}
 	
+	/**
+	 * If this nodes of this type are present in
+	 * a fixed quantity in a concrete graph instance
+	 * then this gets the number of nodes of this
+	 * type present in the graph.
+	 * @return The number of nodes in a graph instance
+	 *         of this type.
+	 * @throws IllegalStateException If this type
+	 *         is not present in a fixed quantity.
+	 * @see #isScalable()
+	 */
+	public int getNodeCount(){
+		if(fixed == null){
+			throw new IllegalStateException("Type is not present in a fixed quantity.");
+		}
+		return fixed;
+	}
+	
+	/**
+	 * If this nodes of this type are present as
+	 * a proportion of all nodes in a concrete
+	 * graph instance then this gets the fraction
+	 * of nodes of this type present in the graph.
+	 * @return The fraction of all nodes in a graph
+	 *         that are of this type.
+	 * @throws IllegalStateException If this type
+	 *         is not present in a proportional quantity.
+	 * @see #isScalable()
+	 */
+	public double getProportion(){
+		if(proportion == null){
+			throw new IllegalStateException("Type is not present in a propotional quantity.");
+		}
+		return proportion;
+	}
+	
+	/**
+	 * Gets the textual alias name for this type.
+	 * @return The alias for this type.
+	 */
 	public String getAlias(){
 		return alias;
 	}
@@ -49,7 +129,7 @@ public class Type implements IDable{
 	
 	@Override
 	public String toString(){
-		if(fixed == -1){
+		if(fixed == null){
 			return "Type[typeID=" + id + ",alias=\"" + alias + "\",proportion=" + proportion + "]";
 		}else{
 			return "Type[typeID=" + id + ",alias=\"" + alias + "\",fixed=" + fixed + "]";

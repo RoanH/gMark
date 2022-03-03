@@ -8,6 +8,10 @@ import dev.roanh.gmark.core.dist.GaussianDistribution;
 import dev.roanh.gmark.core.dist.UniformDistribution;
 import dev.roanh.gmark.core.dist.ZipfianDistribution;
 
+/**
+ * Enum of all probability distributions supported by gMark.
+ * @author Roan
+ */
 public enum DistributionType{
 	UNDEFINED("undefined", e->Distribution.UNDEFINED),
 	UNIFORM("uniform", UniformDistribution::new),

@@ -1,8 +1,12 @@
 package dev.roanh.gmark.util;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Map;
@@ -107,5 +111,43 @@ public class Util{
 	 */
 	public static boolean isEmpty(Path folder) throws IOException{
 		return !Files.walk(folder).filter(path->!path.equals(folder)).findFirst().isPresent();
+	}
+	
+	/**
+	 * Takes a file containing a graph in RDF triple
+	 * format and outputs a SQL INSERT statement to
+	 * populate a database with the graph.
+	 * @param triples The input file with the RDF triple graph.
+	 * @param sql The file to write the generated SQL statement to.
+	 * @param overwrite True if the given output file should be
+	 *        overwritten if it already exists.
+	 * @throws IOException When an IOException occurs.
+	 * @throws FileNotFoundException When the given graph file was not found.
+	 * @throws FileAlreadyExistsException When the given output file already exists
+	 *         and overwriting is not requested.
+	 */
+	public static void triplesToSQL(Path triples, Path sql, boolean overwrite) throws IOException, FileNotFoundException, FileAlreadyExistsException{
+		if(Files.exists(sql) && !overwrite){
+			throw new FileAlreadyExistsException(sql.toString());
+		}else if(Files.notExists(triples)){
+			throw new FileNotFoundException(triples.toString());
+		}
+		
+		try(PrintWriter out = new PrintWriter(Files.newBufferedWriter(sql, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING))){
+			out.print("INSERT INTO edge VALUES ");
+			boolean first = true;
+			for(String line : Files.readAllLines(triples)){
+				if(!first){
+					out.print(", ");
+				}else{
+					first = false;
+				}
+				String[] args = line.split(" ");
+				out.print("(" + args[0] + ", " + args[1] + ", " + args[2] + ")");
+			}
+			out.println(";");
+		}catch(Exception e){
+			throw new IOException(e);
+		}
 	}
 }

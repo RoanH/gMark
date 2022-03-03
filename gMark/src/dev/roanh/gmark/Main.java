@@ -45,6 +45,7 @@ public class Main{
 		options.addOption(Option.builder("g").longOpt("graph").hasArgs().optionalArg(true).argName("size").desc("Triggers graph generation, a graph size can be provided (overrides the ones set in the configuration file)").build());
 		options.addOption(Option.builder("o").longOpt("output").hasArg().argName("folder").desc("The folder to write the generated output to").build());
 		options.addOption(Option.builder("f").longOpt("force").desc("Overwrite existing files if present").build());
+		//TODO tripples to sql conversion?
 		
 		CommandLineParser parser = new DefaultParser();
 		try{

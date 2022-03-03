@@ -17,7 +17,6 @@ import dev.roanh.gmark.query.QuerySet;
  */
 public class OutputWriter{
 
-	//folder has to exist
 	/**
 	 * Writes the given set of queries to the given folder.
 	 * @param queries The queries to write.
@@ -38,6 +37,10 @@ public class OutputWriter{
 		}
 	}
 	
+	/**
+	 * Writes generated graphs to a folder.
+	 * @throws IOException When an IOException occurs.
+	 */
 	public static void writeGeneratedGraphs() throws IOException{
 		//TODO
 		throw new IllegalStateException("Not yet implemented.");

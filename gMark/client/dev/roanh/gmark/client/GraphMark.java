@@ -1,10 +1,6 @@
 package dev.roanh.gmark.client;
 
 import java.awt.Color;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 
@@ -18,9 +14,24 @@ import dev.roanh.gmark.util.Graph.GraphNode;
 import dev.roanh.util.Util;
 import dev.roanh.gmark.util.SelectivityType;
 
+/**
+ * Main class for the GUI version of the application.
+ * @author Roan
+ * @see Main
+ */
 public class GraphMark{
+	/**
+	 * The main GUI frame.
+	 */
 	private static final JFrame frame = new JFrame("gMark");
 
+	/**
+	 * Launches the gMark GUI if not command line
+	 * arguments are passed. Otherwise switches
+	 * over to the CLI version of gMark.
+	 * @param args Command line arguments, if present
+	 *        then gMark will switch to command line mode.
+	 */
 	public static void main(String[] args){
 		if(args.length != 0){
 			Main.main(args);
@@ -41,32 +52,12 @@ public class GraphMark{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		
-//		triplesToSQL(
-//			Paths.get("C:\\Users\\RoanH\\Downloads\\Capita Selecta\\gmark\\play-graph.txt0.txt"),
-//			Paths.get("C:\\Users\\RoanH\\Downloads\\Capita Selecta\\gmark\\test10k.sql")
-//		);
 	}
 	
-	private static void triplesToSQL(Path triples, Path target) throws IOException{
-		if(Files.notExists(target)){
-			try(PrintWriter out = new PrintWriter(Files.newBufferedWriter(target))){
-				out.print("INSERT INTO edge VALUES ");
-				boolean first = true;
-				for(String line : Files.readAllLines(triples)){
-					if(!first){
-						out.print(", ");
-					}else{
-						first = false;
-					}
-					String[] args = line.split(" ");
-					out.print("(" + args[0] + ", " + args[1] + ", " + args[2] + ")");
-				}
-				out.println(";");
-			}
-		}
-	}
-	
+	/**
+	 * Report related figures.
+	 * @return A graph.
+	 */
 	@Deprecated
 	private static GraphPanel<String, String> buildRefGraph3(){
 		Graph<String, String> g = new Graph<String, String>();
@@ -84,6 +75,10 @@ public class GraphMark{
 		return p;
 	}
 	
+	/**
+	 * Report related figures.
+	 * @return A graph.
+	 */
 	@Deprecated
 	private static GraphPanel<SelectivityType, Predicate> buildRefGraph(){
 		System.out.println("build ref graph");
@@ -122,6 +117,10 @@ public class GraphMark{
 		return p;
 	}
 	
+	/**
+	 * Report related figures.
+	 * @return A graph.
+	 */
 	@Deprecated
 	private static GraphPanel<SelectivityType, Void> buildSelRefGraph(){
 		System.out.println("build sel ref graph");

@@ -21,7 +21,9 @@ import dev.roanh.gmark.core.graph.Type;
  * @see Predicate
  */
 public class SchemaGraph extends Graph<SelectivityType, Predicate>{
-	//TODO, move to constructor if not used anywhere else
+	/**
+	 * Efficient lookup index from selectivity type to graph node.
+	 */
 	private RangeList<Map<SelectivityClass, GraphNode<SelectivityType, Predicate>>> index;
 
 	/**
@@ -41,6 +43,14 @@ public class SchemaGraph extends Graph<SelectivityType, Predicate>{
 		}
 	}
 	
+	/**
+	 * Resolves the given selectivity type presented as
+	 * a type and selectivity class to the associated
+	 * graph node adding a new node if required.
+	 * @param type The type of the selectivity type.
+	 * @param sel The selectivity of the selectivity type.
+	 * @return The graph node associated with the given selectivity type.
+	 */
 	private GraphNode<SelectivityType, Predicate> resolve(Type type, SelectivityClass sel){
 		return index.get(type).computeIfAbsent(sel, k->addUniqueNode(new SelectivityType(type, sel)));
 	}

@@ -37,18 +37,44 @@ import dev.roanh.util.Dialog;
 import dev.roanh.util.FileSelector;
 import dev.roanh.util.FileSelector.FileExtension;
 
+/**
+ * Panel to display information about a workload
+ * as well as to facilitate generating a query workload.
+ * @author Roan
+ */
 public class QueryTab extends JPanel{
 	/**
 	 * Serial ID.
 	 */
 	private static final long serialVersionUID = -7906116640679412583L;
+	/**
+	 * File extension for xml files.
+	 */
+	private static final FileExtension XML_EXT = FileSelector.registerFileExtension("Configuration Files", "xml");
+	/**
+	 * Executor used to run query generation tasks.
+	 */
 	private Executor executor = Executors.newSingleThreadExecutor();
-	private static final FileExtension XML_EXT = FileSelector.registerFileExtension("OutputXML Files", "xml");
+	/**
+	 * Panel showing information about the loaded gMark configuration.
+	 */
 	private JPanel info = new JPanel(new GridLayout(1, 0));
+	/**
+	 * Panel showing information about the generated query workload.
+	 */
 	private JPanel queries = new JPanel(new BorderLayout());
+	/**
+	 * Button to save the generated queries.
+	 */
 	private JButton save = new JButton("Save generated workload");
+	/**
+	 * The most recently generated set of queries.
+	 */
 	private QuerySet data = null;
 
+	/**
+	 * Constructs a new query tab.
+	 */
 	public QueryTab(){
 		super(new BorderLayout());
 		
@@ -74,6 +100,10 @@ public class QueryTab extends JPanel{
 		this.add(buttons, BorderLayout.PAGE_END);
 	}
 	
+	/**
+	 * Saves the most recently generated workoad by prompting
+	 * the user for a folder to save to.
+	 */
 	private void saveWorkload(){
 		synchronized(data){
 			Path folder = Dialog.showFolderOpenDialog();
@@ -87,12 +117,14 @@ public class QueryTab extends JPanel{
 				
 				OutputWriter.writeGeneratedQueries(data, folder, Arrays.asList(ConcreteSyntax.values()), true);
 			}catch(IOException e){
-				// TODO Auto-generated catch block -- show error dialog
-				e.printStackTrace();
+				Dialog.showErrorDialog("Failed to save queries: " + e.getMessage());
 			}
 		}
 	}
 	
+	/**
+	 * Prompts the user for a gMark configuration file to open.
+	 */
 	private void openWorkload(){
 		Path file = Dialog.showFileOpenDialog(XML_EXT);
 		if(file != null){
@@ -121,12 +153,15 @@ public class QueryTab extends JPanel{
 				this.revalidate();
 				this.repaint();
 			}catch(ConfigException e){
-				//TODO handle properly
-				e.printStackTrace();
+				Dialog.showErrorDialog("Failed to load configuration file: " + e.getMessage());
 			}
 		}
 	}
 
+	/**
+	 * Generates a set queries for the given workload.
+	 * @param wl The workload to generate queries for.
+	 */
 	private void genWorkload(Workload wl){
 		executor.execute(()->{
 			try{
@@ -204,8 +239,7 @@ public class QueryTab extends JPanel{
 					queries.repaint();
 				});
 			}catch(GenerationException e){
-				// TODO Auto-generated catch block -- report
-				e.printStackTrace();
+				Dialog.showErrorDialog("Failed to generate queries: " + e.getMessage());
 			}
 		});
 	}

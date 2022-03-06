@@ -110,18 +110,42 @@ public class Schema{
 		return new ConfigGraph(this);
 	}
 	
+	/**
+	 * Gets a type from this graph
+	 * schema by its ID.
+	 * @param id The ID of the type to get.
+	 * @return The type with the given ID.
+	 */
 	public Type getType(int id){
 		return types.get(id);
 	}
 	
+	/**
+	 * Gets a type from this graph schema
+	 * by its textual alias name.
+	 * @param alias The type alias.
+	 * @return The type with the given alias.
+	 */
 	public Type getType(String alias){
 		return types.stream().filter(t->t.getAlias().equals(alias)).findAny().orElse(null);
 	}
 	
+	/**
+	 * Gets a predicate from this graph
+	 * schema by its ID.
+	 * @param id The ID of the predicate to get.
+	 * @return The predicate with the given ID.
+	 */
 	public Predicate getPredicate(int id){
 		return predicates.get(id);
 	}
 	
+	/**
+	 * Gets a predicate from this graph schema
+	 * by its textual alias name.
+	 * @param alias The predicate alias.
+	 * @return The predicate with the given alias.
+	 */
 	public Predicate getPredicate(String alias){
 		return predicates.stream().filter(p->p.getAlias().equals(alias)).findAny().orElse(null);
 	}

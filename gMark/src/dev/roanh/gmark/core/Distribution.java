@@ -3,7 +3,7 @@ package dev.roanh.gmark.core;
 import org.w3c.dom.Element;
 
 /**
- * Abstract interface for probability distributions.
+ * Abstract interface for value distributions.
  * @author Roan
  */
 public abstract interface Distribution{

@@ -7,7 +7,7 @@ import dev.roanh.gmark.core.DistributionType;
 
 /**
  * Represents a gaussian (normal) distribution
- * where number of normally distributed with
+ * where numbers are normally distributed with
  * some given mean and standard deviation.
  * @author Roan
  */

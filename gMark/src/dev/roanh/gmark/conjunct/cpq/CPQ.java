@@ -13,7 +13,7 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 
 		@Override
 		public String toSQL(){
-			throw new IllegalStateException("Indentity to OutputSQL not supported (and never generated).");
+			throw new IllegalStateException("Identity to OutputSQL not supported (and never generated).");
 		}
 
 		@Override

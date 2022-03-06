@@ -2,6 +2,7 @@ package dev.roanh.gmark.core.graph;
 
 import java.util.Objects;
 
+import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -12,29 +13,59 @@ import dev.roanh.gmark.util.IndentWriter;
  * inverse direction from target to source.
  * @author Roan
  */
-public class Predicate implements OutputXML{
+public class Predicate implements OutputXML, OutputSQL{
 	/**
 	 * The unique ID of this predicate. This ID uniquely
 	 * identifies this predicate among all predicates.
 	 * Note that the inverse predicate has the same ID.
 	 */
 	private int id;
-	private String alias;//textual symbol name
-	private double proportion;//fraction of the graph edges that have this symbol - set to NaN for not specified
+	/**
+	 * The textual alias name of this predicate.
+	 */
+	private String alias;
+	/**
+	 * Fraction of all edges in the graph that
+	 * have this symbol. Will be <code>null</code>
+	 * if this is not specified.
+	 */
+	private Double proportion;
+	/**
+	 * True if this predicate represents the inverse
+	 * of the original predicate, meaning it specifies
+	 * that a directed edge should be followed in the
+	 * reverse direction.
+	 */
 	private boolean isInverse = false;
+	/**
+	 * The inverse predicate object or <code>null</code>.
+	 */
 	private Predicate inverse = null;
 	
-	//TODO prop is NaN for unknown, may want to change that
-	public Predicate(int id, String alias, double proportion){
+	/**
+	 * Constructs a new predicate with the given ID
+	 * and alias and graph proportion.
+	 * @param id The ID of this predicate.
+	 * @param alias The alias of this predicate.
+	 * @param proportion The fraction of all edges
+	 *        in the graph that have this symbol.
+	 *        Can be set to <code>null</code> to leave
+	 *        this unspecified.
+	 */
+	public Predicate(int id, String alias, Double proportion){
 		this.id = id;
 		this.alias = alias;
 		this.proportion = proportion;
 	}
 	
-	private Predicate(Predicate predicate, boolean inverse){
+	/**
+	 * Constructs an inverse predicate for the given predicate.
+	 * @param predicate The predicate to invert.
+	 */
+	private Predicate(Predicate predicate){
 		this(predicate.id, predicate.alias, predicate.proportion);
-		isInverse = inverse;
-		this.inverse = predicate;
+		isInverse = !predicate.isInverse;
+		inverse = predicate;
 	}
 	
 	/**
@@ -66,7 +97,7 @@ public class Predicate implements OutputXML{
 	 * @return The inverse of this predicate.
 	 */
 	public Predicate getInverse(){
-		return inverse == null ? (inverse = new Predicate(this, !isInverse)) : inverse;
+		return inverse == null ? (inverse = new Predicate(this)) : inverse;
 	}
 	
 	/**
@@ -79,7 +110,7 @@ public class Predicate implements OutputXML{
 		return id;
 	}
 	
-	//selects all pairs
+	@Override
 	public String toSQL(){
 		if(isInverse()){
 			return "(SELECT trg AS src, src AS trg FROM edge WHERE label = " + id + ")";

@@ -196,7 +196,7 @@ public class ConfigParser{
 		
 		List<Predicate> predicates = new ArrayList<Predicate>(alias.size());
 		for(Entry<Integer, String> entry : alias.entrySet()){
-			predicates.add(new Predicate(entry.getKey(), entry.getValue(), prop.getOrDefault(entry.getKey(), Double.NaN)));
+			predicates.add(new Predicate(entry.getKey(), entry.getValue(), prop.getOrDefault(entry.getKey(), null)));
 		}
 		predicates.sort(Comparator.comparing(Predicate::getID));
 		

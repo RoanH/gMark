@@ -1,9 +1,12 @@
 plugins{
 	id 'java'
+	id 'java-library'
 	id 'application'
 	id 'eclipse'
 	id 'com.github.johnrengelman.shadow' version '7.1.2'
 	id 'jacoco'
+	id 'maven-publish'
+	id 'signing'
 }
 
 sourceSets{
@@ -63,4 +66,64 @@ dependencies{
 
 application{
 	mainClassName = 'dev.roanh.gmark.Main'
+}
+
+group = 'dev.roanh.gmark'
+version = System.getenv("VERSION") ? System.getenv("VERSION").substring(1) : '2.1-SNAPSHOT'
+
+publishing{
+	publications{
+		mavenJava(MavenPublication){
+			artifactId = 'gmark'
+			from components.java
+		
+			pom{
+				name = 'gMark'
+				description = 'A domain- and query language-independent graph instance and query workload generator.'
+				url = 'https://github.com/RoanH/gMark'
+				licenses{
+					license{
+						name = 'GNU General Public License v3.0'
+						url = 'http://www.gnu.org/licenses/gpl-3.0.txt'
+					}
+				}
+				developers{
+					developer{
+						id = 'RoanH'
+						name = 'Roan Hofland'
+						email = 'roan@roanh.dev'
+					}
+				}
+				scm{
+					connection = 'scm:git:git@github.com:RoanH/gMark.git'
+					developerConnection = 'scm:git:git@git.roanh.dev:roan/gmark.git'
+					url = 'https://github.com/RoanH/gMark'
+				}
+			}
+		}
+	}
+	
+	repositories{
+		maven{
+			url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+			credentials{
+				username findProperty("OSSRH_USER")
+				password findProperty("OSSRH_PASS")
+			}
+		}
+	}
+	
+	jar{
+		into("META-INF/maven/$project.group/$project.publishing.publications.mavenJava.artifactId"){
+			from{
+				generatePomFileForMavenJavaPublication
+			}
+			rename ".*", "pom.xml"
+		}
+	}
+}
+
+signing{
+	useInMemoryPgpKeys(findProperty("signingKeyId"), findProperty("signingKey"), findProperty("signingPassword"))
+	sign publishing.publications.mavenJava
 }

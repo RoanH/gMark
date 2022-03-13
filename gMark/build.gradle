@@ -51,6 +51,17 @@ test{
 task clientJar(type: ShadowJar, group: "build"){
 	from sourceSets.client.output
 	configurations = [project.configurations.clientImplementation]
+	manifest{
+		attributes 'Main-Class': 'dev.roanh.gmark.client.GraphMark'
+	}
+}
+
+task cliJar(type: Jar, group: "build"){
+	appendix = "cli"
+	from sourceSets.main.output
+	manifest{
+		attributes 'Main-Class': 'dev.roanh.gmark.Main'
+	}
 }
 
 javadoc{
@@ -59,6 +70,7 @@ javadoc{
 
 eclipse.classpath.downloadJavadoc = true
 compileJava.options.encoding = 'UTF-8'
+compileClientJava.options.encoding = 'UTF-8'
 sourceCompatibility = 1.8
 version = 'v1.0'//Main.java
 shadowJar.archiveName = 'gMark-' + project.version + '.jar'
@@ -80,6 +92,9 @@ dependencies{
 	testImplementation(platform('org.junit:junit-bom:5.8.1'))
 	testImplementation('org.junit.jupiter:junit-jupiter')
 }
+
+configurations.clientImplementation.extendsFrom(configurations.implementation)
+configurations.clientImplementation.setCanBeResolved(true)
 
 application{
 	mainClassName = 'dev.roanh.gmark.Main'

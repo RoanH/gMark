@@ -56,9 +56,10 @@ task clientJar(type: ShadowJar, group: "build"){
 	}
 }
 
-task cliJar(type: Jar, group: "build"){
+task cliJar(type: ShadowJar, group: "build"){
 	appendix = "cli"
 	from sourceSets.main.output
+	configurations = [project.configurations.implementation]
 	manifest{
 		attributes 'Main-Class': 'dev.roanh.gmark.Main'
 	}
@@ -94,6 +95,7 @@ dependencies{
 }
 
 configurations.clientImplementation.extendsFrom(configurations.implementation)
+configurations.implementation.setCanBeResolved(true)
 configurations.clientImplementation.setCanBeResolved(true)
 
 application{

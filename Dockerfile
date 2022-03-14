@@ -7,7 +7,7 @@ ADD gMark/build.gradle /gMark/
 ADD gMark/gradlew /gMark/
 ADD gMark/settings.gradle /gMark/
 RUN chmod -R 755 ./
-RUN ./gradlew :jar
+RUN ./gradlew :cliJar
 
 FROM openjdk:8
 WORKDIR /gMark

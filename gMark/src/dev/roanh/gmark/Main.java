@@ -23,6 +23,7 @@ import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.output.ConcreteSyntax;
 import dev.roanh.gmark.query.QueryGenerator;
 import dev.roanh.gmark.query.QueryGenerator.ProgressListener;
+import dev.roanh.gmark.query.QuerySet;
 import dev.roanh.gmark.util.Util;
 
 /**
@@ -123,13 +124,9 @@ public class Main{
 					Path folder = output.resolve("workload-" + workload.getID());
 					Files.createDirectories(folder);
 					try{
-						OutputWriter.writeGeneratedQueries(
-							QueryGenerator.generateQueries(workload, new ProgressReporter()),
-							folder,
-							syntaxes,
-							cli.hasOption('f')
-						);
-						System.out.println("Queries generated and saved.");
+						QuerySet queries = QueryGenerator.generateQueries(workload, new ProgressReporter());
+						OutputWriter.writeGeneratedQueries(queries, folder, syntaxes, cli.hasOption('f'));
+						System.out.println("Queries generated and saved, query generation took " + queries.getGenerationTime() + "ms.");
 					}catch(GenerationException e){
 						System.out.println("An error occurred while generating queries: " + e.getMessage());
 					}

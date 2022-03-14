@@ -6,6 +6,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -42,17 +43,21 @@ public class Main{
 		options.addOption("h", "help", false, "Prints this help text");
 		options.addOption(Option.builder("c").longOpt("config").hasArg().argName("file").desc("The workload and graph configuration file").build());
 		options.addOption(Option.builder("s").longOpt("syntax").hasArgs().argName("syntax").desc("The concrete syntax(es) to output").build());
-		options.addOption(Option.builder("w").longOpt("workload").hasArg().argName("file").desc("Triggers workload generation, a previous generated input workload can be provided to generate concrete syntaxes for instead").build());
+		options.addOption(Option.builder("w").longOpt("workload").hasArg().optionalArg(true).argName("file").desc("Triggers workload generation, a previous generated input workload can be provided to generate concrete syntaxes for instead").build());
 		options.addOption(Option.builder("g").longOpt("graph").hasArgs().optionalArg(true).argName("size").desc("Triggers graph generation, a graph size can be provided (overrides the ones set in the configuration file)").build());
 		options.addOption(Option.builder("o").longOpt("output").hasArg().argName("folder").desc("The folder to write the generated output to").build());
 		options.addOption(Option.builder("f").longOpt("force").desc("Overwrite existing files if present").build());
 		//TODO tripples to sql conversion?
 		
+		System.out.println("args: " + Arrays.toString(args));
+		
 		CommandLineParser parser = new DefaultParser();
 		try{
 			CommandLine cli = parser.parse(options, args);
-			if(!cli.getArgList().isEmpty() && !cli.hasOption('h')){
+			System.out.println(Arrays.toString(cli.getOptions()));
+			if(cli.getOptions().length != 0 && !cli.hasOption('h')){
 				handleInput(cli);
+				return;
 			}
 		}catch(ParseException ignore){
 		}
@@ -69,12 +74,14 @@ public class Main{
 	private static void handleInput(CommandLine cli){
 		if(!cli.hasOption('o')){
 			System.out.println("No output folder specified.");
-		}else if(cli.hasOption('c') && cli.hasOption('w')){
-			System.out.println("Cannot provide both a configuration file and a generated workload.");
 		}else if(!cli.hasOption('c') && !cli.hasOption('w')){
 			System.out.println("No configuration file or workload provided.");
+		}else if(cli.hasOption('c') && cli.hasOption('w') && cli.getOptionValue('w') != null){
+			System.out.println("Cannot provide both a configuration file and a generated workload.");
 		}else if(cli.hasOption('c')){
 			handleConfigurationInput(cli);
+		}else if(cli.hasOption('w') && cli.getOptionValue('w') == null){
+			System.out.println("Workload generation requested but no configuration file provided.");
 		}else if(cli.hasOption('w')){
 			handleWorkloadInput(cli);
 		}

@@ -141,7 +141,6 @@ public class Main{
 			System.out.println("Given output folder is not a valid path: " + e.getMessage());
 		}catch(IOException e){
 			System.out.println("Failed to write to the output directory: " + e.getMessage());
-			e.printStackTrace();
 		}
 	}
 	

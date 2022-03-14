@@ -49,12 +49,9 @@ public class Main{
 		options.addOption(Option.builder("f").longOpt("force").desc("Overwrite existing files if present").build());
 		//TODO tripples to sql conversion?
 		
-		System.out.println("args: " + Arrays.toString(args));
-		
 		CommandLineParser parser = new DefaultParser();
 		try{
 			CommandLine cli = parser.parse(options, args);
-			System.out.println(Arrays.toString(cli.getOptions()));
 			if(cli.getOptions().length != 0 && !cli.hasOption('h')){
 				handleInput(cli);
 				return;
@@ -111,8 +108,8 @@ public class Main{
 			//generate workloads
 			if(cli.hasOption('w')){
 				List<ConcreteSyntax> syntaxes = new ArrayList<ConcreteSyntax>();
-				if(cli.hasOption('c')){
-					for(String val : cli.getOptionValues('c')){
+				if(cli.hasOption('s')){
+					for(String val : cli.getOptionValues('s')){
 						ConcreteSyntax syntax = ConcreteSyntax.fromName(val);
 						if(syntax == null){
 							System.out.println("Unrecognised concrete syntax: " + val);

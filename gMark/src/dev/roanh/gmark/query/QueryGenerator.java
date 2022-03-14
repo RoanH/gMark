@@ -10,19 +10,23 @@ import dev.roanh.gmark.query.shape.ShapeGenerator;
 import dev.roanh.gmark.util.Util;
 
 public class QueryGenerator{
+	private static final int ERROR_BOUND = 100;
 
 	public static Query generateQuery(Workload workload) throws GenerationException{
 		GenerationException.rethrow(workload::validate);
 		
 		ShapeGenerator gen = Util.selectRandom(workload.getShapes()).getQueryGenerator(workload);
-		while(true){
+		
+		int fails = 0;
+		while(fails < ERROR_BOUND){
 			try{
 				return gen.generateQuery();
 			}catch(GenerationException e){
-				e.printStackTrace();
-				//TODO better handling or a bound?
+				fails++;
 			}
 		}
+		
+		throw new GenerationException("Failed to generate a query due to too many failed attempts.");
 	}
 	
 	public static QuerySet generateQueries(Workload workload) throws GenerationException{
@@ -40,22 +44,26 @@ public class QueryGenerator{
 		List<ShapeGenerator> generators = workload.getShapes().stream().map(s->s.getQueryGenerator(workload)).collect(Collectors.toList());
 		List<Query> queries = new ArrayList<Query>(n);
 		
-		while(queries.size() < n){
+		int fails = 0;
+		while(queries.size() < n && fails < ERROR_BOUND){
 			try{
 				queries.add(Util.selectRandom(generators).generateQuery());
-				//System.out.println("done: " + queries.size());
 			}catch(Exception e){
-				System.err.println("fail: " + e.getMessage());
-				//e.printStackTrace();
-				//TODO better handling or a bound?
+				fails++;
+				continue;
 			}
 			
+			fails = 0;
 			if(listener != null){
 				listener.update(queries.size(), n);
 			}
 		}
 		
-		return new QuerySet(queries, System.currentTimeMillis() - start);
+		if(fails != 0){
+			throw new GenerationException("Failed to generate a query due to too many failed attempts.");
+		}else{
+			return new QuerySet(queries, System.currentTimeMillis() - start);
+		}
 	}
 	
 	public static abstract interface ProgressListener{

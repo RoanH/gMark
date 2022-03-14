@@ -6,7 +6,6 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -122,7 +121,7 @@ public class Main{
 				for(Workload workload : config.getWorkloads()){
 					System.out.println("Generating queries for workload: " + workload.getID());
 					Path folder = output.resolve("workload-" + workload.getID());
-					Files.createDirectory(folder);
+					Files.createDirectories(folder);
 					try{
 						OutputWriter.writeGeneratedQueries(
 							QueryGenerator.generateQueries(workload, new ProgressReporter()),
@@ -142,6 +141,7 @@ public class Main{
 			System.out.println("Given output folder is not a valid path: " + e.getMessage());
 		}catch(IOException e){
 			System.out.println("Failed to write to the output directory: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	
@@ -176,7 +176,7 @@ public class Main{
 			if(done == total){
 				System.out.println("100%");
 			}else if(last + total / 10 == done){
-				System.out.print((done / (total / 10)) * 10 + "%...  ");
+				System.out.print((done / (total / 10)) * 10 + "%...");
 				last = done;
 			}
 		}

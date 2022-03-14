@@ -30,7 +30,7 @@ public class OutputWriter{
 		
 		for(ConcreteSyntax syntax : syntaxes){
 			Path dir = folder.resolve(syntax.getName());
-			Files.createDirectory(dir);
+			Files.createDirectories(dir);
 			for(int i = 0; i < queries.getSize(); i++){
 				write(dir.resolve("query-" + i + "." + syntax.getExtension()), syntax.convert(queries.get(i)), overwrite);
 			}

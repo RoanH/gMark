@@ -120,6 +120,6 @@ public class Query implements OutputSQL, OutputXML{
 		bodies.forEach(body->body.writeXML(writer));
 		writer.println(2, "</bodies>");
 		
-		writer.println(2, "<query>");
+		writer.println(2, "</query>");
 	}
 }

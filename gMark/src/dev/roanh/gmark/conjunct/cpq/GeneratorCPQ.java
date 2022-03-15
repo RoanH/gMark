@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.ConjunctGenerator;
-import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.Conjunct;
 import dev.roanh.gmark.util.EdgeGraph;

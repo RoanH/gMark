@@ -39,32 +39,40 @@ public enum QueryShape{
 	STARCHAIN("starchain", StarChainGenerator::new);
 	
 	/**
-	 * The name of this query shape (as used in configuration files).
+	 * The ID of this query shape (as used in configuration files).
 	 */
-	private final String name;
+	private final String id;
 	/**
 	 * A function to create a new instance of a query shape generator.
 	 */
 	private Function<Workload, ShapeGenerator> ctor;
 	
 	/**
-	 * Constructs a new query shape with the given name and constructor.
-	 * @param name The name of this query shape (as used for configuration).
+	 * Constructs a new query shape with the given ID and constructor.
+	 * @param id The ID of this query shape (as used for configuration).
 	 * @param ctor A function to create a new generator for this query shape
 	 *        when given a workload instance.
 	 */
-	private QueryShape(String name, Function<Workload, ShapeGenerator> ctor){
-		this.name = name;
+	private QueryShape(String id, Function<Workload, ShapeGenerator> ctor){
+		this.id = id;
 		this.ctor = ctor;
+	}
+	
+	/**
+	 * Gets the display name of this query shape.
+	 * @return The display name of this query shape.
+	 */
+	public String getName(){
+		return id;
 	}
 
 	/**
-	 * Gets the name of this query shape. This is name is consistent
+	 * Gets the ID of this query shape. This is name is consistent
 	 * with the name used for writing configuration files.
 	 * @return The name of this query shape.
 	 */
-	public String getName(){
-		return name;
+	public String getID(){
+		return id;
 	}
 	
 	/**
@@ -78,15 +86,15 @@ public enum QueryShape{
 	}
 	
 	/**
-	 * Gets a query shape by its configuration name.
-	 * @param name The name to find the query shape for.
+	 * Gets a query shape by its configuration ID.
+	 * @param id The ID to find the query shape for.
 	 * @return The query shape identified by the given
-	 *         name or <code>null</code> if not query
-	 *         shape was found for the given name.
+	 *         ID or <code>null</code> if no query
+	 *         shape was found for the given ID.
 	 */
-	public static final QueryShape getByName(String name){
+	public static final QueryShape getByName(String id){
 		for(QueryShape shape : values()){
-			if(shape.name.equalsIgnoreCase(name)){
+			if(shape.id.equalsIgnoreCase(id)){
 				return shape;
 			}
 		}

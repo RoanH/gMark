@@ -1,5 +1,6 @@
 package dev.roanh.gmark.output;
 
+import java.util.Locale;
 import java.util.function.Function;
 
 import dev.roanh.gmark.query.Query;
@@ -7,18 +8,22 @@ import dev.roanh.gmark.query.Query;
 public enum ConcreteSyntax{
 	SQL("sql", "sql", OutputSQL::toSQL);
 	
-	private final String name;
+	private final String id;
 	private final String extension;
 	private final Function<Query, String> convert;
 	
-	private ConcreteSyntax(String name, String extension, Function<Query, String> convert){
-		this.name = name;
+	private ConcreteSyntax(String id, String extension, Function<Query, String> convert){
+		this.id = id;
 		this.extension = extension;
 		this.convert = convert;
 	}
 	
 	public String getName(){
-		return name;
+		return id.toUpperCase(Locale.ROOT);
+	}
+	
+	public String getID(){
+		return id;
 	}
 	
 	public String getExtension(){
@@ -31,7 +36,7 @@ public enum ConcreteSyntax{
 	
 	public static ConcreteSyntax fromName(String name){
 		for(ConcreteSyntax syntax : values()){
-			if(syntax.name.equalsIgnoreCase(name)){
+			if(syntax.id.equalsIgnoreCase(name)){
 				return syntax;
 			}
 		}

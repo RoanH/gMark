@@ -27,31 +27,35 @@ public enum WorkloadType{
 	CPQ("cpq", WorkloadCPQ::new);
 	
 	/**
-	 * The name of this workload (as used in configuration files).
+	 * The ID of this workload (as used in configuration files).
 	 */
-	private String name;
+	private String id;
 	/**
 	 * A function to construct a new workload of this type
 	 * from a given configuration file element and graph schema.
 	 */
 	private BiFunction<Element, Schema, Workload> constructor;
 
-	private WorkloadType(String name, BiFunction<Element, Schema, Workload> ctor){
-		this.name = name;
+	private WorkloadType(String id, BiFunction<Element, Schema, Workload> ctor){
+		this.id = id;
 		this.constructor = ctor;
 	}
 	
+	/**
+	 * Gets the display name of this workload type.
+	 * @return The display name of this workload type.
+	 */
 	public String getName(){
-		return name.toUpperCase(Locale.ROOT);
+		return id.toUpperCase(Locale.ROOT);
 	}
 	
 	public String getID(){
-		return name;
+		return id;
 	}
 	
 	public static final Workload parse(Element elem, Schema schema){
 		for(WorkloadType type : values()){
-			if(type.name.equals(elem.getAttribute("type"))){
+			if(type.id.equals(elem.getAttribute("type"))){
 				return type.constructor.apply(elem, schema);
 			}
 		}

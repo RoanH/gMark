@@ -36,31 +36,31 @@ public enum DistributionType{
 	ZIPFIAN("zipfian", ZipfianDistribution::new);
 	
 	/**
-	 * The name of this distribution (as used in config files).
+	 * The ID of this distribution (as used in config files).
 	 */
-	private String name;
+	private String id;
 	/**
 	 * Function to construct a distribution from a configuration element.
 	 */
 	private Function<Element, Distribution> constructor;
 
 	/**
-	 * Constructs a new distribution type with the given name and constructor.
-	 * @param name The configuration name of this distribution.
+	 * Constructs a new distribution type with the given ID and constructor.
+	 * @param id The configuration name of this distribution.
 	 * @param ctor A function to construct this distribution from
 	 *        a configuration file element.
 	 */
-	private DistributionType(String name, Function<Element, Distribution> ctor){
-		this.name = name;
+	private DistributionType(String id, Function<Element, Distribution> ctor){
+		this.id = id;
 		this.constructor = ctor;
 	}
 	
 	/**
-	 * Gets the name of this distribution (as used in configuration files).
+	 * Gets the id of this distribution (as used in configuration files).
 	 * @return The name of this distribution.
 	 */
-	public String getName(){
-		return name;
+	public String getID(){
+		return id;
 	}
 	
 	/**
@@ -75,17 +75,17 @@ public enum DistributionType{
 	
 	@Override
 	public String toString(){
-		return name;
+		return id;
 	}
 	
 	/**
-	 * Resolves a distribution type by its configuration file name.
-	 * @param name The configuration type name to search for.
-	 * @return The distribution with the given configuration name.
+	 * Resolves a distribution type by its configuration file ID.
+	 * @param id The configuration type ID to search for.
+	 * @return The distribution with the given configuration ID.
 	 */
-	public static final DistributionType getByName(String name){
+	public static final DistributionType getByName(String id){
 		for(DistributionType type : values()){
-			if(type.name.equalsIgnoreCase(name)){
+			if(type.id.equalsIgnoreCase(id)){
 				return type;
 			}
 		}

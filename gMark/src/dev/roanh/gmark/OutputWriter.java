@@ -29,7 +29,7 @@ public class OutputWriter{
 		write(folder.resolve("workload.xml"), queries.toXML(), overwrite);
 		
 		for(ConcreteSyntax syntax : syntaxes){
-			Path dir = folder.resolve(syntax.getName());
+			Path dir = folder.resolve(syntax.getID());
 			Files.createDirectories(dir);
 			for(int i = 0; i < queries.size(); i++){
 				write(dir.resolve("query-" + i + "." + syntax.getExtension()), syntax.convert(queries.get(i)), overwrite);

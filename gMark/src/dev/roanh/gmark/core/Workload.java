@@ -64,8 +64,17 @@ public abstract class Workload implements IDable{
 	 * generated in this workload.
 	 */
 	private Set<Selectivity> selectivities = new HashSet<Selectivity>();
+	/**
+	 * The graph schema this workload should be generated on.
+	 */
 	private Schema schema;
 	
+	/**
+	 * Constructs a new workload by parsing data used by
+	 * all workload types from the given configuration node.
+	 * @param elem The configuration node to parse.
+	 * @param schema The schema for this workload.
+	 */
 	protected Workload(Element elem, Schema schema){
 		this.schema = schema;
 		id = Integer.parseInt(elem.getAttribute("id"));
@@ -99,9 +108,18 @@ public abstract class Workload implements IDable{
 		});
 	}
 	
+	/**
+	 * Gets the type of this workload.
+	 * @return The type of this workload.
+	 */
 	public abstract WorkloadType getType();
 	
-	public abstract int getMaxSelectivityGraphLength();//TODO reconsider
+	/**
+	 * Gets the maximum length of paths needed in the selectivity
+	 * graph to generate queries in accordance with this workload.
+	 * @return The maximum required selectivity graph path length.
+	 */
+	public abstract int getMaxSelectivityGraphLength();
 	
 	/**
 	 * Validates this workload by checking that all of the arguments

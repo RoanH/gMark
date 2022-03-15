@@ -17,6 +17,7 @@ stages:
   - test
   - status
   - javadoc
+  - publishing
   
 endings:
   allow_failure: true

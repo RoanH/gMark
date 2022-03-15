@@ -188,7 +188,7 @@ public class QueryTab extends JPanel{
 				SwingUtilities.invokeLater(()->{
 					queries.removeAll();
 					JTabbedPane queryTabs = new JTabbedPane();
-					for(int i = 0; i < data.getSize(); i++){
+					for(int i = 0; i < data.size(); i++){
 						Query query = data.get(i);
 
 						JTextArea sql = new JTextArea(query.toSQL());

@@ -263,6 +263,16 @@ public enum SelectivityClass{
 	
 	//TODO public abstract SelectivityClass disjunction(SelectivityClass other);
 	
+	/**
+	 * Computes the selectivity class of the conjunction of this selectivity
+	 * class and the given other selectivity class. This should be seen as
+	 * first following an edge with this selectivity class and then following
+	 * and edge with the given other selectivity. The conjunction of both
+	 * selectivity classes is then the final selectivity class of the path.
+	 * @param other The other selectivity class to compute the conjunction with.
+	 * @return The selectivity class of the conjunction of this selectivity class
+	 *         with the given selectivity class.
+	 */
 	public abstract SelectivityClass conjunction(SelectivityClass other);
 	
 	@Override

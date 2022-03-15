@@ -125,6 +125,7 @@ public class Main{
 						System.out.println("Generating RPQ workloads is not supported yet, skipping workload with ID " + workload.getID());
 						continue;
 					}
+					
 					System.out.println("Generating queries for workload with ID " + workload.getID());
 					Path folder = output.resolve("workload-" + workload.getID());
 					Files.createDirectories(folder);

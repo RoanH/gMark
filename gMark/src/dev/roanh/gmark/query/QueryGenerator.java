@@ -9,9 +9,25 @@ import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.shape.ShapeGenerator;
 import dev.roanh.gmark.util.Util;
 
+/**
+ * Utility class for generation queries for workloads.
+ * @author Roan
+ * @see Workload
+ */
 public class QueryGenerator{
+	/**
+	 * Maximum number of times to try to generate a query
+	 * before giving up and throwing a generation exception.
+	 */
 	private static final int ERROR_BOUND = 100;
 
+	/**
+	 * Generates a single query according to
+	 * the given workload specification.
+	 * @param workload The workload configuration.
+	 * @return The generated query.
+	 * @throws GenerationException When generating the query failed.
+	 */
 	public static Query generateQuery(Workload workload) throws GenerationException{
 		GenerationException.rethrow(workload::validate);
 		
@@ -29,14 +45,53 @@ public class QueryGenerator{
 		throw new GenerationException("Failed to generate a query due to too many failed attempts.");
 	}
 	
+	/**
+	 * Generates a complete workload consisting of the number
+	 * of queries defined in the given workload configuration
+	 * and all conforming to the given workload specification.
+	 * @param workload The workload configuration.
+	 * @return The generated queries.
+	 * @throws GenerationException When generating
+	 *         the queries failed.
+	 * @see Workload#getSize()
+	 */
 	public static QuerySet generateQueries(Workload workload) throws GenerationException{
 		return generateQueries(workload, workload.getSize(), null);
 	}
 	
+	/**
+	 * Generates a complete workload consisting of the number
+	 * of queries defined in the given workload configuration
+	 * and all conforming to the given workload specification.
+	 * The given progress listener is updated with the progress
+	 * of the generation task.
+	 * @param workload The workload configuration.
+	 * @param listener The progress listener to use,
+	 *         can be <code>null</code>
+	 * @return The generated queries.
+	 * @throws GenerationException When generating
+	 *         the queries failed.
+	 * @see Workload#getSize()
+	 */
 	public static QuerySet generateQueries(Workload workload, ProgressListener listener) throws GenerationException{
 		return generateQueries(workload, workload.getSize(), listener);
 	}
 	
+	/**
+	 * Generates a workload of the given number of queries
+	 * conforming to the given workload specification. The
+	 * given number of queries overrides the workload size
+	 * as defined in the workload configuration. The given
+	 * progress listener is updated with the progress of
+	 * the generation task.
+	 * @param workload The workload configuration.
+	 * @param n The number of queries to generate.
+	 * @param listener The progress listener to use,
+	 *         can be <code>null</code>
+	 * @return The generated queries.
+	 * @throws GenerationException When generating
+	 *         the queries failed.
+	 */
 	public static QuerySet generateQueries(Workload workload, int n, ProgressListener listener) throws GenerationException{
 		GenerationException.rethrow(workload::validate);
 		
@@ -66,8 +121,18 @@ public class QueryGenerator{
 		}
 	}
 	
+	/**
+	 * Interfaces for objects that want to listen
+	 * to the progress of a query generation task.
+	 * @author Roan
+	 */
 	public static abstract interface ProgressListener{
 		
+		/**
+		 * Called when a a new query finished generating.
+		 * @param done The total number of queries generated so far.
+		 * @param total The total number of queries to generate.
+		 */
 		public abstract void update(int done, int total);
 	}
 }

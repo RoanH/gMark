@@ -3,6 +3,7 @@ package dev.roanh.gmark.conjunct.cpq;
 import org.w3c.dom.Element;
 
 import dev.roanh.gmark.ConfigParser;
+import dev.roanh.gmark.core.ConjunctGenerator;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.WorkloadType;
 import dev.roanh.gmark.core.graph.Schema;
@@ -54,5 +55,10 @@ public class WorkloadCPQ extends Workload{
 	@Override
 	public int getMaxSelectivityGraphLength(){
 		return maxDiameter;
+	}
+
+	@Override
+	public ConjunctGenerator getConjunctGenerator(){
+		return new GeneratorCPQ(this);
 	}
 }

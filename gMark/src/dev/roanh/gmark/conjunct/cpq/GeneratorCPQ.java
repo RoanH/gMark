@@ -35,13 +35,9 @@ public class GeneratorCPQ implements ConjunctGenerator{
 	 *         specification is not of the type {@link WorkloadCPQ}.
 	 * @see WorkloadCPQ
 	 */
-	public GeneratorCPQ(Workload wl) throws IllegalArgumentException{
-		if(!(wl instanceof WorkloadCPQ)){
-			throw new IllegalArgumentException("Incorret workload type.");
-		}
-		
+	public GeneratorCPQ(WorkloadCPQ wl) throws IllegalArgumentException{
 		gs = new SchemaGraph(wl.getGraphSchema());
-		workload = (WorkloadCPQ)wl;
+		workload = wl;
 	}
 
 	@Override

@@ -151,9 +151,7 @@ public abstract class Workload implements IDable{
 	 * according to this workload configuration.
 	 * @return A worklaod conjunct generator.
 	 */
-	public ConjunctGenerator getConjunctGenerator(){
-		return getType().getConjunctGenerator(this);
-	}
+	public abstract ConjunctGenerator getConjunctGenerator();
 	
 	/**
 	 * Generates a single queries according to the parameters

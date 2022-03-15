@@ -48,6 +48,7 @@ docker:
     - docker
   services:
     - docker:dind
+  before_script: []
   script:
     - docker build -t gmark .
   stage: compile

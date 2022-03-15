@@ -60,30 +60,61 @@ public class Edge{
 		outDistribution = out;
 	}
 	
+	/**
+	 * Gets the in distribution of nodes this edge starts from.
+	 * This distribution models the degree of nodes concrete
+	 * edge instances start from in a graph.
+	 * @return The in distribution of this edge.
+	 */
 	public Distribution getInDistribution(){
 		return inDistribution;
 	}
 	
+	/**
+	 * Gets the out distribution of nodes this edge ends at.
+	 * This distribution models the degree of nodes concrete
+	 * edge instances end at in a graph.
+	 * @return The out distribution of this edge.
+	 */
 	public Distribution getOutDistribution(){
 		return outDistribution;
 	}
 	
-	//subject
+	/**
+	 * Gets the type of source (subject) nodes for this edge.
+	 * @return The source type for this edge.
+	 */
 	public Type getSourceType(){
 		return source;
 	}
 	
-	//object
+	/**
+	 * Gets the type of target (object) nodes for this edge
+	 * @return The target type for this edge.
+	 */
 	public Type getTargetType(){
 		return target;
 	}
 	
-	//symbol
+	/**
+	 * Gets the predicate (symbol) for this edge.
+	 * @return The predicate for this edge.
+	 */
 	public Predicate getPredicate(){
 		return symbol;
 	}
 
-	public SelectivityClass getSelectivty(){
+	/**
+	 * Computes the selectivity class of this edge based on
+	 * whether or not the end points types of this edge are
+	 * scalable or not and depending on the in and out distribution
+	 * of this edge.
+	 * @return The selectivity class of this edge.
+	 * @see Type#isScalable()
+	 * @see DistributionType
+	 * @see SelectivityClass
+	 */
+	public SelectivityClass getSelectivity(){
 		if(!source.isScalable() && !target.isScalable()){
 			return SelectivityClass.ONE_ONE;
 		}else if(source.isScalable() && !target.isScalable()){

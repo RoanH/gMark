@@ -245,7 +245,7 @@ public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
 		
 		//add all length 1 paths
 		for(Edge edge : schema.getEdges()){
-			SelectivityClass sel = edge.getSelectivty();
+			SelectivityClass sel = edge.getSelectivity();
 			matrix.get(edge.getSourceType(), edge.getTargetType()).put(sel, 1);
 			matrix.get(edge.getTargetType(), edge.getSourceType()).put(sel.negate(), 1);
 		}

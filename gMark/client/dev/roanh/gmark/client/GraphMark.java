@@ -11,6 +11,7 @@ import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.util.Graph;
 import dev.roanh.gmark.util.Graph.GraphNode;
+import dev.roanh.util.Dialog;
 import dev.roanh.util.Util;
 import dev.roanh.gmark.util.SelectivityType;
 
@@ -39,6 +40,8 @@ public class GraphMark{
 		}
 		
 		Util.installUI();
+		Dialog.setDialogTitle("gMark");
+		Dialog.setParentFrame(frame);
 		
 		JTabbedPane tabs = new JTabbedPane();
 //		tabs.addTab("Ref", buildRefGraph());

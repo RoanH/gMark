@@ -39,6 +39,19 @@ javadoc:
     paths:
       - javadoc/
 
+docker:
+  image: docker:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  tags:
+    - docker
+  services:
+    - docker:dind
+  script:
+    - docker build -t gmark .
+  stage: compile
+
 compile:
   script: curl ${SERVER}ci/publish.sh | bash
   stage: compile

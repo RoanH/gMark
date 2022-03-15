@@ -40,6 +40,8 @@ public class Main{
 	 * @param args The passed command line arguments.
 	 */
 	public static void main(String[] args){
+		System.out.println("Running gMark (CLI) version " + VERSION.substring(1));
+		
 		Options options = new Options();
 		options.addOption("h", "help", false, "Prints this help text");
 		options.addOption(Option.builder("c").longOpt("config").hasArg().argName("file").desc("The workload and graph configuration file").build());

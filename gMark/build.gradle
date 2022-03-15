@@ -164,7 +164,7 @@ signing{
 
 launch4j{
 	jarTask = project.tasks.clientJar
-	mainClassName = application.mainClassName
+	mainClassName = 'dev.roanh.gmark.client.GraphMark'
 	//icon = "${projectDir}/icon.ico"
 	jreMinVersion = project.sourceCompatibility
 	bundledJrePath = "%JAVA_HOME%"
@@ -173,4 +173,6 @@ launch4j{
 	version = project.version.substring(1)
 	textVersion = project.version.substring(1)
 	copyright = "Roan Hofland"
+	headerType = "console"
+	stayAlive = true
 }

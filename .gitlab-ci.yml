@@ -54,7 +54,9 @@ docker:
   stage: compile
 
 compile:
-  script: curl ${SERVER}ci/publish.sh | bash
+  script:
+    - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} clientJar
+    - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} createExe
   stage: compile
   artifacts:
     name: "${NAME}"

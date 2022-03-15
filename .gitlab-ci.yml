@@ -3,6 +3,7 @@ image: openjdk:8
 variables:
   NAME: "${CI_PROJECT_NAME}-${CI_PIPELINE_ID}-${CI_BUILD_REF_NAME}"
   PROJECTNAME: gMark
+  VERSION: ${CI_COMMIT_REF_NAME}
 
 before_script:
   - java -version
@@ -75,12 +76,15 @@ compile:
   script:
     - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} clientJar
     - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} createExe
+    - mv ./build/libs/* ../
+    - mv ./build/launch4j/*.exe ../
   stage: compile
   artifacts:
     name: "${NAME}"
     expire_in: 1 week
     paths:
-      - ${PROJECTNAME}.jar
+      - ${PROJECTNAME}-*.jar
+      - ${PROJECTNAME}-*.exe
 
 test:
   script:
@@ -91,3 +95,12 @@ test:
   artifacts:
     reports:
       junit: ./${PROJECTNAME}/build/test-results/test/TEST-*.xml
+
+publish:
+  script:
+    - ./gradlew publishAllPublicationsToMavenRepository
+  only: 
+    - tags
+  when: manual
+  allow_failure: false
+  stage: publishing

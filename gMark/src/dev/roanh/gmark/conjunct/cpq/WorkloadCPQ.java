@@ -8,10 +8,27 @@ import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.WorkloadType;
 import dev.roanh.gmark.core.graph.Schema;
 
+/**
+ * Describes a workload of CPQ queries to generate.
+ * @author Roan
+ * @see CPQ
+ */
 public class WorkloadCPQ extends Workload{
+	/**
+	 * The maximum diameter of the CPQs to generate.
+	 */
 	private int maxDiameter;
+	/**
+	 * The maximum recursive depth of the CPQs to generate.
+	 */
 	private int maxRecursion;
-
+	
+	/**
+	 * Constructs a new CPQ workload from the given
+	 * configuration element and graph schema.
+	 * @param elem The configuration element to parse.
+	 * @param schema The graph schema to use.
+	 */
 	public WorkloadCPQ(Element elem, Schema schema){
 		super(elem, schema);
 		Element size = ConfigParser.getElement(elem, "size");
@@ -20,18 +37,34 @@ public class WorkloadCPQ extends Workload{
 		maxRecursion = Integer.parseInt(ConfigParser.getElement(size, "recursion").getAttribute("max"));
 	}
 	
+	/**
+	 * Sets the maximum diameter of the CPQs to generate.
+	 * @param diameter The new maximum diameter.
+	 */
 	public void setMaxDiameter(int diameter){
 		maxDiameter = diameter;
 	}
 	
+	/**
+	 * Sets the maximum recursive depth of the CPQs to generate.
+	 * @param recursion The new maximum recursive depth.
+	 */
 	public void setMaxRecursion(int recursion){
 		maxRecursion = recursion;
 	}
 
+	/**
+	 * Gets the maximum diameter of the CPQs to generate.
+	 * @return The maximum diameter.
+	 */
 	public int getMaxDiameter(){
 		return maxDiameter;
 	}
 	
+	/**
+	 * Gets the maximum recursive depth of the CPQs to generate.
+	 * @return The maximum recursive depth.
+	 */
 	public int getMaxRecursion(){
 		return maxRecursion;
 	}

@@ -36,6 +36,13 @@ public enum WorkloadType{
 	 */
 	private BiFunction<Element, Schema, Workload> constructor;
 
+	/**
+	 * Constructs a new workload type with the given
+	 * ID and given function to construct a new workload
+	 * instance from a configuration file element and graph schema.
+	 * @param id The workload ID.
+	 * @param ctor The workload instance constructor.
+	 */
 	private WorkloadType(String id, BiFunction<Element, Schema, Workload> ctor){
 		this.id = id;
 		this.constructor = ctor;
@@ -49,10 +56,21 @@ public enum WorkloadType{
 		return id.toUpperCase(Locale.ROOT);
 	}
 	
+	/**
+	 * The ID of this workload type as used in configuration files.
+	 * @return The ID of this workload type.
+	 */
 	public String getID(){
 		return id;
 	}
 	
+	/**
+	 * Parses a workload configuration from the given
+	 * configuration file element and for the given graph schema.
+	 * @param elem The configuration file element to parse.
+	 * @param schema The graph schema to use.
+	 * @return The parsed workload configuration.
+	 */
 	public static final Workload parse(Element elem, Schema schema){
 		for(WorkloadType type : values()){
 			if(type.id.equals(elem.getAttribute("type"))){

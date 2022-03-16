@@ -4,7 +4,14 @@ import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
 
+/**
+ * Interface for conjunctive path queries (CPQs).
+ * @author Roan
+ */
 public abstract interface CPQ extends OutputSQL, OutputXML{
+	/**
+	 * Constant for the special identity CPQ.
+	 */
 	public static final CPQ IDENTITY = new CPQ(){
 		@Override
 		public String toString(){

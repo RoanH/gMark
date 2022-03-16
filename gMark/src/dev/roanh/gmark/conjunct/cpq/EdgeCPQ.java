@@ -3,9 +3,21 @@ package dev.roanh.gmark.conjunct.cpq;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.util.IndentWriter;
 
+/**
+ * CPQ modelling a single label traversal.
+ * @author Roan
+ */
 public class EdgeCPQ implements CPQ{
+	/**
+	 * The label traversed by this CPQ.
+	 */
 	private Predicate symbol;
 	
+	/**
+	 * Constructs a new edge CPQ with the
+	 * given label to traverse.
+	 * @param symbol The label to traverse.
+	 */
 	public EdgeCPQ(Predicate symbol){
 		this.symbol = symbol;
 	}

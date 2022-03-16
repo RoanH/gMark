@@ -2,10 +2,26 @@ package dev.roanh.gmark.conjunct.cpq;
 
 import dev.roanh.gmark.util.IndentWriter;
 
+/**
+ * CPQ modelling the intersection between two CPQs.
+ * @author Roan
+ */
 public class IntersectionCPQ implements CPQ{
+	/**
+	 * The first CPQ of the intersection.
+	 */
 	private CPQ first;
+	/**
+	 * The second CPQ of the intersection.
+	 */
 	private CPQ second;
 	
+	/**
+	 * Constructs a new intersection CPQ with
+	 * the given two CPQs to intersect.
+	 * @param first The first CPQ of the intersection.
+	 * @param second The second CPQ of the intersection.
+	 */
 	public IntersectionCPQ(CPQ first, CPQ second){
 		this.first = first;
 		this.second = second;

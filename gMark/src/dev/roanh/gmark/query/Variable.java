@@ -2,9 +2,23 @@ package dev.roanh.gmark.query;
 
 import java.util.Objects;
 
-public class Variable{
-	private int id;//TODO really just needs to be unique
+import dev.roanh.gmark.util.IDable;
+
+/**
+ * Represents a query variable.
+ * @author Roan
+ */
+public class Variable implements IDable{
+	/**
+	 * The numerical ID of this variable.
+	 */
+	private int id;
 	
+	/**
+	 * Constructs a new variable with the given
+	 * unique numerical ID.
+	 * @param id The ID of this variable.
+	 */
 	public Variable(int id){
 		this.id = id;
 	}
@@ -22,5 +36,10 @@ public class Variable{
 	@Override
 	public boolean equals(Object other){
 		return other instanceof Variable ? ((Variable)other).id == id : false;
+	}
+
+	@Override
+	public int getID(){
+		return id;
 	}
 }

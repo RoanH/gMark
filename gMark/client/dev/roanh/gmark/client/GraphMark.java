@@ -37,8 +37,9 @@ public class GraphMark{
 		Dialog.setParentFrame(frame);
 		
 		JTabbedPane tabs = new JTabbedPane();
+		tabs.addTab("Example Usage", new UsageTab());
 		tabs.addTab("Query Generation", new QueryTab());
-		tabs.addTab("Example", new ExampleTab());
+		tabs.addTab("Example Graphs", new ExampleTab());
 		
 		frame.add(tabs);
 		frame.setSize(1000, 800);

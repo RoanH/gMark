@@ -37,6 +37,10 @@ public class Main{
 	 * The current version of gMark.
 	 */
 	public static final String VERSION = "v1.0";//build.gradle
+	/**
+	 * The command line options.
+	 */
+	public static final Options options;
 
 	/**
 	 * Main entry point for the CLI version of the application.
@@ -44,16 +48,6 @@ public class Main{
 	 */
 	public static void main(String[] args){
 		System.out.println("Running gMark (CLI) version " + VERSION.substring(1));
-		
-		Options options = new Options();
-		options.addOption("h", "help", false, "Prints this help text");
-		options.addOption(Option.builder("c").longOpt("config").hasArg().argName("file").desc("The workload and graph configuration file").build());
-		options.addOption(Option.builder("s").longOpt("syntax").hasArgs().argName("syntax").desc("The concrete syntax(es) to output").build());
-		options.addOption(Option.builder("w").longOpt("workload").hasArg().optionalArg(true).argName("file").desc("Triggers workload generation, a previous generated input workload can be provided to generate concrete syntaxes for instead").build());
-		options.addOption(Option.builder("g").longOpt("graph").hasArgs().optionalArg(true).argName("size").desc("Triggers graph generation, a graph size can be provided (overrides the ones set in the configuration file)").build());
-		options.addOption(Option.builder("o").longOpt("output").hasArg().argName("folder").desc("The folder to write the generated output to").build());
-		options.addOption(Option.builder("f").longOpt("force").desc("Overwrite existing files if present").build());
-		//TODO tripples to sql conversion?
 		
 		CommandLineParser parser = new DefaultParser();
 		try{
@@ -158,6 +152,19 @@ public class Main{
 	 */
 	private static void handleWorkloadInput(CommandLine cli){
 		//TODO -- requires workload XML parsing
+		System.out.println("Parsing already generated workloads is not supported yet.");
+	}
+	
+	static{
+		options = new Options();
+		options.addOption("h", "help", false, "Prints this help text");
+		options.addOption(Option.builder("c").longOpt("config").hasArg().argName("file").desc("The workload and graph configuration file").build());
+		options.addOption(Option.builder("s").longOpt("syntax").hasArgs().argName("syntax").desc("The concrete syntax(es) to output").build());
+		options.addOption(Option.builder("w").longOpt("workload").hasArg().optionalArg(true).argName("file").desc("Triggers workload generation, a previously generated input workload can be provided to generate concrete syntaxes for instead").build());
+		options.addOption(Option.builder("g").longOpt("graph").hasArgs().optionalArg(true).argName("size").desc("Triggers graph generation, a graph size can be provided (overrides the ones set in the configuration file)").build());
+		options.addOption(Option.builder("o").longOpt("output").hasArg().argName("folder").desc("The folder to write the generated output to").build());
+		options.addOption(Option.builder("f").longOpt("force").desc("Overwrite existing files if present").build());
+		//TODO tripples to sql conversion?
 	}
 	
 	/**

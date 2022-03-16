@@ -46,7 +46,13 @@ public class ConfigParser{
 	 */
 	private static final Function<Node, Element> TO_ELEMENT = n->(Element)n;
 	
-	//parse config xml
+	/**
+	 * Parses a gMark XML configuration from the given file.
+	 * @param file The file to read from.
+	 * @return The parsed gMark configuration.
+	 * @throws ConfigException When something when wrong
+	 *         while parsing the configuration.
+	 */
 	public static final Configuration parse(Path file) throws ConfigException{
 		try(InputStream in = Files.newInputStream(file)){
 			return parse(in);
@@ -54,7 +60,14 @@ public class ConfigParser{
 			throw new ConfigException(e);
 		}
 	}
-		
+	
+	/**
+	 * Parses a gMark XML configuration from the given input stream.
+	 * @param in The input stream to read from.
+	 * @return The parsed gMark configuration.
+	 * @throws ConfigException When something when wrong
+	 *         while parsing the configuration.
+	 */
 	public static final Configuration parse(InputStream in) throws ConfigException{
 		try{
 			Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
@@ -80,6 +93,13 @@ public class ConfigParser{
 		}
 	}
 	
+	/**
+	 * Parses the <code>schema</code> section of the configuration XML.
+	 * @param elem The schema XML element to parse.
+	 * @param types A list of already parsed configuration node types.
+	 * @param predicates A list of already parsed configuration predicates.
+	 * @return The parsed graph schema.
+	 */
 	private static final Schema parseSchema(Element elem, List<Type> types, List<Predicate> predicates){
 		List<Edge> edges = new ArrayList<Edge>();
 		
@@ -99,6 +119,14 @@ public class ConfigParser{
 		return new Schema(edges, types, predicates);
 	}
 	
+	/**
+	 * Parses a distribution section (<code>indistribution</code> or
+	 * <code>outdistribution</code>) of the configuration XML.
+	 * @param elem The element to parse.
+	 * @param key The name of the tag to parse of the element
+	 *        (<code>indistribution</code> or <code>outdistribution</code>).
+	 * @return The parsed distribution.
+	 */
 	private static final Distribution parseDistribution(Element elem, String key){
 		NodeList items = elem.getElementsByTagName(key);
 		return items.getLength() == 0 ? Distribution.UNDEFINED : Distribution.fromXML(TO_ELEMENT.apply(items.item(0)));
@@ -203,10 +231,24 @@ public class ConfigParser{
 		return predicates;
 	}
 	
+	/**
+	 * Returns a stream over all the child elements
+	 * with the given tag name in the given element.
+	 * @param elem The element whose children to stream.
+	 * @param name The tag name to filter by.
+	 * @return A stream over all child elements with
+	 *         the given tag name.
+	 */
 	public static final Stream<Element> stream(Element elem, String name){
 		return stream(elem.getElementsByTagName(name)).map(TO_ELEMENT);
 	}
 	
+	/**
+	 * Returns a stream over all the nodes in the given node list.
+	 * @param list The node list to stream.
+	 * @return A stream over all node list elements.
+	 * @see NodeList
+	 */
 	public static final Stream<Node> stream(NodeList list){
 		Builder<Node> builder = Stream.builder();
 		for(int i = 0; i < list.getLength(); i++){
@@ -215,10 +257,27 @@ public class ConfigParser{
 		return builder.build();
 	}
 	
+	/**
+	 * Gets the the child element from the given
+	 * element with the given tag name. If there
+	 * are multiple elements that match the given
+	 * tag name only the first is returned.
+	 * @param elem The element whose child to get.
+	 * @param name The tag name of the child to get.
+	 * @return The child element with the given tag name.
+	 */
 	public static final Element getElement(Element elem, String name){
 		return TO_ELEMENT.apply(elem.getElementsByTagName(name).item(0));
 	}
 	
+	/**
+	 * Invokes the given consumer with the name and value
+	 * of each entry in the given named node map.
+	 * @param data The named node map to iterate.
+	 * @param consumer The consumer to invoke with
+	 *        each name value pair.
+	 * @see NamedNodeMap
+	 */
 	public static final void forEach(NamedNodeMap data, BiConsumer<String, String> consumer){
 		for(int i = 0; i < data.getLength(); i++){
 			Node item = data.item(i);

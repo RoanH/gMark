@@ -33,6 +33,9 @@ import dev.roanh.gmark.util.Util;
  * @author Roan
  */
 public class Main{
+	/**
+	 * The current version of gMark.
+	 */
 	public static final String VERSION = "v1.0";//build.gradle
 
 	/**

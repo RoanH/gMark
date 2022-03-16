@@ -2,6 +2,7 @@ package dev.roanh.gmark.query;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
@@ -11,55 +12,116 @@ import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
 
+/**
+ * Represents a generated query with a number of
+ * projected variables and one or more query bodies.
+ * @author Roan
+ */
 public class Query implements OutputSQL, OutputXML{
-	private List<Variable> variables;//specifically the projected ones (LHS)
+	/**
+	 * The projected variables for this query (head, left hand side).
+	 */
+	private List<Variable> variables;
 	/**
 	 * All the bodies for this query. Note that currently
 	 * only queries with a single body are ever generated.
 	 */
 	private List<QueryBody> bodies;
 	
+	/**
+	 * Constructs a new query with a single body made up of the given
+	 * list of conjuncts and with the given project variables, selectivity and shape.
+	 * @param conjuncts The conjuncts for the query body.
+	 * @param variables The projected query variables.
+	 * @param selectivity The query body selectivity.
+	 * @param shape The query body shape.
+	 */
 	public Query(List<Conjunct> conjuncts, List<Variable> variables, Selectivity selectivity, QueryShape shape){
 		this(new QueryBody(conjuncts, selectivity, shape), variables);
 	}
 	
+	/**
+	 * Constructs a new query with a single body and with the
+	 * given project variables, selectivity and shape.
+	 * @param body The query body.
+	 * @param variables The projected query variables.
+	 */
 	public Query(QueryBody body, List<Variable> variables){
 		this.bodies = Collections.singletonList(body);
 		this.variables = variables;
 	}
 	
+	/**
+	 * Tests if any query body in this query has the given shape.
+	 * @param shape The shape to check for.
+	 * @return True if this query contains a body with the given shape.
+	 */
 	public boolean hasShape(QueryShape shape){
 		return bodies.stream().anyMatch(body->body.getShape().equals(shape));
 	}
 	
-	public List<QueryShape> getShapes(){
-		return bodies.stream().map(QueryBody::getShape).collect(Collectors.toList());
+	/**
+	 * Gets all shapes used by the bodies in this query.
+	 * @return All query body shapes.
+	 */
+	public Set<QueryShape> getShapes(){
+		return bodies.stream().map(QueryBody::getShape).collect(Collectors.toSet());
 	}
 	
+	/**
+	 * Checks if this query contains a query body with the given selectivity.
+	 * @param selectivity The selectivity to check for.
+	 * @return True if this query contains a query body with the given selectivity.
+	 */
 	public boolean hasSelectivity(Selectivity selectivity){
 		return bodies.stream().anyMatch(body->body.getSelectivity().equals(selectivity));
 	}
 	
-	public List<Selectivity> getSelectivities(){
-		return bodies.stream().map(QueryBody::getSelectivity).collect(Collectors.toList());
+	/**
+	 * Gets all selectivities used by the bodies in this query.
+	 * @return All query body selectivities.
+	 */
+	public Set<Selectivity> getSelectivities(){
+		return bodies.stream().map(QueryBody::getSelectivity).collect(Collectors.toSet());
 	}
 	
+	/**
+	 * Gets the number of conjuncts in the query body with the least conjuncts.
+	 * @return The minimum query body conjunct count.
+	 */
 	public int getMinConjuncts(){
 		return bodies.stream().mapToInt(QueryBody::getConjunctCount).min().orElse(0);
 	}
 	
+	/**
+	 * Gets the number of conjuncts in the query body with the most conjuncts.
+	 * @return The maximum query body conjunct count.
+	 */
 	public int getMaxConjuncts(){
 		return bodies.stream().mapToInt(QueryBody::getConjunctCount).max().orElse(0);
 	}
 	
+	/**
+	 * Checks if this query is binary. A query is binary when
+	 * its arity is equal to 0.
+	 * @return True if this query is binary.
+	 */
 	public boolean isBinary(){
 		return getArity() == 0;
 	}
 	
+	/**
+	 * Gets the arity (number of projected variables) for this query.
+	 * @return The arity for this query.
+	 */
 	public int getArity(){
 		return variables.size();
 	}
 	
+	/**
+	 * Gets all the query bodies for this query.
+	 * @return All query bodies.
+	 */
 	public List<QueryBody> getBodies(){
 		return bodies;
 	}

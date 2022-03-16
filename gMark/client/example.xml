@@ -1,4 +1,17 @@
+<!-- example gmark configuration file -->
 <generator>
+	<!-- gmark to generate and their sizes -->
+	<graph>
+		<nodes>10000</nodes>
+	</graph>
+	<graph>
+		<nodes>20000</nodes>
+	</graph>
+	<graph>
+		<nodes>30000</nodes>
+	</graph>
+
+	<!-- graph schema predicates -->
 	<predicates>
 		<size>4</size>
 		<alias symbol="0">authors</alias>
@@ -14,6 +27,7 @@
 		<proportion symbol="3">0.19</proportion>
 	</predicates>
 
+	<!-- graph schema types -->
 	<types>
 		<size>5</size>
 		<alias type="0">researcher</alias>
@@ -29,6 +43,7 @@
 		<proportion type="3">0.1</proportion>
 	</types>
 
+	<!-- graph schema edges -->
 	<schema>
 		<source type="0"> <!-- researcher -->
 			<target type="1" symbol="0" edge_type="0"> <!-- authors a paper -->
@@ -66,16 +81,47 @@
 		</source>
 	</schema>
 	
+	<!-- query workload of 50 CPQ based queries -->
 	<workload id="0" size="50" type="cpq">
+		<!-- bounds for the size of these queries -->
 		<size>
-			<conjuncts min="3" max="4"/>
-			<recursion max="5"/>
-			<diameter max="4"/>
+			<conjuncts min="3" max="4"/>	<!-- number of A^M where M is a multiplicity 1 or * -->
+			<recursion max="5"/>            <!-- maximum recursive depth for each CPQ -->
+			<diameter max="4"/>             <!-- maximum CPQ diameter -->
 		</size>
 
+		<!-- probability to have "*" as multiplicity of the conjuncts -->
 		<multiplicity star="0.5"/>
+		
+		<!-- the arity of the generated queries, we allow 0 for Boolean queries -->
 		<arity min="0" max="4"/>
+		
+		<!-- we want linear, constant and quadratic queries -->
 		<selectivity constant="1" linear="1" quadratic="1"/>
+		
+		<!-- we want to have in the workload chains, stars, cycles, etc. -->
 		<type chain="1" star="1" cycle="1" starchain="1"/>
+	</workload>
+	
+	<!-- query workload of 50 RPQ based queries -->
+	<workload id="1" size="50" type="rpq">
+		<!-- bounds for the size of these queries -->
+		<size>
+			<conjuncts min="3" max="4"/>	<!-- number of A^M where M is a multiplicity 1 or * -->
+			<disjuncts min="1" max="3"/>	<!-- number of w_1 + ... + w_n in each A -->
+			<length min="2" max="4"/>		<!-- number of a_1 . ... . a_m in each w_i -->
+		</size>
+
+		<!-- probability to have "*" as multiplicity of the conjuncts -->
+		<multiplicity star="0.5"/>
+
+		<!-- the arity of the generated queries, we allow 0 for Boolean queries -->
+		<arity min="0" max="4"/>
+
+		<!-- we want only linear queries, but not constant nor quadratic -->
+		<selectivity constant="0" linear="1" quadratic="0"/>
+
+		<!-- we want to have in the workload chains and stars, but not cycles, etc. -->
+		<type chain="1" star="1" cycle="0" starchain="0"/>
 	</workload>
 </generator>

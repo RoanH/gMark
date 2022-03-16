@@ -23,7 +23,7 @@ import dev.roanh.gmark.util.SelectivityGraph;
 import dev.roanh.gmark.util.SelectivityType;
 
 /**
- * Example tab that shows some of the important structures in gmark.
+ * Example tab that shows some of the important structures in gMark.
  * @author Roan
  * @see ConfigGraph
  * @see SchemaGraph

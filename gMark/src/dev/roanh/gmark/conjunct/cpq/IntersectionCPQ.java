@@ -3,7 +3,8 @@ package dev.roanh.gmark.conjunct.cpq;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
- * CPQ modelling the intersection between two CPQs.
+ * CPQ modelling the intersection between two CPQs
+ * (also known as the conjunction operation).
  * @author Roan
  */
 public class IntersectionCPQ implements CPQ{

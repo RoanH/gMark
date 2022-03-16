@@ -6,7 +6,8 @@ import java.util.StringJoiner;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
- * CPQ modelling the concatenation of a number of CPQs.
+ * CPQ modelling the concatenation of a number of CPQs
+ * (also known as the join operation).
  * @author Roan
  */
 public class ConcatCPQ implements CPQ{

@@ -67,6 +67,9 @@ public enum WorkloadType{
 	/**
 	 * Parses a workload configuration from the given
 	 * configuration file element and for the given graph schema.
+	 * <p>
+	 * <b>Note:</b> unrecognised workloads are parsed as {@link #RPQ}
+	 * for backwards compatibility reasons with the original version of gMark.
 	 * @param elem The configuration file element to parse.
 	 * @param schema The graph schema to use.
 	 * @return The parsed workload configuration.

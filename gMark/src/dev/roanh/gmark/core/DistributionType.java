@@ -81,7 +81,9 @@ public enum DistributionType{
 	/**
 	 * Resolves a distribution type by its configuration file ID.
 	 * @param id The configuration type ID to search for.
-	 * @return The distribution with the given configuration ID.
+	 * @return The distribution with the given configuration ID
+	 *         or <code>null</code> if no distribution type with
+	 *         the given ID was found.
 	 */
 	public static final DistributionType getByName(String id){
 		for(DistributionType type : values()){

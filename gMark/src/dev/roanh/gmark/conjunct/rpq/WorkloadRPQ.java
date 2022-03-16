@@ -13,11 +13,29 @@ import dev.roanh.gmark.core.graph.Schema;
  * @author Roan
  */
 public class WorkloadRPQ extends Workload{
+	/**
+	 * The minimum number of disjuncts in the RPQs to generate.
+	 */
 	private int minDisjuncts;
+	/**
+	 * The maximum number of disjuncts in the RPQs to generate.
+	 */
 	private int maxDisjuncts;
+	/**
+	 * The minimum length of the RPQs to generate.
+	 */
 	private int minLength;
+	/**
+	 * The maximum length of hte RPQs to generate.
+	 */
 	private int maxLength;
 	
+	/**
+	 * Constructs a new RPQ workload from the given
+	 * configuration element and graph schema.
+	 * @param elem The configuration element to parse.
+	 * @param schema The graph schema to use.
+	 */
 	public WorkloadRPQ(Element elem, Schema schema){
 		super(elem, schema);
 		Element size = ConfigParser.getElement(elem, "size");
@@ -31,34 +49,66 @@ public class WorkloadRPQ extends Workload{
 		maxLength = Integer.parseInt(len.getAttribute("max"));
 	}
 	
+	/**
+	 * Sets the maximum length of the RPQs to generate.
+	 * @param len The new maximum length.
+	 */
 	public void setMaxLength(int len){
 		maxLength = len;
 	}
 	
+	/**
+	 * Sets the minimum length of the RPQs to generate.
+	 * @param len The new minimum length.
+	 */
 	public void setMinLength(int len){
 		minLength = len;
 	}
 	
+	/**
+	 * Sets the maximum number of disjuncts in the RPQs to generate.
+	 * @param disj The new maximum disjunct count.
+	 */
 	public void setMaxDisjuncts(int disj){
 		maxDisjuncts = disj;
 	}
 	
+	/**
+	 * Sets the minimum number of disjuncts in the RPQs to generate.
+	 * @param disj The new minimum disjunct count.
+	 */
 	public void setMinDisjuncts(int disj){
 		minDisjuncts = disj;
 	}
 	
+	/**
+	 * Gets the maximum length of the RPQs to generate.
+	 * @return The maximum RPQ length.
+	 */
 	public int getMaxLength(){
 		return maxLength;
 	}
 	
+	/**
+	 * Gets the minimum length of the RPQs to generate.
+	 * @return The minimum RPQ length.
+	 */
 	public int getMinLength(){
 		return minLength;
 	}
 	
+	/**
+	 * Gets the minimum number of disjuncts in the RPQs to generate.
+	 * @return The minimum number of disjuncts.
+	 */
 	public int getMinDisjuncts(){
 		return minDisjuncts;
 	}
 	
+	/**
+	 * Gets the maximum number of disjuncts in the RPQs to generate.
+	 * @return The maximum number of disjuncts.
+	 */
 	public int getMaxDisjuncts(){
 		return maxDisjuncts;
 	}

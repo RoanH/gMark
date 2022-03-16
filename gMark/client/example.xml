@@ -1,6 +1,6 @@
-<!-- example gmark configuration file -->
+<!-- example gMark configuration file -->
 <generator>
-	<!-- gmark to generate and their sizes -->
+	<!-- graphs to generate and their sizes -->
 	<graph>
 		<nodes>10000</nodes>
 	</graph>

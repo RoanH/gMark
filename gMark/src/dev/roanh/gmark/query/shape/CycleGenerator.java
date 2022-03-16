@@ -50,17 +50,27 @@ public class CycleGenerator extends ShapeGenerator{
 		List<Variable> variables = createVariables(n1 + n2);
 		for(int i = 0; i < n1; i++){
 			PathSegment segment = path.get(i);
-			Conjunct conj = conjGen.generateConjunct(gSel, segment.getSource(), segment.getTarget());
-			conj.setData(variables.get(i), variables.get(i + 1), segment.hasStar());
-			conjuncts.add(conj);
+			conjuncts.add(conjGen.generateConjunct(
+				gSel,
+				segment.getSource(),
+				segment.getTarget(),
+				variables.get(i),
+				variables.get(i + 1),
+				segment.hasStar()
+			));
 		}
 		
 		List<PathSegment> path2 = gSel.generateRandomPath(selectivity, path.get(0).getSource(), n2, workload.getStarProbability());
 		for(int i = 0; i < n2; i++){
 			PathSegment segment = path2.get(i);
-			Conjunct conj = conjGen.generateConjunct(gSel, segment.getSource(), segment.getTarget());
-			conj.setData(variables.get(i == 0 ? 0 : (n1 + i)), variables.get(i == n2 - 1 ? n1 : (n1 + i + 1)), segment.hasStar());
-			conjuncts.add(conj);
+			conjuncts.add(conjGen.generateConjunct(
+				gSel,
+				segment.getSource(),
+				segment.getTarget(),
+				variables.get(i == 0 ? 0 : (n1 + i)),
+				variables.get(i == n2 - 1 ? n1 : (n1 + i + 1)),
+				segment.hasStar()
+			));
 		}
 		
 		int arity = randomArity(variables.size());

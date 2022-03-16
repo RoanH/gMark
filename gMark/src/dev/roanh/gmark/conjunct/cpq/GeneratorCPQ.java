@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import dev.roanh.gmark.core.ConjunctGenerator;
 import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.Conjunct;
+import dev.roanh.gmark.query.Variable;
 import dev.roanh.gmark.util.EdgeGraph;
 import dev.roanh.gmark.util.EdgeGraphData;
 import dev.roanh.gmark.util.Graph.GraphNode;
@@ -38,7 +39,7 @@ public class GeneratorCPQ implements ConjunctGenerator{
 	}
 
 	@Override
-	public Conjunct generateConjunct(SelectivityGraph gSel, SelectivityType start, SelectivityType end) throws GenerationException{
+	public Conjunct generateConjunct(SelectivityGraph gSel, SelectivityType start, SelectivityType end, Variable source, Variable target, boolean star) throws GenerationException{
 		EdgeGraph graph = new EdgeGraph(gs, workload.getMaxDiameter(), start, end, workload.getMaxRecursion());
 		List<GraphNode<EdgeGraphData, Void>> path = graph.drawPath();
 		
@@ -46,6 +47,6 @@ public class GeneratorCPQ implements ConjunctGenerator{
 		
 		return new ConjunctCPQ(path.size() == 1 ? path.get(0).getData().toCPQ() : new ConcatCPQ(
 			path.stream().map(GraphNode::getData).map(EdgeGraphData::toCPQ).collect(Collectors.toList())
-		));
+		), source, target, star);
 	}
 }

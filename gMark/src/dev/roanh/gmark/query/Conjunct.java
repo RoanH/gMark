@@ -9,14 +9,7 @@ public abstract class Conjunct implements OutputXML{
 	private Variable target;
 	private boolean star;
 	
-//	protected Conjunct(Variable source, Variable target, boolean star){
-//		this.source = source;
-//		this.target = target;
-//		this.star = star;
-//	}
-	
-	//TODO this relies on the constructing party to set the data, not very nice, use a builder?
-	public void setData(Variable source, Variable target, boolean star){
+	protected Conjunct(Variable source, Variable target, boolean star){
 		this.source = source;
 		this.target = target;
 		this.star = star;

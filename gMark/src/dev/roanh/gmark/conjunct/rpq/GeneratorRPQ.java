@@ -3,6 +3,7 @@ package dev.roanh.gmark.conjunct.rpq;
 import dev.roanh.gmark.core.ConjunctGenerator;
 import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.Conjunct;
+import dev.roanh.gmark.query.Variable;
 import dev.roanh.gmark.util.SelectivityGraph;
 import dev.roanh.gmark.util.SelectivityType;
 
@@ -27,7 +28,7 @@ public class GeneratorRPQ implements ConjunctGenerator{
 	}
 	
 	@Override
-	public Conjunct generateConjunct(SelectivityGraph gSel, SelectivityType start, SelectivityType end) throws GenerationException{
+	public Conjunct generateConjunct(SelectivityGraph gSel, SelectivityType start, SelectivityType end, Variable source, Variable target, boolean star) throws GenerationException{
 		//TODO implement
 		throw new GenerationException("Generating RPQ queries is not yet supported.");
 	}

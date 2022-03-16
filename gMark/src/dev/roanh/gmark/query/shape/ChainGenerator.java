@@ -44,9 +44,14 @@ public class ChainGenerator extends ShapeGenerator{
 		variables.add(new Variable(0));
 		for(int i = 0; i < conjunctNum; i++){
 			PathSegment segment = path.get(i);
-			Conjunct conj = conjGen.generateConjunct(gSel, segment.getSource(), segment.getTarget());
-			conj.setData(variables.get(i), variables.get(i + 1), segment.hasStar());
-			conjuncts.add(conj);
+			conjuncts.add(conjGen.generateConjunct(
+				gSel,
+				segment.getSource(),
+				segment.getTarget(),
+				variables.get(i),
+				variables.get(i + 1),
+				segment.hasStar()
+			));
 		}
 		
 		int arity = randomArity(variables.size());

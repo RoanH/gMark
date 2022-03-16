@@ -46,23 +46,38 @@ public class StarChainGenerator extends ShapeGenerator{
 		List<Variable> variables = createVariables(n1 + n2 + n3 + 1);
 		for(int i = 0; i < n1; i++){
 			PathSegment segment = path.get(i);
-			Conjunct conj = conjGen.generateConjunct(gSel, segment.getSource(), segment.getTarget());
-			conj.setData(variables.get(i), variables.get(i + 1), segment.hasStar());
-			conjuncts.add(conj);
+			conjuncts.add(conjGen.generateConjunct(
+				gSel,
+				segment.getSource(),
+				segment.getTarget(),
+				variables.get(i),
+				variables.get(i + 1),
+				segment.hasStar()
+			));
 		}
 		
 		for(int i = 0; i < n2; i++){
 			PathSegment path2 = gSel.generateRandomPath(selectivity, path.get(0).getSource(), 1, workload.getStarProbability()).get(0);
-			Conjunct conj = conjGen.generateConjunct(gSel, path2.getSource(), path2.getTarget());
-			conj.setData(variables.get(0), variables.get(n1 + i + 1), path2.hasStar());
-			conjuncts.add(conj);
+			conjuncts.add(conjGen.generateConjunct(
+				gSel,
+				path2.getSource(),
+				path2.getTarget(),
+				variables.get(0),
+				variables.get(n1 + i + 1),
+				path2.hasStar()
+			));
 		}
 		
 		for(int i = 0; i < n3; i++){
 			PathSegment path2 = gSel.generateRandomPath(selectivity, path.get(path.size() - 1).getTarget(), 1, workload.getStarProbability()).get(0);
-			Conjunct conj = conjGen.generateConjunct(gSel, path2.getSource(), path2.getTarget());
-			conj.setData(variables.get(n1), variables.get(n1 + n2 + i + 1), path2.hasStar());
-			conjuncts.add(conj);
+			conjuncts.add(conjGen.generateConjunct(
+				gSel,
+				path2.getSource(),
+				path2.getTarget(),
+				variables.get(n1),
+				variables.get(n1 + n2 + i + 1),
+				path2.hasStar()
+			));
 		}
 		
 		int arity = randomArity(variables.size());

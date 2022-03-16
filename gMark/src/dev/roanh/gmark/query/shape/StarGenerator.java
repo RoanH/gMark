@@ -40,17 +40,20 @@ public class StarGenerator extends ShapeGenerator{
 		Selectivity selectivity = randomSelectivity();
 		
 		PathSegment path = gSel.generateRandomPath(selectivity, 1, workload.getStarProbability()).get(0);
-	
+		
 		SelectivityType sourceType = path.getSource();
-		Conjunct first = conjGen.generateConjunct(gSel, sourceType, path.getTarget());
-		first.setData(variables.get(0), variables.get(1), path.hasStar());
-		conjuncts.add(first);
+		conjuncts.add(conjGen.generateConjunct(gSel, sourceType, path.getTarget(), variables.get(0), variables.get(1), path.hasStar()));
 		
 		for(int i = 1; i < conjunctNum; i++){
 			path = gSel.generateRandomPath(selectivity, 1, workload.getStarProbability()).get(0);
-			Conjunct conj = conjGen.generateConjunct(gSel, sourceType, path.getTarget());
-			conj.setData(variables.get(0), variables.get(i + 1), path.hasStar());
-			conjuncts.add(conj);
+			conjuncts.add(conjGen.generateConjunct(
+				gSel,
+				sourceType,
+				path.getTarget(),
+				variables.get(0),
+				variables.get(i + 1),
+				path.hasStar()
+			));
 		}
 		
 		int arity = randomArity(variables.size());

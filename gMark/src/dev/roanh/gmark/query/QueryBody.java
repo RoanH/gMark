@@ -13,11 +13,33 @@ import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
 
+/**
+ * Represents the body of a query, this is essentially
+ * the query without the projected head variables.
+ * @author Roan
+ * @see Query
+ */
 public class QueryBody implements OutputXML{
+	/**
+	 * The conjuncts in this query body.
+	 */
 	private List<Conjunct> conjuncts;
+	/**
+	 * The selectivity of this query body.
+	 */
 	private Selectivity selectivity;
+	/**
+	 * The shape of this query body.
+	 */
 	private QueryShape shape;
 	
+	/**
+	 * Constructs a new query body with the given conjuncts, selectivity and shape.
+	 * @param conjuncts The conjuncts for this query body.
+	 * @param selectivity The selectivity of this query body.
+	 * @param shape The shape of this query body.
+	 * @throws IllegalArgumentException When the list of conjuncts is empty.
+	 */
 	public QueryBody(List<Conjunct> conjuncts, Selectivity selectivity, QueryShape shape) throws IllegalArgumentException{
 		this.conjuncts = conjuncts;
 		if(conjuncts.isEmpty()){
@@ -27,19 +49,36 @@ public class QueryBody implements OutputXML{
 		this.shape = shape;
 	}
 	
+	/**
+	 * Gets the number of conjuncts in this query body.
+	 * @return The number of conjuncts in this query body.
+	 */
 	public int getConjunctCount(){
 		return conjuncts.size();
 	}
 	
+	/**
+	 * Gets the multiplicity of this query body. This is computed
+	 * as the fraction of all conjuncts that has a Kleene star above it.
+	 * @return The multiplicity of this query body.
+	 */
 	public double getMultiplicity(){
 		long stars = conjuncts.stream().filter(Conjunct::hasStar).count();
 		return ((double)stars) / conjuncts.size();
 	}
 	
+	/**
+	 * Gets the selectivity of this query body.
+	 * @return The selectivity of this query body.
+	 */
 	public Selectivity getSelectivity(){
 		return selectivity;
 	}
 	
+	/**
+	 * Gets the shape of this query body.
+	 * @return The shape of this query body.
+	 */
 	public QueryShape getShape(){
 		return shape;
 	}
@@ -53,6 +92,11 @@ public class QueryBody implements OutputXML{
 		return joiner.toString();
 	}
 
+	/**
+	 * Converts this query body to SQL.
+	 * @param lhs The projected head variables.
+	 * @return The SQL form of this query body.
+	 */
 	protected String toSQL(List<Variable> lhs){
 		StringBuilder buffer = new StringBuilder();
 		int n = conjuncts.size();
@@ -145,6 +189,13 @@ public class QueryBody implements OutputXML{
 		return buffer.toString();
 	}
 	
+	/**
+	 * Converts a conjunct variable to SQL.
+	 * @param var The variable to convert.
+	 * @param conj The conjunct this variable is a part of.
+	 * @param idMap A map storing the ID of each conjunct.
+	 * @return The SQL version of this conjunct variable.
+	 */
 	private static String conjunctVarToSQL(Variable var, Conjunct conj, Map<Conjunct, Integer> idMap){
 		if(var.equals(conj.getSource())){
 			return "c" + idMap.get(conj) + ".src";

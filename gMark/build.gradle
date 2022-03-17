@@ -51,6 +51,7 @@ test{
 task clientJar(type: ShadowJar, group: "build"){
 	from sourceSets.client.output
 	configurations = [project.configurations.clientImplementation]
+	archiveName = 'gMark-v' + project.version + '.jar'
 	manifest{
 		attributes 'Main-Class': 'dev.roanh.gmark.client.GraphMark'
 	}

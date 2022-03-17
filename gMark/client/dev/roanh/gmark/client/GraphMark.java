@@ -1,9 +1,16 @@
 package dev.roanh.gmark.client;
 
+import java.awt.BorderLayout;
+
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingConstants;
 
 import dev.roanh.gmark.Main;
+import dev.roanh.util.ClickableLink;
 import dev.roanh.util.Dialog;
 import dev.roanh.util.Util;
 
@@ -36,12 +43,24 @@ public class GraphMark{
 		Dialog.setDialogTitle("gMark");
 		Dialog.setParentFrame(frame);
 		
+		JPanel content = new JPanel(new BorderLayout());
+		
 		JTabbedPane tabs = new JTabbedPane();
 		tabs.addTab("Example Usage", new UsageTab());
 		tabs.addTab("Query Generation", new QueryTab());
 		tabs.addTab("Example Graphs", new ExampleTab());
+		content.add(tabs, BorderLayout.CENTER);
 		
-		frame.add(tabs);
+		JPanel footer = new JPanel(new BorderLayout());
+		footer.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
+		footer.add(Util.getVersionLabel("gMark", Main.VERSION, false, SwingConstants.LEFT), BorderLayout.LINE_START);
+		JLabel git = new JLabel("<html>GitHub: <font color=blue><u>RoanH/gMark</u></font></html>", SwingConstants.RIGHT);
+		git.addMouseListener(new ClickableLink("https://github.com/RoanH/gMark"));
+		footer.add(git, BorderLayout.LINE_END);
+		footer.add(new JPanel(), BorderLayout.CENTER);
+		content.add(footer, BorderLayout.PAGE_END);
+		
+		frame.add(content);
 		frame.setSize(1000, 800);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);

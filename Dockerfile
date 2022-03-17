@@ -1,4 +1,6 @@
 # syntax=docker/dockerfile:1
+LABEL maintainer="roan@roanh.dev"
+
 FROM openjdk:8 AS compile
 WORKDIR /gMark
 ADD gMark/gradle/wrapper/* /gMark/gradle/wrapper/

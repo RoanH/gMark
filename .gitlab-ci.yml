@@ -70,6 +70,7 @@ docker:
     - docker:dind
   before_script: []
   script:
+    - docker info
     - docker build -t gmark .
   stage: compile
 
@@ -97,7 +98,7 @@ test:
     reports:
       junit: ./${PROJECTNAME}/build/test-results/test/TEST-*.xml
 
-publish:
+maven:
   script:
     - ./gradlew publishAllPublicationsToMavenRepository
   only: 
@@ -105,3 +106,27 @@ publish:
   when: manual
   allow_failure: false
   stage: publishing
+
+hub:
+  image: docker:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  tags:
+    - docker
+  services:
+    - docker:dind
+  before_script: []
+  needs: ["maven"]
+  script:
+    - docker info
+    - docker build -t gmark .
+    - docker tag gmark roanh/gmark:${VERSION:1}
+    - docker tag gmark roanh/gmark:latest
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    - docker push roanh/gmark:${VERSION:1}
+    - docker push roanh/gmark:latest
+  stage: publishing
+  allow_failure: false
+  only:
+    - tags

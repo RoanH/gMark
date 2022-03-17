@@ -120,10 +120,10 @@ hub:
   script:
     - docker info
     - docker build -t gmark .
-    - docker tag gmark roanh/gmark:${VERSION:1}
+    - docker tag gmark roanh/gmark:${CI_COMMIT_REF_NAME:1}
     - docker tag gmark roanh/gmark:latest
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
-    - docker push roanh/gmark:${VERSION:1}
+    - docker push roanh/gmark:${CI_COMMIT_REF_NAME:1}
     - docker push roanh/gmark:latest
   stage: publishing
   allow_failure: false

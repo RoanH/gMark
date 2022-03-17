@@ -13,5 +13,5 @@ RUN ./gradlew :cliJar
 FROM openjdk:8
 LABEL maintainer="roan@roanh.dev"
 WORKDIR /gMark
-COPY --from=compile /gMark/build/libs/gMark-cli-SNAPSHOT.jar ./gMark.jar
+COPY --from=compile /gMark/build/libs/gMark-cli.jar ./gMark.jar
 ENTRYPOINT ["java", "-jar", "gMark.jar"]

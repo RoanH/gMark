@@ -1,7 +1,7 @@
 # gMark [![](https://img.shields.io/github/release/RoanH/gMark.svg)](https://github.com/RoanH/gMark/releases)
 gMark is a domain- and query language-independent graph instance and query workload generator. The original version of gMark is available on GitHub at [gbagan/gmark](https://github.com/gbagan/gmark). The version of gMark in this repository has as goal to rewrite gMark such that it is easier to extend and has better documented code. Currently the focus of the rewrite is on query generation, but the end goal is full feature parity with the original version of gMark. The rewrite has not reached that point yet and is notably still missing graph generation, RPQ (regular path query) based queries and several output formats. The current version does however also offer some features not present in the original version of gMark, such as the ability to generate CPQ (conjunctive path query) based queries and a graphical user interface for the program.
 
-Documentation (javadoc) can be found at: [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/) more details on gMark itself can be found in the technical report [arxiv.org/abs/1511.08386](https://arxiv.org/abs/1511.08386). Details regarding the aforementioned queries containing CPQs can be found at [https://research.roanh.dev/TODO](https://research.roanh.dev/TODO).
+Documentation (javadoc) can be found at: [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/) more details on gMark itself can be found in the technical report [arxiv.org/abs/1511.08386](https://arxiv.org/abs/1511.08386). Details regarding the aforementioned queries containing CPQs can be found at [research.roanh.dev/TODO](https://research.roanh.dev/TODO).
 
 ##cli or something maybe also link gmark technical report
 
@@ -71,6 +71,8 @@ Using the image then works much the same as the regular command line version of 
 ```sh
 docker run --rm -v "$PWD/data:/data" roanh/gmark:latest -c /data/config.xml -o /data/queries -s sql -w
 ```
+
+Note that we mount a local folder called `data` into the container to pass our configuration file and to retrieve the generated queries.
 
 ### Maven artifact [![Maven Central](https://img.shields.io/maven-central/v/dev.roanh.gmark/gmark)](https://mvnrepository.com/artifact/dev.roanh.gmark/gmark)
 gMark is available on maven central as [an artifact](https://mvnrepository.com/artifact/dev.roanh.gmark/gmark) so it can be included directly in another Java project using Gradle or Maven. This way it becomes possible to directly use all the implemented constructs and utilities. A hosted version of the javadoc for gMark can be found at [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/).

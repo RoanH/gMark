@@ -79,7 +79,7 @@ compileJava.options.encoding = 'UTF-8'
 compileClientJava.options.encoding = 'UTF-8'
 sourceCompatibility = 1.8
 version = 'v1.0'//Main.java
-shadowJar.archiveName = 'gMark-' + project.version + '.jar'
+shadowJar.archiveName = 'gMark-v' + project.version + '.jar'
 
 repositories{
 	//Local cache
@@ -173,10 +173,10 @@ launch4j{
 	//icon = "${projectDir}/icon.ico"
 	jreMinVersion = project.sourceCompatibility
 	bundledJrePath = "%JAVA_HOME%"
-	outfile = project.name + '-' + project.version + '.exe'
+	outfile = project.name + '-v' + project.version + '.exe'
 	fileDescription = project.name
-	version = project.version.substring(1)
-	textVersion = project.version.substring(1)
+	version = project.version
+	textVersion = project.version
 	copyright = "Roan Hofland"
 	headerType = "console"
 	stayAlive = true

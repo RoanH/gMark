@@ -8,9 +8,9 @@ Documentation (javadoc) can be found at: [gmark.docs.roanh.dev](https://gmark.do
 ## Getting started with gMark
 To support a wide variety of of use cases gMark is a available in a number of different formats. 
 
-- [As a standalone executable with both a graphical and command line interface](#executable download)
-- [As a docker image](#docker image)
-- [As a maven artifact](#maven artifact)
+- [As a standalone executable with both a graphical and command line interface](#executable-download)
+- [As a docker image](#docker-image)
+- [As a maven artifact](#maven-artifact)
 
 ### Command line usage
 When using gMark on command line the following arguments are supported:
@@ -46,16 +46,34 @@ _Requires Java 8 or higher_
 All releases: [releases](https://github.com/RoanH/gMark/releases)    
 GitHub repository: [RoanH/gMark](https://github.com/RoanH/gMark)
 
+#### Command line usage of the standalone executable
+The following commands show how to generate a workload of queries in SQL format using the standalone executable.
 
+##### Windows executable
+```bat
+./gMark.exe -c config.xml -o ./output -s sql -w
+```
+
+##### Runnable Java archive
+```sh
+java -jar gMark.jar -c config.xml -o ./output -s sql -w
+```
 
 ### Docker image [![](https://img.shields.io/docker/v/roanh/gmark?sort=semver)](https://hub.docker.com/r/roanh/gmark)
-gMark is available as a docker image on Docker Hub.
+gMark is available as a [docker image](https://hub.docker.com/r/roanh/gmark) on Docker Hub. This means that you can obtain the image using the following command:
 
+```sh
+docker pull roanh/gmark:latest
+```
 
+Using the image then works much the same as the regular command line version of gMark. For example we can generate the example workload of queries in SQL format using the following command:
 
+```sh
+docker run --rm -v "$PWD/data:/data" roanh/gmark:latest -c /data/config.xml -o /data/queries -s sql -w
+```
 
 ### Maven artifact [![Maven Central](https://img.shields.io/maven-central/v/dev.roanh.gmark/gmark)](https://mvnrepository.com/artifact/dev.roanh.gmark/gmark)
-
+gMark is available on maven central as [an artifact](https://mvnrepository.com/artifact/dev.roanh.gmark/gmark) so it can be included directly in another Java project using Gradle or Maven. This way it becomes possible to directly use all the implemented constructs and utilities. A hosted version of the javadoc for gMark can be found at [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/).
 
 ##### Gradle 
 ```groovy
@@ -64,19 +82,18 @@ repositories{
 }
 
 dependencies{
-	implementation 'dev.roanh.util:util:2.1'
+	implementation 'dev.roanh.gmark:gmark:1.0'
 }
 ```
 
 ##### Maven
 ```xml
 <dependency>
-	<groupId>dev.roanh.util</groupId>
-	<artifactId>util</artifactId>
-	<version>2.1</version>
+	<groupId>dev.roanh.gmark</groupId>
+	<artifactId>gmark</artifactId>
+	<version>1.0</version>
 </dependency>
 ````
-
 
 ## Development of gMark
 This repository contain an [Eclipse](https://www.eclipse.org/) & [Gradle](https://gradle.org/) project with [Util](https://github.com/RoanH/Util) and [Apache Commons CLI](https://commons.apache.org/proper/commons-cli/introduction.html) as the only dependencies. Development work can be done using the Eclipse IDE (already setup) or using any other Gradle compatible IDE (manual setup). CI will check that all source files use Unix style line endings (LF) and that all functions and fields have valid documentation. Unit testing is employed to test core functionality, CI will also check for regressions using these tests. A hosted version of the javadoc for gMark can be found at [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/).

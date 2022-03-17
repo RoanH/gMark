@@ -1,9 +1,7 @@
 # gMark [![](https://img.shields.io/github/release/RoanH/gMark.svg)](https://github.com/RoanH/gMark/releases)
-gMark is a domain- and query language-independent graph instance and query workload generator. The original version of gMark is available on GitHub at [gbagan/gmark](https://github.com/gbagan/gmark). The version of gMark in this repository has as goal to rewrite gMark such that it is easier to extend and has better documented code. Currently the focus of the rewrite is on query generation, but the end goal is full feature parity with the original version of gMark. The rewrite has not reached that point yet and is notably still missing graph generation, RPQ (regular path query) based queries and several output formats. The current version does however also offer some features not present in the original version of gMark, such as the ability to generate CPQ (conjunctive path query) based queries and a graphical user interface for the program.
+gMark is a domain- and query language-independent graph instance and query workload generator. The original version of gMark is available on GitHub at [gbagan/gmark](https://github.com/gbagan/gmark). The version of gMark in this repository has as goal to rewrite gMark such that it is easier to extend and has better documented code. Currently the focus of the rewrite is on query generation, but the end goal is full feature parity with the original version of gMark. The rewrite has not reached that point yet and is notably still missing graph generation, RPQ (regular path query) based queries and several output formats. However, the current version does also offer some features not present in the original version of gMark, such as the ability to generate CPQ (conjunctive path query) based queries and a graphical user interface for the program.
 
-Documentation (javadoc) can be found at: [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/) more details on gMark itself can be found in the technical report [arxiv.org/abs/1511.08386](https://arxiv.org/abs/1511.08386). Details regarding the aforementioned queries containing CPQs can be found at [research.roanh.dev/TODO](https://research.roanh.dev/TODO).
-
-##cli or something maybe also link gmark technical report
+Documentation (javadoc) can be found at: [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/) more details on gMark itself can be found in the technical report [arxiv.org/abs/1511.08386](https://arxiv.org/abs/1511.08386). Details regarding the aforementioned queries containing CPQs can be found in my report titled [Conjunctive Path Query Generation for Benchmarking](https://research.roanh.dev/Conjunctive%20Path%20Query%20Generation%20for%20Benchmarking%20v2.8.pdf).
 
 ## Getting started with gMark
 To support a wide variety of of use cases gMark is a available in a number of different formats. 
@@ -13,7 +11,7 @@ To support a wide variety of of use cases gMark is a available in a number of di
 - [As a maven artifact](#maven-artifact-)
 
 ### Command line usage
-When using gMark on command line the following arguments are supported:
+When using gMark on the command line the following arguments are supported:
 
 ```
 usage: gmark [-c <file>] [-f] [-g <size>] [-h] [-o <folder>] [-s <syntax>] [-w <file>]
@@ -34,14 +32,13 @@ For example a workload of queries in SQL format can be generated using:
 gmark -c config.xml -o ./output -s sql -w
 ```
 
-An example configuration XML file can be found both [here](gMark/client/example.xml) and in the graphical interface of the standalone executable. The example RPQ workload configuration files included in the original gMark repository are also compatible and can be found [here](https://github.com/gbagan/gmark/tree/master/use-cases).
+An example configuration XML file can be found both [in this repository](gMark/client/example.xml) and in the graphical interface of the standalone executable. The example RPQ workload configuration files included in the original gMark repository are also compatible and can be found [in the use-cases folder](https://github.com/gbagan/gmark/tree/master/use-cases).
 
 ### Executable download
-gMark is available as a standalone portable executable that has both a graphical interface and a command line interface. The graphical interface will only be launched when no command line arguments are passed.
-
-_Requires Java 8 or higher_    
-- [Windows executable](https://github.com/RoanH/gMark/releases/download/v1.0/gMark-v1.0.exe)    
-- [Runnable Java Archive](https://github.com/RoanH/gMark/releases/download/v1.0/gMark-v1.0.jar)
+gMark is available as a standalone portable executable that has both a graphical interface and a command line interface. The graphical interface will only be launched when no command line arguments are passed. This version of gMark requires Java 8 or higher to run.
+   
+- [Windows executable download](https://github.com/RoanH/gMark/releases/download/v1.0/gMark-v1.0.exe)    
+- [Runnable Java archive (JAR) download](https://github.com/RoanH/gMark/releases/download/v1.0/gMark-v1.0.jar)
 
 All releases: [releases](https://github.com/RoanH/gMark/releases)    
 GitHub repository: [RoanH/gMark](https://github.com/RoanH/gMark)

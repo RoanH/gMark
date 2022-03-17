@@ -3,7 +3,6 @@ image: openjdk:8
 variables:
   NAME: "${CI_PROJECT_NAME}-${CI_PIPELINE_ID}-${CI_BUILD_REF_NAME}"
   PROJECTNAME: gMark
-  VERSION: ${CI_COMMIT_REF_NAME}
 
 before_script:
   - java -version

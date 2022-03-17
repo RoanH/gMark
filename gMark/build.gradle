@@ -12,12 +12,6 @@ plugins{
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-eclipse.classpath.downloadJavadoc = true
-compileJava.options.encoding = 'UTF-8'
-compileClientJava.options.encoding = 'UTF-8'
-sourceCompatibility = 1.8
-version = 'v1.0'//Main.java
-shadowJar.archiveName = 'gMark-v' + project.version + '.jar'
 group = 'dev.roanh.gmark'
 version = System.getenv("VERSION") ? System.getenv("VERSION").substring(1) : 'SNAPSHOT'
 
@@ -83,6 +77,13 @@ components.java.withVariantsFromConfiguration(project.configurations.shadowRunti
 javadoc{
 	options.memberLevel = JavadocMemberLevel.PRIVATE
 }
+
+eclipse.classpath.downloadJavadoc = true
+compileJava.options.encoding = 'UTF-8'
+compileClientJava.options.encoding = 'UTF-8'
+sourceCompatibility = 1.8
+version = 'v1.0'//Main.java
+shadowJar.archiveName = 'gMark-v' + project.version + '.jar'
 
 repositories{
 	//Local cache

@@ -9,8 +9,8 @@ Documentation (javadoc) can be found at: [gmark.docs.roanh.dev](https://gmark.do
 To support a wide variety of of use cases gMark is a available in a number of different formats. 
 
 - [As a standalone executable with both a graphical and command line interface](#executable-download)
-- [As a docker image](#docker-image)
-- [As a maven artifact](#maven-artifact)
+- [As a docker image](#docker-image-[![](https://img.shields.io/docker/v/roanh/gmark?sort=semver)](https://hub.docker.com/r/roanh/gmark))
+- [As a maven artifact](#maven-artifact-[![Maven Central](https://img.shields.io/maven-central/v/dev.roanh.gmark/gmark)](https://mvnrepository.com/artifact/dev.roanh.gmark/gmark))
 
 ### Command line usage
 When using gMark on command line the following arguments are supported:

@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1
-LABEL maintainer="roan@roanh.dev"
-
 FROM openjdk:8 AS compile
+LABEL maintainer="roan@roanh.dev"
 WORKDIR /gMark
 ADD gMark/gradle/wrapper/* /gMark/gradle/wrapper/
 ADD gMark/src/* /gMark/src/
@@ -12,6 +11,7 @@ RUN chmod -R 755 ./
 RUN ./gradlew :cliJar
 
 FROM openjdk:8
+LABEL maintainer="roan@roanh.dev"
 WORKDIR /gMark
 COPY --from=compile /gMark/build/libs/gMark-cli-SNAPSHOT.jar ./gMark.jar
 ENTRYPOINT ["java", "-jar", "gMark.jar"]

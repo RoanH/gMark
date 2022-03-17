@@ -65,6 +65,11 @@ task cliJar(type: ShadowJar, group: "build"){
 	}
 }
 
+//work around for: https://github.com/johnrengelman/shadow/issues/651
+components.java.withVariantsFromConfiguration(project.configurations.shadowRuntimeElements){
+	skip()
+}
+
 javadoc{
 	options.memberLevel = JavadocMemberLevel.PRIVATE
 }

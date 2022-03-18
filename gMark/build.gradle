@@ -22,6 +22,7 @@ sourceSets{
 		}
 		resources{
 			srcDirs 'src'
+			exclude '**/*.java'
 		}
 	}
 	client{
@@ -40,6 +41,11 @@ sourceSets{
 			srcDir 'test'
 		}
 	}
+}
+
+java{
+	withSourcesJar()
+	withJavadocJar()
 }
 
 test{
@@ -76,6 +82,7 @@ components.java.withVariantsFromConfiguration(project.configurations.shadowRunti
 
 javadoc{
 	options.memberLevel = JavadocMemberLevel.PRIVATE
+	options.encoding = 'UTF-8'
 }
 
 eclipse.classpath.downloadJavadoc = true

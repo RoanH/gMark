@@ -101,6 +101,10 @@ public class QuerySet implements OutputXML{
 		return queries.stream().mapToInt(Query::getMaxConjuncts).max().orElse(0);
 	}
 	
+	/**
+	 * @deprecated Not yet implemented.
+	 * @return Always 0.
+	 */
 	@Deprecated
 	public double getStarFraction(){
 		//TODO implement

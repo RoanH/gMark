@@ -111,6 +111,16 @@ public class Predicate implements OutputXML, OutputSQL{
 	}
 	
 	@Override
+	public void writeSQL(IndentWriter writer){
+		// TODO Auto-generated method stub
+		if(isInverse()){
+			return "(SELECT trg AS src, src AS trg FROM edge WHERE label = " + id + ")";
+		}else{
+			return "(SELECT src, trg FROM edge WHERE label = " + id + ")";
+		}
+	}
+	
+	@Override
 	public String toSQL(){
 		if(isInverse()){
 			return "(SELECT trg AS src, src AS trg FROM edge WHERE label = " + id + ")";

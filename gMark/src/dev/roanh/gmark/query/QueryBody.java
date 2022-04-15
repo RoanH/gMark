@@ -97,13 +97,14 @@ public class QueryBody implements OutputXML{
 	 * @param lhs The projected head variables.
 	 * @return The SQL form of this query body.
 	 */
-	protected String toSQL(List<Variable> lhs){
+	protected void writeSQL(IndentWriter writer, List<Variable> lhs){
 		StringBuilder buffer = new StringBuilder();
 		int n = conjuncts.size();
 		Map<Variable, List<Conjunct>> varMap = new HashMap<Variable, List<Conjunct>>();
 		Map<Conjunct, Integer> idMap = new HashMap<Conjunct, Integer>();
 		
-		buffer.append("(WITH RECURSIVE ");
+		writer.print("(WITH RECURSIVE");
+//		buffer.append("(WITH RECURSIVE ");
 		int extra = 0;
 		for(int i = 0; i < n; i++){
 			Conjunct conj = conjuncts.get(i);
@@ -111,13 +112,27 @@ public class QueryBody implements OutputXML{
 			varMap.computeIfAbsent(conj.getTarget(), v->new ArrayList<Conjunct>()).add(conj);
 			idMap.put(conj, i);
 			
-			buffer.append('c');
-			buffer.append(i);
-			buffer.append("(src, trg) AS ");
+			writer.increaseIndent(1);
+			writer.print("c");
+			writer.print(i);
+			writer.print("(src, trg) AS ");
+			writer.increaseIndent(3);
+//			buffer.append('c');
+//			buffer.append(i);
+//			buffer.append("(src, trg) AS ");
 			if(conj.hasStar()){
-				buffer.append("(SELECT edge.src, edge.src FROM edge UNION SELECT edge.trg, edge.trg FROM edge UNION ");
+				writer.println("(");
+				writer.println("SELECT edge.src, edge.src");
+				writer.println("FROM edge");
+				writer.println("UNION");
+				writer.println("SELECT edge.trg, edge.trg");
+				writer.println("FROM edge");
+				writer.println("UNION");
+				
+//				buffer.append("(SELECT edge.src, edge.src FROM edge UNION SELECT edge.trg, edge.trg FROM edge UNION ");
 			}
-			buffer.append(conj.toPartialSQL());
+			buffer.append(conj.toPartialSQL());//TODO
+			writer.decreaseIndent(3);
 			if(conj.hasStar()){
 				buffer.append("), c");
 				buffer.append(n + extra);
@@ -134,6 +149,9 @@ public class QueryBody implements OutputXML{
 			if(i < n - 1){
 				buffer.append(", ");
 			}
+			
+			//TODO move
+			writer.decreaseIndent(4);
 		}
 		
 		if(lhs.isEmpty()){
@@ -186,7 +204,7 @@ public class QueryBody implements OutputXML{
 		}
 		
 		buffer.append(")");
-		return buffer.toString();
+		//TODO return buffer.toString();
 	}
 	
 	/**

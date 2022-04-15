@@ -33,6 +33,12 @@ public class ConcatCPQ implements CPQ{
 		}
 		return builder.toString();
 	}
+	
+	@Override
+	public void writeSQL(IndentWriter writer){
+		// TODO Auto-generated method stub
+		
+	}
 
 	@Override
 	public String toSQL(){

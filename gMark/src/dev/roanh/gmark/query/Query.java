@@ -152,18 +152,15 @@ public class Query implements OutputSQL, OutputXML{
 		}
 		return buffer.toString();
 	}
-
+	
 	@Override
-	public String toSQL(){
-		StringBuffer buffer = new StringBuffer();
+	public void writeSQL(IndentWriter writer){
 		for(int i = 0; i < bodies.size(); i++){
-			buffer.append(bodies.get(i).toSQL(variables));
+			bodies.get(i).writeSQL(writer, variables);
 			if(i < bodies.size() - 1){
-				buffer.append(" UNION ");
+				writer.println("UNION");
 			}
 		}
-		buffer.append(";");
-		return buffer.toString();
 	}
 
 	@Override

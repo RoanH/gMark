@@ -86,6 +86,22 @@ public class QueryGraphCPQ{
 	}
 	
 	/**
+	 * Gets the query graph source vertex.
+	 * @return The source vertex.
+	 */
+	public Vertex getSourceVertex(){
+		return source;
+	}
+	
+	/**
+	 * Gets the query graph target vertex.
+	 * @return The target vertex.
+	 */
+	public Vertex getTargetVertex(){
+		return target;
+	}
+	
+	/**
 	 * Sets the target vertex of this CPQ query graph.
 	 * @param target The new target vertex.
 	 */
@@ -114,6 +130,8 @@ public class QueryGraphCPQ{
 	 * vertex due to intersections with the identity operation.
 	 */
 	protected void merge(){
+		System.out.println(this);
+
 		while(!fid.isEmpty()){
 			Pair elem = getIdentityPair();
 			
@@ -142,6 +160,8 @@ public class QueryGraphCPQ{
 					fid.add(new Pair(pair.first, elem.second));
 				}
 			}
+			
+			System.out.println(this);
 		}
 	}
 	
@@ -167,24 +187,10 @@ public class QueryGraphCPQ{
 	 * @author Roan
 	 */
 	public static class Vertex{
-		/**
-		 * Special constant for a CPQ query graph source vertex.
-		 */
-		public static final Vertex SOURCE = new Vertex();
-		/**
-		 * Special constant for a CPQ query graph target vertex.
-		 */
-		public static final Vertex TARGET = new Vertex();
 		
 		@Override
 		public String toString(){
-			if(this == SOURCE){
-				return "src";
-			}else if(this == TARGET){
-				return "trg";
-			}else{
-				return String.valueOf((char)('a' + (this.hashCode() % 26)));
-			}
+			return String.valueOf((char)('a' + (this.hashCode() % 26)));
 		}
 	}
 	

@@ -1,0 +1,66 @@
+package dev.roanh.gmark.conjunct.cpq;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.junit.jupiter.api.Test;
+
+import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
+import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.Graph;
+import dev.roanh.gmark.util.Graph.GraphEdge;
+import dev.roanh.gmark.util.Graph.GraphNode;
+
+public class QueryGraphCPQTest{
+	
+	@Test
+	public void testConstruction() throws Exception{
+		Predicate a = new Predicate(1, "a", 0.0D);
+		Predicate b = new Predicate(2, "b", 0.0D);
+		Predicate c = new Predicate(3, "c", 0.0D);
+		
+		CPQ q = CPQ.intersect(CPQ.concat(CPQ.label(a), CPQ.intersect(CPQ.label(b), CPQ.id()), CPQ.label(c)), CPQ.IDENTITY);
+		assertEquals("((a◦(b ∩ id)◦c) ∩ id)", q.toString());
+
+		QueryGraphCPQ queryGraph = q.toQueryGraph();
+		Graph<Vertex, Predicate> graph = queryGraph.toGraph();
+		
+		assertEquals(3, graph.getEdgeCount());
+		assertEquals(2, graph.getNodeCount());
+				
+		assertEquals(Arrays.asList("a", "b", "c"), graph.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).sorted().collect(Collectors.toList()));
+		assertEquals(Arrays.asList("", "src,trg"), graph.getNodes().stream().map(GraphNode::getData).map(queryGraph::getVertexLabel).sorted().collect(Collectors.toList()));
+
+		List<GraphNode<Vertex, Predicate>> nodes = graph.getNodes();
+		for(int i = 0; i < 2; i++){
+			GraphNode<Vertex, Predicate> node = nodes.get(i);
+			if(node.getInCount() == 1){
+				assertEquals(1, node.getOutCount());
+				assertEquals("a", node.getOutEdges().iterator().next().getData().getAlias());
+				assertEquals("c", node.getInEdges().iterator().next().getData().getAlias());
+				assertEquals(nodes.get((i + 1) % 2), node.getOutEdges().iterator().next().getTargetNode());
+				assertEquals(nodes.get((i + 1) % 2), node.getInEdges().iterator().next().getSourceNode());
+			}else{
+				assertEquals(2, node.getInCount());
+				assertEquals(2, node.getOutCount());
+				for(GraphEdge<Vertex, Predicate> edge : node.getOutEdges()){
+					if(edge.getData().getAlias().equals("b")){
+						assertEquals(node, edge.getTargetNode());
+					}else{
+						assertEquals(nodes.get((i + 1) % 2), edge.getTargetNode());
+					}
+				}
+				for(GraphEdge<Vertex, Predicate> edge : node.getInEdges()){
+					if(edge.getData().getAlias().equals("b")){
+						assertEquals(node, edge.getTargetNode());
+					}else{
+						assertEquals(nodes.get((i + 1) % 2), edge.getSourceNode());
+					}
+				}
+			}
+		}
+	}
+}

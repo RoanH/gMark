@@ -39,7 +39,7 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	};
 	
 	public default QueryGraphCPQ toQueryGraph(){
-		QueryGraphCPQ graph = toQueryGraph(Vertex.SOURCE, Vertex.TARGET);
+		QueryGraphCPQ graph = toQueryGraph(new Vertex(), new Vertex());
 		graph.merge();
 		return graph;
 	}

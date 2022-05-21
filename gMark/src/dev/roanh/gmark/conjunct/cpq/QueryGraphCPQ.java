@@ -8,7 +8,17 @@ import java.util.stream.Collectors;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.util.Graph;
 
+/**
+ * Object representing the query graph of a CPQ. This
+ * is effectively a visual representation of the CPQ
+ * as a graph. The implementation is loosely based on
+ * an algorithm proposed by Seiji Maekawa.
+ * @author Roan
+ */
 public class QueryGraphCPQ{
+	/**
+	 * The set of vertices for this query graph.
+	 */
 	private Set<Vertex> vertices = new HashSet<Vertex>();
 	private Set<Edge> edges = new HashSet<Edge>();
 	private Vertex source;
@@ -44,7 +54,7 @@ public class QueryGraphCPQ{
 		}
 	}
 	
-	public String getVertexString(Vertex vertex){
+	public String getVertexLabel(Vertex vertex){
 		if(vertex == source){
 			return vertex == target ? "src,trg" : "src";
 		}else{
@@ -73,7 +83,7 @@ public class QueryGraphCPQ{
 		return graph;
 	}
 	
-	private void merge(){
+	protected void merge(){
 		while(!fid.isEmpty()){
 			Pair elem = getIdPair();
 			

@@ -1,6 +1,9 @@
 package dev.roanh.gmark.conjunct.cpq;
 
+import java.util.Arrays;
+
 import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
+import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
@@ -40,4 +43,20 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	}
 	
 	public abstract QueryGraphCPQ toQueryGraph(Vertex source, Vertex target);
+	
+	public static CPQ id(){
+		return IDENTITY;
+	}
+	
+	public static CPQ intersect(CPQ first, CPQ second){
+		return new IntersectionCPQ(first, second);
+	}
+	
+	public static CPQ concat(CPQ... cpqs){
+		return new ConcatCPQ(Arrays.asList(cpqs));
+	}
+	
+	public static CPQ label(Predicate label){
+		return new EdgeCPQ(label);
+	}
 }

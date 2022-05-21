@@ -87,7 +87,7 @@ public class ConcatCPQ implements CPQ{
 		
 		Vertex mid = new Vertex();
 		QueryGraphCPQ chain = cpq.get(0).toQueryGraph(source, mid);
-		for(int i = 1; i < cpq.size() - 1; i++){
+		for(int i = 1; i < cpq.size(); i++){
 			Vertex to = i == cpq.size() - 1 ? target : new Vertex();
 			chain.union(cpq.get(i).toQueryGraph(mid, to));
 			mid = to;

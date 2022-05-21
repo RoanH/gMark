@@ -29,6 +29,16 @@ public class QueryGraphCPQ{
 		public static final Vertex SOURCE = new Vertex();
 		public static final Vertex TARGET = new Vertex();
 		
+		@Override
+		public String toString(){
+			if(this == SOURCE){
+				return "s";
+			}else if(this == TARGET){
+				return "t";
+			}else{
+				return String.valueOf(this.hashCode() % 100);//TODO empty
+			}
+		}
 	}
 	
 	protected QueryGraphCPQ union(QueryGraphCPQ other){
@@ -42,6 +52,11 @@ public class QueryGraphCPQ{
 		this.target = target;
 	}
 	
+	@Override
+	public String toString(){
+		return "QueryGraphCPQ[V=" + vertices + ",E=" + edges + ",Fid=" + fid + "]";
+	}
+	
 	private class Edge{
 		private Vertex v;
 		private Vertex u;
@@ -52,6 +67,11 @@ public class QueryGraphCPQ{
 			this.u = u;
 			this.label = label;
 		}
+		
+		@Override
+		public String toString(){
+			return "(" + v + "," + u + "," + label.getAlias() + ")";
+		}
 	}
 	
 	private class Pair{
@@ -61,6 +81,11 @@ public class QueryGraphCPQ{
 		private Pair(Vertex v, Vertex u){
 			this.v = v;
 			this.u = u;
+		}
+		
+		@Override
+		public String toString(){
+			return "(" + v + "," + u + ")";
 		}
 	}
 }

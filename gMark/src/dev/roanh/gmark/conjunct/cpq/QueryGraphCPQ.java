@@ -130,8 +130,6 @@ public class QueryGraphCPQ{
 	 * vertex due to intersections with the identity operation.
 	 */
 	protected void merge(){
-		System.out.println(this);
-
 		while(!fid.isEmpty()){
 			Pair elem = getIdentityPair();
 			
@@ -160,8 +158,6 @@ public class QueryGraphCPQ{
 					fid.add(new Pair(pair.first, elem.second));
 				}
 			}
-			
-			System.out.println(this);
 		}
 	}
 	

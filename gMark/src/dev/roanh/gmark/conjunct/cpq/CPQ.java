@@ -38,26 +38,65 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 		}
 	};
 	
+	/**
+	 * Computes and returns the query graph for this CPQ.
+	 * @return The query graph for this CPQ.
+	 * @see QueryGraphCPQ
+	 */
 	public default QueryGraphCPQ toQueryGraph(){
 		QueryGraphCPQ graph = toQueryGraph(new Vertex(), new Vertex());
 		graph.merge();
 		return graph;
 	}
 	
+	/**
+	 * Computes and returns the query graph for this CPQ using
+	 * the given source and target vertices for the computation.
+	 * Usually using {@link #toQueryGraph()} instead should be
+	 * sufficient for most use cases.
+	 * @param source The source vertex to use.
+	 * @param target The target vertex to use.
+	 * @return The query graph for this CPQ.
+	 * @see QueryGraphCPQ
+	 * @see #toQueryGraph()
+	 */
 	public abstract QueryGraphCPQ toQueryGraph(Vertex source, Vertex target);
 	
+	/**
+	 * Returns the identity CPQ.
+	 * @return The identity CPQ.
+	 * @see #IDENTITY
+	 */
 	public static CPQ id(){
 		return IDENTITY;
 	}
 	
+	/**
+	 * Returns a CPQ representing the intersection (conjunction)
+	 * of the two given CPQs.
+	 * @param first The first CPQ.
+	 * @param second The second CPQ.
+	 * @return The intersection of the given CPQs.
+	 */
 	public static CPQ intersect(CPQ first, CPQ second){
 		return new IntersectionCPQ(first, second);
 	}
 	
+	/**
+	 * Returns a CPQ representing the concatenation in order
+	 * of the given CPQs.
+	 * @param cpqs The CPQs to concatenate (in order).
+	 * @return The concatenation of the given CPQs.
+	 */
 	public static CPQ concat(CPQ... cpqs){
 		return new ConcatCPQ(Arrays.asList(cpqs));
 	}
 	
+	/**
+	 * Returns a CPQ representing a single labelled edge traversal.
+	 * @param label The label of the traversed edge.
+	 * @return The label traversal CPQ.
+	 */
 	public static CPQ label(Predicate label){
 		return new EdgeCPQ(label);
 	}

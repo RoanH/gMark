@@ -3,6 +3,7 @@ package dev.roanh.gmark.conjunct.cpq;
 import java.util.List;
 import java.util.StringJoiner;
 
+import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
@@ -81,5 +82,23 @@ public class ConcatCPQ implements CPQ{
 		writer.println("<cpq type=\"concat\">", 2);
 		cpq.forEach(c->c.writeXML(writer));
 		writer.println(2, "</cpq>");
+	}
+
+	@Override
+	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
+		if(cpq.size() == 1){
+			return cpq.get(0).toQueryGraph(source, target);
+		}
+		
+		Vertex mid = new Vertex();
+		QueryGraphCPQ chain = cpq.get(0).toQueryGraph(source, mid);
+		for(int i = 1; i < cpq.size(); i++){
+			Vertex to = i == cpq.size() - 1 ? target : new Vertex();
+			chain.union(cpq.get(i).toQueryGraph(mid, to));
+			mid = to;
+		}
+		
+		chain.setTarget(target);
+		return chain;
 	}
 }

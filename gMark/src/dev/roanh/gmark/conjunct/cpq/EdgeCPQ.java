@@ -1,5 +1,6 @@
 package dev.roanh.gmark.conjunct.cpq;
 
+import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -22,6 +23,14 @@ public class EdgeCPQ implements CPQ{
 		this.symbol = symbol;
 	}
 	
+	/**
+	 * Gets the label (symbol) for this edge.
+	 * @return The label for this edge.
+	 */
+	public Predicate getLabel(){
+		return symbol;
+	}
+	
 	@Override
 	public String toString(){
 		return symbol.getAlias();
@@ -35,5 +44,10 @@ public class EdgeCPQ implements CPQ{
 	@Override
 	public void writeXML(IndentWriter writer){
 		symbol.writeXML(writer);
+	}
+
+	@Override
+	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
+		return new QueryGraphCPQ(this, source, target);
 	}
 }

@@ -261,12 +261,14 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 			g.setColor(Color.BLACK);
 			g.draw(shape);
 			String str = nodeLabel.apply(data.getData());
-			int sw = g.getFontMetrics().stringWidth(str);
-			g.setColor(Color.WHITE);
-			g.fillRect(-sw / 2 - 1, y - fm.getHeight() + fm.getDescent(), sw + 2, fm.getHeight() + 1);
-			g.setColor(Color.BLACK);
-			g.drawRect(-sw / 2 - 1, y - fm.getHeight() + fm.getDescent(), sw + 2, fm.getHeight() + 1);
-			g.drawString(str, -sw / 2, y);
+			if(str != null && !str.isEmpty()){
+				int sw = g.getFontMetrics().stringWidth(str);
+				g.setColor(Color.WHITE);
+				g.fillRect(-sw / 2 - 1, y - fm.getHeight() + fm.getDescent(), sw + 2, fm.getHeight() + 1);
+				g.setColor(Color.BLACK);
+				g.drawRect(-sw / 2 - 1, y - fm.getHeight() + fm.getDescent(), sw + 2, fm.getHeight() + 1);
+				g.drawString(str, -sw / 2, y);
+			}
 			g.translate(-location.x, -location.y);
 		}
 	}

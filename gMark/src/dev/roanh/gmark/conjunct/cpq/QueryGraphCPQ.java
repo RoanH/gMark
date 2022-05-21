@@ -20,48 +20,64 @@ public class QueryGraphCPQ{
 	 * The set of vertices for this query graph.
 	 */
 	private Set<Vertex> vertices = new HashSet<Vertex>();
+	/**
+	 * The set of edges for this query graph.
+	 */
 	private Set<Edge> edges = new HashSet<Edge>();
+	/**
+	 * The source vertex of the CPQ.
+	 */
 	private Vertex source;
+	/**
+	 * The target vertex of the CPQ.
+	 */
 	private Vertex target;
+	/**
+	 * Set of identity pair that still need to be processed,
+	 * always empty for a fully constructed query graph.
+	 */
 	private Set<Pair> fid = new HashSet<Pair>();
 	
-	//effectively identity
+	/**
+	 * Constructs a new query graph containing only the
+	 * given source and target vertex. This effectively
+	 * constructs a query graph for the identity CPQ.
+	 * @param source The CPQ source vertex.
+	 * @param target The CPQ target vertex.
+	 */
 	protected QueryGraphCPQ(Vertex source, Vertex target){
-		vertices.add(this.source = source);
-		vertices.add(this.target = target);
+		this.source = source;
+		this.target = target;
+		vertices.add(source);
+		vertices.add(target);
 		fid.add(new Pair(source, target));
 	}
 	
+	/**
+	 * Constructs a new query graph for the CPQ containing
+	 * only a single edge label traversal.
+	 * @param cpq The CPQ describing the labelled edge traversal.
+	 * @param source The CPQ source vertex where the edge traversal starts.
+	 * @param target The CPQ target vertex where the edge traversal ends.
+	 */
 	protected QueryGraphCPQ(EdgeCPQ cpq, Vertex source, Vertex target){
-		vertices.add(this.source = source);
-		vertices.add(this.target = target);
+		this.source = source;
+		this.target = target;
+		vertices.add(source);
+		vertices.add(target);
 		edges.add(new Edge(source, target, cpq.getLabel()));
 	}
 	
-	public static class Vertex{
-		public static final Vertex SOURCE = new Vertex();
-		public static final Vertex TARGET = new Vertex();
-		
-		@Override
-		public String toString(){
-			if(this == SOURCE){
-				return "src";
-			}else if(this == TARGET){
-				return "trg";
-			}else{
-				return String.valueOf((char)('a' + (this.hashCode() % 26)));
-			}
-		}
-	}
-	
-	public String getVertexLabel(Vertex vertex){
-		if(vertex == source){
-			return vertex == target ? "src,trg" : "src";
-		}else{
-			return vertex == target ? "trg" : "";
-		}
-	}
-	
+	/**
+	 * Computes the union of this query graph and the
+	 * given other query graph by merging the vertex,
+	 * edge and identity sets. Note that this method
+	 * does not create a new query graph and instead
+	 * updates this graph with the data from the given
+	 * other graph. 
+	 * @param other The graph to merge with.
+	 * @return The computed union graph (equal to this graph).
+	 */
 	protected QueryGraphCPQ union(QueryGraphCPQ other){
 		vertices.addAll(other.vertices);
 		edges.addAll(other.edges);
@@ -69,10 +85,19 @@ public class QueryGraphCPQ{
 		return this;
 	}
 	
+	/**
+	 * Sets the target vertex of this CPQ query graph.
+	 * @param target The new target vertex.
+	 */
 	protected void setTarget(Vertex target){
 		this.target = target;
 	}
 	
+	/**
+	 * Converts this query graph to an actual
+	 * graph instance.
+	 * @return The constructed graph instance.
+	 */
 	public Graph<Vertex, Predicate> toGraph(){
 		merge();
 		Graph<Vertex, Predicate> graph = new Graph<Vertex, Predicate>();
@@ -83,9 +108,14 @@ public class QueryGraphCPQ{
 		return graph;
 	}
 	
+	/**
+	 * Executes the final merge step of the query graph construction algorithm,
+	 * this step merges vertices that need to be merged together into the same
+	 * vertex due to intersections with the identity operation.
+	 */
 	protected void merge(){
 		while(!fid.isEmpty()){
-			Pair elem = getIdPair();
+			Pair elem = getIdentityPair();
 			
 			vertices.remove(elem.first);
 			
@@ -115,7 +145,12 @@ public class QueryGraphCPQ{
 		}
 	}
 	
-	private Pair getIdPair(){
+	/**
+	 * Gets a single identity pair that still
+	 * needs to be processed and removes it from the set.
+	 * @return The retrieved identity pair.
+	 */
+	private Pair getIdentityPair(){
 		Iterator<Pair> iter = fid.iterator();
 		Pair elem = iter.next();
 		iter.remove();
@@ -127,14 +162,75 @@ public class QueryGraphCPQ{
 		return "QueryGraphCPQ[V=" + vertices + ",E=" + edges + ",src=" + source + ",trg=" + target + ",Fid=" + fid + "]";
 	}
 	
+	/**
+	 * Represents a vertex in a CPQ query graph.
+	 * @author Roan
+	 */
+	public static class Vertex{
+		/**
+		 * Special constant for a CPQ query graph source vertex.
+		 */
+		public static final Vertex SOURCE = new Vertex();
+		/**
+		 * Special constant for a CPQ query graph target vertex.
+		 */
+		public static final Vertex TARGET = new Vertex();
+		
+		@Override
+		public String toString(){
+			if(this == SOURCE){
+				return "src";
+			}else if(this == TARGET){
+				return "trg";
+			}else{
+				return String.valueOf((char)('a' + (this.hashCode() % 26)));
+			}
+		}
+	}
+	
+	/**
+	 * Computes the label for a vertex in a CPQ query graph. Note
+	 * this graph is technically not labelled but a source and target
+	 * vertex can be identified (and might be identical).
+	 * @param vertex The vertex to get the label for.
+	 * @return The label for the given vertex.
+	 */
+	public String getVertexLabel(Vertex vertex){
+		if(vertex == source){
+			return vertex == target ? "src,trg" : "src";
+		}else{
+			return vertex == target ? "trg" : "";
+		}
+	}
+	
+	/**
+	 * Represents a directed edge in a CPQ query graph.
+	 * @author Roan
+	 */
 	private static class Edge{
+		/**
+		 * The edge source vertex.
+		 */
 		private Vertex src;
+		/**
+		 * The edge target vertex.
+		 */
 		private Vertex trg;
+		/**
+		 * The edge label.
+		 */
 		private Predicate label;
 		
-		private Edge(Vertex v, Vertex u, Predicate label){
-			this.src = v;
-			this.trg = u;
+		/**
+		 * Constructs a new edge with the given source
+		 * and target vertex and edge label.
+		 * @param src The edge source vertex.
+		 * @param trg The edge target vertex.
+		 * @param label The edge label.
+		 */
+		private Edge(Vertex src, Vertex trg, Predicate label){
+			this.src = src;
+			this.trg = trg;
 			this.label = label;
 		}
 		
@@ -144,13 +240,28 @@ public class QueryGraphCPQ{
 		}
 	}
 	
+	/**
+	 * Represents a pair of vertices used for identity processing.
+	 * @author Roan
+	 */
 	private static class Pair{
+		/**
+		 * The first vertex.
+		 */
 		private Vertex first;
+		/**
+		 * The second vertex.
+		 */
 		private Vertex second;
 		
-		private Pair(Vertex v, Vertex u){
-			this.first = v;
-			this.second = u;
+		/**
+		 * Constructs a new pair of vertices.
+		 * @param first The first vertex.
+		 * @param second The second vertex.
+		 */
+		private Pair(Vertex first, Vertex second){
+			this.first = first;
+			this.second = second;
 		}
 		
 		@Override

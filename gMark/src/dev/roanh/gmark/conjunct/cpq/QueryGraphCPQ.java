@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.Graph;
 
 public class QueryGraphCPQ{
 	private Set<Vertex> vertices = new HashSet<Vertex>();
@@ -16,14 +17,14 @@ public class QueryGraphCPQ{
 	
 	//effectively identity
 	protected QueryGraphCPQ(Vertex source, Vertex target){
-		vertices.add(source);
-		vertices.add(target);
+		vertices.add(this.source = source);
+		vertices.add(this.target = target);
 		fid.add(new Pair(source, target));
 	}
 	
 	protected QueryGraphCPQ(EdgeCPQ cpq, Vertex source, Vertex target){
-		vertices.add(source);
-		vertices.add(target);
+		vertices.add(this.source = source);
+		vertices.add(this.target = target);
 		edges.add(new Edge(source, target, cpq.getLabel()));
 	}
 	
@@ -34,12 +35,20 @@ public class QueryGraphCPQ{
 		@Override
 		public String toString(){
 			if(this == SOURCE){
-				return "s";
+				return "src";
 			}else if(this == TARGET){
-				return "t";
+				return "trg";
 			}else{
-				return String.valueOf(this.hashCode() % 100);//TODO empty
+				return String.valueOf((char)('a' + (this.hashCode() % 26)));
 			}
+		}
+	}
+	
+	public String getVertexString(Vertex vertex){
+		if(vertex == source){
+			return vertex == target ? "src,trg" : "src";
+		}else{
+			return vertex == target ? "trg" : "";
 		}
 	}
 	
@@ -54,38 +63,45 @@ public class QueryGraphCPQ{
 		this.target = target;
 	}
 	
-	//TODO private
-	public void merge(){
+	public Graph<Vertex, Predicate> toGraph(){
+		merge();
+		Graph<Vertex, Predicate> graph = new Graph<Vertex, Predicate>();
+		vertices.forEach(graph::addUniqueNode);
+		for(Edge edge : edges){
+			graph.addUniqueEdge(edge.src, edge.trg, edge.label);
+		}
+		return graph;
+	}
+	
+	private void merge(){
 		while(!fid.isEmpty()){
 			Pair elem = getIdPair();
 			
-			vertices.remove(elem.v);
+			vertices.remove(elem.first);
 			
 			for(Edge edge : edges.stream().collect(Collectors.toList())){
-				if(edge.v == elem.v){
-					edges.add(new Edge(elem.u, edge.u, edge.label));
+				if(edge.src == elem.first){
+					edges.add(new Edge(elem.second, edge.trg, edge.label));
 				}
 				
-				if(edge.u == elem.v){
-					edges.add(new Edge(edge.v, elem.u, edge.label));
+				if(edge.trg == elem.first){
+					edges.add(new Edge(edge.src, elem.second, edge.label));
 				}
 			}
-			edges.removeIf(e->e.v == elem.v || e.u == elem.v);
+			edges.removeIf(e->e.src == elem.first || e.trg == elem.first);
 			
-			source = source == elem.v ? source : elem.u;
-			target = target == elem.v ? target : elem.u;
+			source = source == elem.first ? source : elem.second;
+			target = target == elem.first ? target : elem.second;
 			
 			for(Pair pair : fid.stream().collect(Collectors.toList())){
-				if(pair.u == elem.v){
-					fid.add(new Pair(elem.u, pair.u));
+				if(pair.second == elem.first){
+					fid.add(new Pair(elem.second, pair.second));
 				}
 				
-				if(pair.v == elem.v){
-					fid.add(new Pair(pair.v, elem.u));
+				if(pair.first == elem.first){
+					fid.add(new Pair(pair.first, elem.second));
 				}
 			}
-			
-			System.out.println(this);
 		}
 	}
 	
@@ -98,38 +114,38 @@ public class QueryGraphCPQ{
 	
 	@Override
 	public String toString(){
-		return "QueryGraphCPQ[V=" + vertices + ",E=" + edges + ",Fid=" + fid + "]";
+		return "QueryGraphCPQ[V=" + vertices + ",E=" + edges + ",src=" + source + ",trg=" + target + ",Fid=" + fid + "]";
 	}
 	
-	private class Edge{
-		private Vertex v;
-		private Vertex u;
+	private static class Edge{
+		private Vertex src;
+		private Vertex trg;
 		private Predicate label;
 		
 		private Edge(Vertex v, Vertex u, Predicate label){
-			this.v = v;
-			this.u = u;
+			this.src = v;
+			this.trg = u;
 			this.label = label;
 		}
 		
 		@Override
 		public String toString(){
-			return "(" + v + "," + u + "," + label.getAlias() + ")";
+			return "(" + src + "," + trg + "," + label.getAlias() + ")";
 		}
 	}
 	
-	private class Pair{
-		private Vertex v;
-		private Vertex u;
+	private static class Pair{
+		private Vertex first;
+		private Vertex second;
 		
 		private Pair(Vertex v, Vertex u){
-			this.v = v;
-			this.u = u;
+			this.first = v;
+			this.second = u;
 		}
 		
 		@Override
 		public String toString(){
-			return "(" + v + "," + u + ")";
+			return "(" + first + "," + second + ")";
 		}
 	}
 }

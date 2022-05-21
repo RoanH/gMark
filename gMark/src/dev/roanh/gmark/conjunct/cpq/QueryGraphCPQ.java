@@ -1,7 +1,9 @@
 package dev.roanh.gmark.conjunct.cpq;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
 
@@ -50,6 +52,48 @@ public class QueryGraphCPQ{
 	
 	protected void setTarget(Vertex target){
 		this.target = target;
+	}
+	
+	//TODO private
+	public void merge(){
+		while(!fid.isEmpty()){
+			Pair elem = getIdPair();
+			
+			vertices.remove(elem.v);
+			
+			for(Edge edge : edges.stream().collect(Collectors.toList())){
+				if(edge.v == elem.v){
+					edges.add(new Edge(elem.u, edge.u, edge.label));
+				}
+				
+				if(edge.u == elem.v){
+					edges.add(new Edge(edge.v, elem.u, edge.label));
+				}
+			}
+			edges.removeIf(e->e.v == elem.v || e.u == elem.v);
+			
+			source = source == elem.v ? source : elem.u;
+			target = target == elem.v ? target : elem.u;
+			
+			for(Pair pair : fid.stream().collect(Collectors.toList())){
+				if(pair.u == elem.v){
+					fid.add(new Pair(elem.u, pair.u));
+				}
+				
+				if(pair.v == elem.v){
+					fid.add(new Pair(pair.v, elem.u));
+				}
+			}
+			
+			System.out.println(this);
+		}
+	}
+	
+	private Pair getIdPair(){
+		Iterator<Pair> iter = fid.iterator();
+		Pair elem = iter.next();
+		iter.remove();
+		return elem;
 	}
 	
 	@Override

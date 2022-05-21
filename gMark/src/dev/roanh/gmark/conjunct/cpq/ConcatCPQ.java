@@ -20,9 +20,14 @@ public class ConcatCPQ implements CPQ{
 	 * Constructs a new concat CPQ with the
 	 * given list of CPQs to concatenate.
 	 * @param cpq The CPQs to concatenate.
+	 * @throws IllegalArgumentException When the
+	 *         list of CPQs is empty.
 	 */
 	public ConcatCPQ(List<CPQ> cpq){
 		this.cpq = cpq;
+		if(cpq.isEmpty()){
+			throw new IllegalArgumentException("List of CPQs to concatenate cannot be empty.");
+		}
 	}
 	
 	@Override

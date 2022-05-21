@@ -1,5 +1,6 @@
 package dev.roanh.gmark.conjunct.cpq;
 
+import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
@@ -52,5 +53,10 @@ public class IntersectionCPQ implements CPQ{
 		first.writeXML(writer);
 		second.writeXML(writer);
 		writer.println(2, "</cpq>");
+	}
+
+	@Override
+	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
+		return first.toQueryGraph(source, target).union(second.toQueryGraph(source, target));
 	}
 }

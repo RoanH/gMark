@@ -1,5 +1,6 @@
 package dev.roanh.gmark.conjunct.cpq;
 
+import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
@@ -27,5 +28,16 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 		public void writeXML(IndentWriter writer){
 			writer.println("<cpq type=\"identity\"></cpq>");
 		}
+
+		@Override
+		public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
+			return new QueryGraphCPQ(source, target);
+		}
 	};
+	
+	public default QueryGraphCPQ toQueryGraph(){
+		return toQueryGraph(Vertex.SOURCE, Vertex.TARGET);
+	}
+	
+	public abstract QueryGraphCPQ toQueryGraph(Vertex source, Vertex target);
 }

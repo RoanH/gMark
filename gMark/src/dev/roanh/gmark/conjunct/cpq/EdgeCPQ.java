@@ -23,6 +23,10 @@ public class EdgeCPQ implements CPQ{
 		this.symbol = symbol;
 	}
 	
+	/**
+	 * Gets the label (symbol) for this edge.
+	 * @return The label for this edge.
+	 */
 	public Predicate getLabel(){
 		return symbol;
 	}

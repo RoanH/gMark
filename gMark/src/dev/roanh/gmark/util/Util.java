@@ -15,6 +15,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import dev.roanh.gmark.core.SelectivityClass;
+import dev.roanh.gmark.util.Graph.GraphEdge;
+import dev.roanh.gmark.util.Graph.GraphNode;
 
 /**
  * Class providing various small utilities as well
@@ -149,5 +151,18 @@ public class Util{
 		}catch(Exception e){
 			throw new IOException(e);
 		}
+	}
+	
+	public static <V, E> Graph<?, Void> edgeLabelsToNodes(Graph<V, E> in){
+		Graph<Object, Void> out = new Graph<Object, Void>();
+		
+		in.getNodes().forEach(node->out.addUniqueNode(node.getData()));
+		for(GraphEdge<V, E> edge : in.getEdges()){
+			GraphNode<Object, Void> mid = out.addUniqueNode(new DataProxy<E>(edge.getData()));
+			mid.addUniqueEdgeFrom(edge.getSource());
+			mid.addUniqueEdgeTo(edge.getTarget());
+		}
+		
+		return out;
 	}
 }

@@ -153,7 +153,7 @@ public class Util{
 		}
 	}
 	
-	public static <V, E> Graph<?, Void> edgeLabelsToNodes(Graph<V, E> in){
+	public static <V, E> Graph<Object, Void> edgeLabelsToNodes(Graph<V, E> in){
 		Graph<Object, Void> out = new Graph<Object, Void>();
 		
 		in.getNodes().forEach(node->out.addUniqueNode(node.getData()));

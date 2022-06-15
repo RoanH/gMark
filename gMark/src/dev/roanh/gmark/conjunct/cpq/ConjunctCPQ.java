@@ -46,6 +46,10 @@ public class ConjunctCPQ extends Conjunct{
 		super(source, target, star);
 		this.cpq = cpq;
 	}
+	
+	public CPQ getCPQ(){
+		return cpq;
+	}
 
 	@Override
 	protected String getInnerString(){

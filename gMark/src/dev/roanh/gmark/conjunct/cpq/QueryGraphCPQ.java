@@ -86,6 +86,16 @@ public class QueryGraphCPQ{
 		edges.add(new Edge(source, target, cpq.getLabel()));
 	}
 	
+	public int getVertexCount(){
+		merge();
+		return vertices.size();
+	}
+	
+	public int getEdgeCount(){
+		merge();
+		return edges.size();
+	}
+	
 	/**
 	 * Computes the union of this query graph and the
 	 * given other query graph by merging the vertex,

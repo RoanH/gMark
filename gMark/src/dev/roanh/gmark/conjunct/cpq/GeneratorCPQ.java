@@ -58,13 +58,21 @@ public class GeneratorCPQ implements ConjunctGenerator{
 		workload = wl;
 	}
 	
+	public static CPQ generatePlainCPQ(int ruleApplications, int labels){
+		return generatePlainCPQ(ruleApplications, Util.generateLabels(labels));
+	}
+	
 	//never only id -- rules only count concat/intersect and can short circuit of course
 	public static CPQ generatePlainCPQ(int ruleApplications, List<Predicate> labels){
+		if(labels.isEmpty()){
+			throw new IllegalArgumentException("List of labels cannot be empty.");
+		}
+		
 		return generatePlainCPQ(ruleApplications, false, labels);
 	}
 	
 	private static CPQ generatePlainCPQ(int ruleApplications, boolean allowId, List<Predicate> labels){
-		if(ruleApplications == 1){
+		if(ruleApplications <= 2){
 			if(allowId && Util.getRandom().nextBoolean()){
 				return CPQ.IDENTITY;
 			}else{

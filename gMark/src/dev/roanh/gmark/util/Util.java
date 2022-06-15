@@ -25,6 +25,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import dev.roanh.gmark.core.SelectivityClass;
+import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.util.Graph.GraphEdge;
 import dev.roanh.gmark.util.Graph.GraphNode;
 
@@ -187,5 +189,13 @@ public class Util{
 		}
 		
 		return out;
+	}
+	
+	public static List<Predicate> generateLabels(int n){
+		List<Predicate> labels = new ArrayList<Predicate>(n);
+		for(int i = 0; i < n; i++){
+			labels.add(new Predicate(i, String.valueOf(i)));
+		}
+		return labels;
 	}
 }

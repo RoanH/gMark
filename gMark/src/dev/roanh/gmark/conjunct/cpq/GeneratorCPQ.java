@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.ConjunctGenerator;
+import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.query.Conjunct;
 import dev.roanh.gmark.query.Variable;
@@ -31,6 +32,7 @@ import dev.roanh.gmark.util.Graph.GraphNode;
 import dev.roanh.gmark.util.SchemaGraph;
 import dev.roanh.gmark.util.SelectivityGraph;
 import dev.roanh.gmark.util.SelectivityType;
+import dev.roanh.gmark.util.Util;
 
 /**
  * Generator for CPQs (Conjunctive Path Queries).
@@ -54,6 +56,33 @@ public class GeneratorCPQ implements ConjunctGenerator{
 	public GeneratorCPQ(WorkloadCPQ wl){
 		gs = new SchemaGraph(wl.getGraphSchema());
 		workload = wl;
+	}
+	
+	//never only id -- rules only count concat/intersect and can short circuit of course
+	public static CPQ generatePlainCPQ(int ruleApplications, List<Predicate> labels){
+		return generatePlainCPQ(ruleApplications, false, labels);
+	}
+	
+	private static CPQ generatePlainCPQ(int ruleApplications, boolean allowId, List<Predicate> labels){
+		if(ruleApplications == 1){
+			if(allowId && Util.getRandom().nextBoolean()){
+				return CPQ.IDENTITY;
+			}else{
+				//edge label
+				Predicate label = Util.selectRandom(labels);
+				return CPQ.label(Util.getRandom().nextBoolean() ? label : label.getInverse());
+			}
+		}else{
+			if(Util.getRandom().nextBoolean()){
+				//concat
+				int split = Util.uniformRandom(1, ruleApplications - 2);
+				return CPQ.concat(generatePlainCPQ(split, false, labels), generatePlainCPQ(ruleApplications - split - 1, false, labels));
+			}else{
+				//intersect
+				int split = Util.uniformRandom(1, ruleApplications - 2);
+				return CPQ.intersect(generatePlainCPQ(split, true, labels), generatePlainCPQ(ruleApplications - split - 1, true, labels));
+			}
+		}
 	}
 
 	@Override

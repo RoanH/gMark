@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
@@ -62,6 +63,10 @@ public class Util{
 	 */
 	public static void setRandomSeed(long seed){
 		random.get().setSeed(seed);
+	}
+	
+	public static <T> T selectRandom(List<T> data){
+		return data.isEmpty() ? null : data.get(getRandom().nextInt(data.size()));
 	}
 
 	/**

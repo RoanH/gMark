@@ -71,8 +71,10 @@ public class GeneratorCPQ implements ConjunctGenerator{
 		return generatePlainCPQ(ruleApplications, false, labels);
 	}
 	
+	//rule = intersect/concat only
+	//prevent concat with id and id intersected with id as they don't really do anything
 	private static CPQ generatePlainCPQ(int ruleApplications, boolean allowId, List<Predicate> labels){
-		if(ruleApplications <= 2){
+		if(ruleApplications == 0){
 			if(allowId && Util.getRandom().nextBoolean()){
 				return CPQ.IDENTITY;
 			}else{
@@ -83,12 +85,12 @@ public class GeneratorCPQ implements ConjunctGenerator{
 		}else{
 			if(Util.getRandom().nextBoolean()){
 				//concat
-				int split = Util.uniformRandom(1, ruleApplications - 2);
+				int split = Util.uniformRandom(0, ruleApplications - 1);
 				return CPQ.concat(generatePlainCPQ(split, false, labels), generatePlainCPQ(ruleApplications - split - 1, false, labels));
 			}else{
 				//intersect
-				int split = Util.uniformRandom(1, ruleApplications - 2);
-				return CPQ.intersect(generatePlainCPQ(split, true, labels), generatePlainCPQ(ruleApplications - split - 1, true, labels));
+				int split = Util.uniformRandom(0, ruleApplications - 1);
+				return CPQ.intersect(generatePlainCPQ(split, true, labels), generatePlainCPQ(ruleApplications - split - 1, false, labels));
 			}
 		}
 	}

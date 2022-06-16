@@ -28,6 +28,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * its inner query.
  * @author Roan
  * @see Conjunct
+ * @see CPQ
  */
 public class ConjunctCPQ extends Conjunct{
 	/**
@@ -47,6 +48,11 @@ public class ConjunctCPQ extends Conjunct{
 		this.cpq = cpq;
 	}
 	
+	/**
+	 * Gets the CPQ for this conjunct.
+	 * @return The CPQ for this conjunct.
+	 * @see CPQ
+	 */
 	public CPQ getCPQ(){
 		return cpq;
 	}

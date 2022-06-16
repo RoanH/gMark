@@ -185,6 +185,10 @@ public class QueryGraphCPQ{
 					edges.add(new Edge(edge.src, elem.second, edge.label));
 					//edge.trg = elem.second;
 				}
+				
+				if(edge.src == elem.first && edge.trg == elem.first){
+					edges.add(new Edge(elem.second, elem.second, edge.label));
+				}
 			}
 			edges.removeIf(e->e.src == elem.first || e.trg == elem.first);
 			
@@ -213,7 +217,7 @@ public class QueryGraphCPQ{
 			//fid.remove(elem);
 			fid.removeIf(p->p.first == elem.first || p.second == elem.first);
 			
-			i++;
+			//i++;
 		}
 		System.out.println("fin: " + edges + " / " + vertices);
 		

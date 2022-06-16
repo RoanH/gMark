@@ -19,6 +19,7 @@
 package dev.roanh.gmark.conjunct.cpq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,9 +37,9 @@ public class QueryGraphCPQTest{
 	
 	@Test
 	public void testConstruction() throws Exception{
-		Predicate a = new Predicate(1, "a", 0.0D);
-		Predicate b = new Predicate(2, "b", 0.0D);
-		Predicate c = new Predicate(3, "c", 0.0D);
+		Predicate a = new Predicate(1, "a");
+		Predicate b = new Predicate(2, "b");
+		Predicate c = new Predicate(3, "c");
 		
 		CPQ q = CPQ.intersect(CPQ.concat(CPQ.label(a), CPQ.intersect(CPQ.label(b), CPQ.id()), CPQ.label(c)), CPQ.IDENTITY);
 		assertEquals("((a◦(b ∩ id)◦c) ∩ id)", q.toString());
@@ -80,5 +81,40 @@ public class QueryGraphCPQTest{
 				}
 			}
 		}
+	}
+	
+	@Test
+	public void testRename(){
+		Predicate a = new Predicate(1, "a");
+		Predicate b = new Predicate(2, "b");
+		
+		CPQ cpq = CPQ.concat(
+			CPQ.intersect(
+				CPQ.concat(
+					CPQ.label(a),
+					CPQ.intersect(
+						CPQ.label(b),
+						CPQ.id()
+					)
+				),
+				CPQ.id()
+			),
+			CPQ.intersect(
+				CPQ.label(a),
+				CPQ.id()
+			)
+		);
+		assertEquals("(((a◦(b ∩ id)) ∩ id)◦(a ∩ id))", cpq.toString());
+		
+		Graph<Vertex, Predicate> graph = cpq.toQueryGraph().toGraph();
+		assertEquals(1, graph.getNodeCount());
+		assertEquals(2, graph.getEdgeCount());
+		
+		GraphNode<Vertex, Predicate> node = graph.getNodes().get(0);
+		for(GraphEdge<Vertex, Predicate> edge : graph.getEdges()){
+			assertEquals(node, edge.getSourceNode());
+			assertEquals(node, edge.getTargetNode());
+		}
+		assertIterableEquals(Arrays.asList("a", "b"), graph.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).sorted().collect(Collectors.toList()));
 	}
 }

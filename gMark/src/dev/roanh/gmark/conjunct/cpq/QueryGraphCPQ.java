@@ -161,7 +161,7 @@ public class QueryGraphCPQ{
 	protected void merge(){
 		//essentially picks a pair of vertices that need to be the same node and
 		//replaces all instances of the first nodes with the second node
-		while(!fid.isEmpty() && i < 100){
+		while(!fid.isEmpty() && i < 20){
 			System.out.println(edges);
 			System.out.print(fid);
 			Pair elem = getIdentityPair();
@@ -211,11 +211,13 @@ public class QueryGraphCPQ{
 				}
 			}
 			//fid.remove(elem);
+			fid.removeIf(p->p.first == elem.first || p.second == elem.first);
+			
 			i++;
 		}
 		System.out.println("fin: " + edges + " / " + vertices);
 		
-		if(i == 100){
+		if(i == 20){
 			System.exit(0);
 		}
 	}

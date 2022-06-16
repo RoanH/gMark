@@ -159,17 +159,10 @@ public class QueryGraphCPQ{
 	 * vertex due to intersections with the identity operation.
 	 */
 	protected void merge(){
-		//essentially picks a pair of vertices that need to be the same node and
-		//replaces all instances of the first nodes with the second node
-		while(!fid.isEmpty() && i < 20){
-			System.out.println(edges);
-			System.out.print(fid);
+		//essentially picks a pair of vertices that needs to be the same node and
+		//replaces all instances of the first node with the second node
+		while(!fid.isEmpty()){
 			Pair elem = getIdentityPair();
-			System.out.println(" take " + elem + " leave " + fid);
-			if(elem.first == elem.second){
-				System.out.println("skip: " + elem);
-				continue;
-			}
 			
 			//remove the old vertex
 			vertices.remove(elem.first);
@@ -178,12 +171,10 @@ public class QueryGraphCPQ{
 			for(Edge edge : edges.stream().collect(Collectors.toList())){
 				if(edge.src == elem.first){
 					edges.add(new Edge(elem.second, edge.trg, edge.label));
-					//edge.src = elem.second;
 				}
 				
 				if(edge.trg == elem.first){
 					edges.add(new Edge(edge.src, elem.second, edge.label));
-					//edge.trg = elem.second;
 				}
 				
 				if(edge.src == elem.first && edge.trg == elem.first){
@@ -198,34 +189,17 @@ public class QueryGraphCPQ{
 			
 			//replace old vertex with the new vertex in all remaining id pairs
 			for(Pair pair : fid.stream().collect(Collectors.toList())){
-				if(pair.second == elem.first){//pair.second == elem.first
-					Pair p = new Pair(pair.first, elem.second);//elem.second, pair.second
-					System.out.println("add (a): " + p);
-					fid.add(p);
-					//pair.second = elem.second;
-					//System.out.println("updated (a): " + pair);
+				if(pair.second == elem.first){
+					fid.add(new Pair(pair.first, elem.second));
 				}
 				
-				if(pair.first == elem.first){//pair.first == elem.first
-					Pair p = new Pair(elem.second, pair.second);//pair.first, elem.second
-					System.out.println("add (b): " + p);
-					fid.add(p);
-					//pair.first = elem.second;
-					//System.out.println("updated (b): " + pair);
+				if(pair.first == elem.first){
+					fid.add(new Pair(elem.second, pair.second));
 				}
 			}
-			//fid.remove(elem);
 			fid.removeIf(p->p.first == elem.first || p.second == elem.first);
-			
-			//i++;
-		}
-		System.out.println("fin: " + edges + " / " + vertices);
-		
-		if(i == 20){
-			System.exit(0);
 		}
 	}
-	int i = 0;
 	
 	/**
 	 * Gets a single identity pair that still

@@ -20,6 +20,7 @@ package dev.roanh.gmark.conjunct.cpq;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -158,36 +159,67 @@ public class QueryGraphCPQ{
 	 * vertex due to intersections with the identity operation.
 	 */
 	protected void merge(){
-		while(!fid.isEmpty()){
+		//essentially picks a pair of vertices that need to be the same node and
+		//replaces all instances of the first nodes with the second node
+		while(!fid.isEmpty() && i < 100){
+			System.out.println(edges);
+			System.out.print(fid);
 			Pair elem = getIdentityPair();
+			System.out.println(" take " + elem + " leave " + fid);
+			if(elem.first == elem.second){
+				System.out.println("skip: " + elem);
+				continue;
+			}
 			
+			//remove the old vertex
 			vertices.remove(elem.first);
 			
+			//replace edge source/target vertex with the new vertex
 			for(Edge edge : edges.stream().collect(Collectors.toList())){
 				if(edge.src == elem.first){
 					edges.add(new Edge(elem.second, edge.trg, edge.label));
+					//edge.src = elem.second;
 				}
 				
 				if(edge.trg == elem.first){
 					edges.add(new Edge(edge.src, elem.second, edge.label));
+					//edge.trg = elem.second;
 				}
 			}
 			edges.removeIf(e->e.src == elem.first || e.trg == elem.first);
 			
-			source = source == elem.first ? source : elem.second;
-			target = target == elem.first ? target : elem.second;
+			//update source/target if required
+			source = source == elem.first ? elem.second : source;
+			target = target == elem.first ? elem.second : target;
 			
+			//replace old vertex with the new vertex in all remaining id pairs
 			for(Pair pair : fid.stream().collect(Collectors.toList())){
-				if(pair.second == elem.first){
-					fid.add(new Pair(elem.second, pair.second));
+				if(pair.second == elem.first){//pair.second == elem.first
+					Pair p = new Pair(pair.first, elem.second);//elem.second, pair.second
+					System.out.println("add (a): " + p);
+					fid.add(p);
+					//pair.second = elem.second;
+					//System.out.println("updated (a): " + pair);
 				}
 				
-				if(pair.first == elem.first){
-					fid.add(new Pair(pair.first, elem.second));
+				if(pair.first == elem.first){//pair.first == elem.first
+					Pair p = new Pair(elem.second, pair.second);//pair.first, elem.second
+					System.out.println("add (b): " + p);
+					fid.add(p);
+					//pair.first = elem.second;
+					//System.out.println("updated (b): " + pair);
 				}
 			}
+			//fid.remove(elem);
+			i++;
+		}
+		System.out.println("fin: " + edges + " / " + vertices);
+		
+		if(i == 100){
+			System.exit(0);
 		}
 	}
+	int i = 0;
 	
 	/**
 	 * Gets a single identity pair that still
@@ -241,15 +273,15 @@ public class QueryGraphCPQ{
 		/**
 		 * The edge source vertex.
 		 */
-		private Vertex src;
+		private final Vertex src;
 		/**
 		 * The edge target vertex.
 		 */
-		private Vertex trg;
+		private final Vertex trg;
 		/**
 		 * The edge label.
 		 */
-		private Predicate label;
+		private final Predicate label;
 		
 		/**
 		 * Constructs a new edge with the given source
@@ -262,6 +294,21 @@ public class QueryGraphCPQ{
 			this.src = src;
 			this.trg = trg;
 			this.label = label;
+		}
+		
+		@Override
+		public int hashCode(){
+			return Objects.hash(src, trg, label);
+		}
+		
+		@Override
+		public boolean equals(Object obj){
+			if(obj instanceof Edge){
+				Edge edge = (Edge)obj;
+				return src == edge.src && trg == edge.trg && label.equals(edge.label);
+			}else{
+				return false;
+			}
 		}
 		
 		@Override
@@ -278,11 +325,11 @@ public class QueryGraphCPQ{
 		/**
 		 * The first vertex.
 		 */
-		private Vertex first;
+		private final Vertex first;
 		/**
 		 * The second vertex.
 		 */
-		private Vertex second;
+		private final Vertex second;
 		
 		/**
 		 * Constructs a new pair of vertices.
@@ -292,6 +339,21 @@ public class QueryGraphCPQ{
 		private Pair(Vertex first, Vertex second){
 			this.first = first;
 			this.second = second;
+		}
+		
+		@Override
+		public int hashCode(){
+			return Objects.hash(first.hashCode() ^ second.hashCode());
+		}
+		
+		@Override
+		public boolean equals(Object obj){
+			if(obj instanceof Pair){
+				Pair other = (Pair)obj;
+				return (other.first == first && other.second == second) || (other.first == second && other.second == first);
+			}else{
+				return false;
+			}
 		}
 		
 		@Override

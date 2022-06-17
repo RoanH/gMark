@@ -138,6 +138,7 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	 * @return The randomly generated CPQ.
 	 * @throws IllegalArgumentException When the list of labels is empty.
 	 * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
+	 * @see GeneratorCPQ#generatePlainCPQ(int, java.util.List)
 	 */
 	public static CPQ generateRandomCPQ(int ruleApplications, int labels) throws IllegalArgumentException{
 		return GeneratorCPQ.generatePlainCPQ(ruleApplications, labels);

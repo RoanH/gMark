@@ -29,6 +29,7 @@ import dev.roanh.gmark.util.IndentWriter;
 /**
  * Interface for conjunctive path queries (CPQs).
  * @author Roan
+ * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
  */
 public abstract interface CPQ extends OutputSQL, OutputXML{
 	/**

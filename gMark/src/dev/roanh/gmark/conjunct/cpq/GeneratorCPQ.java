@@ -58,11 +58,47 @@ public class GeneratorCPQ implements ConjunctGenerator{
 		workload = wl;
 	}
 	
+	/**
+	 * Generates a random CPQ created by applying the intersection
+	 * (conjunction) and concatenation steps from the CPQ grammar
+	 * the given number of times. A set of labels of the given size
+	 * is automatically generated together with corresponding inverse
+	 * label for each label. Three relatively meaningless but technically
+	 * valid patterns are intentionally never generated:
+	 * <ol>
+	 * <li>Concatenation with identity.</li>
+	 * <li>Intersection of identity with identity.</li>
+	 * <li>The query consisting of only identity and nothing else.</li>
+	 * </ol>
+	 * @param ruleApplications The number of times the intersection and
+	 *        concatenation steps are allowed to be applied.
+	 * @param labels The number of distinct labels to use (upper limit).
+	 * @return The randomly generated CPQ.
+	 * @see CPQ
+	 * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
+	 */
 	public static CPQ generatePlainCPQ(int ruleApplications, int labels){
 		return generatePlainCPQ(ruleApplications, Util.generateLabels(labels));
 	}
 	
-	//never only id -- rules only count concat/intersect and can short circuit of course
+	/**
+	 * Generates a random CPQ created by applying the intersection
+	 * (conjunction) and concatenation steps from the CPQ grammar
+	 * the given number of times. Labels and inverse labels are
+	 * drawn for the given set of labels. Three relatively meaningless
+	 * but technically valid patterns are intentionally never generated:
+	 * <ol>
+	 * <li>Concatenation with identity.</li>
+	 * <li>Intersection of identity with identity.</li>
+	 * <li>The query consisting of only identity and nothing else.</li>
+	 * </ol>
+	 * @param ruleApplications The number of times the intersection and
+	 *        concatenation steps are allowed to be applied.
+	 * @param labels The set of labels to draw from.
+	 * @return The randomly generated CPQ.
+	 * @see CPQ
+	 * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
+	 */
 	public static CPQ generatePlainCPQ(int ruleApplications, List<Predicate> labels){
 		if(labels.isEmpty()){
 			throw new IllegalArgumentException("List of labels cannot be empty.");
@@ -71,8 +107,23 @@ public class GeneratorCPQ implements ConjunctGenerator{
 		return generatePlainCPQ(ruleApplications, false, labels);
 	}
 	
-	//rule = intersect/concat only
-	//prevent concat with id and id intersected with id as they don't really do anything
+	/**
+	 * Generates a random CPQ created by applying the intersection
+	 * (conjunction) and concatenation steps from the CPQ grammar
+	 * the given number of times. Labels and inverse labels are
+	 * drawn for the given set of labels. Two relatively meaningless
+	 * but technically valid patterns are intentionally never generated:
+	 * <ol>
+	 * <li>Concatenation with identity.</li>
+	 * <li>Intersection of identity with identity.</li>
+	 * </ol>
+	 * @param ruleApplications The number of times the intersection and
+	 *        concatenation steps are allowed to be applied.
+	 * @param allowId Whether the result of this call is allowed to be
+	 *        the identity CPQ.
+	 * @param labels The set of labels to draw from.
+	 * @return The randomly generated CPQ.
+	 */
 	private static CPQ generatePlainCPQ(int ruleApplications, boolean allowId, List<Predicate> labels){
 		if(ruleApplications == 0){
 			if(allowId && Util.getRandom().nextBoolean()){
@@ -84,7 +135,7 @@ public class GeneratorCPQ implements ConjunctGenerator{
 			}
 		}else{
 			if(Util.getRandom().nextBoolean()){
-				//concat
+				//concatenation
 				int split = Util.uniformRandom(0, ruleApplications - 1);
 				return CPQ.concat(generatePlainCPQ(split, false, labels), generatePlainCPQ(ruleApplications - split - 1, false, labels));
 			}else{

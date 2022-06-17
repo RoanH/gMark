@@ -136,9 +136,10 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	 *        concatenation steps are allowed to be applied.
 	 * @param labels The number of distinct labels to use (upper limit).
 	 * @return The randomly generated CPQ.
+	 * @throws IllegalArgumentException When the list of labels is empty.
 	 * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
 	 */
-	public static CPQ generateRandomCPQ(int ruleApplications, int labels){
+	public static CPQ generateRandomCPQ(int ruleApplications, int labels) throws IllegalArgumentException{
 		return GeneratorCPQ.generatePlainCPQ(ruleApplications, labels);
 	}
 }

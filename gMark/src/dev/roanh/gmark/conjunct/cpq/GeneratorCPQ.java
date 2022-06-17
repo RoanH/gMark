@@ -74,10 +74,11 @@ public class GeneratorCPQ implements ConjunctGenerator{
 	 *        concatenation steps are allowed to be applied.
 	 * @param labels The number of distinct labels to use (upper limit).
 	 * @return The randomly generated CPQ.
+	 * @throws IllegalArgumentException When the list of labels is empty.
 	 * @see CPQ
 	 * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
 	 */
-	public static CPQ generatePlainCPQ(int ruleApplications, int labels){
+	public static CPQ generatePlainCPQ(int ruleApplications, int labels) throws IllegalArgumentException{
 		return generatePlainCPQ(ruleApplications, Util.generateLabels(labels));
 	}
 	
@@ -96,10 +97,11 @@ public class GeneratorCPQ implements ConjunctGenerator{
 	 *        concatenation steps are allowed to be applied.
 	 * @param labels The set of labels to draw from.
 	 * @return The randomly generated CPQ.
+	 * @throws IllegalArgumentException When the list of labels is empty.
 	 * @see CPQ
 	 * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
 	 */
-	public static CPQ generatePlainCPQ(int ruleApplications, List<Predicate> labels){
+	public static CPQ generatePlainCPQ(int ruleApplications, List<Predicate> labels) throws IllegalArgumentException{
 		if(labels.isEmpty()){
 			throw new IllegalArgumentException("List of labels cannot be empty.");
 		}

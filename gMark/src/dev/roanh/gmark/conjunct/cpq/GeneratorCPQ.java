@@ -63,7 +63,7 @@ public class GeneratorCPQ implements ConjunctGenerator{
 	 * (conjunction) and concatenation steps from the CPQ grammar
 	 * the given number of times. A set of labels of the given size
 	 * is automatically generated together with corresponding inverse
-	 * label for each label. Three relatively meaningless but technically
+	 * labels for each label. Three relatively meaningless but technically
 	 * valid patterns are intentionally never generated:
 	 * <ol>
 	 * <li>Concatenation with identity.</li>
@@ -86,7 +86,7 @@ public class GeneratorCPQ implements ConjunctGenerator{
 	 * Generates a random CPQ created by applying the intersection
 	 * (conjunction) and concatenation steps from the CPQ grammar
 	 * the given number of times. Labels and inverse labels are
-	 * drawn for the given set of labels. Three relatively meaningless
+	 * drawn from the given set of labels. Three relatively meaningless
 	 * but technically valid patterns are intentionally never generated:
 	 * <ol>
 	 * <li>Concatenation with identity.</li>
@@ -113,7 +113,7 @@ public class GeneratorCPQ implements ConjunctGenerator{
 	 * Generates a random CPQ created by applying the intersection
 	 * (conjunction) and concatenation steps from the CPQ grammar
 	 * the given number of times. Labels and inverse labels are
-	 * drawn for the given set of labels. Two relatively meaningless
+	 * drawn from the given set of labels. Two relatively meaningless
 	 * but technically valid patterns are intentionally never generated:
 	 * <ol>
 	 * <li>Concatenation with identity.</li>

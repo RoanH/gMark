@@ -87,11 +87,19 @@ public class QueryGraphCPQ{
 		edges.add(new Edge(source, target, cpq.getLabel()));
 	}
 	
+	/**
+	 * Gets the number of vertices in this query graph.
+	 * @return The number of vertices in this query graph.
+	 */
 	public int getVertexCount(){
 		merge();
 		return vertices.size();
 	}
 	
+	/**
+	 * Gets the number of edges in this query graph.
+	 * @return The number of edges in this query graph.
+	 */
 	public int getEdgeCount(){
 		merge();
 		return edges.size();

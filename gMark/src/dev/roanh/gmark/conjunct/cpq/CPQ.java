@@ -119,4 +119,26 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	public static CPQ label(Predicate label){
 		return new EdgeCPQ(label);
 	}
+	
+	/**
+	 * Generates a random CPQ created by applying the intersection
+	 * (conjunction) and concatenation steps from the CPQ grammar
+	 * the given number of times. A set of labels of the given size
+	 * is automatically generated together with corresponding inverse
+	 * label for each label. Three relatively meaningless but technically
+	 * valid patterns are intentionally never generated:
+	 * <ol>
+	 * <li>Concatenation with identity.</li>
+	 * <li>Intersection of identity with identity.</li>
+	 * <li>The query consisting of only identity and nothing else.</li>
+	 * </ol>
+	 * @param ruleApplications The number of times the intersection and
+	 *        concatenation steps are allowed to be applied.
+	 * @param labels The number of distinct labels to use (upper limit).
+	 * @return The randomly generated CPQ.
+	 * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
+	 */
+	public static CPQ generateRandomCPQ(int ruleApplications, int labels){
+		return GeneratorCPQ.generatePlainCPQ(ruleApplications, labels);
+	}
 }

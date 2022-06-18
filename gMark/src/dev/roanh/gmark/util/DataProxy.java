@@ -18,13 +18,35 @@
  */
 package dev.roanh.gmark.util;
 
+/**
+ * Class that can be used as a wrapper around some
+ * other object. DataProxy instances are never equal
+ * to other DataProxy instances unless they are exactly
+ * the same object.  This class is intended for use with
+ * the {@link Graph} class so that multiple nodes can
+ * be added with the same data. 
+ * @author Roan
+ * @param <T> The data type to proxy.
+ */
 public class DataProxy<T>{
+	/**
+	 * The stored proxy data.
+	 */
 	private T data;
 	
+	/**
+	 * Constructs a new DataProxy instances
+	 * with the given data to proxy.
+	 * @param data The data to store.
+	 */
 	public DataProxy(T data){
 		this.data = data;
 	}
 	
+	/**
+	 * Gets the data stored at this data.
+	 * @return The stored data.
+	 */
 	public T getData(){
 		return data;
 	}

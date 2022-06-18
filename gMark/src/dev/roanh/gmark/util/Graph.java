@@ -262,6 +262,14 @@ public class Graph<V, E>{
 		edges.add(new GraphEdge<V, E>(source, target, data));
 	}
 	
+	public int[][] toAdjacencyList(){
+		int[][] adj = new int[getNodeCount()][];
+		for(GraphNode<V, E> node : getNodes()){
+			adj[node.getID()] = node.getOutEdges().stream().map(GraphEdge::getTargetNode).mapToInt(GraphNode::getID).toArray();
+		}
+		return adj;
+	}
+	
 	/**
 	 * Represents a single node in the graph that is
 	 * uniquely identifiable by some data.

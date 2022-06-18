@@ -187,6 +187,23 @@ public class Util{
 		}
 	}
 	
+	/**
+	 * Converts the given edge labelled input graph to a graph where all edge labels
+	 * have been turned into labelled vertices. Essentially, for each edge <code>
+	 * (a) --b--> (c)</code> the edge will be turned into two edges with a new node
+	 * with the former edge label in the middle, giving <code> (a) --> (b) --> (c)</code>.
+	 * Thus this transform doubles the number of edges in the graph and adds as many new
+	 * nodes as there used to be edges in the old graph. The returned graph has
+	 * {@link Object} as the vertex data type. There are two options for the actual
+	 * class of these vertex data objects. Either they are a vertex the data object
+	 * from the old graph and thus of generic type V. Or they are a {@link DataProxy}
+	 * instance wrapping an old edge label of generic type E.
+	 * @param <V> The vertex data type.
+	 * @param <E> The edge label data type.
+	 * @param in The input graph to transform
+	 * @return The transformed graph without edge labels.
+	 * @see <a href="https://cpqkeys.roanh.dev/notes/to_unlabelled">Notes on transforming edge labelled graphs to graphs without edge labels</a>
+	 */
 	public static <V, E> Graph<Object, Void> edgeLabelsToNodes(Graph<V, E> in){
 		Graph<Object, Void> out = new Graph<Object, Void>();
 		
@@ -200,6 +217,14 @@ public class Util{
 		return out;
 	}
 	
+	/**
+	 * Generates a list of the given size <code>n</code> with
+	 * sequentially numbered predicate objects. This means
+	 * each predicate will have a textual name that matches
+	 * their numerical ID.
+	 * @param n The number of labels to generate.
+	 * @return The generated set of labels.
+	 */
 	public static List<Predicate> generateLabels(int n){
 		List<Predicate> labels = new ArrayList<Predicate>(n);
 		for(int i = 0; i < n; i++){

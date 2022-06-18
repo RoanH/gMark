@@ -195,9 +195,9 @@ public class Util{
 	 * </code>. Thus this transform doubles the number of edges in the graph and adds as
 	 * many new nodes as there used to be edges in the old graph. The returned graph has
 	 * {@link Object} as the vertex data type. There are two options for the actual
-	 * class of these vertex data objects. Either they are a vertex the data object
-	 * from the old graph and thus of generic type V. Or they are a {@link DataProxy}
-	 * instance wrapping an old edge label of generic type E.
+	 * class of these vertex data objects. Either they are a vertex data object from the
+	 * old graph and thus of generic type V. Or they are a {@link DataProxy} instance
+	 * wrapping an old edge label of generic type E.
 	 * @param <V> The vertex data type.
 	 * @param <E> The edge label data type.
 	 * @param in The input graph to transform

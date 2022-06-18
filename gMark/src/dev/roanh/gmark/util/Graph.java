@@ -58,6 +58,7 @@ public class Graph<V, E>{
 	 * List of all edges in this graph.
 	 */
 	private List<GraphEdge<V, E>> edges = new ArrayList<GraphEdge<V, E>>();
+	private int nextNodeID = 0;
 	
 	/**
 	 * Removes all nodes from the graph that match the given predicate. The returned
@@ -118,7 +119,7 @@ public class Graph<V, E>{
 		if(existing != null){
 			return existing;
 		}else{
-			GraphNode<V, E> node = new GraphNode<V, E>(this, data);
+			GraphNode<V, E> node = new GraphNode<V, E>(nextNodeID++, this, data);
 			nodeMap.put(data, node);
 			nodes.add(node);
 			return node;
@@ -269,6 +270,7 @@ public class Graph<V, E>{
 	 * @param <E> The type of data stored at the graph edges.
 	 */
 	public static class GraphNode<V, E>{
+		private final int id;
 		/**
 		 * The graph this node is in.
 		 */
@@ -291,13 +293,32 @@ public class Graph<V, E>{
 		 * Constructs a new graph node for the given graph
 		 * and with the given data that uniquely identifies
 		 * this node in the entire graph.
+		 * @param id The ID of this graph node.
 		 * @param graph The graph this node belongs to.
 		 * @param data The data associated with this
 		 *        node that uniquely identifies it in the graph.
 		 */
-		private GraphNode(Graph<V, E> graph, V data){
+		private GraphNode(int id, Graph<V, E> graph, V data){
+			this.id = id;
 			this.graph = graph;
 			this.data = data;
+		}
+		
+		/**
+		 * Unique ID for this graph node, note that the uniqueness of
+		 * a graph node is still dependent on the data stored at this
+		 * node and that therefore two nodes with the same data but
+		 * different IDs are in fact still equal. However, this ID
+		 * can be useful for other applications where an ordering on
+		 * the graph nodes is required. In addition, if no nodes are
+		 * ever removed from the graph then the ordered IDs of all nodes
+		 * in the graph form an unbroken sequence from 0 to
+		 * {@link Graph#getNodeCount()} - 1.
+		 * @return The ID of this node.
+		 * @see #getData()
+		 */
+		public int getID(){
+			return id;
 		}
 		
 		/**

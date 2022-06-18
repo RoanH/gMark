@@ -67,6 +67,14 @@ public class Util{
 		random.get().setSeed(seed);
 	}
 	
+	/**
+	 * Selects an element at random from the given list.
+	 * @param <T> The element data type.
+	 * @param data The list to pick an element from.
+	 * @return The selected element or <code>null</code>
+	 *         when the provided list was empty.
+	 * @see #selectRandom(Collection)
+	 */
 	public static <T> T selectRandom(List<T> data){
 		return data.isEmpty() ? null : data.get(getRandom().nextInt(data.size()));
 	}
@@ -77,6 +85,7 @@ public class Util{
 	 * @param data The collection to pick an element from.
 	 * @return The selected element or <code>null</code>
 	 *         when the provided collection was empty.
+	 * @see #selectRandom(List)
 	 */
 	public static <T> T selectRandom(Collection<T> data){
 		if(!data.isEmpty()){

@@ -200,7 +200,7 @@ public class Util{
 	 * wrapping an old edge label of generic type E.
 	 * @param <V> The vertex data type.
 	 * @param <E> The edge label data type.
-	 * @param in The input graph to transform
+	 * @param in The input graph to transform.
 	 * @return The transformed graph without edge labels.
 	 * @see <a href="https://cpqkeys.roanh.dev/notes/to_unlabelled">Notes on transforming edge labelled graphs to graphs without edge labels</a>
 	 */

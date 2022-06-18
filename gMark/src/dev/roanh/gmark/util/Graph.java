@@ -58,6 +58,9 @@ public class Graph<V, E>{
 	 * List of all edges in this graph.
 	 */
 	private List<GraphEdge<V, E>> edges = new ArrayList<GraphEdge<V, E>>();
+	/**
+	 * The ID to assign to the next node added to the graph.
+	 */
 	private int nextNodeID = 0;
 	
 	/**
@@ -262,8 +265,18 @@ public class Graph<V, E>{
 		edges.add(new GraphEdge<V, E>(source, target, data));
 	}
 	
+	/**
+	 * Computes the adjacency list representation of this graph. For this the
+	 * unique ID of every graph node is used (see {@link GraphNode#getID()}.
+	 * The adjacency list is returned as a 2-dimensional array, the first dimension
+	 * has as many indices as there were nodes added graph. Each of these indices
+	 * corresponds to the unique ID of one of the nodes in the graph. Indices for
+	 * nodes no longer in the graph will have a value of <code>null</code>. All other
+	 * indices have an array with the IDs of all the nodes the node has an edge to.
+	 * @return The adjacency list representation of this graph.
+	 */
 	public int[][] toAdjacencyList(){
-		int[][] adj = new int[getNodeCount()][];
+		int[][] adj = new int[nextNodeID][];
 		for(GraphNode<V, E> node : getNodes()){
 			adj[node.getID()] = node.getOutEdges().stream().map(GraphEdge::getTargetNode).mapToInt(GraphNode::getID).toArray();
 		}
@@ -278,6 +291,10 @@ public class Graph<V, E>{
 	 * @param <E> The type of data stored at the graph edges.
 	 */
 	public static class GraphNode<V, E>{
+		/**
+		 * The unique ID of this node.
+		 * @see #getID()
+		 */
 		private final int id;
 		/**
 		 * The graph this node is in.

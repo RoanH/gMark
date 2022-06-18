@@ -190,10 +190,10 @@ public class Util{
 	/**
 	 * Converts the given edge labelled input graph to a graph where all edge labels
 	 * have been turned into labelled vertices. Essentially, for each edge <code>
-	 * (a) --b--> (c)</code> the edge will be turned into two edges with a new node
-	 * with the former edge label in the middle, giving <code> (a) --> (b) --> (c)</code>.
-	 * Thus this transform doubles the number of edges in the graph and adds as many new
-	 * nodes as there used to be edges in the old graph. The returned graph has
+	 * (a) --b--&gt; (c)</code> the edge will be turned into two edges with a new node
+	 * with the former edge label in the middle, giving <code> (a) --&gt; (b) --&gt; (c)
+	 * </code>. Thus this transform doubles the number of edges in the graph and adds as
+	 * many new nodes as there used to be edges in the old graph. The returned graph has
 	 * {@link Object} as the vertex data type. There are two options for the actual
 	 * class of these vertex data objects. Either they are a vertex the data object
 	 * from the old graph and thus of generic type V. Or they are a {@link DataProxy}

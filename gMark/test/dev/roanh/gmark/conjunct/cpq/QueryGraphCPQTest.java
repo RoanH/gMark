@@ -19,6 +19,7 @@
 package dev.roanh.gmark.conjunct.cpq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 import java.util.Arrays;
@@ -116,5 +117,21 @@ public class QueryGraphCPQTest{
 			assertEquals(node, edge.getTargetNode());
 		}
 		assertIterableEquals(Arrays.asList("a", "b"), graph.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).sorted().collect(Collectors.toList()));
+	}
+	
+	@Test
+	public void withInverse(){
+		Predicate a = new Predicate(1, "a");
+		
+		CPQ q = CPQ.intersect(CPQ.concat(CPQ.label(a), CPQ.label(a.getInverse())), CPQ.IDENTITY);
+		assertEquals("((a◦a⁻) ∩ id)", q.toString());
+		
+		Graph<Vertex, Predicate> g = q.toQueryGraph().toGraph();
+		assertEquals(2, g.getNodeCount());
+		assertEquals(1, g.getEdgeCount());
+		
+		GraphEdge<Vertex, Predicate> edge = g.getEdges().get(0);
+		assertEquals("a", edge.getData().getAlias());
+		assertFalse(edge.getSourceNode().equals(edge.getTargetNode()));
 	}
 }

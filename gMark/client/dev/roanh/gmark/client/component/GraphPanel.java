@@ -117,6 +117,14 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 		
+		setGraph(graph);
+	}
+	
+	public void setGraph(Graph<V, E> graph){
+		nodes.clear();
+		edges.clear();
+		activeNode = null;
+		
 		Map<GraphNode<V, E>, Node> nodeMap = new HashMap<GraphNode<V, E>, Node>();
 		graph.getNodes().forEach(n->{
 			Node node = new Node(n);

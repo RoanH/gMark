@@ -26,7 +26,6 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import dev.roanh.gmark.ConfigParser;
-import dev.roanh.gmark.client.component.GraphPanel;
 import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Predicate;
@@ -36,6 +35,7 @@ import dev.roanh.gmark.exception.GenerationException;
 import dev.roanh.gmark.util.ConfigGraph;
 import dev.roanh.gmark.util.EdgeGraph;
 import dev.roanh.gmark.util.EdgeGraphData;
+import dev.roanh.gmark.util.GraphPanel;
 import dev.roanh.gmark.util.SchemaGraph;
 import dev.roanh.gmark.util.SelectivityGraph;
 import dev.roanh.gmark.util.SelectivityType;

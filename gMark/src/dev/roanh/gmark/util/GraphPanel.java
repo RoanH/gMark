@@ -119,6 +119,11 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		setGraph(graph);
 	}
 	
+	/**
+	 * Sets the graph to display. This will replace the
+	 * previous graph if any.
+	 * @param graph The new graph to display.
+	 */
 	public void setGraph(Graph<V, E> graph){
 		nodes.clear();
 		edges.clear();

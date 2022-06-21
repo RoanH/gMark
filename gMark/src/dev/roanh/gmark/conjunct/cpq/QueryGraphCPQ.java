@@ -75,16 +75,16 @@ public class QueryGraphCPQ{
 	/**
 	 * Constructs a new query graph for the CPQ containing
 	 * only a single edge label traversal.
-	 * @param cpq The CPQ describing the labelled edge traversal.
+	 * @param label The label being traversed. Should not be a negated predicate.
 	 * @param source The CPQ source vertex where the edge traversal starts.
 	 * @param target The CPQ target vertex where the edge traversal ends.
 	 */
-	protected QueryGraphCPQ(EdgeCPQ cpq, Vertex source, Vertex target){
+	protected QueryGraphCPQ(Predicate label, Vertex source, Vertex target){
 		this.source = source;
 		this.target = target;
 		vertices.add(source);
 		vertices.add(target);
-		edges.add(new Edge(source, target, cpq.getLabel()));
+		edges.add(new Edge(source, target, label));
 	}
 	
 	/**

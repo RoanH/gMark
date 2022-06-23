@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.client.component;
+package dev.roanh.gmark.util;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
@@ -39,7 +39,6 @@ import java.util.function.Function;
 
 import javax.swing.JPanel;
 
-import dev.roanh.gmark.util.Graph;
 import dev.roanh.gmark.util.Graph.GraphEdge;
 import dev.roanh.gmark.util.Graph.GraphNode;
 
@@ -116,6 +115,19 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		this.edgeLabel = edgeLabel;
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
+		
+		setGraph(graph);
+	}
+	
+	/**
+	 * Sets the graph to display. This will replace the
+	 * previous graph if any.
+	 * @param graph The new graph to display.
+	 */
+	public void setGraph(Graph<V, E> graph){
+		nodes.clear();
+		edges.clear();
+		activeNode = null;
 		
 		Map<GraphNode<V, E>, Node> nodeMap = new HashMap<GraphNode<V, E>, Node>();
 		graph.getNodes().forEach(n->{

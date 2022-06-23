@@ -61,6 +61,15 @@ public class Predicate implements OutputXML, OutputSQL{
 	private Predicate inverse = null;
 	
 	/**
+	 * Constructs a new predicate with the given ID and alias.
+	 * @param id The ID of this predicate.
+	 * @param alias The alias of this predicate.
+	 */
+	public Predicate(int id, String alias){
+		this(id, alias, null);
+	}
+	
+	/**
 	 * Constructs a new predicate with the given ID
 	 * and alias and graph proportion.
 	 * @param id The ID of this predicate.

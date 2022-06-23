@@ -25,14 +25,19 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import dev.roanh.gmark.core.SelectivityClass;
+import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.Graph.GraphEdge;
+import dev.roanh.gmark.util.Graph.GraphNode;
 
 /**
  * Class providing various small utilities as well
@@ -61,6 +66,18 @@ public class Util{
 	public static void setRandomSeed(long seed){
 		random.get().setSeed(seed);
 	}
+	
+	/**
+	 * Selects an element at random from the given list.
+	 * @param <T> The element data type.
+	 * @param data The list to pick an element from.
+	 * @return The selected element or <code>null</code>
+	 *         when the provided list was empty.
+	 * @see #selectRandom(Collection)
+	 */
+	public static <T> T selectRandom(List<T> data){
+		return data.isEmpty() ? null : data.get(getRandom().nextInt(data.size()));
+	}
 
 	/**
 	 * Randomly selects an element from the given collection.
@@ -68,6 +85,7 @@ public class Util{
 	 * @param data The collection to pick an element from.
 	 * @return The selected element or <code>null</code>
 	 *         when the provided collection was empty.
+	 * @see #selectRandom(List)
 	 */
 	public static <T> T selectRandom(Collection<T> data){
 		if(!data.isEmpty()){
@@ -167,5 +185,51 @@ public class Util{
 		}catch(Exception e){
 			throw new IOException(e);
 		}
+	}
+	
+	/**
+	 * Converts the given edge labelled input graph to a graph where all edge labels
+	 * have been turned into labelled vertices. Essentially, for each edge <code>
+	 * (a) --b--&gt; (c)</code> the edge will be turned into two edges with a new node
+	 * with the former edge label in the middle, giving <code> (a) --&gt; (b) --&gt; (c)
+	 * </code>. Thus this transform doubles the number of edges in the graph and adds as
+	 * many new nodes as there used to be edges in the old graph. The returned graph has
+	 * {@link Object} as the vertex data type. There are two options for the actual
+	 * class of these vertex data objects. Either they are a vertex data object from the
+	 * old graph and thus of generic type V. Or they are a {@link DataProxy} instance
+	 * wrapping an old edge label of generic type E.
+	 * @param <V> The vertex data type.
+	 * @param <E> The edge label data type.
+	 * @param in The input graph to transform.
+	 * @return The transformed graph without edge labels.
+	 * @see <a href="https://cpqkeys.roanh.dev/notes/to_unlabelled">Notes on transforming edge labelled graphs to graphs without edge labels</a>
+	 */
+	public static <V, E> Graph<Object, Void> edgeLabelsToNodes(Graph<V, E> in){
+		Graph<Object, Void> out = new Graph<Object, Void>();
+		
+		in.getNodes().forEach(node->out.addUniqueNode(node.getData()));
+		for(GraphEdge<V, E> edge : in.getEdges()){
+			GraphNode<Object, Void> mid = out.addUniqueNode(new DataProxy<E>(edge.getData()));
+			mid.addUniqueEdgeFrom(edge.getSource());
+			mid.addUniqueEdgeTo(edge.getTarget());
+		}
+		
+		return out;
+	}
+	
+	/**
+	 * Generates a list of the given size <code>n</code> with
+	 * sequentially numbered predicate objects. This means
+	 * each predicate will have a textual name that matches
+	 * their numerical ID.
+	 * @param n The number of labels to generate.
+	 * @return The generated set of labels.
+	 */
+	public static List<Predicate> generateLabels(int n){
+		List<Predicate> labels = new ArrayList<Predicate>(n);
+		for(int i = 0; i < n; i++){
+			labels.add(new Predicate(i, String.valueOf(i)));
+		}
+		return labels;
 	}
 }

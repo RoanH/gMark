@@ -20,6 +20,7 @@ package dev.roanh.gmark.conjunct.cpq;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -74,16 +75,34 @@ public class QueryGraphCPQ{
 	/**
 	 * Constructs a new query graph for the CPQ containing
 	 * only a single edge label traversal.
-	 * @param cpq The CPQ describing the labelled edge traversal.
+	 * @param label The label being traversed. Should not be a negated predicate.
 	 * @param source The CPQ source vertex where the edge traversal starts.
 	 * @param target The CPQ target vertex where the edge traversal ends.
 	 */
-	protected QueryGraphCPQ(EdgeCPQ cpq, Vertex source, Vertex target){
+	protected QueryGraphCPQ(Predicate label, Vertex source, Vertex target){
 		this.source = source;
 		this.target = target;
 		vertices.add(source);
 		vertices.add(target);
-		edges.add(new Edge(source, target, cpq.getLabel()));
+		edges.add(new Edge(source, target, label));
+	}
+	
+	/**
+	 * Gets the number of vertices in this query graph.
+	 * @return The number of vertices in this query graph.
+	 */
+	public int getVertexCount(){
+		merge();
+		return vertices.size();
+	}
+	
+	/**
+	 * Gets the number of edges in this query graph.
+	 * @return The number of edges in this query graph.
+	 */
+	public int getEdgeCount(){
+		merge();
+		return edges.size();
 	}
 	
 	/**
@@ -148,11 +167,15 @@ public class QueryGraphCPQ{
 	 * vertex due to intersections with the identity operation.
 	 */
 	protected void merge(){
+		//essentially picks a pair of vertices that needs to be the same node and
+		//replaces all instances of the first node with the second node
 		while(!fid.isEmpty()){
 			Pair elem = getIdentityPair();
 			
+			//remove the old vertex
 			vertices.remove(elem.first);
 			
+			//replace edge source/target vertex with the new vertex
 			for(Edge edge : edges.stream().collect(Collectors.toList())){
 				if(edge.src == elem.first){
 					edges.add(new Edge(elem.second, edge.trg, edge.label));
@@ -161,21 +184,28 @@ public class QueryGraphCPQ{
 				if(edge.trg == elem.first){
 					edges.add(new Edge(edge.src, elem.second, edge.label));
 				}
+				
+				if(edge.src == elem.first && edge.trg == elem.first){
+					edges.add(new Edge(elem.second, elem.second, edge.label));
+				}
 			}
 			edges.removeIf(e->e.src == elem.first || e.trg == elem.first);
 			
-			source = source == elem.first ? source : elem.second;
-			target = target == elem.first ? target : elem.second;
+			//update source/target if required
+			source = source == elem.first ? elem.second : source;
+			target = target == elem.first ? elem.second : target;
 			
+			//replace old vertex with the new vertex in all remaining id pairs
 			for(Pair pair : fid.stream().collect(Collectors.toList())){
 				if(pair.second == elem.first){
-					fid.add(new Pair(elem.second, pair.second));
+					fid.add(new Pair(pair.first, elem.second));
 				}
 				
 				if(pair.first == elem.first){
-					fid.add(new Pair(pair.first, elem.second));
+					fid.add(new Pair(elem.second, pair.second));
 				}
 			}
+			fid.removeIf(p->p.first == elem.first || p.second == elem.first);
 		}
 	}
 	
@@ -231,15 +261,15 @@ public class QueryGraphCPQ{
 		/**
 		 * The edge source vertex.
 		 */
-		private Vertex src;
+		private final Vertex src;
 		/**
 		 * The edge target vertex.
 		 */
-		private Vertex trg;
+		private final Vertex trg;
 		/**
 		 * The edge label.
 		 */
-		private Predicate label;
+		private final Predicate label;
 		
 		/**
 		 * Constructs a new edge with the given source
@@ -252,6 +282,21 @@ public class QueryGraphCPQ{
 			this.src = src;
 			this.trg = trg;
 			this.label = label;
+		}
+		
+		@Override
+		public int hashCode(){
+			return Objects.hash(src, trg, label);
+		}
+		
+		@Override
+		public boolean equals(Object obj){
+			if(obj instanceof Edge){
+				Edge edge = (Edge)obj;
+				return src == edge.src && trg == edge.trg && label.equals(edge.label);
+			}else{
+				return false;
+			}
 		}
 		
 		@Override
@@ -268,11 +313,11 @@ public class QueryGraphCPQ{
 		/**
 		 * The first vertex.
 		 */
-		private Vertex first;
+		private final Vertex first;
 		/**
 		 * The second vertex.
 		 */
-		private Vertex second;
+		private final Vertex second;
 		
 		/**
 		 * Constructs a new pair of vertices.
@@ -282,6 +327,21 @@ public class QueryGraphCPQ{
 		private Pair(Vertex first, Vertex second){
 			this.first = first;
 			this.second = second;
+		}
+		
+		@Override
+		public int hashCode(){
+			return Objects.hash(first.hashCode() ^ second.hashCode());
+		}
+		
+		@Override
+		public boolean equals(Object obj){
+			if(obj instanceof Pair){
+				Pair other = (Pair)obj;
+				return (other.first == first && other.second == second) || (other.first == second && other.second == first);
+			}else{
+				return false;
+			}
 		}
 		
 		@Override

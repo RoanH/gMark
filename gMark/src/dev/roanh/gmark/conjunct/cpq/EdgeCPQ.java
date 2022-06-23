@@ -66,6 +66,6 @@ public class EdgeCPQ implements CPQ{
 
 	@Override
 	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-		return new QueryGraphCPQ(this, source, target);
+		return symbol.isInverse() ? new QueryGraphCPQ(symbol.getInverse(), target, source) : new QueryGraphCPQ(symbol, source, target);
 	}
 }

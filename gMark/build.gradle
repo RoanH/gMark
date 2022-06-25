@@ -13,7 +13,7 @@ plugins{
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 group = 'dev.roanh.gmark'
-version = '1.0'//Main.java
+version = '1.1'//Main.java
 
 sourceSets{
 	main{

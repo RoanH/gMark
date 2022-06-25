@@ -1,5 +1,5 @@
 # gMark [![](https://img.shields.io/github/release/RoanH/gMark.svg)](https://github.com/RoanH/gMark/releases)
-gMark is a domain- and query language-independent graph instance and query workload generator. The original version of gMark is available on GitHub at [gbagan/gmark](https://github.com/gbagan/gmark). The version of gMark in this repository has as goal to rewrite gMark such that it is easier to extend and has better documented code. Currently the focus of the rewrite is on query generation, but the end goal is full feature parity with the original version of gMark. The rewrite has not reached that point yet and is notably still missing graph generation, RPQ (regular path query) based queries and several output formats. However, the current version does also offer some features not present in the original version of gMark, such as the ability to generate CPQ (conjunctive path query) based queries and a graphical user interface for the program.
+gMark is a domain- and query language-independent graph instance and query workload generator. The original version of gMark is available on GitHub at [gbagan/gmark](https://github.com/gbagan/gmark). The version of gMark in this repository has as goal to rewrite gMark such that it is easier to extend and has better documented code. Currently the focus of the rewrite is on query generation, but the end goal is full feature parity with the original version of gMark. The rewrite has not reached that point yet and is notably still missing graph generation, RPQ (regular path query) based queries and several output formats. However, the current version does also offer some features not present in the original version of gMark, such as the ability to generate CPQ (conjunctive path query) based queries, various utilities for working with CPQs, and a graphical user interface for the program.
 
 Documentation (javadoc) can be found at: [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/) more details on gMark itself can be found in the technical report [arxiv.org/abs/1511.08386](https://arxiv.org/abs/1511.08386). Details regarding the aforementioned queries containing CPQs can be found in my report titled [Conjunctive Path Query Generation for Benchmarking](https://research.roanh.dev/Conjunctive%20Path%20Query%20Generation%20for%20Benchmarking%20v2.8.pdf).
 
@@ -37,8 +37,8 @@ An example configuration XML file can be found both [in this repository](gMark/c
 ### Executable download
 gMark is available as a standalone portable executable that has both a graphical interface and a command line interface. The graphical interface will only be launched when no command line arguments are passed. This version of gMark requires Java 8 or higher to run.
    
-- [Windows executable download](https://github.com/RoanH/gMark/releases/download/v1.0/gMark-v1.0.exe)    
-- [Runnable Java archive (JAR) download](https://github.com/RoanH/gMark/releases/download/v1.0/gMark-v1.0.jar)
+- [Windows executable download](https://github.com/RoanH/gMark/releases/download/v1.1/gMark-v1.1.exe)    
+- [Runnable Java archive (JAR) download](https://github.com/RoanH/gMark/releases/download/v1.1/gMark-v1.1.jar)
 
 All releases: [releases](https://github.com/RoanH/gMark/releases)    
 GitHub repository: [RoanH/gMark](https://github.com/RoanH/gMark)
@@ -72,7 +72,7 @@ docker run --rm -v "$PWD/data:/data" roanh/gmark:latest -c /data/config.xml -o /
 Note that we mount a local folder called `data` into the container to pass our configuration file and to retrieve the generated queries.
 
 ### Maven artifact [![Maven Central](https://img.shields.io/maven-central/v/dev.roanh.gmark/gmark)](https://mvnrepository.com/artifact/dev.roanh.gmark/gmark)
-gMark is available on maven central as [an artifact](https://mvnrepository.com/artifact/dev.roanh.gmark/gmark) so it can be included directly in another Java project using Gradle or Maven. This way it becomes possible to directly use all the implemented constructs and utilities. A hosted version of the javadoc for gMark can be found at [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/).
+gMark is available on Maven central as [an artifact](https://mvnrepository.com/artifact/dev.roanh.gmark/gmark) so it can be included directly in another Java project using Gradle or Maven. This way it becomes possible to directly use all the implemented constructs and utilities. A hosted version of the javadoc for gMark can be found at [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/).
 
 ##### Gradle 
 ```groovy
@@ -81,7 +81,7 @@ repositories{
 }
 
 dependencies{
-	implementation 'dev.roanh.gmark:gmark:1.0'
+	implementation 'dev.roanh.gmark:gmark:1.1'
 }
 ```
 
@@ -90,7 +90,7 @@ dependencies{
 <dependency>
 	<groupId>dev.roanh.gmark</groupId>
 	<artifactId>gmark</artifactId>
-	<version>1.0</version>
+	<version>1.1</version>
 </dependency>
 ```
 

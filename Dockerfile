@@ -2,8 +2,8 @@
 FROM openjdk:8 AS compile
 LABEL maintainer="roan@roanh.dev"
 WORKDIR /gMark
-ADD gMark/gradle/wrapper/* /gMark/gradle/wrapper/
-ADD gMark/src/* /gMark/src/
+ADD gMark/gradle/wrapper/ /gMark/gradle/wrapper/
+ADD gMark/src/ /gMark/src/
 ADD gMark/build.gradle /gMark/
 ADD gMark/gradlew /gMark/
 ADD gMark/settings.gradle /gMark/

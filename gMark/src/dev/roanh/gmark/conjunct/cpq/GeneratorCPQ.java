@@ -136,13 +136,12 @@ public class GeneratorCPQ implements ConjunctGenerator{
 				return CPQ.label(Util.getRandom().nextBoolean() ? label : label.getInverse());
 			}
 		}else{
+			int split = Util.uniformRandom(0, ruleApplications - 1);
 			if(Util.getRandom().nextBoolean()){
 				//concatenation
-				int split = Util.uniformRandom(0, ruleApplications - 1);
 				return CPQ.concat(generatePlainCPQ(split, false, labels), generatePlainCPQ(ruleApplications - split - 1, false, labels));
 			}else{
 				//intersect
-				int split = Util.uniformRandom(0, ruleApplications - 1);
 				return CPQ.intersect(generatePlainCPQ(split, true, labels), generatePlainCPQ(ruleApplications - split - 1, false, labels));
 			}
 		}

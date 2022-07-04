@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+title: gMark
+message: "If you use this version of gMark, please cite it using the metadata from this file."
+type: software
+authors:
+  - given-names: Roan
+    family-names: Hofland
+    email: roan@roanh.dev
+repository-code: 'https://github.com/RoanH/gMark'
+abstract: 'gMark is a domain- and query language-independent graph instance and query workload generator'
+license: GPL-3.0-or-later

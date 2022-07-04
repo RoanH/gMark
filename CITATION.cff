@@ -1,11 +1,56 @@
 cff-version: 1.2.0
 title: gMark
-message: "If you use this version of gMark, please cite it using the metadata from this file."
+version: 1.1
+date-released: 2022-03-15
+message: "If you use this software, please cite it using the metadata from this file."
 type: software
 authors:
   - given-names: Roan
     family-names: Hofland
     email: roan@roanh.dev
+contact:
+  - given-names: Roan
+    family-names: Hofland
+    email: roan@roanh.dev
+    website: 'https://roanh.dev'
 repository-code: 'https://github.com/RoanH/gMark'
-abstract: 'gMark is a domain- and query language-independent graph instance and query workload generator'
+repository-artifact: 'https://mvnrepository.com/artifact/dev.roanh.gmark/gmark'
+abstract: "gMark is a domain- and query language-independent graph instance and query workload generator"
 license: GPL-3.0-or-later
+year-original: 2021
+references:
+  - title: "Conjunctive Path Query Generation for Benchmarking"
+    authors:
+    - given-names: Roan
+      family-names: Hofland
+      affiliation: "Eindhoven University of Technology"
+      email: r.w.p.hofland@student.tue.nl
+    type: report
+    url: 'https://research.roanh.dev/Conjunctive%20Path%20Query%20Generation%20for%20Benchmarking%20v2.8.pdf'
+    date-published: 2022-03-21
+    department: "Department of Mathematics and Computer Science"
+    institution:
+      name: "Eindhoven University of Technology"
+  - title: "gMark: Schema-Driven Generation of Graphs and Queries"
+    authors:
+    - family-names: Guillaume
+      given-names: Bagan
+      affiliation: "University Lyon 1"
+    - family-names: Bonifati
+      given-names: Angela
+      affiliation: "University Lyon 1"
+    - family-names: Ciucanu
+      given-names: Radu
+      affiliation: "Blaise Pascal University"
+    - family-names: H. L. Fletcher
+      given-names: George
+      affiliation: "Eindhoven University of Technology"
+    - family-names: Lemay
+      given-names: Aurélien
+      affiliation: "University of Lille"
+    - family-names: Advokaat
+      given-names: Nicky
+      affiliation: "Eindhoven University of Technology"
+    type: article
+    url: 'https://arxiv.org/abs/1511.08386'
+    year: 2017

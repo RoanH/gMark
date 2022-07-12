@@ -31,6 +31,20 @@ references:
     department: "Department of Mathematics and Computer Science"
     institution:
       name: "Eindhoven University of Technology"
+  - title: "Language-aware Indexing for Conjunctive Path Queries"
+    authors:
+    - family-names: Sasaki
+      given-names: Yuya
+      affiliation: "Osaka University"
+    - family-names: H. L. Fletcher
+      given-names: George
+      affiliation: "Eindhoven University of Technology"
+    - family-names: Onizuka
+      given-names: Makoto
+      affiliation: "Osaka University"
+    type: article
+    url: 'https://arxiv.org/abs/2003.03079'
+    year: 2022
   - title: "gMark: Schema-Driven Generation of Graphs and Queries"
     authors:
     - family-names: Guillaume

@@ -31,6 +31,18 @@ references:
     department: "Department of Mathematics and Computer Science"
     institution:
       name: "Eindhoven University of Technology"
+  - title: "CPQ Keys: a survey of graph canonization algorithms"
+    authors:
+    - given-names: Roan
+      family-names: Hofland
+      affiliation: "Eindhoven University of Technology"
+      email: r.w.p.hofland@student.tue.nl
+    type: report
+    url: 'https://research.roanh.dev/cpqkeys/CPQ%20Keys%20v1.1.pdf'
+    date-published: 2022-07-17
+    department: "Department of Mathematics and Computer Science"
+    institution:
+      name: "Eindhoven University of Technology"
   - title: "Language-aware Indexing for Conjunctive Path Queries"
     authors:
     - family-names: Sasaki

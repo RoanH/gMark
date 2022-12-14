@@ -394,6 +394,11 @@ public abstract class EdgeGraphData{
 			//always an empty start or end of a path
 			return CPQ.IDENTITY;
 		}
+
+		@Override
+		public int hashCode(){
+			return Objects.hashCode(this);
+		}
 	}
 	
 	/**

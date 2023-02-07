@@ -232,4 +232,56 @@ public class Util{
 		}
 		return labels;
 	}
+	
+	public static void computeTreeDecomposition(Object graph, int k){
+		
+		
+		//if |E| <= k * |V| - 0.5D * k * (k - 1)
+		
+			//i. compute a maximal matching
+		
+		
+			//ii. compute graph G' obtained by contracting all edges in M
+		
+		
+		
+			//iii. Recurse the algorithm on G'
+		
+		
+			//iv. If recursion says the graph has larger treewidth, then exit
+		
+		
+			//v. Otherwise with the return tree decomposition make one for G with Lemma 3.3
+		
+		
+			//vi. Theorem 2.4 check to see if the result graph has treewidth at most k
+		
+			//return decomposition
+		
+		//ELSE 
+		
+			//i. Compute the improved graph of G by paragraph 6
+		
+			//ii. Exit if an I-simplicial vertex with degree at least K+1 exists
+		
+			//iii. Put I-simplicial vertices in a set SL, compute graph by removing all 
+		    //     vertices (and edges) from SL
+		
+			//iv. If |SL| < c2 * |V| then exit
+		
+			//v. Recursively run the algorithm on G'
+		
+		
+			//vi. Stop if recursion says the treewidth is >k
+		
+			//vii. Put back SL vertices according to the given procedure
+		
+			//return the constructed decomposition
+		
+		
+		
+		
+		
+		
+	}
 }

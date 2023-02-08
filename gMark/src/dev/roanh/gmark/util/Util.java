@@ -36,6 +36,7 @@ import java.util.function.Supplier;
 
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.UniqueGraph.GraphNode;
 
@@ -233,16 +234,26 @@ public class Util{
 		return labels;
 	}
 	
-	public static <V, E> Object computeTreeDecomposition(UniqueGraph<V, E> graph, int k){
-		if(graph.getEdgeCount() <= k * graph.getNodeCount() - k * (k - 1) / 2){
+	public static <T> Object computeTreeDecomposition(SimpleGraph<T> graph, int k){
+		if(graph.getEdgeCount() <= k * graph.getVertexCount() - k * (k - 1) / 2){
 			return null;
 		}
 		
+		//count friendly vertices
+		int d = 2 * k * k * k * (k + 1) * (4 * k * k + 12 * k + 16);
+		int friendly = 0;
+		outer: for(SimpleVertex<T> v : graph.getVertices()){
+			if(v.getDegree() <= d){
+				for(SimpleVertex<T> adj : v.getEdges()){
+					if(adj.getDegree() <= d){
+						friendly++;
+						continue outer;
+					}
+				}
+			}
+		}
 		
-		
-		//if |E| <= k * |V| - 0.5D * k * (k - 1)
-		
-		
+		if(graph.getVertexCount() / (4 * k * k + 12 * k + 16) <= friendly){
 		
 			//i. compute a maximal matching
 		
@@ -264,7 +275,7 @@ public class Util{
 		
 			//return decomposition
 		
-		//ELSE 
+		}else{ 
 		
 			//i. Compute the improved graph of G by paragraph 6
 		
@@ -286,8 +297,8 @@ public class Util{
 		
 		
 		
+		}
 		
-		
-		return null;
+		return null;//TODO
 	}
 }

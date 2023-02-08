@@ -1,5 +1,6 @@
 package dev.roanh.gmark.util;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -28,6 +29,18 @@ public class SimpleGraph<T>{
 	
 	public void addEdge(SimpleVertex<T> a, T b){
 		a.addEdge(vertexMap.get(b));
+	}
+	
+	public int getVertexCount(){
+		return vertexMap.size();
+	}
+	
+	public int getEdgeCount(){
+		return vertexMap.values().stream().mapToInt(SimpleVertex::getDegree).sum() / 2;
+	}
+	
+	public Collection<SimpleVertex<T>> getVertices(){
+		return vertexMap.values();
 	}
 	
 	public UniqueGraph<T, Void> toUniqueGraph(){
@@ -61,6 +74,10 @@ public class SimpleGraph<T>{
 		
 		public T getData(){
 			return data;
+		}
+		
+		public int getDegree(){
+			return edges.size();
 		}
 	}
 }

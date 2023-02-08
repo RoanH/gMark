@@ -256,13 +256,10 @@ public class UniqueGraph<V, E>{
 	 * @param data The edge label data.
 	 */
 	public void addUniqueEdge(GraphNode<V, E> source, GraphNode<V, E> target, E data){
-		//TODO this duplicate check is fairly expensive as is
-		for(GraphEdge<V, E> edge : source.out){
-			if(edge.target.equals(target) && Objects.equals(edge.data, data)){
-				return;
-			}
+		GraphEdge<V, E> edge = new GraphEdge<V, E>(source, target, data);
+		if(source.out.add(edge) && target.in.add(edge)){
+			edges.add(edge);
 		}
-		edges.add(new GraphEdge<V, E>(source, target, data));
 	}
 	
 	/**
@@ -572,8 +569,6 @@ public class UniqueGraph<V, E>{
 			this.source = source;
 			this.target = target;
 			this.data = data;
-			source.out.add(this);
-			target.in.add(this);
 		}
 		
 		/**
@@ -640,7 +635,7 @@ public class UniqueGraph<V, E>{
 		public boolean equals(Object other){
 			if(other instanceof GraphEdge){
 				GraphEdge<?, ?> edge = (GraphEdge<?, ?>)other;
-				return edge.source.equals(source) && edge.target.equals(target) && edge.data.equals(data);
+				return edge.source.equals(source) && edge.target.equals(target) && Objects.equals(edge.data, data);
 			}else{
 				return false;
 			}

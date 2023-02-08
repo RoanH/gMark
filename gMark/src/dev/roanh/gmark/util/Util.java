@@ -36,8 +36,8 @@ import java.util.function.Supplier;
 
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.util.Graph.GraphEdge;
-import dev.roanh.gmark.util.Graph.GraphNode;
+import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
+import dev.roanh.gmark.util.UniqueGraph.GraphNode;
 
 /**
  * Class providing various small utilities as well
@@ -204,8 +204,8 @@ public class Util{
 	 * @return The transformed graph without edge labels.
 	 * @see <a href="https://cpqkeys.roanh.dev/notes/to_unlabelled">Notes on transforming edge labelled graphs to graphs without edge labels</a>
 	 */
-	public static <V, E> Graph<Object, Void> edgeLabelsToNodes(Graph<V, E> in){
-		Graph<Object, Void> out = new Graph<Object, Void>();
+	public static <V, E> UniqueGraph<Object, Void> edgeLabelsToNodes(UniqueGraph<V, E> in){
+		UniqueGraph<Object, Void> out = new UniqueGraph<Object, Void>();
 		
 		in.getNodes().forEach(node->out.addUniqueNode(node.getData()));
 		for(GraphEdge<V, E> edge : in.getEdges()){

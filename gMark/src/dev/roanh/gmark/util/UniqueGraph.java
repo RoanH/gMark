@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  * @param <V> Type of the data stored at vertices.
  * @param <E> Type of the data stored at edges.
  */
-public class Graph<V, E>{
+public class UniqueGraph<V, E>{
 	/**
 	 * Map for efficient graph node lookup from
 	 * the data stored a specific node. Note that
@@ -299,7 +299,7 @@ public class Graph<V, E>{
 		/**
 		 * The graph this node is in.
 		 */
-		private Graph<V, E> graph;
+		private UniqueGraph<V, E> graph;
 		/**
 		 * The edges departing from this node.
 		 */
@@ -323,7 +323,7 @@ public class Graph<V, E>{
 		 * @param data The data associated with this
 		 *        node that uniquely identifies it in the graph.
 		 */
-		private GraphNode(int id, Graph<V, E> graph, V data){
+		private GraphNode(int id, UniqueGraph<V, E> graph, V data){
 			this.id = id;
 			this.graph = graph;
 			this.data = data;
@@ -338,7 +338,7 @@ public class Graph<V, E>{
 		 * the graph nodes is required. In addition, if no nodes are
 		 * ever removed from the graph then the ordered IDs of all nodes
 		 * in the graph form an unbroken sequence from 0 to
-		 * {@link Graph#getNodeCount()} - 1.
+		 * {@link UniqueGraph#getNodeCount()} - 1.
 		 * @return The ID of this node.
 		 * @see #getData()
 		 */
@@ -352,8 +352,8 @@ public class Graph<V, E>{
 		 * Note: calling this function while iterating over the
 		 * nodes or edges in the graph will cause a co-modification
 		 * exception. For mass removal of nodes use
-		 * {@link Graph#removeNodeIf(Predicate)} instead.
-		 * @see Graph#removeNodeIf(Predicate)
+		 * {@link UniqueGraph#removeNodeIf(Predicate)} instead.
+		 * @see UniqueGraph#removeNodeIf(Predicate)
 		 */
 		public void remove(){
 			//manual edge removal to prevent co-modification

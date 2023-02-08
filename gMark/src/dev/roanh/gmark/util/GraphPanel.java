@@ -39,12 +39,12 @@ import java.util.function.Function;
 
 import javax.swing.JPanel;
 
-import dev.roanh.gmark.util.Graph.GraphEdge;
-import dev.roanh.gmark.util.Graph.GraphNode;
+import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
+import dev.roanh.gmark.util.UniqueGraph.GraphNode;
 
 /**
  * Simple component that visualises the nodes and
- * edges in a {@link Graph}. The user able to move
+ * edges in a {@link UniqueGraph}. The user able to move
  * the graph nodes around by dragging. In addition
  * attached edges will be highlighted when a node is
  * selected. Nodes are initially placed randomly at
@@ -92,10 +92,10 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 * Data is converted to string form for display purposes
 	 * using a call to the standard {@link Object#toString()} method.
 	 * @param graph The graph to visualise.
-	 * @see Graph
-	 * @see #GraphPanel(Graph, Function, Function)
+	 * @see UniqueGraph
+	 * @see #GraphPanel(UniqueGraph, Function, Function)
 	 */
-	public GraphPanel(Graph<V, E> graph){
+	public GraphPanel(UniqueGraph<V, E> graph){
 		this(graph, V::toString, E::toString);
 	}
 	
@@ -108,9 +108,9 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 *        graph node data to a string to display to the user.
 	 * @param edgeLabel The function to use to convert
 	 *        graph edge data to a string to display to the user.
-	 * @see Graph
+	 * @see UniqueGraph
 	 */
-	public GraphPanel(Graph<V, E> graph, Function<V, String> nodeLabel, Function<E, String> edgeLabel){
+	public GraphPanel(UniqueGraph<V, E> graph, Function<V, String> nodeLabel, Function<E, String> edgeLabel){
 		this.nodeLabel = nodeLabel;
 		this.edgeLabel = edgeLabel;
 		this.addMouseListener(this);
@@ -124,7 +124,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 * previous graph if any.
 	 * @param graph The new graph to display.
 	 */
-	public void setGraph(Graph<V, E> graph){
+	public void setGraph(UniqueGraph<V, E> graph){
 		nodes.clear();
 		edges.clear();
 		activeNode = null;
@@ -218,7 +218,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 * visualise the node.
 	 * @author Roan
 	 * @see Edge
-	 * @see Graph
+	 * @see UniqueGraph
 	 * @see GraphNode
 	 */
 	private class Node{
@@ -309,7 +309,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 * visualise the edge.
 	 * @author Roan
 	 * @see Node
-	 * @see Graph
+	 * @see UniqueGraph
 	 * @see GraphEdge
 	 */
 	private class Edge{

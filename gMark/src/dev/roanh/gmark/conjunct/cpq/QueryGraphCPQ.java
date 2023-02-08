@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.util.Graph;
+import dev.roanh.gmark.util.UniqueGraph;
 
 /**
  * Object representing the query graph of a CPQ. This
@@ -151,9 +151,9 @@ public class QueryGraphCPQ{
 	 * graph instance.
 	 * @return The constructed graph instance.
 	 */
-	public Graph<Vertex, Predicate> toGraph(){
+	public UniqueGraph<Vertex, Predicate> toGraph(){
 		merge();
-		Graph<Vertex, Predicate> graph = new Graph<Vertex, Predicate>();
+		UniqueGraph<Vertex, Predicate> graph = new UniqueGraph<Vertex, Predicate>();
 		vertices.forEach(graph::addUniqueNode);
 		for(Edge edge : edges){
 			graph.addUniqueEdge(edge.src, edge.trg, edge.label);

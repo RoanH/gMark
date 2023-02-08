@@ -32,7 +32,7 @@ import dev.roanh.gmark.core.graph.Type;
  * @see Configuration
  * @see Schema
  */
-public class ConfigGraph extends Graph<Type, Predicate>{
+public class ConfigGraph extends UniqueGraph<Type, Predicate>{
 
 	/**
 	 * Constructs a new configuration graph from

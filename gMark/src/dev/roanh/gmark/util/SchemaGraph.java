@@ -38,7 +38,7 @@ import dev.roanh.gmark.core.graph.Type;
  * @see SelectivityType
  * @see Predicate
  */
-public class SchemaGraph extends Graph<SelectivityType, Predicate>{
+public class SchemaGraph extends UniqueGraph<SelectivityType, Predicate>{
 	/**
 	 * Efficient lookup index from selectivity type to graph node.
 	 */

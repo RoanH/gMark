@@ -30,9 +30,9 @@ import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.util.Graph;
-import dev.roanh.gmark.util.Graph.GraphEdge;
-import dev.roanh.gmark.util.Graph.GraphNode;
+import dev.roanh.gmark.util.UniqueGraph;
+import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
+import dev.roanh.gmark.util.UniqueGraph.GraphNode;
 
 public class QueryGraphCPQTest{
 	
@@ -46,7 +46,7 @@ public class QueryGraphCPQTest{
 		assertEquals("((a◦(b ∩ id)◦c) ∩ id)", q.toString());
 
 		QueryGraphCPQ queryGraph = q.toQueryGraph();
-		Graph<Vertex, Predicate> graph = queryGraph.toGraph();
+		UniqueGraph<Vertex, Predicate> graph = queryGraph.toGraph();
 		
 		assertEquals(3, graph.getEdgeCount());
 		assertEquals(2, graph.getNodeCount());
@@ -107,7 +107,7 @@ public class QueryGraphCPQTest{
 		);
 		assertEquals("(((a◦(b ∩ id)) ∩ id)◦(a ∩ id))", cpq.toString());
 		
-		Graph<Vertex, Predicate> graph = cpq.toQueryGraph().toGraph();
+		UniqueGraph<Vertex, Predicate> graph = cpq.toQueryGraph().toGraph();
 		assertEquals(1, graph.getNodeCount());
 		assertEquals(2, graph.getEdgeCount());
 		
@@ -126,7 +126,7 @@ public class QueryGraphCPQTest{
 		CPQ q = CPQ.intersect(CPQ.concat(CPQ.label(a), CPQ.label(a.getInverse())), CPQ.IDENTITY);
 		assertEquals("((a◦a⁻) ∩ id)", q.toString());
 		
-		Graph<Vertex, Predicate> g = q.toQueryGraph().toGraph();
+		UniqueGraph<Vertex, Predicate> g = q.toQueryGraph().toGraph();
 		assertEquals(2, g.getNodeCount());
 		assertEquals(1, g.getEdgeCount());
 		

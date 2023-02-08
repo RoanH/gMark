@@ -23,7 +23,7 @@ package dev.roanh.gmark.util;
  * other object. DataProxy instances are never equal
  * to other DataProxy instances unless they are exactly
  * the same object.  This class is intended for use with
- * the {@link Graph} class so that multiple nodes can
+ * the {@link UniqueGraph} class so that multiple nodes can
  * be added with the same data. 
  * @author Roan
  * @param <T> The data type to proxy.

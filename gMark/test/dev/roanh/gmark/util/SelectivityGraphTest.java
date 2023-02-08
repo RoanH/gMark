@@ -34,7 +34,7 @@ import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Schema;
 import dev.roanh.gmark.core.graph.Type;
 import dev.roanh.gmark.exception.ConfigException;
-import dev.roanh.gmark.util.Graph.GraphEdge;
+import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.SelectivityGraph.DistanceMatrix;
 
 public class SelectivityGraphTest{

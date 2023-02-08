@@ -46,7 +46,7 @@ public class QueryGraphCPQTest{
 		assertEquals("((a◦(b ∩ id)◦c) ∩ id)", q.toString());
 
 		QueryGraphCPQ queryGraph = q.toQueryGraph();
-		UniqueGraph<Vertex, Predicate> graph = queryGraph.toGraph();
+		UniqueGraph<Vertex, Predicate> graph = queryGraph.toUniqueGraph();
 		
 		assertEquals(3, graph.getEdgeCount());
 		assertEquals(2, graph.getNodeCount());
@@ -107,7 +107,7 @@ public class QueryGraphCPQTest{
 		);
 		assertEquals("(((a◦(b ∩ id)) ∩ id)◦(a ∩ id))", cpq.toString());
 		
-		UniqueGraph<Vertex, Predicate> graph = cpq.toQueryGraph().toGraph();
+		UniqueGraph<Vertex, Predicate> graph = cpq.toQueryGraph().toUniqueGraph();
 		assertEquals(1, graph.getNodeCount());
 		assertEquals(2, graph.getEdgeCount());
 		
@@ -126,7 +126,7 @@ public class QueryGraphCPQTest{
 		CPQ q = CPQ.intersect(CPQ.concat(CPQ.label(a), CPQ.label(a.getInverse())), CPQ.IDENTITY);
 		assertEquals("((a◦a⁻) ∩ id)", q.toString());
 		
-		UniqueGraph<Vertex, Predicate> g = q.toQueryGraph().toGraph();
+		UniqueGraph<Vertex, Predicate> g = q.toQueryGraph().toUniqueGraph();
 		assertEquals(2, g.getNodeCount());
 		assertEquals(1, g.getEdgeCount());
 		
@@ -134,4 +134,13 @@ public class QueryGraphCPQTest{
 		assertEquals("a", edge.getData().getAlias());
 		assertFalse(edge.getSourceNode().equals(edge.getTargetNode()));
 	}
+	
+//	@Test
+//	public incidenceGraph(){
+//		
+//		
+//		
+//		
+//		
+//	}
 }

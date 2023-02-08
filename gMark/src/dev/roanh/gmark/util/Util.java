@@ -233,10 +233,16 @@ public class Util{
 		return labels;
 	}
 	
-	public static void computeTreeDecomposition(Object graph, int k){
+	public static <V, E> Object computeTreeDecomposition(UniqueGraph<V, E> graph, int k){
+		if(graph.getEdgeCount() <= k * graph.getNodeCount() - k * (k - 1) / 2){
+			return null;
+		}
+		
 		
 		
 		//if |E| <= k * |V| - 0.5D * k * (k - 1)
+		
+		
 		
 			//i. compute a maximal matching
 		
@@ -282,6 +288,6 @@ public class Util{
 		
 		
 		
-		
+		return null;
 	}
 }

@@ -86,6 +86,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 * to show to the user.
 	 */
 	private Function<E, String> edgeLabel;
+	private boolean directed = true;
 	
 	/**
 	 * Constructs a new graph panel for the given graph.
@@ -117,6 +118,10 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		this.addMouseMotionListener(this);
 		
 		setGraph(graph);
+	}
+	
+	public void setDirected(boolean directed){
+		this.directed = directed;
 	}
 	
 	/**
@@ -364,7 +369,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 				}
 			}else{
 				g.setColor((source == activeNode || target == activeNode) ? Color.RED : Color.BLACK);
-				if(twin != null){
+				if(twin != null && directed){
 					if(source.hashCode() > target.hashCode()){
 						AffineTransform transform = g.getTransform();
 						
@@ -422,6 +427,10 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		 *        the arrow head belongs to.
 		 */
 		private void drawArrowHead(Graphics2D g, double x1, double y1, double x2, double y2){
+			if(!directed){
+				return;
+			}
+			
 			//Mathematical details: https://www.desmos.com/calculator/4wofflsoqx
 			double offset = Node.RADIUS;
 			

@@ -24,7 +24,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.swing.JFrame;
+
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.GraphPanel;
+import dev.roanh.gmark.util.SimpleGraph;
+import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.UniqueGraph;
 
 /**
@@ -151,7 +156,7 @@ public class QueryGraphCPQ{
 	 * graph instance.
 	 * @return The constructed graph instance.
 	 */
-	public UniqueGraph<Vertex, Predicate> toGraph(){
+	public UniqueGraph<Vertex, Predicate> toUniqueGraph(){
 		merge();
 		UniqueGraph<Vertex, Predicate> graph = new UniqueGraph<Vertex, Predicate>();
 		vertices.forEach(graph::addUniqueNode);
@@ -159,6 +164,44 @@ public class QueryGraphCPQ{
 			graph.addUniqueEdge(edge.src, edge.trg, edge.label);
 		}
 		return graph;
+	}
+	
+	//object is either Edge or Vertex
+	public SimpleGraph<Object> toIncidenceGraph(){
+		SimpleGraph<Object> g = new SimpleGraph<Object>();
+		vertices.forEach(g::addVertex);
+		
+		for(Edge edge : edges){
+			SimpleVertex<Object> v = g.addVertex(edge);
+			g.addEdge(v, edge.src);
+			g.addEdge(v, edge.trg);
+		}
+
+		return g;
+	}
+	
+	public static void main(String[] args){
+		JFrame f = new JFrame();
+		
+		Predicate l1 = new Predicate(1, "1");
+		Predicate l2 = new Predicate(2, "2");
+		Predicate l3 = new Predicate(3, "3");
+		Predicate l4 = new Predicate(4, "4");
+		
+		CPQ q = CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.labels(l2, l4), CPQ.labels(l3, l2)));
+		
+		
+		GraphPanel<Object, Void> p = new GraphPanel<Object, Void>(q.toQueryGraph().toIncidenceGraph().toUniqueGraph());
+		p.setDirected(false);
+		
+		
+		f.add(p);
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.setSize(300, 300);
+		
+		f.setVisible(true);
+		
+		
 	}
 	
 	/**
@@ -221,6 +264,21 @@ public class QueryGraphCPQ{
 		return elem;
 	}
 	
+	/**
+	 * Computes the label for a vertex in a CPQ query graph. Note
+	 * this graph is technically not labelled but a source and target
+	 * vertex can be identified (and might be identical).
+	 * @param vertex The vertex to get the label for.
+	 * @return The label for the given vertex.
+	 */
+	public String getVertexLabel(Vertex vertex){
+		if(vertex == source){
+			return vertex == target ? "src,trg" : "src";
+		}else{
+			return vertex == target ? "trg" : "";
+		}
+	}
+	
 	@Override
 	public String toString(){
 		return "QueryGraphCPQ[V=" + vertices + ",E=" + edges + ",src=" + source + ",trg=" + target + ",Fid=" + fid + "]";
@@ -239,25 +297,10 @@ public class QueryGraphCPQ{
 	}
 	
 	/**
-	 * Computes the label for a vertex in a CPQ query graph. Note
-	 * this graph is technically not labelled but a source and target
-	 * vertex can be identified (and might be identical).
-	 * @param vertex The vertex to get the label for.
-	 * @return The label for the given vertex.
-	 */
-	public String getVertexLabel(Vertex vertex){
-		if(vertex == source){
-			return vertex == target ? "src,trg" : "src";
-		}else{
-			return vertex == target ? "trg" : "";
-		}
-	}
-	
-	/**
 	 * Represents a directed edge in a CPQ query graph.
 	 * @author Roan
 	 */
-	private static class Edge{
+	public static class Edge{
 		/**
 		 * The edge source vertex.
 		 */

@@ -86,6 +86,9 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 * to show to the user.
 	 */
 	private Function<E, String> edgeLabel;
+	/**
+	 * True if the graph should be drawn as a directed graph.
+	 */
 	private boolean directed = true;
 	
 	/**
@@ -120,6 +123,15 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		setGraph(graph);
 	}
 	
+	/**
+	 * Sets whether the graph is directed. Although by definition
+	 * the input {@link UniqueGraph} is directed, setting this to
+	 * <code>false</code> will make it so arrow heads are not drawn
+	 * and that a directed edge in both directions between two nodes
+	 * is not drawn as a curved arc.
+	 * @param directed True to draw the directed properties of the
+	 *        graph, false to not draw these features.
+	 */
 	public void setDirected(boolean directed){
 		this.directed = directed;
 	}

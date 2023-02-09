@@ -28,14 +28,17 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.UniqueGraph.GraphNode;
@@ -300,5 +303,20 @@ public class Util{
 		}
 		
 		return null;//TODO
+	}
+	
+	public static <T> List<SimpleEdge<T>> findMaximalMatching(SimpleGraph<T> graph){
+		List<SimpleEdge<T>> matching = new ArrayList<SimpleEdge<T>>();
+		Set<SimpleVertex<T>> usedVertices = new HashSet<SimpleVertex<T>>();
+		
+		for(SimpleEdge<T> edge : graph.getEdges()){
+			if(!usedVertices.contains(edge.getFirstVertex()) && !usedVertices.contains(edge.getSecondVertex())){
+				matching.add(edge);
+				usedVertices.add(edge.getFirstVertex());
+				usedVertices.add(edge.getSecondVertex());
+			}
+		}
+		
+		return matching;
 	}
 }

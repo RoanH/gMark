@@ -1,16 +1,21 @@
 package dev.roanh.gmark.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 //undirected no edge labels
 public class SimpleGraph<T>{
 	private Map<T, SimpleVertex<T>> vertexMap = new HashMap<T, SimpleVertex<T>>();
+	private List<SimpleEdge<T>> edges = new ArrayList<SimpleEdge<T>>();
 	
-	
+	public List<SimpleEdge<T>> getEdges(){
+		return edges;
+	}
 	
 	public SimpleVertex<T> addVertex(T data){
 		SimpleVertex<T> v = vertexMap.get(data);
@@ -28,7 +33,10 @@ public class SimpleGraph<T>{
 	}
 	
 	public void addEdge(SimpleVertex<T> a, T b){
-		a.addEdge(vertexMap.get(b));
+		SimpleVertex<T> target = vertexMap.get(b);
+		target.edges.add(a);
+		a.edges.add(target);
+		edges.add(new SimpleEdge<T>(a, target));
 	}
 	
 	public int getVertexCount(){
@@ -36,7 +44,7 @@ public class SimpleGraph<T>{
 	}
 	
 	public int getEdgeCount(){
-		return vertexMap.values().stream().mapToInt(SimpleVertex::getDegree).sum() / 2;
+		return edges.size();
 	}
 	
 	public Collection<SimpleVertex<T>> getVertices(){
@@ -55,17 +63,34 @@ public class SimpleGraph<T>{
 		return g;
 	}
 	
+	public void contractEdge(SimpleEdge<T> edge){
+		//TODO
+	}
+	
+	public static final class SimpleEdge<T>{
+		private SimpleVertex<T> a;
+		private SimpleVertex<T> b;
+		
+		private SimpleEdge(SimpleVertex<T> a, SimpleVertex<T> b){
+			this.a = a;
+			this.b = b;
+		}
+		
+		public SimpleVertex<T> getFirstVertex(){
+			return a;
+		}
+		
+		public SimpleVertex<T> getSecondVertex(){
+			return b;
+		}
+	}
+	
 	public static final class SimpleVertex<T>{
 		private T data;
 		private Set<SimpleVertex<T>> edges = new HashSet<SimpleVertex<T>>();
 		
 		private SimpleVertex(T data){
 			this.data = data;
-		}
-		
-		public void addEdge(SimpleVertex<T> target){
-			target.edges.add(this);
-			edges.add(target);
 		}
 		
 		public Set<SimpleVertex<T>> getEdges(){

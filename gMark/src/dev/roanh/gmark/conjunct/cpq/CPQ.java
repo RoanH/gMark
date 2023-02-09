@@ -123,7 +123,7 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	
 	/**
 	 * Returns a CPQ representing a chain of labelled edge traversals.
-	 * @param labels The labels of the traversed edged.
+	 * @param labels The labels of the traversed edges.
 	 * @return The label traversal CPQ.
 	 */
 	public static CPQ labels(Predicate... labels){

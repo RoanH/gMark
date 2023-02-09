@@ -21,6 +21,7 @@ package dev.roanh.gmark.conjunct.cpq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,8 +29,12 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
+import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Edge;
 import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.SimpleGraph;
+import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
+import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.UniqueGraph;
 import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.UniqueGraph.GraphNode;
@@ -135,12 +140,37 @@ public class QueryGraphCPQTest{
 		assertFalse(edge.getSourceNode().equals(edge.getTargetNode()));
 	}
 	
-//	@Test
-//	public incidenceGraph(){
-//		
-//		
-//		
-//		
-//		
-//	}
+	@Test
+	public void incidenceGraph(){
+		Predicate l1 = new Predicate(1, "1");
+		Predicate l2 = new Predicate(2, "2");
+		Predicate l3 = new Predicate(3, "3");
+		Predicate l4 = new Predicate(4, "4");
+		
+		SimpleGraph<Object> icGraph = CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.labels(l2, l4), CPQ.labels(l3, l2))).toQueryGraph().toIncidenceGraph();
+		
+		assertEquals(10, icGraph.getVertexCount());
+		assertEquals(10, icGraph.getEdgeCount());
+		
+		int e = 0;
+		int v = 0;
+		for(SimpleVertex<Object> obj : icGraph.getVertices()){
+			if(obj.getData() instanceof Edge){
+				e++;
+				assertEquals(2, obj.getDegree());
+			}else if(obj.getData() instanceof Vertex){
+				v++;
+				assertTrue(obj.getDegree() <= 3);
+			}else{
+				assert false : "Invalid object type";
+			}
+		}
+		assertEquals(5, e);
+		assertEquals(5, v);
+		
+		for(SimpleEdge<Object> edge : icGraph.getEdges()){
+			assertTrue(edge.getFirstVertex().getData() instanceof Edge);
+			assertTrue(edge.getSecondVertex().getData() instanceof Vertex);
+		}
+	}
 }

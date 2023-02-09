@@ -31,6 +31,10 @@ public class SimpleGraph<T>{
 	private Map<T, SimpleVertex<T>> vertexMap = new HashMap<T, SimpleVertex<T>>();
 	private List<SimpleEdge<T>> edges = new ArrayList<SimpleEdge<T>>();
 	
+	public SimpleVertex<T> getVertex(T data){
+		return vertexMap.get(data);
+	}
+	
 	public List<SimpleEdge<T>> getEdges(){
 		return edges;
 	}
@@ -46,15 +50,20 @@ public class SimpleGraph<T>{
 		}
 	}
 	
-	public void addEdge(T a, T b){
-		addEdge(vertexMap.get(a), b);
+	public SimpleEdge<T> addEdge(T a, T b){
+		return addEdge(vertexMap.get(a), b);
 	}
 	
-	public void addEdge(SimpleVertex<T> a, T b){
-		SimpleVertex<T> target = vertexMap.get(b);
-		target.edges.add(a);
-		a.edges.add(target);
-		edges.add(new SimpleEdge<T>(a, target));
+	public SimpleEdge<T> addEdge(SimpleVertex<T> a, T b){
+		return addEdge(a, vertexMap.get(b));
+	}
+	
+	public SimpleEdge<T> addEdge(SimpleVertex<T> a, SimpleVertex<T> b){
+		SimpleEdge<T> edge = new SimpleEdge<T>(a, b);
+		b.edges.add(edge);
+		a.edges.add(edge);
+		edges.add(edge);
+		return edge;
 	}
 	
 	public int getVertexCount(){
@@ -72,11 +81,9 @@ public class SimpleGraph<T>{
 	public UniqueGraph<T, Void> toUniqueGraph(){
 		UniqueGraph<T, Void> g = new UniqueGraph<T, Void>();
 		vertexMap.keySet().forEach(g::addUniqueNode);
-		for(SimpleVertex<T> a : vertexMap.values()){
-			for(SimpleVertex<T> b : a.getEdges()){
-				g.addUniqueEdge(a.getData(), b.getData());
-				g.addUniqueEdge(b.getData(), a.getData());
-			}
+		for(SimpleEdge<T> edge : edges){
+			g.addUniqueEdge(edge.getFirstVertex().getData(), edge.getSecondVertex().getData());
+			g.addUniqueEdge(edge.getSecondVertex().getData(), edge.getFirstVertex().getData());
 		}
 		return g;
 	}
@@ -114,17 +121,22 @@ public class SimpleGraph<T>{
 		public SimpleVertex<T> getSecondVertex(){
 			return b;
 		}
+		
+		public SimpleVertex<T> getTarget(SimpleVertex<T> source){
+			assert a == source || b == source;
+			return a == source ? b : a;
+		}
 	}
 	
 	public static final class SimpleVertex<T>{
 		private T data;
-		private Set<SimpleVertex<T>> edges = new HashSet<SimpleVertex<T>>();
+		private Set<SimpleEdge<T>> edges = new HashSet<SimpleEdge<T>>();
 		
 		private SimpleVertex(T data){
 			this.data = data;
 		}
 		
-		public Set<SimpleVertex<T>> getEdges(){
+		public Set<SimpleEdge<T>> getEdges(){
 			return edges;
 		}
 		

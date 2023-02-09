@@ -247,8 +247,8 @@ public class Util{
 		int friendly = 0;
 		outer: for(SimpleVertex<T> v : graph.getVertices()){
 			if(v.getDegree() <= d){
-				for(SimpleVertex<T> adj : v.getEdges()){
-					if(adj.getDegree() <= d){
+				for(SimpleEdge<T> adj : v.getEdges()){
+					if(adj.getTarget(v).getDegree() <= d){
 						friendly++;
 						continue outer;
 					}

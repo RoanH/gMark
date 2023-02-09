@@ -81,8 +81,21 @@ public class SimpleGraph<T>{
 		return g;
 	}
 	
-	public void contractEdge(SimpleEdge<T> edge){
-		//TODO
+	public void contractEdge(SimpleEdge<T> edge, SimpleVertex<T> vertex){
+		SimpleVertex<T> v1 = edge.getFirstVertex();
+		SimpleVertex<T> v2 = edge.getSecondVertex();
+		
+		edges.remove(edge);
+		vertexMap.remove(v1.getData());
+		vertexMap.remove(v2.getData());
+		
+		for(SimpleEdge<T> e : edges){
+			if(e.getFirstVertex() == v1 || e.getFirstVertex() == v2){
+				e.a = vertex;
+			}else if(e.getSecondVertex() == v1 || e.getSecondVertex() == v2){
+				e.b = vertex;
+			}
+		}
 	}
 	
 	public static final class SimpleEdge<T>{

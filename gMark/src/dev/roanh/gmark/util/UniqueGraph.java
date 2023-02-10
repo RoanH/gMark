@@ -287,7 +287,7 @@ public class UniqueGraph<V, E>{
 	 * @param <V> The type of data stored at the graph nodes.
 	 * @param <E> The type of data stored at the graph edges.
 	 */
-	public static class GraphNode<V, E>{
+	public static class GraphNode<V, E> implements IDable{
 		/**
 		 * The unique ID of this node.
 		 * @see #getID()
@@ -339,6 +339,7 @@ public class UniqueGraph<V, E>{
 		 * @return The ID of this node.
 		 * @see #getData()
 		 */
+		@Override
 		public int getID(){
 			return id;
 		}

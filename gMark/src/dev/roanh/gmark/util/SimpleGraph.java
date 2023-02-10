@@ -20,16 +20,20 @@ package dev.roanh.gmark.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 //undirected no edge labels
 public class SimpleGraph<T>{
-	private Map<T, SimpleVertex<T>> vertexMap = new HashMap<T, SimpleVertex<T>>();
+	private Map<T, SimpleVertex<T>> vertexMap = new LinkedHashMap<T, SimpleVertex<T>>();
 	private List<SimpleEdge<T>> edges = new ArrayList<SimpleEdge<T>>();
+	/**
+	 * The ID to assign to the next node added to the graph.
+	 */
+	private int nextNodeID = 0;
 	
 	public SimpleVertex<T> getVertex(T data){
 		return vertexMap.get(data);
@@ -44,7 +48,7 @@ public class SimpleGraph<T>{
 		if(v != null){
 			return v;
 		}else{
-			v = new SimpleVertex<T>(data);
+			v = new SimpleVertex<T>(nextNodeID++, data);
 			vertexMap.put(data, v);
 			return v;
 		}
@@ -128,11 +132,13 @@ public class SimpleGraph<T>{
 		}
 	}
 	
-	public static final class SimpleVertex<T>{
+	public static final class SimpleVertex<T> implements IDable{
 		private T data;
 		private Set<SimpleEdge<T>> edges = new HashSet<SimpleEdge<T>>();
+		private final int id;
 		
-		private SimpleVertex(T data){
+		private SimpleVertex(int id, T data){
+			this.id = id;
 			this.data = data;
 		}
 		
@@ -146,6 +152,11 @@ public class SimpleGraph<T>{
 		
 		public int getDegree(){
 			return edges.size();
+		}
+		
+		@Override
+		public int getID(){
+			return id;
 		}
 	}
 }

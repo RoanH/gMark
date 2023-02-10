@@ -272,6 +272,22 @@ public class QueryGraphCPQ{
 	 * @author Roan
 	 */
 	public static abstract interface QueryGraphComponent{
+		
+		/**
+		 * Checks if this query graph component is a vertex.
+		 * @return True if this is a vertex.
+		 */
+		public default boolean isVertex(){
+			return this instanceof Vertex;
+		}
+		
+		/**
+		 * Checks if this query graph component is an edge.
+		 * @return True if this is an edge.
+		 */
+		public default boolean isEdge(){
+			return this instanceof Edge;
+		}
 	}
 	
 	/**

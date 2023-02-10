@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Edge;
+import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.QueryGraphComponent;
 import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.util.SimpleGraph;
@@ -147,14 +148,14 @@ public class QueryGraphCPQTest{
 		Predicate l3 = new Predicate(3, "3");
 		Predicate l4 = new Predicate(4, "4");
 		
-		SimpleGraph<Object> icGraph = CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.labels(l2, l4), CPQ.labels(l3, l2))).toQueryGraph().toIncidenceGraph();
+		SimpleGraph<QueryGraphComponent> icGraph = CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.labels(l2, l4), CPQ.labels(l3, l2))).toQueryGraph().toIncidenceGraph();
 		
 		assertEquals(10, icGraph.getVertexCount());
 		assertEquals(10, icGraph.getEdgeCount());
 		
 		int e = 0;
 		int v = 0;
-		for(SimpleVertex<Object> obj : icGraph.getVertices()){
+		for(SimpleVertex<QueryGraphComponent> obj : icGraph.getVertices()){
 			if(obj.getData() instanceof Edge){
 				e++;
 				assertEquals(2, obj.getDegree());
@@ -168,7 +169,7 @@ public class QueryGraphCPQTest{
 		assertEquals(5, e);
 		assertEquals(5, v);
 		
-		for(SimpleEdge<Object> edge : icGraph.getEdges()){
+		for(SimpleEdge<QueryGraphComponent> edge : icGraph.getEdges()){
 			assertTrue(edge.getFirstVertex().getData() instanceof Edge);
 			assertTrue(edge.getSecondVertex().getData() instanceof Vertex);
 		}

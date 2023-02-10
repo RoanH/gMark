@@ -166,42 +166,26 @@ public class QueryGraphCPQ{
 		return graph;
 	}
 	
-	//object is either Edge or Vertex
-	public SimpleGraph<Object> toIncidenceGraph(){
-		SimpleGraph<Object> g = new SimpleGraph<Object>();
+	/**
+	 * Computes the incidence graph of this query graph. The incidence graph of
+	 * a query graph is a graph where both vertices and edges from the query graph
+	 * are represented as vertices. Edges are only present between an edge nodes
+	 * and vertex nodes and only if the vertex node represents a vertex that was
+	 * one of the end points of the edge node in the original query graph.
+	 * @return The incidence graph for this graph.
+	 * @see QueryGraphComponent
+	 */
+	public SimpleGraph<QueryGraphComponent> toIncidenceGraph(){
+		SimpleGraph<QueryGraphComponent> g = new SimpleGraph<QueryGraphComponent>();
 		vertices.forEach(g::addVertex);
 		
 		for(Edge edge : edges){
-			SimpleVertex<Object> v = g.addVertex(edge);
+			SimpleVertex<QueryGraphComponent> v = g.addVertex(edge);
 			g.addEdge(v, edge.src);
 			g.addEdge(v, edge.trg);
 		}
 
 		return g;
-	}
-	
-	public static void main(String[] args){
-		JFrame f = new JFrame();
-		
-		Predicate l1 = new Predicate(1, "1");
-		Predicate l2 = new Predicate(2, "2");
-		Predicate l3 = new Predicate(3, "3");
-		Predicate l4 = new Predicate(4, "4");
-		
-		CPQ q = CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.labels(l2, l4), CPQ.labels(l3, l2)));
-		
-		
-		GraphPanel<Object, Void> p = new GraphPanel<Object, Void>(q.toQueryGraph().toIncidenceGraph().toUniqueGraph());
-		p.setDirected(false);
-		
-		
-		f.add(p);
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setSize(300, 300);
-		
-		f.setVisible(true);
-		
-		
 	}
 	
 	/**
@@ -285,10 +269,19 @@ public class QueryGraphCPQ{
 	}
 	
 	/**
+	 * Shared base interface for query graph elements.
+	 * Objects of this type are either a {@link Vertex}
+	 * or an {@link Edge}.
+	 * @author Roan
+	 */
+	public static abstract interface QueryGraphComponent{
+	}
+	
+	/**
 	 * Represents a vertex in a CPQ query graph.
 	 * @author Roan
 	 */
-	public static class Vertex{
+	public static class Vertex implements QueryGraphComponent{
 		
 		@Override
 		public String toString(){
@@ -300,7 +293,7 @@ public class QueryGraphCPQ{
 	 * Represents a directed edge in a CPQ query graph.
 	 * @author Roan
 	 */
-	public static class Edge{
+	public static class Edge implements QueryGraphComponent{
 		/**
 		 * The edge source vertex.
 		 */

@@ -27,6 +27,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +38,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Predicate;
@@ -259,7 +262,7 @@ public class Util{
 			}
 		}
 		
-		if(g.getVertexCount() / (4 * k * k + 12 * k + 16) <= friendly){
+		if(g.getVertexCount() / (4 * k * k + 12 * k + 16) >= friendly){
 			//i. compute a maximal matching
 			List<SimpleEdge<Object>> matching = findMaximalMatching(g);
 			
@@ -297,8 +300,40 @@ public class Util{
 
 			}
 		}else{ 
-		
 			//i. Compute the improved graph of G by paragraph 6
+			List<Triple<Object>> queue = new ArrayList<Triple<Object>>();
+			
+			for(SimpleEdge<Object> e : g.getEdges()){
+				if(e.getFirstVertex().getID() < e.getSecondVertex().getID()){
+					queue.add(new Triple<Object>(e.getFirstVertex(), e.getSecondVertex()));
+				}
+			}
+			
+			for(SimpleVertex<Object> v : g.getVertices()){
+				if(v.getDegree() <= k){
+					List<SimpleVertex<Object>> neighb = v.getEdges().stream().map(e->e.getTarget(v)).collect(Collectors.toList());
+					for(SimpleVertex<Object> a : neighb){
+						for(SimpleVertex<Object> b : neighb){
+							if(a.getID() < b.getID()){
+								queue.add(new Triple<Object>(a, b, v));
+							}
+						}
+					}
+				}
+			}
+			
+			//sort on first vertex ID then second vertex ID
+			Collections.sort(queue, (a, b)->{
+				int c = Integer.compare(a.first.getID(), b.first.getID());
+				if(c == 0){
+					return Integer.compare(a.second.getID(), b.second.getID());
+				}else{
+					return c;
+				}
+			});
+			
+			//TODO continue at "By inspecting Q" -- also double check the sorting is okay like this
+			
 		
 			//ii. Exit if an I-simplicial vertex with degree at least K+1 exists
 		
@@ -345,6 +380,22 @@ public class Util{
 		private ContractedEdge(Object first, Object second){
 			this.first = first;
 			this.second = second;
+		}
+	}
+	
+	private static final class Triple<T>{
+		private final SimpleVertex<T> first;
+		private final SimpleVertex<T> second;
+		private final SimpleVertex<T> third;
+		
+		private Triple(SimpleVertex<T> first, SimpleVertex<T> second){
+			this(first, second, null);
+		}
+		
+		private Triple(SimpleVertex<T> first, SimpleVertex<T> second, SimpleVertex<T> third){
+			this.first = first;
+			this.second = second;
+			this.third = third;
 		}
 	}
 }

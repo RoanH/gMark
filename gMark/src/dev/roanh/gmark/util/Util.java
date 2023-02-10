@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -237,17 +238,19 @@ public class Util{
 		return labels;
 	}
 	
-	public static <T> Object computeTreeDecomposition(SimpleGraph<T> graph, int k){
-		if(graph.getEdgeCount() <= k * graph.getVertexCount() - k * (k - 1) / 2){
+	public static <T> Tree<List<T>> computeTreeDecomposition(SimpleGraph<T> graph, int k){
+		@SuppressWarnings("unchecked")
+		SimpleGraph<Object> g = (SimpleGraph<Object>)graph;
+		if(g.getEdgeCount() <= k * g.getVertexCount() - k * (k - 1) / 2){
 			return null;
 		}
 		
 		//count friendly vertices
 		int d = 2 * k * k * k * (k + 1) * (4 * k * k + 12 * k + 16);
 		int friendly = 0;
-		outer: for(SimpleVertex<T> v : graph.getVertices()){
+		outer: for(SimpleVertex<Object> v : g.getVertices()){
 			if(v.getDegree() <= d){
-				for(SimpleEdge<T> adj : v.getEdges()){
+				for(SimpleEdge<Object> adj : v.getEdges()){
 					if(adj.getTarget(v).getDegree() <= d){
 						friendly++;
 						continue outer;
@@ -256,28 +259,43 @@ public class Util{
 			}
 		}
 		
-		if(graph.getVertexCount() / (4 * k * k + 12 * k + 16) <= friendly){
-		
+		if(g.getVertexCount() / (4 * k * k + 12 * k + 16) <= friendly){
 			//i. compute a maximal matching
-		
-		
+			List<SimpleEdge<Object>> matching = findMaximalMatching(g);
+			
 			//ii. compute graph G' obtained by contracting all edges in M
-		
-		
-		
+			for(SimpleEdge<Object> edge : matching){
+				SimpleVertex<Object> vertex = g.addVertex(new ContractedEdge(edge.getFirstVertex().getData(), edge.getSecondVertex().getData()));
+				g.contractEdge(edge, vertex);
+			}
+			
 			//iii. Recurse the algorithm on G'
-		
-		
-			//iv. If recursion says the graph has larger treewidth, then exit
-		
-		
-			//v. Otherwise with the return tree decomposition make one for G with Lemma 3.3
-		
-		
-			//vi. Theorem 2.4 check to see if the result graph has treewidth at most k
-		
-			//return decomposition
-		
+			Tree<List<Object>> decomp = computeTreeDecomposition(g, k);
+			if(decomp == null){
+				return null;
+			}else{
+				//v. create a tree decomposition by Lemma 3.3 (width at most 2k + 1) 
+				decomp.forEach(node->{
+					ListIterator<Object> iter = node.getData().listIterator();
+					while(iter.hasNext()){
+						Object item = iter.next();
+						if(item instanceof ContractedEdge){
+							ContractedEdge ce = (ContractedEdge)item;
+							iter.set(ce.first);
+							iter.add(ce.second);
+						}
+					}
+				});
+				
+				//vi. Check treewidth using Theorem 2.4 and refine down to a width of k
+				
+				
+				
+				
+
+				//return decomposition
+
+			}
 		}else{ 
 		
 			//i. Compute the improved graph of G by paragraph 6
@@ -318,5 +336,15 @@ public class Util{
 		}
 		
 		return matching;
+	}
+	
+	private static final class ContractedEdge{
+		private final Object first;
+		private final Object second;
+		
+		private ContractedEdge(Object first, Object second){
+			this.first = first;
+			this.second = second;
+		}
 	}
 }

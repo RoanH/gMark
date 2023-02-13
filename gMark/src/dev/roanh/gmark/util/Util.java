@@ -30,10 +30,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
@@ -301,36 +303,10 @@ public class Util{
 			}
 		}else{ 
 			//i. Compute the improved graph of G by paragraph 6
-			List<Triple<Object>> queue = new ArrayList<Triple<Object>>();
 			
-			for(SimpleEdge<Object> e : g.getEdges()){
-				if(e.getFirstVertex().getID() < e.getSecondVertex().getID()){
-					queue.add(new Triple<Object>(e.getFirstVertex(), e.getSecondVertex()));
-				}
-			}
 			
-			for(SimpleVertex<Object> v : g.getVertices()){
-				if(v.getDegree() <= k){
-					List<SimpleVertex<Object>> neighb = v.getEdges().stream().map(e->e.getTarget(v)).collect(Collectors.toList());
-					for(SimpleVertex<Object> a : neighb){
-						for(SimpleVertex<Object> b : neighb){
-							if(a.getID() < b.getID()){
-								queue.add(new Triple<Object>(a, b, v));
-							}
-						}
-					}
-				}
-			}
 			
-			//sort on first vertex ID then second vertex ID
-			Collections.sort(queue, (a, b)->{
-				int c = Integer.compare(a.first.getID(), b.first.getID());
-				if(c == 0){
-					return Integer.compare(a.second.getID(), b.second.getID());
-				}else{
-					return c;
-				}
-			});
+			
 			
 			//TODO continue at "By inspecting Q" -- also double check the sorting is okay like this
 			
@@ -358,6 +334,84 @@ public class Util{
 		return null;//TODO
 	}
 	
+	//modifies input
+	public static <T> SimpleGraph<T> computeSimplicialVertices(SimpleGraph<T> graph, int k){
+		List<Triple<T>> queue = new ArrayList<Triple<T>>();
+		Set<Pair<T>> exists = new HashSet<Pair<T>>();
+//		Map<SimpleVertex<T>, List<Pair<T>>> sets = new HashMap<SimpleVertex<T>, List<Pair<T>>>();
+		
+		//add pairs of the form ((vi, vj), -)
+		for(SimpleEdge<T> e : graph.getEdges()){
+			if(e.getFirstVertex().getID() < e.getSecondVertex().getID()){
+				//queue.add(new Triple<T>(e.getFirstVertex(), e.getSecondVertex()));
+				exists.add(new Pair<T>(e.getFirstVertex(), e.getSecondVertex()));
+			}
+		}
+		
+		//add pairs of the form ((vi, vj), v) for v with degree at most k
+		for(SimpleVertex<T> v : graph.getVertices()){
+			if(v.getDegree() <= k){
+				List<SimpleVertex<T>> neighb = v.getEdges().stream().map(e->e.getTarget(v)).collect(Collectors.toList());
+				for(SimpleVertex<T> a : neighb){
+					for(SimpleVertex<T> b : neighb){
+						if(a.getID() < b.getID()){
+							queue.add(new Triple<T>(a, b, v));
+						}
+					}
+				}
+			}
+		}
+		
+		for(Triple<T> t : queue){
+			System.out.println(t);
+		}
+		
+		//sort on first vertex ID then second vertex ID
+		Collections.sort(queue, (a, b)->{
+			int c = Integer.compare(a.first.getID(), b.first.getID());
+			if(c == 0){
+				return Integer.compare(a.second.getID(), b.second.getID());
+			}else{
+				return c;
+			}
+		});
+		
+		System.out.println("Post sort");
+		for(Triple<T> t : queue){
+			System.out.println(t);
+		}
+		
+		//scan for pairs with k+1 shared neighbours
+		Triple<T> last = queue.get(0);
+		int start = 0;
+		for(int i = 1; i < queue.size(); i++){
+			Triple<T> t = queue.get(i);
+			if(!t.first.equals(last.first) || !t.second.equals(last.second)){
+				System.out.println("range end: " + start + " - " + i);
+				if(i - start >= k + 1 && t.first.hasEdge(t.second)){
+					for(int j = start; j < i; j++){
+						graph.addEdge(t.first, t.second);
+					}
+				}
+				start = i;
+			}
+			
+			last = t;
+		}
+		
+		//handle last range
+		if(queue.size() - start >= k + 1 && last.first.hasEdge(last.second)){
+			System.out.println("range end: " + start + " - " + queue.size());
+			for(int j = start; j < queue.size(); j++){
+				graph.addEdge(last.first, last.second);
+			}
+		}
+		
+		System.out.print("end: " + queue.size() + " / " + start + " | " + last.first.hasEdge(last.second));
+		
+		return graph;
+	}
+	
 	public static <T> List<SimpleEdge<T>> findMaximalMatching(SimpleGraph<T> graph){
 		List<SimpleEdge<T>> matching = new ArrayList<SimpleEdge<T>>();
 		Set<SimpleVertex<T>> usedVertices = new HashSet<SimpleVertex<T>>();
@@ -383,19 +437,57 @@ public class Util{
 		}
 	}
 	
-	private static final class Triple<T>{
-		private final SimpleVertex<T> first;
-		private final SimpleVertex<T> second;
-		private final SimpleVertex<T> third;
+	private static class Pair<T>{
+		protected final SimpleVertex<T> first;
+		protected final SimpleVertex<T> second;
 		
-		private Triple(SimpleVertex<T> first, SimpleVertex<T> second){
-			this(first, second, null);
-		}
-		
-		private Triple(SimpleVertex<T> first, SimpleVertex<T> second, SimpleVertex<T> third){
+		public Pair(SimpleVertex<T> first, SimpleVertex<T> second){
 			this.first = first;
 			this.second = second;
+		}
+		
+		@Override
+		public boolean equals(Object obj){
+			if(obj instanceof Pair){
+				Pair<?> p = (Pair<?>)obj;
+				return p.first.equals(first) && p.second.equals(second);
+			}else{
+				return false;
+			}
+		}
+		
+		@Override
+		public int hashCode(){
+			return Objects.hash(first, second);
+		}
+	}
+	
+	private static final class Triple<T> extends Pair<T>{
+		private final SimpleVertex<T> third;
+		
+		private Triple(SimpleVertex<T> first, SimpleVertex<T> second, SimpleVertex<T> third){
+			super(first, second);
 			this.third = third;
+		}
+		
+		@Override
+		public boolean equals(Object obj){
+			if(obj instanceof Triple){
+				Triple<?> t = (Triple<?>)obj;
+				return super.equals(t) && Objects.equals(t.third, third);
+			}else{
+				return false;
+			}
+		}
+
+		@Override
+		public int hashCode(){
+			return Objects.hash(first, second, third);
+		}
+		
+		@Override
+		public String toString(){
+			return "Triple[" + first.getData() + ", " + second.getData() + ", " + third.getData() + "]";
 		}
 	}
 }

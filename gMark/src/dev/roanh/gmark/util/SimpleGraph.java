@@ -109,6 +109,11 @@ public class SimpleGraph<T>{
 		}
 	}
 	
+	public void dropAllEdges(){
+		vertexMap.values().forEach(v->v.edges.clear());
+		edges.clear();
+	}
+	
 	public static final class SimpleEdge<T>{
 		private SimpleVertex<T> a;
 		private SimpleVertex<T> b;
@@ -152,6 +157,15 @@ public class SimpleGraph<T>{
 		
 		public int getDegree(){
 			return edges.size();
+		}
+		
+		public boolean hasEdge(SimpleVertex<T> target){
+			for(SimpleEdge<T> edge : edges){
+				if(edge.b == target || edge.a == target){
+					return true;
+				}
+			}
+			return false;
 		}
 		
 		@Override

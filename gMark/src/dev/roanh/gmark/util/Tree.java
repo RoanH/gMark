@@ -8,6 +8,10 @@ public class Tree<T>{
 	private Tree<T> parent;
 	private T data;
 	
+	public Tree(T data){
+		this.data = data;
+	}
+	
 	public void forEach(Consumer<Tree<T>> nodeVisitor){
 		nodeVisitor.accept(this);
 		for(Tree<T> child : children){

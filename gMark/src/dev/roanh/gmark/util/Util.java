@@ -25,10 +25,12 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -241,6 +243,52 @@ public class Util{
 			labels.add(new Predicate(i, String.valueOf(i)));
 		}
 		return labels;
+	}
+	
+	public static <T> Object computeTreeDecompositionWidth2(SimpleGraph<T> graph){
+		Deque<SimpleVertex<T>> deg2 = new ArrayDeque<SimpleVertex<T>>();
+		List<Tree<List<SimpleVertex<T>>>> bags = new ArrayList<Tree<List<SimpleVertex<T>>>>();
+		Map<SimpleVertex<T>, DecompMeta<T>> meta = new HashMap<SimpleVertex<T>, DecompMeta<T>>(); 
+		
+		//collect all vertices of degree at most k
+		for(SimpleVertex<T> vertex : graph.getVertices()){
+			meta.put(vertex, new DecompMeta<T>(vertex.getDegree()));
+			if(vertex.getDegree() <= 2){
+				deg2.add(vertex);
+			}
+		}
+		
+		//contract nodes of degree at most 2
+		while(!deg2.isEmpty()){
+			SimpleVertex<T> v = deg2.pop();
+			
+			//construct a bag with the node and its neighbours
+			List<SimpleVertex<T>> bag = new ArrayList<SimpleVertex<T>>(v.getDegree() + 1);
+			bag.add(v);
+			v.getEdges().forEach(e->{
+				SimpleVertex<T> other = e.getTarget(v);
+				DecompMeta<T> m = meta.get(other);
+				if(m.bag == null){
+					bag.add(other);
+					m.degree--;
+					if(m.degree == 2){
+						deg2.add(other);
+					}
+				}
+			});
+			
+			//if all neighbours are unavailable we are already in some bag
+			if(bag.size() == 1){
+				continue;
+			}
+
+			//maybe use actually proxy nodes and when contracting store all the info in a new graph node
+		}
+		
+		
+		
+		
+		return null;
 	}
 	
 	public static <T> Tree<List<T>> computeTreeDecomposition(SimpleGraph<T> graph, int k){
@@ -488,6 +536,15 @@ public class Util{
 		@Override
 		public String toString(){
 			return "Triple[" + first.getData() + ", " + second.getData() + ", " + third.getData() + "]";
+		}
+	}
+	
+	private static final class DecompMeta<T>{
+		private int degree;
+		private Tree<T> bag = null;
+		
+		private DecompMeta(int deg){
+			degree = deg;
 		}
 	}
 }

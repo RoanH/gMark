@@ -254,7 +254,7 @@ public class Util{
 		}
 	}
 	
-	public static <T> Tree<List<T>> computeTreeDecompositionWidth2(SimpleGraph<T> graph){
+	public static <T> Tree<List<T>> computeTreeDecompositionWidth2(SimpleGraph<T> graph) throws IllegalArgumentException{
 		Deque<SimpleVertex<T>> deg2 = new ArrayDeque<SimpleVertex<T>>();
 		Map<SimpleVertex<T>, List<Tree<List<T>>>> vMaps = new HashMap<SimpleVertex<T>, List<Tree<List<T>>>>();
 		Map<SimpleEdge<T>, List<Tree<List<T>>>> eMaps = new HashMap<SimpleEdge<T>, List<Tree<List<T>>>>();
@@ -282,11 +282,19 @@ public class Util{
 			
 			if(v.getDegree() == 1){
 				//move degree 1 node data to the node it is connected to
-				SimpleVertex<T> target = v.getEdges().iterator().next().getTarget(v);
+				SimpleEdge<T> edge = v.getEdges().iterator().next();
+				SimpleVertex<T> target = edge.getTarget(v);
+				
+				//save maps
 				Tree<List<T>> bag = new Tree<List<T>>(Arrays.asList(v.getData(), target.getData()));
 				runIfNotNull(vMaps.get(v), l->l.forEach(bag::addChild));
+				runIfNotNull(eMaps.get(edge), l->l.forEach(bag::addChild));
 				vMaps.computeIfAbsent(target, k->new ArrayList<Tree<List<T>>>()).add(bag);
+				
 				graph.deleteVertex(v);
+				if(target.getDegree() == 2){
+					deg2.add(target);
+				}
 			}else if(v.getDegree() == 2){
 				Iterator<SimpleEdge<T>> edges = v.getEdges().iterator();
 				SimpleEdge<T> e1 = edges.next();
@@ -296,8 +304,10 @@ public class Util{
 				
 				//reuse existing edges if possible
 				SimpleEdge<T> edge = v1.getEdge(v2);
+				boolean newEdge = false;
 				if(edge == null){
 					edge = graph.addEdge(v1, v2);
+					newEdge = true;
 				}
 				
 				//save map
@@ -309,7 +319,17 @@ public class Util{
 				
 				//update graph
 				graph.deleteVertex(v);
+				if(!newEdge){
+					if(v1.getDegree() == 2){
+						deg2.add(v1);
+					}
+					
+					if(v2.getDegree() == 2){
+						deg2.add(v2);
+					}
+				}
 			}else{
+				System.out.println("deg zero");
 				throw new IllegalArgumentException("Input graph is not connected.");
 			}
 		}

@@ -19,6 +19,7 @@
 package dev.roanh.gmark.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -125,7 +126,6 @@ public class UtilTest{
 		List<SimpleEdge<String>> edges = new ArrayList<SimpleEdge<String>>(g.getEdges());
 		
 		Tree<List<String>> decomp = Util.computeTreeDecompositionWidth2(g);
-		decomp.forEach(t->System.out.println(t.getDepth() + ": " + t.getData()));
 		assertValidTreeDecomposition(decomp, vertices, edges);
 	}
 	
@@ -142,6 +142,129 @@ public class UtilTest{
 		g.addEdge("e", "b");
 		g.addEdge("d", "e");
 		g.addEdge("f", "c");
+		List<SimpleEdge<String>> edges = new ArrayList<SimpleEdge<String>>(g.getEdges());
+		
+		Tree<List<String>> decomp = Util.computeTreeDecompositionWidth2(g);
+		decomp.forEach(t->System.out.println(t.getDepth() + ": " + t.getData()));
+		assertValidTreeDecomposition(decomp, vertices, edges);
+	}
+	
+	@Test
+	public void decomp5(){
+		SimpleGraph<String> g = new SimpleGraph<String>();
+		
+		List<String> vertices = Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8");
+		vertices.forEach(g::addVertex);
+		
+		g.addEdge("1", "2");
+		g.addEdge("2", "3");
+		g.addEdge("3", "4");
+		g.addEdge("4", "5");
+		g.addEdge("5", "6");
+		g.addEdge("6", "7");
+		g.addEdge("7", "8");
+		g.addEdge("8", "1");
+		g.addEdge("6", "1");
+		g.addEdge("1", "5");
+		g.addEdge("5", "2");
+		List<SimpleEdge<String>> edges = new ArrayList<SimpleEdge<String>>(g.getEdges());
+		
+		Tree<List<String>> decomp = Util.computeTreeDecompositionWidth2(g);
+		assertValidTreeDecomposition(decomp, vertices, edges);
+	}
+	
+	@Test
+	public void decomp6(){
+		SimpleGraph<String> g = new SimpleGraph<String>();
+		
+		Arrays.asList("a", "b", "c", "d", "e", "f").forEach(g::addVertex);
+		
+		g.addEdge("a", "b");
+		g.addEdge("b", "c");
+		g.addEdge("d", "e");
+		g.addEdge("e", "f");
+		
+		assertThrows(IllegalArgumentException.class, ()->Util.computeTreeDecompositionWidth2(g));
+	}
+	
+	@Test
+	public void decomp7(){
+		SimpleGraph<String> g = new SimpleGraph<String>();
+		
+		Arrays.asList("a", "b", "c", "d").forEach(g::addVertex);
+		
+		g.addEdge("a", "b");
+		g.addEdge("a", "c");
+		g.addEdge("a", "d");
+		g.addEdge("b", "c");
+		g.addEdge("b", "d");
+		g.addEdge("c", "d");
+
+		assertThrows(IllegalArgumentException.class, ()->Util.computeTreeDecompositionWidth2(g));
+	}
+	
+	@Test
+	public void decomp8(){
+		SimpleGraph<String> g = new SimpleGraph<String>();
+		
+		Arrays.asList("a", "b", "c", "d", "e").forEach(g::addVertex);
+		
+		g.addEdge("a", "b");
+		g.addEdge("a", "c");
+		g.addEdge("a", "d");
+		g.addEdge("b", "c");
+		g.addEdge("b", "d");
+		g.addEdge("c", "d");
+		g.addEdge("d", "e");
+
+		assertThrows(IllegalArgumentException.class, ()->Util.computeTreeDecompositionWidth2(g));
+	}
+	
+	@Test
+	public void decomp9(){
+		SimpleGraph<String> g = new SimpleGraph<String>();
+		
+		List<String> vertices = Arrays.asList("a", "c", "b", "d", "e", "f");
+		vertices.forEach(g::addVertex);
+		
+		g.addEdge("a", "b");
+		g.addEdge("b", "c");
+		g.addEdge("c", "d");
+		g.addEdge("d", "e");
+		g.addEdge("e", "f");
+		List<SimpleEdge<String>> edges = new ArrayList<SimpleEdge<String>>(g.getEdges());
+		
+		Tree<List<String>> decomp = Util.computeTreeDecompositionWidth2(g);
+		decomp.forEach(t->System.out.println(t.getDepth() + ": " + t.getData()));
+		assertValidTreeDecomposition(decomp, vertices, edges);
+	}
+	
+	@Test
+	public void decomp10(){
+		SimpleGraph<String> g = new SimpleGraph<String>();
+		
+		List<String> vertices = Arrays.asList("a", "b");
+		vertices.forEach(g::addVertex);
+		
+		g.addEdge("a", "b");
+		List<SimpleEdge<String>> edges = new ArrayList<SimpleEdge<String>>(g.getEdges());
+		
+		Tree<List<String>> decomp = Util.computeTreeDecompositionWidth2(g);
+		assertValidTreeDecomposition(decomp, vertices, edges);
+	}
+	
+	@Test
+	public void decomp11(){
+		SimpleGraph<String> g = new SimpleGraph<String>();
+		
+		List<String> vertices = Arrays.asList("a", "c", "b", "d", "e", "f");
+		vertices.forEach(g::addVertex);
+		
+		g.addEdge("a", "b");
+		g.addEdge("b", "c");
+		g.addEdge("c", "d");
+		g.addEdge("d", "e");
+		g.addEdge("e", "f");
 		List<SimpleEdge<String>> edges = new ArrayList<SimpleEdge<String>>(g.getEdges());
 		
 		Tree<List<String>> decomp = Util.computeTreeDecompositionWidth2(g);

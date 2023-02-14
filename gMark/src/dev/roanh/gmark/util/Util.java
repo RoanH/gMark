@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -34,12 +35,14 @@ import java.util.Deque;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -245,50 +248,73 @@ public class Util{
 		return labels;
 	}
 	
-	public static <T> Object computeTreeDecompositionWidth2(SimpleGraph<T> graph){
+	public static <T> void runIfNotNull(T data, Consumer<T> fun){
+		if(data != null){
+			fun.accept(data);
+		}
+	}
+	
+	public static <T> Tree<List<T>> computeTreeDecompositionWidth2(SimpleGraph<T> graph){
 		Deque<SimpleVertex<T>> deg2 = new ArrayDeque<SimpleVertex<T>>();
-		List<Tree<List<SimpleVertex<T>>>> bags = new ArrayList<Tree<List<SimpleVertex<T>>>>();
-		Map<SimpleVertex<T>, DecompMeta<T>> meta = new HashMap<SimpleVertex<T>, DecompMeta<T>>(); 
+		Map<SimpleVertex<T>, List<Tree<List<T>>>> vMaps = new HashMap<SimpleVertex<T>, List<Tree<List<T>>>>();
+		Map<SimpleEdge<T>, Tree<List<T>>> eMaps = new HashMap<SimpleEdge<T>, Tree<List<T>>>();
 		
 		//collect all vertices of degree at most k
 		for(SimpleVertex<T> vertex : graph.getVertices()){
-			meta.put(vertex, new DecompMeta<T>(vertex.getDegree()));
 			if(vertex.getDegree() <= 2){
 				deg2.add(vertex);
 			}
 		}
 		
+		System.out.println("queue: " + deg2.stream().map(v->v.getData()).collect(Collectors.toList()));
+		
 		//contract nodes of degree at most 2
-		while(!deg2.isEmpty()){
+		while(graph.getVertexCount() > 3){
+			if(deg2.isEmpty()){
+				throw new IllegalArgumentException("Treewidth of the input graph is more than 2.");
+			}
+			
 			SimpleVertex<T> v = deg2.pop();
 			
-			//construct a bag with the node and its neighbours
-			List<SimpleVertex<T>> bag = new ArrayList<SimpleVertex<T>>(v.getDegree() + 1);
-			bag.add(v);
-			v.getEdges().forEach(e->{
-				SimpleVertex<T> other = e.getTarget(v);
-				DecompMeta<T> m = meta.get(other);
-				if(m.bag == null){
-					bag.add(other);
-					m.degree--;
-					if(m.degree == 2){
-						deg2.add(other);
-					}
-				}
-			});
+			System.out.println("Process: " + v.getData() + " / " + v.getDegree());
 			
-			//if all neighbours are unavailable we are already in some bag
-			if(bag.size() == 1){
-				continue;
+			if(v.getDegree() == 1){
+				//move degree 1 node data to the node it is connected to
+				SimpleVertex<T> target = v.getEdges().iterator().next().getTarget(v);
+				vMaps.computeIfAbsent(target, k->new ArrayList<Tree<List<T>>>()).add(new Tree<List<T>>(Arrays.asList(v.getData(), target.getData())));
+				graph.deleteVertex(v);
+			}else if(v.getDegree() == 2){
+				Iterator<SimpleEdge<T>> edges = v.getEdges().iterator();
+				SimpleEdge<T> e1 = edges.next();
+				SimpleEdge<T> e2 = edges.next();
+				SimpleVertex<T> v1 = e1.getTarget(v);
+				SimpleVertex<T> v2 = e2.getTarget(v);
+				
+				//reuse existing edges if possible
+				SimpleEdge<T> edge = v1.getEdge(v2);
+				if(edge == null){
+					edge = graph.addEdge(v1, v2);
+				}
+				assert eMaps.get(edge) == null;
+				
+				//save map
+				Tree<List<T>> bag = new Tree<List<T>>(Arrays.asList(v.getData(), v1.getData(), v2.getData()));
+				runIfNotNull(eMaps.get(e1), bag::addChild);
+				runIfNotNull(eMaps.get(e2), bag::addChild);
+				runIfNotNull(vMaps.get(v), children->children.forEach(bag::addChild));
+				eMaps.put(edge, bag);
+				
+				//update graph
+				graph.deleteVertex(v);
+			}else{
+				throw new IllegalArgumentException("Input graph is not connected.");
 			}
-
-			//maybe use actually proxy nodes and when contracting store all the info in a new graph node
 		}
 		
-		
-		
-		
-		return null;
+		//everything remaining is the root node
+		Tree<List<T>> root = new Tree<List<T>>(graph.getVertices().stream().map(SimpleVertex::getData).collect(Collectors.toList()));
+		graph.getEdges().forEach(e->runIfNotNull(eMaps.get(e), root::addChild));
+		return root;
 	}
 	
 	public static <T> Tree<List<T>> computeTreeDecomposition(SimpleGraph<T> graph, int k){

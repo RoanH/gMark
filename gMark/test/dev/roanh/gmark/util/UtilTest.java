@@ -45,4 +45,33 @@ public class UtilTest{
 		List<SimpleEdge<String>> matching = Util.findMaximalMatching(g);
 		assertEquals(2, matching.size());
 	}
+	
+	public static void main(String[] args){
+		new UtilTest().decomp0();
+	}
+	
+	@Test
+	public void decomp0(){
+		SimpleGraph<String> g = new SimpleGraph<String>();
+		
+		g.addVertex("a");
+		g.addVertex("b");
+		g.addVertex("c");
+		g.addVertex("d");
+		g.addVertex("e");
+		
+		g.addEdge("a", "b");
+		g.addEdge("a", "c");
+		g.addEdge("c", "e");
+		g.addEdge("e", "d");
+		g.addEdge("d", "b");
+		
+		Tree<List<String>> decomp = Util.computeTreeDecompositionWidth2(g);
+		
+		decomp.forEach(t->System.out.println(t.getDepth() + ": " + t.getData()));
+		
+		
+		
+		
+	}
 }

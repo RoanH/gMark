@@ -18,28 +18,37 @@
  */
 package dev.roanh.gmark.util;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 //undirected no edge labels
 public class SimpleGraph<T>{
 	private Map<T, SimpleVertex<T>> vertexMap = new LinkedHashMap<T, SimpleVertex<T>>();
-	private List<SimpleEdge<T>> edges = new ArrayList<SimpleEdge<T>>();
+	private Set<SimpleEdge<T>> edges = new HashSet<SimpleEdge<T>>();
 	/**
 	 * The ID to assign to the next node added to the graph.
 	 */
 	private int nextNodeID = 0;
 	
+	public void deleteVertex(SimpleVertex<T> vertex){
+		vertexMap.remove(vertex.getData());
+		for(SimpleEdge<T> edge : vertex.getEdges()){
+			edges.remove(edge);
+			edge.getTarget(vertex).edges.remove(edge);
+		}
+	}
+	
 	public SimpleVertex<T> getVertex(T data){
 		return vertexMap.get(data);
 	}
 	
-	public List<SimpleEdge<T>> getEdges(){
+	public Set<SimpleEdge<T>> getEdges(){
 		return edges;
 	}
 	
@@ -160,17 +169,35 @@ public class SimpleGraph<T>{
 		}
 		
 		public boolean hasEdge(SimpleVertex<T> target){
+			return getEdge(target) != null;
+		}
+		
+		public SimpleEdge<T> getEdge(SimpleVertex<T> target){
 			for(SimpleEdge<T> edge : edges){
 				if(edge.b == target || edge.a == target){
-					return true;
+					return edge;
 				}
 			}
-			return false;
+			return null;
+		}
+		
+		public List<SimpleVertex<T>> getNeighbours(){
+			return edges.stream().map(e->e.getTarget(this)).collect(Collectors.toList());
 		}
 		
 		@Override
 		public int getID(){
 			return id;
+		}
+		
+		@Override
+		public boolean equals(Object obj){
+			return obj instanceof SimpleVertex<?> ? ((SimpleVertex<?>)obj).data.equals(data) : false;
+		}
+		
+		@Override
+		public int hashCode(){
+			return Objects.hash(data);
 		}
 	}
 }

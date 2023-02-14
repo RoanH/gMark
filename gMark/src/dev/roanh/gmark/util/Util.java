@@ -257,12 +257,14 @@ public class Util{
 	public static <T> Tree<List<T>> computeTreeDecompositionWidth2(SimpleGraph<T> graph){
 		Deque<SimpleVertex<T>> deg2 = new ArrayDeque<SimpleVertex<T>>();
 		Map<SimpleVertex<T>, List<Tree<List<T>>>> vMaps = new HashMap<SimpleVertex<T>, List<Tree<List<T>>>>();
-		Map<SimpleEdge<T>, Tree<List<T>>> eMaps = new HashMap<SimpleEdge<T>, Tree<List<T>>>();
+		Map<SimpleEdge<T>, List<Tree<List<T>>>> eMaps = new HashMap<SimpleEdge<T>, List<Tree<List<T>>>>();
 		
 		//collect all vertices of degree at most k
 		for(SimpleVertex<T> vertex : graph.getVertices()){
 			if(vertex.getDegree() <= 2){
 				deg2.add(vertex);
+			}else{
+				System.out.println("Ignore " + vertex.getData() + " with deg " + vertex.getDegree());
 			}
 		}
 		
@@ -281,7 +283,9 @@ public class Util{
 			if(v.getDegree() == 1){
 				//move degree 1 node data to the node it is connected to
 				SimpleVertex<T> target = v.getEdges().iterator().next().getTarget(v);
-				vMaps.computeIfAbsent(target, k->new ArrayList<Tree<List<T>>>()).add(new Tree<List<T>>(Arrays.asList(v.getData(), target.getData())));
+				Tree<List<T>> bag = new Tree<List<T>>(Arrays.asList(v.getData(), target.getData()));
+				runIfNotNull(vMaps.get(v), l->l.forEach(bag::addChild));
+				vMaps.computeIfAbsent(target, k->new ArrayList<Tree<List<T>>>()).add(bag);
 				graph.deleteVertex(v);
 			}else if(v.getDegree() == 2){
 				Iterator<SimpleEdge<T>> edges = v.getEdges().iterator();
@@ -295,14 +299,13 @@ public class Util{
 				if(edge == null){
 					edge = graph.addEdge(v1, v2);
 				}
-				assert eMaps.get(edge) == null;
 				
 				//save map
 				Tree<List<T>> bag = new Tree<List<T>>(Arrays.asList(v.getData(), v1.getData(), v2.getData()));
-				runIfNotNull(eMaps.get(e1), bag::addChild);
-				runIfNotNull(eMaps.get(e2), bag::addChild);
-				runIfNotNull(vMaps.get(v), children->children.forEach(bag::addChild));
-				eMaps.put(edge, bag);
+				runIfNotNull(eMaps.get(e1), l->l.forEach(bag::addChild));
+				runIfNotNull(eMaps.get(e2), l->l.forEach(bag::addChild));
+				runIfNotNull(vMaps.get(v), l->l.forEach(bag::addChild));
+				eMaps.computeIfAbsent(edge, k->new ArrayList<Tree<List<T>>>()).add(bag);
 				
 				//update graph
 				graph.deleteVertex(v);
@@ -313,7 +316,8 @@ public class Util{
 		
 		//everything remaining is the root node
 		Tree<List<T>> root = new Tree<List<T>>(graph.getVertices().stream().map(SimpleVertex::getData).collect(Collectors.toList()));
-		graph.getEdges().forEach(e->runIfNotNull(eMaps.get(e), root::addChild));
+		graph.getEdges().forEach(e->runIfNotNull(eMaps.get(e), l->l.forEach(root::addChild)));
+		graph.getVertices().forEach(v->runIfNotNull(vMaps.get(v), l->l.forEach(root::addChild)));
 		return root;
 	}
 	

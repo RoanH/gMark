@@ -3,6 +3,7 @@ package dev.roanh.gmark.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public class Tree<T>{
 	private List<Tree<T>> children = new ArrayList<Tree<T>>();
@@ -39,5 +40,17 @@ public class Tree<T>{
 	
 	public int getDepth(){
 		return parent == null ? 0 : (1 + parent.getDepth());
+	}
+	
+	public Stream<Tree<T>> stream(){
+		return Stream.concat(Stream.of(this), children.stream().flatMap(Tree::stream));
+	}
+	
+	public boolean isRoot(){
+		return parent == null;
+	}
+	
+	public Tree<T> getParent(){
+		return parent;
 	}
 }

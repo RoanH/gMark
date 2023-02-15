@@ -257,6 +257,15 @@ public class Util{
 		}
 	}
 	
+	@SafeVarargs
+	public static <T> ArrayList<T> asArrayList(T... items){
+		ArrayList<T> data = new ArrayList<T>();
+		for(T item : items){
+			data.add(item);
+		}
+		return data;
+	}
+	
 	/**
 	 * Computes the tree decomposition of the given input graph
 	 * assuming that the input graph has a tree width of at most 2.
@@ -293,7 +302,7 @@ public class Util{
 				SimpleVertex<T> target = edge.getTarget(v);
 				
 				//save maps
-				Tree<List<T>> bag = new Tree<List<T>>(Arrays.asList(v.getData(), target.getData()));
+				Tree<List<T>> bag = new Tree<List<T>>(asArrayList(v.getData(), target.getData()));
 				runIfNotNull(vMaps.get(v), l->l.forEach(bag::addChild));
 				runIfNotNull(eMaps.get(edge), l->l.forEach(bag::addChild));
 				vMaps.computeIfAbsent(target, k->new ArrayList<Tree<List<T>>>()).add(bag);
@@ -319,7 +328,7 @@ public class Util{
 				}
 				
 				//save map
-				Tree<List<T>> bag = new Tree<List<T>>(Arrays.asList(v.getData(), v1.getData(), v2.getData()));
+				Tree<List<T>> bag = new Tree<List<T>>(asArrayList(v.getData(), v1.getData(), v2.getData()));
 				runIfNotNull(eMaps.get(e1), l->l.forEach(bag::addChild));
 				runIfNotNull(eMaps.get(e2), l->l.forEach(bag::addChild));
 				runIfNotNull(vMaps.get(v), l->l.forEach(bag::addChild));
@@ -342,7 +351,7 @@ public class Util{
 		}
 		
 		//everything remaining is the root node
-		Tree<List<T>> root = new Tree<List<T>>(graph.getVertices().stream().map(SimpleVertex::getData).collect(Collectors.toList()));
+		Tree<List<T>> root = new Tree<List<T>>(graph.getVertices().stream().map(SimpleVertex::getData).collect(Collectors.toCollection(ArrayList::new)));
 		graph.getEdges().forEach(e->runIfNotNull(eMaps.get(e), l->l.forEach(root::addChild)));
 		graph.getVertices().forEach(v->runIfNotNull(vMaps.get(v), l->l.forEach(root::addChild)));
 		return root;

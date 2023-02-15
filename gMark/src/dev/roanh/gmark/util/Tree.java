@@ -140,6 +140,14 @@ public class Tree<T>{
 		return children.isEmpty();
 	}
 	
+	/**
+	 * Constructs a structurally identical copy of this tree using
+	 * the given function to set the data stored at each tree node.
+	 * @param <N> The data type for the new tree.
+	 * @param map The function to use to convert the data stored in this
+	 *        tree to the data to store at the new tree.
+	 * @return The newly created tree.
+	 */
 	public <N> Tree<N> cloneStructure(Function<T, N> map){
 		Tree<N> root = new Tree<N>(map.apply(data));
 		children.forEach(c->root.addChild(c.cloneStructure(map)));

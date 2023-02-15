@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-//undirected no edge labels
 /**
  * Implementation of a simple graph that only supports unlabelled undirected edges.
  * Parallel edges are not supported, but self loops are allowed. Vertices in the

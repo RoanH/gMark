@@ -25,7 +25,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.util.Graph;
+import dev.roanh.gmark.util.SimpleGraph;
+import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
+import dev.roanh.gmark.util.UniqueGraph;
 
 /**
  * Object representing the query graph of a CPQ. This
@@ -151,14 +153,36 @@ public class QueryGraphCPQ{
 	 * graph instance.
 	 * @return The constructed graph instance.
 	 */
-	public Graph<Vertex, Predicate> toGraph(){
+	public UniqueGraph<Vertex, Predicate> toUniqueGraph(){
 		merge();
-		Graph<Vertex, Predicate> graph = new Graph<Vertex, Predicate>();
+		UniqueGraph<Vertex, Predicate> graph = new UniqueGraph<Vertex, Predicate>();
 		vertices.forEach(graph::addUniqueNode);
 		for(Edge edge : edges){
 			graph.addUniqueEdge(edge.src, edge.trg, edge.label);
 		}
 		return graph;
+	}
+	
+	/**
+	 * Computes the incidence graph of this query graph. The incidence graph of
+	 * a query graph is a graph where both vertices and edges from the query graph
+	 * are represented as vertices. Edges are only present between an edge nodes
+	 * and vertex nodes and only if the vertex node represents a vertex that was
+	 * one of the end points of the edge node in the original query graph.
+	 * @return The incidence graph for this graph.
+	 * @see QueryGraphComponent
+	 */
+	public SimpleGraph<QueryGraphComponent> toIncidenceGraph(){
+		SimpleGraph<QueryGraphComponent> g = new SimpleGraph<QueryGraphComponent>();
+		vertices.forEach(g::addVertex);
+		
+		for(Edge edge : edges){
+			SimpleVertex<QueryGraphComponent> v = g.addVertex(edge);
+			g.addEdge(v, edge.src);
+			g.addEdge(v, edge.trg);
+		}
+
+		return g;
 	}
 	
 	/**
@@ -221,23 +245,6 @@ public class QueryGraphCPQ{
 		return elem;
 	}
 	
-	@Override
-	public String toString(){
-		return "QueryGraphCPQ[V=" + vertices + ",E=" + edges + ",src=" + source + ",trg=" + target + ",Fid=" + fid + "]";
-	}
-	
-	/**
-	 * Represents a vertex in a CPQ query graph.
-	 * @author Roan
-	 */
-	public static class Vertex{
-		
-		@Override
-		public String toString(){
-			return String.valueOf((char)('a' + (this.hashCode() % 26)));
-		}
-	}
-	
 	/**
 	 * Computes the label for a vertex in a CPQ query graph. Note
 	 * this graph is technically not labelled but a source and target
@@ -253,11 +260,53 @@ public class QueryGraphCPQ{
 		}
 	}
 	
+	@Override
+	public String toString(){
+		return "QueryGraphCPQ[V=" + vertices + ",E=" + edges + ",src=" + source + ",trg=" + target + ",Fid=" + fid + "]";
+	}
+	
+	/**
+	 * Shared base interface for query graph elements.
+	 * Objects of this type are either a {@link Vertex}
+	 * or an {@link Edge}.
+	 * @author Roan
+	 */
+	public static abstract interface QueryGraphComponent{
+		
+		/**
+		 * Checks if this query graph component is a vertex.
+		 * @return True if this is a vertex.
+		 */
+		public default boolean isVertex(){
+			return this instanceof Vertex;
+		}
+		
+		/**
+		 * Checks if this query graph component is an edge.
+		 * @return True if this is an edge.
+		 */
+		public default boolean isEdge(){
+			return this instanceof Edge;
+		}
+	}
+	
+	/**
+	 * Represents a vertex in a CPQ query graph.
+	 * @author Roan
+	 */
+	public static class Vertex implements QueryGraphComponent{
+		
+		@Override
+		public String toString(){
+			return String.valueOf((char)('a' + (this.hashCode() % 26)));
+		}
+	}
+	
 	/**
 	 * Represents a directed edge in a CPQ query graph.
 	 * @author Roan
 	 */
-	private static class Edge{
+	public static class Edge implements QueryGraphComponent{
 		/**
 		 * The edge source vertex.
 		 */

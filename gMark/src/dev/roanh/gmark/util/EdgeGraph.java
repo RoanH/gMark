@@ -45,7 +45,7 @@ import dev.roanh.gmark.util.EdgeGraphData.IntersectionData;
  * @see SchemaGraph
  * @see EdgeGraphData
  */
-public class EdgeGraph extends Graph<EdgeGraphData, Void>{
+public class EdgeGraph extends UniqueGraph<EdgeGraphData, Void>{
 	/**
 	 * The source node of all paths used to construct the edge graph.
 	 */

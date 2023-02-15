@@ -44,7 +44,7 @@ import dev.roanh.gmark.exception.GenerationException;
  * @see SelectivityClass
  * @see Schema
  */
-public class SelectivityGraph extends Graph<SelectivityType, SelectivityClass>{
+public class SelectivityGraph extends UniqueGraph<SelectivityType, SelectivityClass>{
 	/**
 	 * Efficient lookup index for the graph from selectivity type to graph node.
 	 */

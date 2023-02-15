@@ -28,7 +28,7 @@ import dev.roanh.gmark.query.Conjunct;
 import dev.roanh.gmark.query.Variable;
 import dev.roanh.gmark.util.EdgeGraph;
 import dev.roanh.gmark.util.EdgeGraphData;
-import dev.roanh.gmark.util.Graph.GraphNode;
+import dev.roanh.gmark.util.UniqueGraph.GraphNode;
 import dev.roanh.gmark.util.SchemaGraph;
 import dev.roanh.gmark.util.SelectivityGraph;
 import dev.roanh.gmark.util.SelectivityType;

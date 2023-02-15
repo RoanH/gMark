@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
  * @param <V> Type of the data stored at vertices.
  * @param <E> Type of the data stored at edges.
  */
-public class Graph<V, E>{
+public class UniqueGraph<V, E>{
 	/**
 	 * Map for efficient graph node lookup from
 	 * the data stored a specific node. Note that
@@ -256,13 +256,10 @@ public class Graph<V, E>{
 	 * @param data The edge label data.
 	 */
 	public void addUniqueEdge(GraphNode<V, E> source, GraphNode<V, E> target, E data){
-		//TODO this duplicate check is fairly expensive as is
-		for(GraphEdge<V, E> edge : source.out){
-			if(edge.target.equals(target) && Objects.equals(edge.data, data)){
-				return;
-			}
+		GraphEdge<V, E> edge = new GraphEdge<V, E>(source, target, data);
+		if(source.out.add(edge) && target.in.add(edge)){
+			edges.add(edge);
 		}
-		edges.add(new GraphEdge<V, E>(source, target, data));
 	}
 	
 	/**
@@ -290,7 +287,7 @@ public class Graph<V, E>{
 	 * @param <V> The type of data stored at the graph nodes.
 	 * @param <E> The type of data stored at the graph edges.
 	 */
-	public static class GraphNode<V, E>{
+	public static class GraphNode<V, E> implements IDable{
 		/**
 		 * The unique ID of this node.
 		 * @see #getID()
@@ -299,7 +296,7 @@ public class Graph<V, E>{
 		/**
 		 * The graph this node is in.
 		 */
-		private Graph<V, E> graph;
+		private UniqueGraph<V, E> graph;
 		/**
 		 * The edges departing from this node.
 		 */
@@ -323,25 +320,27 @@ public class Graph<V, E>{
 		 * @param data The data associated with this
 		 *        node that uniquely identifies it in the graph.
 		 */
-		private GraphNode(int id, Graph<V, E> graph, V data){
+		private GraphNode(int id, UniqueGraph<V, E> graph, V data){
 			this.id = id;
 			this.graph = graph;
 			this.data = data;
 		}
 		
 		/**
-		 * Unique ID for this graph node, note that the uniqueness of
-		 * a graph node is still dependent on the data stored at this
-		 * node and that therefore two nodes with the same data but
-		 * different IDs are in fact still equal. However, this ID
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that the uniqueness of a graph node is still dependent on the
+		 * data stored at this node and that therefore two nodes with the same
+		 * data but different IDs are in fact still equal. However, this ID
 		 * can be useful for other applications where an ordering on
 		 * the graph nodes is required. In addition, if no nodes are
 		 * ever removed from the graph then the ordered IDs of all nodes
 		 * in the graph form an unbroken sequence from 0 to
-		 * {@link Graph#getNodeCount()} - 1.
+		 * {@link UniqueGraph#getNodeCount()} - 1.
 		 * @return The ID of this node.
 		 * @see #getData()
 		 */
+		@Override
 		public int getID(){
 			return id;
 		}
@@ -352,8 +351,8 @@ public class Graph<V, E>{
 		 * Note: calling this function while iterating over the
 		 * nodes or edges in the graph will cause a co-modification
 		 * exception. For mass removal of nodes use
-		 * {@link Graph#removeNodeIf(Predicate)} instead.
-		 * @see Graph#removeNodeIf(Predicate)
+		 * {@link UniqueGraph#removeNodeIf(Predicate)} instead.
+		 * @see UniqueGraph#removeNodeIf(Predicate)
 		 */
 		public void remove(){
 			//manual edge removal to prevent co-modification
@@ -572,8 +571,6 @@ public class Graph<V, E>{
 			this.source = source;
 			this.target = target;
 			this.data = data;
-			source.out.add(this);
-			target.in.add(this);
 		}
 		
 		/**
@@ -640,7 +637,7 @@ public class Graph<V, E>{
 		public boolean equals(Object other){
 			if(other instanceof GraphEdge){
 				GraphEdge<?, ?> edge = (GraphEdge<?, ?>)other;
-				return edge.source.equals(source) && edge.target.equals(target) && edge.data.equals(data);
+				return edge.source.equals(source) && edge.target.equals(target) && Objects.equals(edge.data, data);
 			}else{
 				return false;
 			}

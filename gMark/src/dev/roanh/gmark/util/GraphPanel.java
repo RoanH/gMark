@@ -39,12 +39,12 @@ import java.util.function.Function;
 
 import javax.swing.JPanel;
 
-import dev.roanh.gmark.util.Graph.GraphEdge;
-import dev.roanh.gmark.util.Graph.GraphNode;
+import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
+import dev.roanh.gmark.util.UniqueGraph.GraphNode;
 
 /**
  * Simple component that visualises the nodes and
- * edges in a {@link Graph}. The user able to move
+ * edges in a {@link UniqueGraph}. The user able to move
  * the graph nodes around by dragging. In addition
  * attached edges will be highlighted when a node is
  * selected. Nodes are initially placed randomly at
@@ -86,16 +86,20 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 * to show to the user.
 	 */
 	private Function<E, String> edgeLabel;
+	/**
+	 * True if the graph should be drawn as a directed graph.
+	 */
+	private boolean directed = true;
 	
 	/**
 	 * Constructs a new graph panel for the given graph.
 	 * Data is converted to string form for display purposes
 	 * using a call to the standard {@link Object#toString()} method.
 	 * @param graph The graph to visualise.
-	 * @see Graph
-	 * @see #GraphPanel(Graph, Function, Function)
+	 * @see UniqueGraph
+	 * @see #GraphPanel(UniqueGraph, Function, Function)
 	 */
-	public GraphPanel(Graph<V, E> graph){
+	public GraphPanel(UniqueGraph<V, E> graph){
 		this(graph, V::toString, E::toString);
 	}
 	
@@ -108,9 +112,9 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 *        graph node data to a string to display to the user.
 	 * @param edgeLabel The function to use to convert
 	 *        graph edge data to a string to display to the user.
-	 * @see Graph
+	 * @see UniqueGraph
 	 */
-	public GraphPanel(Graph<V, E> graph, Function<V, String> nodeLabel, Function<E, String> edgeLabel){
+	public GraphPanel(UniqueGraph<V, E> graph, Function<V, String> nodeLabel, Function<E, String> edgeLabel){
 		this.nodeLabel = nodeLabel;
 		this.edgeLabel = edgeLabel;
 		this.addMouseListener(this);
@@ -120,11 +124,24 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	}
 	
 	/**
+	 * Sets whether the graph is directed. Although by definition
+	 * the input {@link UniqueGraph} is directed, setting this to
+	 * <code>false</code> will make it so arrow heads are not drawn
+	 * and that a directed edge in both directions between two nodes
+	 * is not drawn as a curved arc.
+	 * @param directed True to draw the directed properties of the
+	 *        graph, false to not draw these features.
+	 */
+	public void setDirected(boolean directed){
+		this.directed = directed;
+	}
+	
+	/**
 	 * Sets the graph to display. This will replace the
 	 * previous graph if any.
 	 * @param graph The new graph to display.
 	 */
-	public void setGraph(Graph<V, E> graph){
+	public void setGraph(UniqueGraph<V, E> graph){
 		nodes.clear();
 		edges.clear();
 		activeNode = null;
@@ -218,7 +235,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 * visualise the node.
 	 * @author Roan
 	 * @see Edge
-	 * @see Graph
+	 * @see UniqueGraph
 	 * @see GraphNode
 	 */
 	private class Node{
@@ -309,7 +326,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 * visualise the edge.
 	 * @author Roan
 	 * @see Node
-	 * @see Graph
+	 * @see UniqueGraph
 	 * @see GraphEdge
 	 */
 	private class Edge{
@@ -364,7 +381,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 				}
 			}else{
 				g.setColor((source == activeNode || target == activeNode) ? Color.RED : Color.BLACK);
-				if(twin != null){
+				if(twin != null && directed){
 					if(source.hashCode() > target.hashCode()){
 						AffineTransform transform = g.getTransform();
 						
@@ -422,6 +439,10 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		 *        the arrow head belongs to.
 		 */
 		private void drawArrowHead(Graphics2D g, double x1, double y1, double x2, double y2){
+			if(!directed){
+				return;
+			}
+			
 			//Mathematical details: https://www.desmos.com/calculator/4wofflsoqx
 			double offset = Node.RADIUS;
 			

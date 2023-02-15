@@ -18,41 +18,40 @@
  */
 package dev.roanh.gmark.util;
 
-/**
- * Class that can be used as a wrapper around some
- * other object. DataProxy instances are never equal
- * to other DataProxy instances unless they are exactly
- * the same object.  This class is intended for use with
- * the {@link UniqueGraph} class so that multiple nodes can
- * be added with the same data. 
- * @author Roan
- * @param <T> The data type to proxy.
- */
-public class DataProxy<T>{
-	/**
-	 * The stored proxy data.
-	 */
-	private T data;
-	
-	/**
-	 * Constructs a new DataProxy instances
-	 * with the given data to proxy.
-	 * @param data The data to store.
-	 */
-	public DataProxy(T data){
-		this.data = data;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
+public class UniqueGraphTest{
+
+	@Test
+	public void rejectDuplicate0(){
+		UniqueGraph<String, Void> g = new UniqueGraph<String, Void>();
+		
+		g.addUniqueNode("a");
+		g.addUniqueNode("b");
+		
+		g.addUniqueEdge("a", "b");
+		assertEquals(1, g.getEdgeCount());
+		
+		g.addUniqueEdge("a", "b");
+		assertEquals(1, g.getEdgeCount());
 	}
 	
-	/**
-	 * Gets the data stored at this data.
-	 * @return The stored data.
-	 */
-	public T getData(){
-		return data;
-	}
-	
-	@Override
-	public String toString(){
-		return data.toString();
+	@Test
+	public void rejectDuplicate1(){
+		UniqueGraph<String, Integer> g = new UniqueGraph<String, Integer>();
+		
+		g.addUniqueNode("a");
+		g.addUniqueNode("b");
+		
+		g.addUniqueEdge("a", "b", 1);
+		assertEquals(1, g.getEdgeCount());
+		
+		g.addUniqueEdge("a", "b", 1);
+		assertEquals(1, g.getEdgeCount());
+		
+		g.addUniqueEdge("a", "b", 2);
+		assertEquals(2, g.getEdgeCount());
 	}
 }

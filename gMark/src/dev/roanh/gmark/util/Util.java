@@ -25,19 +25,30 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.util.Graph.GraphEdge;
-import dev.roanh.gmark.util.Graph.GraphNode;
+import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
+import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
+import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
+import dev.roanh.gmark.util.UniqueGraph.GraphNode;
 
 /**
  * Class providing various small utilities as well
@@ -204,8 +215,8 @@ public class Util{
 	 * @return The transformed graph without edge labels.
 	 * @see <a href="https://cpqkeys.roanh.dev/notes/to_unlabelled">Notes on transforming edge labelled graphs to graphs without edge labels</a>
 	 */
-	public static <V, E> Graph<Object, Void> edgeLabelsToNodes(Graph<V, E> in){
-		Graph<Object, Void> out = new Graph<Object, Void>();
+	public static <V, E> UniqueGraph<Object, Void> edgeLabelsToNodes(UniqueGraph<V, E> in){
+		UniqueGraph<Object, Void> out = new UniqueGraph<Object, Void>();
 		
 		in.getNodes().forEach(node->out.addUniqueNode(node.getData()));
 		for(GraphEdge<V, E> edge : in.getEdges()){
@@ -231,5 +242,130 @@ public class Util{
 			labels.add(new Predicate(i, String.valueOf(i)));
 		}
 		return labels;
+	}
+	
+	/**
+	 * Runs the give consumer on the given data only if the
+	 * given data is not equal to <code>null</code>.
+	 * @param <T> The data type.
+	 * @param data The data to run the consumer on.
+	 * @param fun The consumer to pass the given data to.
+	 */
+	public static <T> void runIfNotNull(T data, Consumer<T> fun){
+		if(data != null){
+			fun.accept(data);
+		}
+	}
+	
+	/**
+	 * Computes the tree decomposition of the given input graph
+	 * assuming that the input graph has a tree width of at most 2.
+	 * @param <T> The data type of the graph.
+	 * @param graph The graph to compute the tree decomposition of. This
+	 *        graph instance will be modified so a copy should be passed
+	 *        if this is a problem.
+	 * @return The computed tree decomposition, not necessarily a nice tree decomposition.
+	 * @throws IllegalArgumentException When the input graph is not connected or has a
+	 *         treewidth that is larger than 2.
+	 */
+	public static <T> Tree<List<T>> computeTreeDecompositionWidth2(SimpleGraph<T> graph) throws IllegalArgumentException{
+		Deque<SimpleVertex<T>> deg2 = new ArrayDeque<SimpleVertex<T>>();
+		Map<SimpleVertex<T>, List<Tree<List<T>>>> vMaps = new HashMap<SimpleVertex<T>, List<Tree<List<T>>>>();
+		Map<SimpleEdge<T>, List<Tree<List<T>>>> eMaps = new HashMap<SimpleEdge<T>, List<Tree<List<T>>>>();
+		
+		//collect all vertices of degree at most k
+		for(SimpleVertex<T> vertex : graph.getVertices()){
+			if(vertex.getDegree() <= 2){
+				deg2.add(vertex);
+			}
+		}
+		
+		//contract nodes of degree at most 2
+		while(graph.getVertexCount() > 3){
+			if(deg2.isEmpty()){
+				throw new IllegalArgumentException("Treewidth of the input graph is more than 2.");
+			}
+			
+			SimpleVertex<T> v = deg2.pop();
+			if(v.getDegree() == 1){
+				//move degree 1 node data to the node it is connected to
+				SimpleEdge<T> edge = v.getEdges().iterator().next();
+				SimpleVertex<T> target = edge.getTarget(v);
+				
+				//save maps
+				Tree<List<T>> bag = new Tree<List<T>>(Arrays.asList(v.getData(), target.getData()));
+				runIfNotNull(vMaps.get(v), l->l.forEach(bag::addChild));
+				runIfNotNull(eMaps.get(edge), l->l.forEach(bag::addChild));
+				vMaps.computeIfAbsent(target, k->new ArrayList<Tree<List<T>>>()).add(bag);
+				
+				//update graph
+				graph.deleteVertex(v);
+				if(target.getDegree() == 2){
+					deg2.add(target);
+				}
+			}else if(v.getDegree() == 2){
+				Iterator<SimpleEdge<T>> edges = v.getEdges().iterator();
+				SimpleEdge<T> e1 = edges.next();
+				SimpleEdge<T> e2 = edges.next();
+				SimpleVertex<T> v1 = e1.getTarget(v);
+				SimpleVertex<T> v2 = e2.getTarget(v);
+				
+				//reuse existing edges if possible
+				SimpleEdge<T> edge = v1.getEdge(v2);
+				boolean newEdge = false;
+				if(edge == null){
+					edge = graph.addEdge(v1, v2);
+					newEdge = true;
+				}
+				
+				//save map
+				Tree<List<T>> bag = new Tree<List<T>>(Arrays.asList(v.getData(), v1.getData(), v2.getData()));
+				runIfNotNull(eMaps.get(e1), l->l.forEach(bag::addChild));
+				runIfNotNull(eMaps.get(e2), l->l.forEach(bag::addChild));
+				runIfNotNull(vMaps.get(v), l->l.forEach(bag::addChild));
+				eMaps.computeIfAbsent(edge, k->new ArrayList<Tree<List<T>>>()).add(bag);
+				
+				//update graph
+				graph.deleteVertex(v);
+				if(!newEdge){
+					if(v1.getDegree() == 2){
+						deg2.add(v1);
+					}
+					
+					if(v2.getDegree() == 2){
+						deg2.add(v2);
+					}
+				}
+			}else{
+				throw new IllegalArgumentException("Input graph is not connected.");
+			}
+		}
+		
+		//everything remaining is the root node
+		Tree<List<T>> root = new Tree<List<T>>(graph.getVertices().stream().map(SimpleVertex::getData).collect(Collectors.toList()));
+		graph.getEdges().forEach(e->runIfNotNull(eMaps.get(e), l->l.forEach(root::addChild)));
+		graph.getVertices().forEach(v->runIfNotNull(vMaps.get(v), l->l.forEach(root::addChild)));
+		return root;
+	}
+	
+	/**
+	 * Finds a maximal (not maximum) matching in the given graph.
+	 * @param <T> The graph data type.
+	 * @param graph The graph to find a maximal matching for.
+	 * @return The edges of the found maximal matching.
+	 */
+	public static <T> List<SimpleEdge<T>> findMaximalMatching(SimpleGraph<T> graph){
+		List<SimpleEdge<T>> matching = new ArrayList<SimpleEdge<T>>();
+		Set<SimpleVertex<T>> usedVertices = new HashSet<SimpleVertex<T>>();
+		
+		for(SimpleEdge<T> edge : graph.getEdges()){
+			if(!usedVertices.contains(edge.getFirstVertex()) && !usedVertices.contains(edge.getSecondVertex())){
+				matching.add(edge);
+				usedVertices.add(edge.getFirstVertex());
+				usedVertices.add(edge.getSecondVertex());
+			}
+		}
+		
+		return matching;
 	}
 }

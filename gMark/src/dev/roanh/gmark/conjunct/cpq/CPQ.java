@@ -19,6 +19,7 @@
 package dev.roanh.gmark.conjunct.cpq;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.core.graph.Predicate;
@@ -118,6 +119,15 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	 */
 	public static CPQ label(Predicate label){
 		return new EdgeCPQ(label);
+	}
+	
+	/**
+	 * Returns a CPQ representing a chain of labelled edge traversals.
+	 * @param labels The labels of the traversed edges.
+	 * @return The label traversal CPQ.
+	 */
+	public static CPQ labels(Predicate... labels){
+		return new ConcatCPQ(Arrays.stream(labels).map(EdgeCPQ::new).collect(Collectors.toList()));
 	}
 	
 	/**

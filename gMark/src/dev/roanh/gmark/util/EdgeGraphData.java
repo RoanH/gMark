@@ -30,7 +30,7 @@ import dev.roanh.gmark.conjunct.cpq.IntersectionCPQ;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Type;
-import dev.roanh.gmark.util.Graph.GraphEdge;
+import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
 
 /**
  * Class to represent data stored in the edge graph.

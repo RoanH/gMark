@@ -32,8 +32,8 @@ import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.exception.ConfigException;
 import dev.roanh.gmark.exception.GenerationException;
-import dev.roanh.gmark.util.Graph.GraphEdge;
-import dev.roanh.gmark.util.Graph.GraphNode;
+import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
+import dev.roanh.gmark.util.UniqueGraph.GraphNode;
 
 public class EdgeGraphTest{
 	private static final int MAX_LENGTH = 4;

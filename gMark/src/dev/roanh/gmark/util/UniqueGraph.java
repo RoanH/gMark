@@ -327,10 +327,11 @@ public class UniqueGraph<V, E>{
 		}
 		
 		/**
-		 * Unique ID for this graph node, note that the uniqueness of
-		 * a graph node is still dependent on the data stored at this
-		 * node and that therefore two nodes with the same data but
-		 * different IDs are in fact still equal. However, this ID
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that the uniqueness of a graph node is still dependent on the
+		 * data stored at this node and that therefore two nodes with the same
+		 * data but different IDs are in fact still equal. However, this ID
 		 * can be useful for other applications where an ordering on
 		 * the graph nodes is required. In addition, if no nodes are
 		 * ever removed from the graph then the ordered IDs of all nodes

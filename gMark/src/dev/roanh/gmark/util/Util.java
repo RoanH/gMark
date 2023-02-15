@@ -351,7 +351,7 @@ public class Util{
 		}
 		
 		//everything remaining is the root node
-		Tree<List<T>> root = new Tree<List<T>>(graph.getVertices().stream().map(SimpleVertex::getData).collect(Collectors.toCollection(ArrayList::new)));
+		Tree<List<T>> root = new Tree<List<T>>(graph.getVertices().stream().map(SimpleVertex::getData).collect(Collectors.toList()));
 		graph.getEdges().forEach(e->runIfNotNull(eMaps.get(e), l->l.forEach(root::addChild)));
 		graph.getVertices().forEach(v->runIfNotNull(vMaps.get(v), l->l.forEach(root::addChild)));
 		return root;

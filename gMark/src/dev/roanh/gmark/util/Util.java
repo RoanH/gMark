@@ -257,6 +257,13 @@ public class Util{
 		}
 	}
 	
+	/**
+	 * Creates a new array list populated with the given items.
+	 * @param <T> The type of the data.
+	 * @param items The items to put in the list.
+	 * @return The newly created and populated array list.
+	 * @see ArrayList
+	 */
 	@SafeVarargs
 	public static <T> ArrayList<T> asArrayList(T... items){
 		ArrayList<T> data = new ArrayList<T>();

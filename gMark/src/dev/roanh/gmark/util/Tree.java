@@ -21,6 +21,7 @@ package dev.roanh.gmark.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -137,5 +138,11 @@ public class Tree<T>{
 	 */
 	public boolean isLeaf(){
 		return children.isEmpty();
+	}
+	
+	public <N> Tree<N> cloneStructure(Function<T, N> map){
+		Tree<N> root = new Tree<N>(map.apply(data));
+		children.forEach(c->root.addChild(c.cloneStructure(map)));
+		return root;
 	}
 }

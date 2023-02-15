@@ -296,8 +296,6 @@ public class UtilTest{
 		
 		assertEquals(12, prod.size());
 		
-		prod.forEach(System.out::println);
-		
 		assertIterableEquals(Arrays.asList("0", "a", "d", "f"), prod.get(0));
 		assertIterableEquals(Arrays.asList("0", "a", "d", "g"), prod.get(1));
 		assertIterableEquals(Arrays.asList("0", "a", "e", "f"), prod.get(2));

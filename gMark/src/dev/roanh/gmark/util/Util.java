@@ -244,12 +244,30 @@ public class Util{
 		return labels;
 	}
 	
+	/**
+	 * Runs the give consumer on the given data only if the
+	 * given data is not equal to <code>null</code>.
+	 * @param <T> The data type.
+	 * @param data The data to run the consumer on.
+	 * @param fun The consumer to pass the given data to.
+	 */
 	public static <T> void runIfNotNull(T data, Consumer<T> fun){
 		if(data != null){
 			fun.accept(data);
 		}
 	}
 	
+	/**
+	 * Computes the tree decomposition of the given input graph
+	 * assuming that the input graph has a tree width of at most 2.
+	 * @param <T> The data type of the graph.
+	 * @param graph The graph to compute the tree decomposition of. This
+	 *        graph instance will be modified so a copy should be passed
+	 *        if this is a problem.
+	 * @return The computed tree decomposition, not necessarily a nice tree decomposition.
+	 * @throws IllegalArgumentException When the input graph is not connected or has a
+	 *         treewidth that is larger than 2.
+	 */
 	public static <T> Tree<List<T>> computeTreeDecompositionWidth2(SimpleGraph<T> graph) throws IllegalArgumentException{
 		Deque<SimpleVertex<T>> deg2 = new ArrayDeque<SimpleVertex<T>>();
 		Map<SimpleVertex<T>, List<Tree<List<T>>>> vMaps = new HashMap<SimpleVertex<T>, List<Tree<List<T>>>>();
@@ -330,6 +348,12 @@ public class Util{
 		return root;
 	}
 	
+	/**
+	 * Finds a maximal (not maximum) matching in the given graph.
+	 * @param <T> The graph data type.
+	 * @param graph The graph to find a maximal matching for.
+	 * @return The edges of the found maximal matching.
+	 */
 	public static <T> List<SimpleEdge<T>> findMaximalMatching(SimpleGraph<T> graph){
 		List<SimpleEdge<T>> matching = new ArrayList<SimpleEdge<T>>();
 		Set<SimpleVertex<T>> usedVertices = new HashSet<SimpleVertex<T>>();

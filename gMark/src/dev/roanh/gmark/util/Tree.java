@@ -5,15 +5,40 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+/**
+ * Implementation of a tree data structure where data can
+ * be stored at each node in the tree and each tree node
+ * can have any number of child nodes.
+ * @author Roan
+ * @param <T> The store data type.
+ */
 public class Tree<T>{
+	/**
+	 * A list of child nodes for this tree node.
+	 */
 	private List<Tree<T>> children = new ArrayList<Tree<T>>();
+	/**
+	 * The parent node for this tree node.
+	 */
 	private Tree<T> parent = null;
+	/**
+	 * The data stored at this tree node.
+	 */
 	private T data;
 	
+	/**
+	 * Constructs a new tree node with the given data to store.
+	 * @param data The data to store at this node.
+	 */
 	public Tree(T data){
 		this.data = data;
 	}
 	
+	/**
+	 * Invokes the given consumer for all nodes in this tree
+	 * that are in the sub tree rooted at this tree node.
+	 * @param nodeVisitor The consumer to pass nodes to.
+	 */
 	public void forEach(Consumer<Tree<T>> nodeVisitor){
 		nodeVisitor.accept(this);
 		for(Tree<T> child : children){
@@ -21,10 +46,20 @@ public class Tree<T>{
 		}
 	}
 	
+	/**
+	 * Gets the data that is stored at this tree node.
+	 * @return The data stored at this tree node.
+	 */
 	public T getData(){
 		return data;
 	}
 	
+	/**
+	 * Adds a new child node to this tree node.
+	 * @param node The node to add as a child.
+	 * @throws IllegalArgumentException When the given node
+	 *         already has a parent node.
+	 */
 	public void addChild(Tree<T> node) throws IllegalArgumentException{
 		if(node.parent != null){
 			throw new IllegalArgumentException("Node already has a parent.");
@@ -34,23 +69,55 @@ public class Tree<T>{
 		node.parent = this;
 	}
 	
+	/**
+	 * Gets a list of child nodes for this tree node.
+	 * @return The child nodes of this tree node.
+	 */
 	public List<Tree<T>> getChildren(){
 		return children;
 	}
 	
+	/**
+	 * Gets the depth this node is at in the tree. Where
+	 * a depth of 0 indicates the root node of the tree.
+	 * @return The depth of this node in the tree.
+	 */
 	public int getDepth(){
 		return parent == null ? 0 : (1 + parent.getDepth());
 	}
 	
+	/**
+	 * Returns a stream over all tree nodes in the sub tree
+	 * rooted at this tree node.
+	 * @return A stream over all nodes in the sub tree
+	 *         rooted at this tree node.
+	 */
 	public Stream<Tree<T>> stream(){
 		return Stream.concat(Stream.of(this), children.stream().flatMap(Tree::stream));
 	}
 	
+	/**
+	 * Checks if this node is the root node of the tree.
+	 * @return True if this node is the root node of the tree.
+	 */
 	public boolean isRoot(){
 		return parent == null;
 	}
 	
+	/**
+	 * Gets the parent node for this tree node.
+	 * @return The parent node for this tree node or
+	 *         <code>null</code> if this node is the root node.
+	 */
 	public Tree<T> getParent(){
 		return parent;
+	}
+	
+	/**
+	 * Checks if this tree node is a leaf node.
+	 * @return True if this node is a leaf node.
+	 */
+	public boolean isLeaf(){
+		return children.isEmpty();
 	}
 }

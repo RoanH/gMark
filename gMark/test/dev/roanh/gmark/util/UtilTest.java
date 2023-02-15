@@ -19,6 +19,7 @@
 package dev.roanh.gmark.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -266,6 +267,49 @@ public class UtilTest{
 		
 		Tree<List<String>> decomp = Util.computeTreeDecompositionWidth2(g);
 		assertValidTreeDecomposition(decomp, vertices, edges);
+	}
+	
+	@Test
+	public void testCartesian0(){
+		List<List<String>> prod = Util.cartesianProduct(Arrays.asList(
+			Arrays.asList("a", "b"),
+			Arrays.asList("c", "d"),
+			Arrays.asList("e")
+		));
+		
+		assertEquals(4, prod.size());
+		
+		assertIterableEquals(Arrays.asList("a", "c", "e"), prod.get(0));
+		assertIterableEquals(Arrays.asList("a", "d", "e"), prod.get(1));
+		assertIterableEquals(Arrays.asList("b", "c", "e"), prod.get(2));
+		assertIterableEquals(Arrays.asList("b", "d", "e"), prod.get(3));
+	}
+	
+	@Test
+	public void testCartesian1(){
+		List<List<String>> prod = Util.cartesianProduct(Arrays.asList(
+			Arrays.asList("0"),
+			Arrays.asList("a", "b", "c"),
+			Arrays.asList("d", "e"),
+			Arrays.asList("f", "g")
+		));
+		
+		assertEquals(12, prod.size());
+		
+		prod.forEach(System.out::println);
+		
+		assertIterableEquals(Arrays.asList("0", "a", "d", "f"), prod.get(0));
+		assertIterableEquals(Arrays.asList("0", "a", "d", "g"), prod.get(1));
+		assertIterableEquals(Arrays.asList("0", "a", "e", "f"), prod.get(2));
+		assertIterableEquals(Arrays.asList("0", "a", "e", "g"), prod.get(3));
+		assertIterableEquals(Arrays.asList("0", "b", "d", "f"), prod.get(4));
+		assertIterableEquals(Arrays.asList("0", "b", "d", "g"), prod.get(5));
+		assertIterableEquals(Arrays.asList("0", "b", "e", "f"), prod.get(6));
+		assertIterableEquals(Arrays.asList("0", "b", "e", "g"), prod.get(7));
+		assertIterableEquals(Arrays.asList("0", "c", "d", "f"), prod.get(8));
+		assertIterableEquals(Arrays.asList("0", "c", "d", "g"), prod.get(9));
+		assertIterableEquals(Arrays.asList("0", "c", "e", "f"), prod.get(10));
+		assertIterableEquals(Arrays.asList("0", "c", "e", "g"), prod.get(11));
 	}
 	
 	private void assertValidTreeDecomposition(Tree<List<String>> decomp, List<String> vertices, List<SimpleEdge<String>> edges){

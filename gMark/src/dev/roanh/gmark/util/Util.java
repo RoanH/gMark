@@ -302,7 +302,7 @@ public class Util{
 				SimpleVertex<T> target = edge.getTarget(v);
 				
 				//save maps
-				Tree<List<T>> bag = new Tree<List<T>>(asArrayList(v.getData(), target.getData()));
+				Tree<List<T>> bag = new Tree<List<T>>(Arrays.asList(v.getData(), target.getData()));
 				runIfNotNull(vMaps.get(v), l->l.forEach(bag::addChild));
 				runIfNotNull(eMaps.get(edge), l->l.forEach(bag::addChild));
 				vMaps.computeIfAbsent(target, k->new ArrayList<Tree<List<T>>>()).add(bag);
@@ -328,7 +328,7 @@ public class Util{
 				}
 				
 				//save map
-				Tree<List<T>> bag = new Tree<List<T>>(asArrayList(v.getData(), v1.getData(), v2.getData()));
+				Tree<List<T>> bag = new Tree<List<T>>(Arrays.asList(v.getData(), v1.getData(), v2.getData()));
 				runIfNotNull(eMaps.get(e1), l->l.forEach(bag::addChild));
 				runIfNotNull(eMaps.get(e2), l->l.forEach(bag::addChild));
 				runIfNotNull(vMaps.get(v), l->l.forEach(bag::addChild));
@@ -376,5 +376,53 @@ public class Util{
 		}
 		
 		return matching;
+	}
+	
+	/**
+	 * Computes the cartesian product of the given input sets. For example, for
+	 * the following input sets:
+	 * <pre>
+	 * {
+	 *   {A, B},
+	 *   {C, D},
+	 *   {E}
+	 * }
+	 * </pre>
+	 * The output is as follows:
+	 * <pre>
+	 * {
+	 *   {A, C, E},
+	 *   {A, D, E},
+	 *   {B, C, E},
+	 *   {B, D, E}
+	 * }
+	 * </pre>
+	 * 
+	 * @param <T> The type of the data in the lists.
+	 * @param sets The sets to compute the cartesian product of.
+	 * @return The computed cartesian product of the input sets.
+	 * @throws ArithmeticException When the size of the output list with
+	 *         sets would be more than {@link Integer#MAX_VALUE}.
+	 */
+	public static <T> List<List<T>> cartesianProduct(List<List<T>> sets) throws ArithmeticException{
+		int size = sets.stream().mapToInt(List::size).reduce(StrictMath::multiplyExact).getAsInt();
+		List<List<T>> product = new ArrayList<List<T>>(size);
+		for(int i = 0; i < size; i++){
+			product.add(new ArrayList<T>());
+		}
+		
+		for(List<T> set : sets){
+			size /= set.size();
+			
+			int idx = 0;
+			for(int o = 0; idx < product.size(); o++){
+				T obj = set.get(o % set.size());
+				for(int i = 0; i < size; i++){
+					product.get(idx++).add(obj);
+				}
+			}
+		}
+		
+		return product;
 	}
 }

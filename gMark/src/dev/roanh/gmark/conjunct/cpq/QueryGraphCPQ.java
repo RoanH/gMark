@@ -18,11 +18,17 @@
  */
 package dev.roanh.gmark.conjunct.cpq;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.swing.JFrame;
@@ -33,6 +39,8 @@ import dev.roanh.gmark.util.SimpleGraph;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.Tree;
 import dev.roanh.gmark.util.UniqueGraph;
+import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
+import dev.roanh.gmark.util.UniqueGraph.GraphNode;
 import dev.roanh.gmark.util.Util;
 
 /**
@@ -222,34 +230,133 @@ public class QueryGraphCPQ{
 		
 	}
 	
-	public boolean isHomomorphicTo(UniqueGraph<Vertex, Predicate> other){
+	public boolean isHomomorphicTo(UniqueGraph<Vertex, Predicate> graph){
 		//compute a query decomposition
 		Tree<List<QueryGraphComponent>> decomp = Util.computeTreeDecompositionWidth2(toIncidenceGraph());
 		
 		decomp.forEach(t->System.out.println(t.getDepth() + ": " + t.getData()));
 		
-		//expand each list with dependent variables
-		decomp.forEach(t->{
-			List<QueryGraphComponent> data = t.getData();
-			final int size = data.size();
-			for(int i = 0; i < size; i++){
-				if(data.get(i).isEdge()){
-					Edge edge = (Edge)data.get(i);
-					
-					if(!data.contains(edge.src)){
-						data.add(edge.src);
-					}
-					
-					if(!data.contains(edge.trg)){
-						data.add(edge.trg);
-					}
-				}
-			}
-		});
+//		//expand each list with dependent variables
+//		decomp.forEach(t->{
+//			List<QueryGraphComponent> data = t.getData();
+//			final int size = data.size();
+//			for(int i = 0; i < size; i++){
+//				if(data.get(i).isEdge()){
+//					Edge edge = (Edge)data.get(i);
+//					
+//					if(!data.contains(edge.src)){
+//						data.add(edge.src);
+//					}
+//					
+//					if(!data.contains(edge.trg)){
+//						data.add(edge.trg);
+//					}
+//				}
+//			}
+//		});
 		
 		System.out.println("================");
 		decomp.forEach(t->System.out.println(t.getDepth() + ": " + t.getData()));
+		
+		//pre compute mappings
+		Map<QueryGraphComponent, List<Object>> known = new HashMap<QueryGraphComponent, List<Object>>();
+		Map<Vertex, List<Edge>> outEdges = new HashMap<Vertex, List<Edge>>();
+		Map<Vertex, List<Edge>> inEdges = new HashMap<Vertex, List<Edge>>();
+		
+		for(Vertex vertex : vertices){
+			outEdges.put(vertex, new ArrayList<Edge>());
+			inEdges.put(vertex, new ArrayList<Edge>());
+		}
+		
+		for(Edge edge : edges){
+			List<Object> matches = new ArrayList<Object>();
+			for(GraphEdge<Vertex, Predicate> other : graph.getEdges()){
+				if(edge.src == source && other.getSource() != source){
+					continue;
+				}
+				
+				if(edge.trg == target && other.getTarget() != target){
+					continue;
+				}
+				
+				if(other.getData().equals(edge.label)){
+					matches.add(other);
+				}
+			}
+			
+			outEdges.get(edge.src).add(edge);
+			inEdges.get(edge.trg).add(edge);
+			known.put(edge, matches);
+		}
+		
+		for(Vertex vertex : vertices){
+			List<Object> matches = new ArrayList<Object>();
+			for(GraphNode<Vertex, Predicate> other : graph.getNodes()){
+				if((vertex == source) ^ (other.getData() == source)){
+					continue;
+				}
+				
+				if((vertex == target) ^ (other.getData() == target)){
+					continue;
+				}
+				
+				List<Edge> out = outEdges.get(vertex);
+				if(out.size() != other.getOutCount()){
+					continue;
+				}
+					
+				List<Edge> in = inEdges.get(vertex);
+				if(in.size() != other.getInCount()){
+					continue;
+				}
+				
+				if(!checkEquivalent(out, other.getOutEdges())){
+					continue;
+				}
+				
+				if(!checkEquivalent(in, other.getInEdges())){
+					continue;
+				}
+				
+				matches.add(other);
+			}
+			
+			known.put(vertex, matches);
+		}
+		
+		Function<Object, String> pmap = p->{
+			if(p instanceof GraphEdge){
+				@SuppressWarnings("unchecked")
+				GraphEdge<Vertex, Predicate> pp = (GraphEdge<Vertex, Predicate>)p;
+				return "(" + pp.getSource() + "," + pp.getTarget() + "," + pp.getData().getAlias() + ")";
+			}else{
+				return p.toString();
+			}
+		};
+		
+		System.out.println("===============");
+		for(Entry<QueryGraphComponent, List<Object>> entry : known.entrySet()){
+			System.out.println(entry.getKey() + " -> " + entry.getValue().stream().map(pmap).collect(Collectors.toList()));
+		}
 
+		//copy structure & compute candidate maps
+		Tree<PartialMap> maps = decomp.cloneStructure(PartialMap::new);
+		
+		maps.forEach(node->{
+			List<List<Object>> sets = new ArrayList<List<Object>>();
+			for(QueryGraphComponent arg : node.getData().left){
+				sets.add(known.get(arg));
+			}
+			
+			node.getData().matches = Util.cartesianProduct(sets);
+		});
+		
+		System.out.println("===============");
+		maps.forEach(t->{
+			System.out.println(t.getDepth() + ": " + t.getData().left);
+			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(pmap).collect(Collectors.toList())).collect(Collectors.toList()));
+		});
+		
 		
 		
 		
@@ -334,6 +441,19 @@ public class QueryGraphCPQ{
 	@Override
 	public String toString(){
 		return "QueryGraphCPQ[V=" + vertices + ",E=" + edges + ",src=" + source + ",trg=" + target + ",Fid=" + fid + "]";
+	}
+	
+	private static boolean checkEquivalent(List<Edge> first, Set<GraphEdge<Vertex, Predicate>> second){
+		first.sort(Comparator.comparing(e->e.label));
+		Iterator<Predicate> other = second.stream().map(GraphEdge::getData).sorted().iterator();
+		
+		for(Edge e : first){
+			if(!e.label.equals(other.next())){
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -469,6 +589,15 @@ public class QueryGraphCPQ{
 		@Override
 		public String toString(){
 			return "(" + first + "," + second + ")";
+		}
+	}
+	
+	private static final class PartialMap{
+		private List<QueryGraphComponent> left;
+		private List<List<Object>> matches;
+		
+		private PartialMap(List<QueryGraphComponent> left){
+			this.left = left;
 		}
 	}
 }

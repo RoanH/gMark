@@ -20,14 +20,20 @@ package dev.roanh.gmark.conjunct.cpq;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.swing.JFrame;
+
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.GraphPanel;
 import dev.roanh.gmark.util.SimpleGraph;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
+import dev.roanh.gmark.util.Tree;
 import dev.roanh.gmark.util.UniqueGraph;
+import dev.roanh.gmark.util.Util;
 
 /**
  * Object representing the query graph of a CPQ. This
@@ -185,6 +191,71 @@ public class QueryGraphCPQ{
 		return g;
 	}
 	
+	public static void main(String[] args){
+		Predicate l1 = new Predicate(1, "1");
+		Predicate l2 = new Predicate(2, "2");
+		Predicate l3 = new Predicate(3, "3");
+		Predicate l4 = new Predicate(4, "4");
+		
+		//QueryGraphCPQ cpq = CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.labels(l2, l4), CPQ.labels(l3, l2))).toQueryGraph();
+		QueryGraphCPQ cpq = CPQ.labels(l1, l2, l4).toQueryGraph();
+		
+		UniqueGraph<Vertex, Predicate> self = cpq.toUniqueGraph();
+		
+		JFrame f = new JFrame();
+		
+		f.add(new GraphPanel<Vertex, Predicate>(self, Object::toString, Predicate::getAlias));
+		f.setSize(300, 400);
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.setVisible(true);
+		
+		f = new JFrame();
+		GraphPanel<QueryGraphComponent, Void> gp = new GraphPanel<QueryGraphComponent, Void>(cpq.toIncidenceGraph().toUniqueGraph());
+		gp.setDirected(false);
+		f.add(gp);
+		f.setSize(300, 400);
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		f.setVisible(true);
+		
+		
+		cpq.isHomomorphicTo(self);//totally should be true
+		
+	}
+	
+	public boolean isHomomorphicTo(UniqueGraph<Vertex, Predicate> other){
+		//compute a query decomposition
+		Tree<List<QueryGraphComponent>> decomp = Util.computeTreeDecompositionWidth2(toIncidenceGraph());
+		
+		decomp.forEach(t->System.out.println(t.getDepth() + ": " + t.getData()));
+		
+		//expand each list with dependent variables
+		decomp.forEach(t->{
+			List<QueryGraphComponent> data = t.getData();
+			final int size = data.size();
+			for(int i = 0; i < size; i++){
+				if(data.get(i).isEdge()){
+					Edge edge = (Edge)data.get(i);
+					
+					if(!data.contains(edge.src)){
+						data.add(edge.src);
+					}
+					
+					if(!data.contains(edge.trg)){
+						data.add(edge.trg);
+					}
+				}
+			}
+		});
+		
+		System.out.println("================");
+		decomp.forEach(t->System.out.println(t.getDepth() + ": " + t.getData()));
+
+		
+		
+		
+		return false;//TODO
+	}
+	
 	/**
 	 * Executes the final merge step of the query graph construction algorithm,
 	 * this step merges vertices that need to be merged together into the same
@@ -276,6 +347,7 @@ public class QueryGraphCPQ{
 		/**
 		 * Checks if this query graph component is a vertex.
 		 * @return True if this is a vertex.
+		 * @see Vertex
 		 */
 		public default boolean isVertex(){
 			return this instanceof Vertex;
@@ -284,6 +356,7 @@ public class QueryGraphCPQ{
 		/**
 		 * Checks if this query graph component is an edge.
 		 * @return True if this is an edge.
+		 * @see Edge
 		 */
 		public default boolean isEdge(){
 			return this instanceof Edge;

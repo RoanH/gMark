@@ -20,7 +20,6 @@ package dev.roanh.gmark.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
@@ -145,7 +144,6 @@ public class UtilTest{
 		List<SimpleEdge<String>> edges = new ArrayList<SimpleEdge<String>>(g.getEdges());
 		
 		Tree<List<String>> decomp = Util.computeTreeDecompositionWidth2(g);
-		decomp.forEach(t->System.out.println(t.getDepth() + ": " + t.getData()));
 		assertValidTreeDecomposition(decomp, vertices, edges);
 	}
 	
@@ -235,7 +233,6 @@ public class UtilTest{
 		List<SimpleEdge<String>> edges = new ArrayList<SimpleEdge<String>>(g.getEdges());
 		
 		Tree<List<String>> decomp = Util.computeTreeDecompositionWidth2(g);
-		decomp.forEach(t->System.out.println(t.getDepth() + ": " + t.getData()));
 		assertValidTreeDecomposition(decomp, vertices, edges);
 	}
 	
@@ -268,7 +265,6 @@ public class UtilTest{
 		List<SimpleEdge<String>> edges = new ArrayList<SimpleEdge<String>>(g.getEdges());
 		
 		Tree<List<String>> decomp = Util.computeTreeDecompositionWidth2(g);
-		decomp.forEach(t->System.out.println(t.getDepth() + ": " + t.getData()));
 		assertValidTreeDecomposition(decomp, vertices, edges);
 	}
 	

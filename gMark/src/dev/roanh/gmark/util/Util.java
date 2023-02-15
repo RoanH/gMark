@@ -29,17 +29,13 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Deque;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -263,12 +259,8 @@ public class Util{
 		for(SimpleVertex<T> vertex : graph.getVertices()){
 			if(vertex.getDegree() <= 2){
 				deg2.add(vertex);
-			}else{
-				System.out.println("Ignore " + vertex.getData() + " with deg " + vertex.getDegree());
 			}
 		}
-		
-		System.out.println("queue: " + deg2.stream().map(v->v.getData()).collect(Collectors.toList()));
 		
 		//contract nodes of degree at most 2
 		while(graph.getVertexCount() > 3){
@@ -277,9 +269,6 @@ public class Util{
 			}
 			
 			SimpleVertex<T> v = deg2.pop();
-			
-			System.out.println("Process: " + v.getData() + " / " + v.getDegree());
-			
 			if(v.getDegree() == 1){
 				//move degree 1 node data to the node it is connected to
 				SimpleEdge<T> edge = v.getEdges().iterator().next();
@@ -291,6 +280,7 @@ public class Util{
 				runIfNotNull(eMaps.get(edge), l->l.forEach(bag::addChild));
 				vMaps.computeIfAbsent(target, k->new ArrayList<Tree<List<T>>>()).add(bag);
 				
+				//update graph
 				graph.deleteVertex(v);
 				if(target.getDegree() == 2){
 					deg2.add(target);
@@ -329,7 +319,6 @@ public class Util{
 					}
 				}
 			}else{
-				System.out.println("deg zero");
 				throw new IllegalArgumentException("Input graph is not connected.");
 			}
 		}

@@ -210,8 +210,15 @@ public class QueryGraphCPQ{
 
 		Vertex s = new Vertex();
 		Vertex t = new Vertex();
-		QueryGraphCPQ cpq2 = CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.labels(l2, l4), CPQ.labels(l3, l2))).toQueryGraph(s, t);
-		QueryGraphCPQ cpq1 = CPQ.labels(l1, l2, l4).toQueryGraph(s, t);
+//		QueryGraphCPQ cpq2 = CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.labels(l2, l4), CPQ.labels(l3, l2))).toQueryGraph(s, t);
+//		QueryGraphCPQ cpq1 = CPQ.labels(l1, l2, l4).toQueryGraph(s, t);
+		
+		QueryGraphCPQ cpq2 = CPQ.intersect(
+			CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.label(l1.getInverse()), CPQ.label(l2))),
+			CPQ.labels(l3, l3.getInverse())
+		).toQueryGraph(s, t);
+
+		QueryGraphCPQ cpq1 = CPQ.concat(CPQ.intersect(l1.getInverse(), l2), CPQ.label(l3)).toQueryGraph(s, t);
 		
 		//b = l1, r = l2
 //		QueryGraphCPQ cpq2 = 

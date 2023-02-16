@@ -103,6 +103,17 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	}
 	
 	/**
+	 * Returns a CPQ representing the intersection (conjunction)
+	 * of the two given single edge label traversals.
+	 * @param first The first edge label.
+	 * @param second The second edge label.
+	 * @return The intersection of the given label traversals.
+	 */
+	public static CPQ intersect(Predicate first, Predicate second){
+		return new IntersectionCPQ(label(first), label(second));
+	}
+	
+	/**
 	 * Returns a CPQ representing the concatenation in order
 	 * of the given CPQs.
 	 * @param cpqs The CPQs to concatenate (in order).

@@ -256,6 +256,46 @@ public class QueryGraphCPQTest{
 		));
 	}
 	
+	@Test
+	public void homomorphism7(){
+		assertTrue(isHomomorphic(
+			CPQ.intersect(CPQ.labels(l1, l1, l1), CPQ.id()),
+			CPQ.intersect(CPQ.labels(l1, l1, l1, l1, l1), CPQ.id())
+		));
+	}
+	
+	@Test
+	public void homomorphism8(){
+		assertTrue(isHomomorphic(
+			CPQ.intersect(CPQ.labels(l1, l1, l1, l1, l1), CPQ.id()),
+			CPQ.intersect(CPQ.labels(l1, l1, l1), CPQ.id())
+		));
+	}
+	
+	@Test
+	public void homomorphism9(){
+		//would be true if the source and target matched up
+		assertFalse(isHomomorphic(
+			CPQ.intersect(
+				CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.label(l1.getInverse()), CPQ.label(l2))),
+				CPQ.labels(l3, l3.getInverse())
+			),
+			CPQ.concat(CPQ.intersect(l1.getInverse(), l2), CPQ.label(l3))
+		));
+	}
+	
+	@Test
+	public void homomorphism10(){
+		//would be true if the source and target matched up
+		assertFalse(isHomomorphic(
+			CPQ.concat(CPQ.intersect(l1.getInverse(), l2), CPQ.label(l3)),
+			CPQ.intersect(
+				CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.label(l1.getInverse()), CPQ.label(l2))),
+				CPQ.labels(l3, l3.getInverse())
+			)
+		));
+	}
+	
 	public boolean isHomomorphic(CPQ cpq1, CPQ cpq2){
 		Vertex s = new Vertex();
 		Vertex t = new Vertex();

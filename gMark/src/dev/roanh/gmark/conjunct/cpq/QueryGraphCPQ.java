@@ -383,7 +383,7 @@ public class QueryGraphCPQ{
 	
 	/**
 	 * Helper method to check if the predicates on the edges in the given
-	 * list all occur at least onces in the given second set of edges.
+	 * list all occur at least once in the given second set of edges.
 	 * @param first The set of edges whose predicates to find.
 	 * @param second The set of edges where the same predicates need to
 	 *        exist at least once.

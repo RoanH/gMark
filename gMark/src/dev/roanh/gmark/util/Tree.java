@@ -64,6 +64,13 @@ public class Tree<T>{
 			child.forEach(nodeVisitor);
 		}
 	}
+
+	public void forEachBottomUp(Consumer<Tree<T>> nodeVisitor){
+		for(Tree<T> child : children){
+			child.forEach(nodeVisitor);
+		}
+		nodeVisitor.accept(this);
+	}
 	
 	/**
 	 * Gets the data that is stored at this tree node.

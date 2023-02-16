@@ -357,10 +357,37 @@ public class QueryGraphCPQ{
 			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(pmap).collect(Collectors.toList())).collect(Collectors.toList()));
 		});
 		
+		//join node bottom up
+		maps.forEachBottomUp(node->{
+			if(!node.isLeaf()){
+				PartialMap map = node.getData();
+				for(Tree<PartialMap> child : node.getChildren()){
+					map.semiJoin(child.getData());
+				}
+			}
+		});
 		
+		System.out.println("===============");
+		maps.forEach(t->{
+			System.out.println(t.getDepth() + ": " + t.getData().left);
+			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(pmap).collect(Collectors.toList())).collect(Collectors.toList()));
+		});
 		
+		//a non empty root implies query homomorphism
+		return !maps.getData().matches.isEmpty();
+	}
+	
+	private boolean checkEquivalent(List<Edge> first, Set<GraphEdge<Vertex, Predicate>> second){
+		first.sort(Comparator.comparing(e->e.label));
+		Iterator<Predicate> other = second.stream().map(GraphEdge::getData).sorted().iterator();
 		
-		return false;//TODO
+		for(Edge e : first){
+			if(!e.label.equals(other.next())){
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -441,19 +468,6 @@ public class QueryGraphCPQ{
 	@Override
 	public String toString(){
 		return "QueryGraphCPQ[V=" + vertices + ",E=" + edges + ",src=" + source + ",trg=" + target + ",Fid=" + fid + "]";
-	}
-	
-	private static boolean checkEquivalent(List<Edge> first, Set<GraphEdge<Vertex, Predicate>> second){
-		first.sort(Comparator.comparing(e->e.label));
-		Iterator<Predicate> other = second.stream().map(GraphEdge::getData).sorted().iterator();
-		
-		for(Edge e : first){
-			if(!e.label.equals(other.next())){
-				return false;
-			}
-		}
-		
-		return true;
 	}
 	
 	/**
@@ -598,6 +612,37 @@ public class QueryGraphCPQ{
 		
 		private PartialMap(List<QueryGraphComponent> left){
 			this.left = left;
+		}
+		
+		private void semiJoin(PartialMap other){
+			matches.removeIf(match->{
+				for(List<Object> filter : other.matches){
+					for(Object obj : filter){
+						if(mapContains(match, obj)){
+							return false;
+						}
+					}
+				}
+				
+				return true;
+			});
+		}
+		
+		private boolean mapContains(List<Object> map, Object item){
+			if(item instanceof GraphEdge){
+				GraphEdge<?, ?> edge = (GraphEdge<?, ?>)item;
+				return mapContains(map, edge.getSourceNode()) || mapContains(map, edge.getTargetNode());
+			}else{
+				for(Object elem : map){
+					if(elem == item){
+						return true;
+					}else if(elem instanceof GraphEdge){
+						GraphEdge<?, ?> edge = (GraphEdge<?, ?>)elem;
+						return edge.getSourceNode() == item || edge.getTargetNode() == item;
+					}
+				}
+				return false;
+			}
 		}
 	}
 }

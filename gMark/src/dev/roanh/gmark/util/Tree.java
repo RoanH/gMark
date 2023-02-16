@@ -65,6 +65,13 @@ public class Tree<T>{
 		}
 	}
 
+	/**
+	 * Invokes the given consumer for all nodes in this tree
+	 * that are in the sub tree rooted at this tree node. It
+	 * will be guaranteed that all the child nodes will be
+	 * visited before their parent.
+	 * @param nodeVisitor The consumer to pass nodes to.
+	 */
 	public void forEachBottomUp(Consumer<Tree<T>> nodeVisitor){
 		for(Tree<T> child : children){
 			child.forEach(nodeVisitor);

@@ -195,9 +195,10 @@ public class QueryGraphCPQ{
 	}
 	
 	/**
-	 * Computes if there is a <b>query</b> homomorphism from this query graph G to the given
-	 * other graph G'. This implies that any edge traversal made in this graph can be mimicked
-	 * in the given other graph. Formally G -> G' or G is contained in G' (as a subgraph).
+	 * Computes if there is a <b>query</b> homomorphism from this query graph <code>G</code>
+	 * to the given other graph <code>G'</code>. This implies that any edge traversal made in
+	 * this graph can be mimicked in the given other graph. Formally <code>G -> G'</code> or
+	 * <code>G</code> is contained in <code>G'</code> (as a subgraph).
 	 * <p>
 	 * Note: This method tests for <b>query</b> homomorphism, as such the identity of the source
 	 * and target vertices is extremely important. Specifically, the given other graph should use

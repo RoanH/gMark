@@ -19,7 +19,6 @@
 package dev.roanh.gmark.conjunct.cpq;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,7 +27,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.swing.JFrame;
@@ -298,9 +296,6 @@ public class QueryGraphCPQ{
 //			}
 //		});
 		
-		System.out.println("================");
-		decomp.forEach(t->System.out.println(t.getDepth() + ": " + t.getData()));
-		
 		//pre compute mappings
 		Map<QueryGraphComponent, List<Object>> known = new HashMap<QueryGraphComponent, List<Object>>();
 		Map<Vertex, List<Edge>> outEdges = new HashMap<Vertex, List<Edge>>();
@@ -344,19 +339,11 @@ public class QueryGraphCPQ{
 				}
 				
 				List<Edge> out = outEdges.get(vertex);
-//				if(out.size() != other.getOutCount()){
-//					continue;
-//				}
-//					
-				List<Edge> in = inEdges.get(vertex);
-//				if(in.size() != other.getInCount()){
-//					continue;
-//				}
-//				
 				if(!checkEquivalent(out, other.getOutEdges())){
 					continue;
 				}
 				
+				List<Edge> in = inEdges.get(vertex);
 				if(!checkEquivalent(in, other.getInEdges())){
 					continue;
 				}
@@ -668,10 +655,7 @@ public class QueryGraphCPQ{
 				for(List<Object> filter : other.matches){
 					for(Object obj : filter){
 						if(mapContains(match, obj)){
-							System.out.println("contains: " + match.stream().map(QueryGraphCPQ::pmap).collect(Collectors.toList()) + " - obj - " + QueryGraphCPQ.pmap(obj));
 							return false;
-						}else{
-							System.out.println("not contains: " + match.stream().map(QueryGraphCPQ::pmap).collect(Collectors.toList()) + " - obj - " + QueryGraphCPQ.pmap(obj));
 						}
 					}
 				}
@@ -683,16 +667,13 @@ public class QueryGraphCPQ{
 		private boolean mapContains(List<Object> map, Object item){
 			if(item instanceof GraphEdge){
 				GraphEdge<?, ?> edge = (GraphEdge<?, ?>)item;
-				System.out.println("split");
 				return mapContains(map, edge.getSourceNode()) || mapContains(map, edge.getTargetNode());
 			}else{
 				for(Object elem : map){
 					if(elem == item){
-						System.out.println("e eq");
 						return true;
 					}else if(elem instanceof GraphEdge){
 						GraphEdge<?, ?> edge = (GraphEdge<?, ?>)elem;
-						System.out.println("one is: " + (edge.getSourceNode() == item) + " | " + (edge.getTargetNode() == item));
 						if(edge.getSourceNode() == item || edge.getTargetNode() == item){
 							return true;
 						}

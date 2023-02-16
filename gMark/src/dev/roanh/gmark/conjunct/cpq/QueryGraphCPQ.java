@@ -24,15 +24,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.swing.JFrame;
-
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.util.GraphPanel;
 import dev.roanh.gmark.util.SimpleGraph;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.Tree;
@@ -198,110 +194,12 @@ public class QueryGraphCPQ{
 		return g;
 	}
 	
-	public static void main(String[] args){
-		Predicate l1 = new Predicate(1, "1");
-		Predicate l2 = new Predicate(2, "2");
-		Predicate l3 = new Predicate(3, "3");
-		Predicate l4 = new Predicate(4, "4");
-		
-//		QueryGraphCPQ cpq = CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.labels(l2, l4), CPQ.labels(l3, l2))).toQueryGraph();
-		//QueryGraphCPQ cpq = CPQ.labels(l1, l2, l4).toQueryGraph();
-//		QueryGraphCPQ cpq = CPQ.concat(CPQ.label(l2), CPQ.intersect(CPQ.labels(l2, l2), CPQ.labels(l2, l2))).toQueryGraph();
-
-		Vertex s = new Vertex();
-		Vertex t = new Vertex();
-//		QueryGraphCPQ cpq2 = CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.labels(l2, l4), CPQ.labels(l3, l2))).toQueryGraph(s, t);
-//		QueryGraphCPQ cpq1 = CPQ.labels(l1, l2, l4).toQueryGraph(s, t);
-		
-		QueryGraphCPQ cpq2 = CPQ.intersect(
-			CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.label(l1.getInverse()), CPQ.label(l2))),
-			CPQ.labels(l3, l3.getInverse())
-		).toQueryGraph(s, t);
-
-		QueryGraphCPQ cpq1 = CPQ.concat(CPQ.intersect(l1.getInverse(), l2), CPQ.label(l3)).toQueryGraph(s, t);
-		
-		//b = l1, r = l2
-//		QueryGraphCPQ cpq2 = 
-//		CPQ.concat(
-//			CPQ.label(l1),
-//			CPQ.intersect(
-//				CPQ.concat(
-//					CPQ.label(l2),
-//					CPQ.intersect(CPQ.label(l2), CPQ.id()),
-//					CPQ.label(l2)
-//				),
-//				CPQ.id()
-//			)
-//		)
-//		.toQueryGraph(s, t);
-//		
-//		QueryGraphCPQ cpq1 =
-//		CPQ.concat(
-//			CPQ.label(l1),
-//			CPQ.intersect(
-//				CPQ.labels(l2, l2, l2),
-//				CPQ.id()
-//			)
-//		)
-//		.toQueryGraph(s, t);
-		
-		UniqueGraph<Vertex, Predicate> cg1 = cpq1.toUniqueGraph();
-		UniqueGraph<Vertex, Predicate> cg2 = cpq2.toUniqueGraph();
-		
-		JFrame f = new JFrame("CPQ2");
-		f.add(new GraphPanel<Vertex, Predicate>(cg2, Object::toString, Predicate::getAlias));
-		f.setSize(300, 400);
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setVisible(true);
-		
-		f = new JFrame("CPQ1");
-		f.add(new GraphPanel<Vertex, Predicate>(cg1, Object::toString, Predicate::getAlias));
-		f.setSize(300, 400);
-		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		f.setVisible(true);
-		
-//		f = new JFrame();
-//		GraphPanel<QueryGraphComponent, Void> gp = new GraphPanel<QueryGraphComponent, Void>(cpq1.toIncidenceGraph().toUniqueGraph());
-//		gp.setDirected(false);
-//		f.add(gp);
-//		f.setSize(300, 400);
-//		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		f.setVisible(true);
-		
-		
-		System.out.println("h 1->2: " + cpq1.isHomomorphicTo(cg2));
-		//System.out.println("h 2->1: " + cpq2.isHomomorphicTo(cg1));
-
-		
-	}
-	
 	//requires that source and target node are the same
 	public boolean isHomomorphicTo(UniqueGraph<Vertex, Predicate> graph){
 		merge();
 		
 		//compute a query decomposition
 		Tree<List<QueryGraphComponent>> decomp = Util.computeTreeDecompositionWidth2(toIncidenceGraph());
-		
-		decomp.forEach(t->System.out.println(t.getDepth() + ": " + t.getData()));
-		
-//		//expand each list with dependent variables
-//		decomp.forEach(t->{
-//			List<QueryGraphComponent> data = t.getData();
-//			final int size = data.size();
-//			for(int i = 0; i < size; i++){
-//				if(data.get(i).isEdge()){
-//					Edge edge = (Edge)data.get(i);
-//					
-//					if(!data.contains(edge.src)){
-//						data.add(edge.src);
-//					}
-//					
-//					if(!data.contains(edge.trg)){
-//						data.add(edge.trg);
-//					}
-//				}
-//			}
-//		});
 		
 		//pre compute mappings
 		Map<QueryGraphComponent, List<Object>> known = new HashMap<QueryGraphComponent, List<Object>>();
@@ -361,11 +259,6 @@ public class QueryGraphCPQ{
 			known.put(vertex, matches);
 		}
 		
-		System.out.println("===============");
-		for(Entry<QueryGraphComponent, List<Object>> entry : known.entrySet()){
-			System.out.println(entry.getKey() + " -> " + entry.getValue().stream().map(QueryGraphCPQ::pmap).collect(Collectors.toList()));
-		}
-
 		//copy structure & compute candidate maps
 		Tree<PartialMap> maps = decomp.cloneStructure(PartialMap::new);
 		
@@ -378,13 +271,7 @@ public class QueryGraphCPQ{
 			node.getData().matches = Util.cartesianProduct(sets);
 		});
 		
-		System.out.println("===============");
-		maps.forEach(t->{
-			System.out.println(t.getDepth() + ": " + t.getData().left);
-			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(QueryGraphCPQ::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
-		});
-		
-		//join node bottom up
+		//join nodes bottom up
 		maps.forEachBottomUp(node->{
 			if(!node.isLeaf()){
 				PartialMap map = node.getData();
@@ -394,24 +281,8 @@ public class QueryGraphCPQ{
 			}
 		});
 		
-		System.out.println("===============");
-		maps.forEach(t->{
-			System.out.println(t.getDepth() + ": " + t.getData().left);
-			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(QueryGraphCPQ::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
-		});
-		
 		//a non empty root implies query homomorphism
 		return !maps.getData().matches.isEmpty();
-	}
-	
-	private static String pmap(Object p){
-		if(p instanceof GraphEdge){
-			@SuppressWarnings("unchecked")
-			GraphEdge<Vertex, Predicate> pp = (GraphEdge<Vertex, Predicate>)p;
-			return "(" + pp.getSource() + "," + pp.getTarget() + "," + pp.getData().getAlias() + ")";
-		}else{
-			return p.toString();
-		}
 	}
 	
 	private boolean checkEquivalent(List<Edge> first, Set<GraphEdge<Vertex, Predicate>> second){

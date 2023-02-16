@@ -194,7 +194,22 @@ public class QueryGraphCPQ{
 		return g;
 	}
 	
-	//requires that source and target node are the same
+	/**
+	 * Computes if there is a <b>query</b> homomorphism from this query graph G to the given
+	 * other graph G'. This implies that any edge traversal made in this graph can be mimicked
+	 * in the given other graph. Formally G -> G' or G is contained in G' (as a subgraph).
+	 * <p>
+	 * Note: This method tests for <b>query</b> homomorphism, as such the identity of the source
+	 * and target vertices is extremely important. Specifically, the given other graph should use
+	 * the exact same source and target vertices as this query graph. If not, there will never be
+	 * a query homomorphism. To achieve this it is either possible to reuse the vertices from this
+	 * graph or to manually pass source and target vertices when creating the query graph using
+	 * the {@link CPQ#toQueryGraph(Vertex, Vertex)} method.
+	 * @param graph The other graph to test for query homomorphism to.
+	 * @return True when this query graph is query homomorphic to the given graph.
+	 * @see <a href="https://doi.org/10.1016/S0304-3975(99)00220-0">Chandra Chekuri and Anand Rajaraman,
+	 *      "Conjunctive query containment revisited", in Theoretical Computer Science, vol. 239, 2000, pp. 211-229</a>
+	 */
 	public boolean isHomomorphicTo(UniqueGraph<Vertex, Predicate> graph){
 		merge();
 		
@@ -285,25 +300,6 @@ public class QueryGraphCPQ{
 		return !maps.getData().matches.isEmpty();
 	}
 	
-	private boolean checkEquivalent(List<Edge> first, Set<GraphEdge<Vertex, Predicate>> second){
-		Iterator<Predicate> edges = first.stream().map(e->e.label).sorted().distinct().iterator();
-		Iterator<Predicate> other = second.stream().map(GraphEdge::getData).sorted().distinct().iterator();
-		
-		while(edges.hasNext()){
-			Predicate p = edges.next();
-			
-			while(true){
-				if(!other.hasNext()){
-					return false;
-				}else if(p.equals(other.next())){
-					break;
-				}
-			}
-		}
-		
-		return true;
-	}
-	
 	/**
 	 * Executes the final merge step of the query graph construction algorithm,
 	 * this step merges vertices that need to be merged together into the same
@@ -382,6 +378,34 @@ public class QueryGraphCPQ{
 	@Override
 	public String toString(){
 		return "QueryGraphCPQ[V=" + vertices + ",E=" + edges + ",src=" + source + ",trg=" + target + ",Fid=" + fid + "]";
+	}
+	
+	/**
+	 * Helper method to check if the predicates on the edges in the given
+	 * list all occur at least onces in the given second set of edges.
+	 * @param first The set of edges whose predicates to find.
+	 * @param second The set of edges where the same predicates need to
+	 *        exist at least once.
+	 * @return True if the second set contains all the predicates from
+	 *         the first set at least once.
+	 */
+	private static boolean checkEquivalent(List<Edge> first, Set<GraphEdge<Vertex, Predicate>> second){
+		Iterator<Predicate> edges = first.stream().map(e->e.label).sorted().distinct().iterator();
+		Iterator<Predicate> other = second.stream().map(GraphEdge::getData).sorted().distinct().iterator();
+		
+		while(edges.hasNext()){
+			Predicate p = edges.next();
+			
+			while(true){
+				if(!other.hasNext()){
+					return false;
+				}else if(p.equals(other.next())){
+					break;
+				}
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -520,14 +544,43 @@ public class QueryGraphCPQ{
 		}
 	}
 	
+	/**
+	 * Object used to store partial mapping required for the
+	 * query homomorphism testing algorithm.
+	 * @author Roan
+	 * @see QueryGraphCPQ#isHomomorphicTo(UniqueGraph)
+	 */
 	private static final class PartialMap{
+		/**
+		 * The left hand side of the map, this is the
+		 * side of the map with graph parts that need
+		 * to be matched to equivalent parts in the other graph. 
+		 */
 		private List<QueryGraphComponent> left;
+		/**
+		 * The parts of the other graph that are equivalent
+		 * to the {@link #left} part of the original graph.
+		 */
 		private List<List<Object>> matches;
 		
+		/**
+		 * Constructs a new partial map with the given set
+		 * of graph parts to match to parts of the other graph.
+		 * @param left The parts of the graph to match for.
+		 */
 		private PartialMap(List<QueryGraphComponent> left){
 			this.left = left;
 		}
 		
+		/**
+		 * Performs a natural semi join of this partial map
+		 * with the given other partial map. This is effectively
+		 * a filtering operation where anything in this map
+		 * is dropped if it does not have any overlap with at
+		 * least one list in the given other partial map.
+		 * The result of the semi join is stored in this map.
+		 * @param other The other partial map to join with.
+		 */
 		private void semiJoin(PartialMap other){
 			matches.removeIf(match->{
 				for(List<Object> filter : other.matches){
@@ -542,7 +595,17 @@ public class QueryGraphCPQ{
 			});
 		}
 		
-		private boolean mapContains(List<Object> map, Object item){
+		/**
+		 * Helper method to check if the given map match contains
+		 * the given item. This method will make sure to extract
+		 * vertices from edges as required. An edge is contained
+		 * if at least one of its vertices is present and similarly
+		 * a vertex is present if it is part of an edge.
+		 * @param map The matching map to search.
+		 * @param item The item to search for.
+		 * @return True if the partial map contains the given item.
+		 */
+		private static boolean mapContains(List<Object> map, Object item){
 			if(item instanceof GraphEdge){
 				GraphEdge<?, ?> edge = (GraphEdge<?, ?>)item;
 				return mapContains(map, edge.getSourceNode()) || mapContains(map, edge.getTargetNode());

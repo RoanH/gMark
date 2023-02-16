@@ -41,14 +41,14 @@ import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.UniqueGraph.GraphNode;
 
 public class QueryGraphCPQTest{
+	private static Predicate l1 = new Predicate(1, "a");
+	private static Predicate l2 = new Predicate(2, "b");
+	private static Predicate l3 = new Predicate(3, "c");
+	private static Predicate l4 = new Predicate(4, "d");
 	
 	@Test
 	public void testConstruction() throws Exception{
-		Predicate a = new Predicate(1, "a");
-		Predicate b = new Predicate(2, "b");
-		Predicate c = new Predicate(3, "c");
-		
-		CPQ q = CPQ.intersect(CPQ.concat(CPQ.label(a), CPQ.intersect(CPQ.label(b), CPQ.id()), CPQ.label(c)), CPQ.IDENTITY);
+		CPQ q = CPQ.intersect(CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.label(l2), CPQ.id()), CPQ.label(l3)), CPQ.IDENTITY);
 		assertEquals("((a◦(b ∩ id)◦c) ∩ id)", q.toString());
 
 		QueryGraphCPQ queryGraph = q.toQueryGraph();
@@ -92,22 +92,19 @@ public class QueryGraphCPQTest{
 	
 	@Test
 	public void testRename(){
-		Predicate a = new Predicate(1, "a");
-		Predicate b = new Predicate(2, "b");
-		
 		CPQ cpq = CPQ.concat(
 			CPQ.intersect(
 				CPQ.concat(
-					CPQ.label(a),
+					CPQ.label(l1),
 					CPQ.intersect(
-						CPQ.label(b),
+						CPQ.label(l2),
 						CPQ.id()
 					)
 				),
 				CPQ.id()
 			),
 			CPQ.intersect(
-				CPQ.label(a),
+				CPQ.label(l1),
 				CPQ.id()
 			)
 		);
@@ -173,5 +170,135 @@ public class QueryGraphCPQTest{
 			assertTrue(edge.getFirstVertex().getData() instanceof Edge);
 			assertTrue(edge.getSecondVertex().getData() instanceof Vertex);
 		}
+	}
+	
+	@Test
+	public void homomorphism0(){
+		CPQ q = CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.labels(l2, l4), CPQ.labels(l3, l2)));
+		assertTrue(isHomomorphic(q, q));
+	}
+	
+	@Test
+	public void homomorphism1(){
+		CPQ q = CPQ.concat(CPQ.label(l2), CPQ.intersect(CPQ.labels(l2, l2), CPQ.labels(l2, l2)));
+		assertTrue(isHomomorphic(q, q));
+	}
+	
+	@Test
+	public void homomorphism2(){
+		assertTrue(isHomomorphic(
+			CPQ.concat(CPQ.label(l2), CPQ.intersect(CPQ.labels(l2, l2), CPQ.labels(l2, l2))),
+			CPQ.labels(l2, l2, l2)
+		));
+	}
+	
+	@Test
+	public void homomorphism3(){
+		assertFalse(isHomomorphic(
+			CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.labels(l2, l4), CPQ.labels(l3, l2))),
+			CPQ.labels(l1, l2, l4)
+		));
+	}
+	
+	@Test
+	public void homomorphism4(){
+		assertTrue(isHomomorphic(
+			CPQ.labels(l1, l2, l4),
+			CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.labels(l2, l4), CPQ.labels(l3, l2)))
+		));
+	}
+	
+	@Test
+	public void homomorphism5(){
+		assertTrue(isHomomorphic(
+			CPQ.concat(
+				CPQ.label(l1),
+				CPQ.intersect(
+					CPQ.concat(
+						CPQ.label(l2),
+						CPQ.intersect(CPQ.label(l2), CPQ.id()),
+						CPQ.label(l2)
+					),
+					CPQ.id()
+				)
+			),
+			CPQ.concat(
+				CPQ.label(l1),
+				CPQ.intersect(
+					CPQ.labels(l2, l2, l2),
+					CPQ.id()
+				)
+			)
+		));
+	}
+	
+	@Test
+	public void homomorphism6(){
+		assertTrue(isHomomorphic(
+			CPQ.concat(
+				CPQ.label(l1),
+				CPQ.intersect(
+					CPQ.labels(l2, l2, l2),
+					CPQ.id()
+				)
+			),
+			CPQ.concat(
+				CPQ.label(l1),
+				CPQ.intersect(
+					CPQ.concat(
+						CPQ.label(l2),
+						CPQ.intersect(CPQ.label(l2), CPQ.id()),
+						CPQ.label(l2)
+					),
+					CPQ.id()
+				)
+			)
+		));
+	}
+	
+	@Test
+	public void homomorphism7(){
+		assertTrue(isHomomorphic(
+			CPQ.intersect(CPQ.labels(l1, l1, l1), CPQ.id()),
+			CPQ.intersect(CPQ.labels(l1, l1, l1, l1, l1), CPQ.id())
+		));
+	}
+	
+	@Test
+	public void homomorphism8(){
+		assertTrue(isHomomorphic(
+			CPQ.intersect(CPQ.labels(l1, l1, l1, l1, l1), CPQ.id()),
+			CPQ.intersect(CPQ.labels(l1, l1, l1), CPQ.id())
+		));
+	}
+	
+	@Test
+	public void homomorphism9(){
+		//would be true if the source and target matched up
+		assertFalse(isHomomorphic(
+			CPQ.intersect(
+				CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.label(l1.getInverse()), CPQ.label(l2))),
+				CPQ.labels(l3, l3.getInverse())
+			),
+			CPQ.concat(CPQ.intersect(l1.getInverse(), l2), CPQ.label(l3))
+		));
+	}
+	
+	@Test
+	public void homomorphism10(){
+		//would be true if the source and target matched up
+		assertFalse(isHomomorphic(
+			CPQ.concat(CPQ.intersect(l1.getInverse(), l2), CPQ.label(l3)),
+			CPQ.intersect(
+				CPQ.concat(CPQ.label(l1), CPQ.intersect(CPQ.label(l1.getInverse()), CPQ.label(l2))),
+				CPQ.labels(l3, l3.getInverse())
+			)
+		));
+	}
+	
+	public boolean isHomomorphic(CPQ cpq1, CPQ cpq2){
+		Vertex s = new Vertex();
+		Vertex t = new Vertex();
+		return cpq1.toQueryGraph(s, t).isHomomorphicTo(cpq2.toQueryGraph(s, t).toUniqueGraph());
 	}
 }

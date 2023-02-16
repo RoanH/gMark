@@ -258,6 +258,22 @@ public class Util{
 	}
 	
 	/**
+	 * Creates a new array list populated with the given items.
+	 * @param <T> The type of the data.
+	 * @param items The items to put in the list.
+	 * @return The newly created and populated array list.
+	 * @see ArrayList
+	 */
+	@SafeVarargs
+	public static <T> ArrayList<T> asArrayList(T... items){
+		ArrayList<T> data = new ArrayList<T>();
+		for(T item : items){
+			data.add(item);
+		}
+		return data;
+	}
+	
+	/**
 	 * Computes the tree decomposition of the given input graph
 	 * assuming that the input graph has a tree width of at most 2.
 	 * @param <T> The data type of the graph.
@@ -367,5 +383,57 @@ public class Util{
 		}
 		
 		return matching;
+	}
+	
+	/**
+	 * Computes the cartesian product of the given input sets. For example, for
+	 * the following input sets:
+	 * <pre>
+	 * {
+	 *   {A, B},
+	 *   {C, D},
+	 *   {E}
+	 * }
+	 * </pre>
+	 * The output is as follows:
+	 * <pre>
+	 * {
+	 *   {A, C, E},
+	 *   {A, D, E},
+	 *   {B, C, E},
+	 *   {B, D, E}
+	 * }
+	 * </pre>
+	 * 
+	 * @param <T> The type of the data in the lists.
+	 * @param sets The sets to compute the cartesian product of.
+	 * @return The computed cartesian product of the input sets.
+	 * @throws ArithmeticException When the size of the output list with
+	 *         sets would be more than {@link Integer#MAX_VALUE}.
+	 */
+	public static <T> List<List<T>> cartesianProduct(List<List<T>> sets) throws ArithmeticException{
+		int size = sets.stream().mapToInt(List::size).reduce(StrictMath::multiplyExact).getAsInt();
+		List<List<T>> product = new ArrayList<List<T>>(size);
+		for(int i = 0; i < size; i++){
+			product.add(new ArrayList<T>());
+		}
+		
+		if(size == 0){
+			return product;
+		}
+		
+		for(List<T> set : sets){
+			size /= set.size();
+			
+			int idx = 0;
+			for(int o = 0; idx < product.size(); o++){
+				T obj = set.get(o % set.size());
+				for(int i = 0; i < size; i++){
+					product.get(idx++).add(obj);
+				}
+			}
+		}
+		
+		return product;
 	}
 }

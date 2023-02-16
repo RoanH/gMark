@@ -31,7 +31,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * inverse direction from target to source.
  * @author Roan
  */
-public class Predicate implements OutputXML, OutputSQL{
+public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>{
 	/**
 	 * The unique ID of this predicate. This ID uniquely
 	 * identifies this predicate among all predicates.
@@ -171,5 +171,15 @@ public class Predicate implements OutputXML, OutputSQL{
 		writer.print(isInverse() ? "<symbol inverse=\"true\">" : "<symbol>");
 		writer.print(id);
 		writer.println("</symbol>");
+	}
+
+	@Override
+	public int compareTo(Predicate o){
+		int c = Integer.compare(id, o.id);
+		if(c == 0){
+			c = Boolean.compare(isInverse, o.isInverse);
+		}
+		
+		return c;
 	}
 }

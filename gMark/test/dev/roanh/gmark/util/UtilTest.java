@@ -322,7 +322,6 @@ public class UtilTest{
 		assertEquals(0, prod.size());
 	}
 	
-	
 	private void assertValidTreeDecomposition(Tree<List<String>> decomp, List<String> vertices, List<SimpleEdge<String>> edges){
 		//1. All vertices are in the decomposition
 		Set<String> found = new HashSet<String>();

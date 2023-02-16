@@ -574,7 +574,7 @@ public class QueryGraphCPQ{
 		}
 		
 		/**
-		 * Performs a natural semi join of this partial map
+		 * Performs a natural left semi join of this partial map
 		 * with the given other partial map. This is effectively
 		 * a filtering operation where anything in this map
 		 * is dropped if it does not have any overlap with at

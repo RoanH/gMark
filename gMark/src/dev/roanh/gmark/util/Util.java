@@ -418,6 +418,10 @@ public class Util{
 			product.add(new ArrayList<T>());
 		}
 		
+		if(size == 0){
+			return product;
+		}
+		
 		for(List<T> set : sets){
 			size /= set.size();
 			

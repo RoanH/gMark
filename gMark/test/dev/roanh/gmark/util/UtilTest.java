@@ -310,6 +310,19 @@ public class UtilTest{
 		assertIterableEquals(Arrays.asList("0", "c", "e", "g"), prod.get(11));
 	}
 	
+	@Test
+	public void testCartesian2(){
+		List<List<String>> prod = Util.cartesianProduct(Arrays.asList(
+			Arrays.asList(),
+			Arrays.asList("a", "b", "c"),
+			Arrays.asList("d", "e"),
+			Arrays.asList("f", "g")
+		));
+		
+		assertEquals(0, prod.size());
+	}
+	
+	
 	private void assertValidTreeDecomposition(Tree<List<String>> decomp, List<String> vertices, List<SimpleEdge<String>> edges){
 		//1. All vertices are in the decomposition
 		Set<String> found = new HashSet<String>();

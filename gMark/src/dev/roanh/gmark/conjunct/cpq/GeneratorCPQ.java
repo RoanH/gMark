@@ -179,6 +179,10 @@ public class GeneratorCPQ implements ConjunctGenerator{
 			);
 		}
 		
+		if(query.equals("id")){
+			return CPQ.IDENTITY;
+		}
+		
 		boolean inv = false;
 		if(query.charAt(query.length() - 1) == CPQ.CHAR_INVERSE){
 			inv = true;

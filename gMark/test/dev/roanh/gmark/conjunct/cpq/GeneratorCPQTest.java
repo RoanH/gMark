@@ -102,4 +102,14 @@ public class GeneratorCPQTest{
 	public void parse4(){
 		assertThrows(IllegalArgumentException.class, ()->CPQ.parse("a ∩ b ∩ c)"));
 	}
+	
+	@Test
+	public void parse5(){
+		assertEquals(CPQ.IDENTITY, CPQ.parse("id"));
+	}
+	
+	@Test
+	public void parse6(){
+		assertEquals("(b◦(a ∩ id))", CPQ.parse("b ◦ (a ∩ id)").toString());
+	}
 }

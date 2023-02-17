@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -276,6 +277,10 @@ public class QueryGraphCPQ{
 			known.put(vertex, matches);
 		}
 		
+		for(Entry<QueryGraphComponent, List<Object>> entry : known.entrySet()){
+			System.out.println(entry.getKey() + " -> " + entry.getValue().stream().map(this::pmap).collect(Collectors.toList()));
+		}
+		
 		//copy structure & compute candidate maps
 		Tree<PartialMap> maps = decomp.cloneStructure(PartialMap::new);
 		
@@ -288,6 +293,12 @@ public class QueryGraphCPQ{
 			node.getData().matches = Util.cartesianProduct(sets);
 		});
 		
+		System.out.println("===============");
+		maps.forEach(t->{
+			System.out.println(t.getDepth() + ": " + t.getData().left);
+			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
+		});
+		
 		//join nodes bottom up
 		maps.forEachBottomUp(node->{
 			if(!node.isLeaf()){
@@ -298,9 +309,26 @@ public class QueryGraphCPQ{
 			}
 		});
 		
+		System.out.println("===============");
+		maps.forEach(t->{
+			System.out.println(t.getDepth() + ": " + t.getData().left);
+			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
+		});
+
 		//a non empty root implies query homomorphism
 		return !maps.getData().matches.isEmpty();
 	}
+	
+	private String pmap(Object p){
+		if(p instanceof GraphEdge){
+			@SuppressWarnings("unchecked")
+			GraphEdge<Vertex, Predicate> pp = (GraphEdge<Vertex, Predicate>)p;
+			return "(" + pp.getSource() + "," + pp.getTarget() + "," + pp.getData().getAlias() + ")";
+		}else{
+			return p.toString();
+		}
+	}
+
 	
 	public UniqueGraph<Vertex, Predicate> computeCore(){
 		UniqueGraph<Vertex, Predicate> core = toUniqueGraph();
@@ -310,6 +338,9 @@ public class QueryGraphCPQ{
 			edge.remove();
 			if(!isHomomorphicTo(core)){
 				edge.restore();
+				System.out.println("Restore: " + edge);
+			}else{
+				System.out.println("Permanently remove: " + edge);
 			}
 		}
 		
@@ -320,6 +351,7 @@ public class QueryGraphCPQ{
 	public static void main(String[] args){
 		while(true){
 			CPQ q = CPQ.generateRandomCPQ(5, 2);
+//			CPQ q = CPQ.parse("(0◦(((1◦0) ∩ (1◦1))◦1⁻))");
 			System.out.println("test: " + q);
 			
 			QueryGraphCPQ g = q.toQueryGraph();
@@ -329,8 +361,8 @@ public class QueryGraphCPQ{
 			}
 			
 			System.out.println("core found!");
-			GraphPanel.show(g);
-			GraphPanel.show(core, g::getVertexLabel, Predicate::getAlias);
+			GraphPanel.show(g.toUniqueGraph(), v->g.getVertexLabel(v) + "/" + v.toString(), Predicate::getAlias);
+			GraphPanel.show(core, v->g.getVertexLabel(v) + "/" + v.toString(), Predicate::getAlias);
 			
 			return;
 		}

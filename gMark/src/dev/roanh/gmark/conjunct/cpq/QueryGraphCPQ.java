@@ -28,9 +28,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.swing.undo.UndoManager;
-
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.GraphPanel;
 import dev.roanh.gmark.util.SimpleGraph;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.Tree;
@@ -314,7 +313,24 @@ public class QueryGraphCPQ{
 			}
 		}
 		
+		core.removeNodeIf(n->n.getInCount() == 0 && n.getOutCount() == 0);
 		return core;
+	}
+	
+	public static void main(String[] args){
+		Predicate a = new Predicate(1, "a");
+		Predicate b = new Predicate(2, "b");
+		
+		CPQ ab = CPQ.labels(a, b);
+
+		CPQ test = CPQ.intersect(ab, ab);
+		
+		QueryGraphCPQ g = test.toQueryGraph();
+		GraphPanel.show(g);
+		
+		UniqueGraph<Vertex, Predicate> core = g.computeCore();
+		
+		GraphPanel.show(core, g::getVertexLabel, Predicate::getAlias);
 	}
 	
 	/**

@@ -318,6 +318,25 @@ public class QueryGraphCPQ{
 	}
 	
 	public static void main(String[] args){
+		while(true){
+			CPQ q = CPQ.generateRandomCPQ(5, 2);
+			System.out.println("test: " + q);
+			
+			QueryGraphCPQ g = q.toQueryGraph();
+			UniqueGraph<Vertex, Predicate> core = g.computeCore();
+			if(g.getEdgeCount() == core.getEdgeCount()){
+				continue;
+			}
+			
+			System.out.println("core found!");
+			GraphPanel.show(g);
+			GraphPanel.show(core, g::getVertexLabel, Predicate::getAlias);
+			
+			return;
+		}
+	}
+	
+	public static void main1(String[] args){
 		Predicate a = new Predicate(1, "a");
 		Predicate b = new Predicate(2, "b");
 		

@@ -18,7 +18,10 @@
  */
 package dev.roanh.gmark.conjunct.cpq;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.ConjunctGenerator;
@@ -146,6 +149,78 @@ public class GeneratorCPQ implements ConjunctGenerator{
 				return CPQ.intersect(generatePlainCPQ(split, true, labels), generatePlainCPQ(ruleApplications - split - 1, false, labels));
 			}
 		}
+	}
+	
+	public static CPQ parse(String query){
+		return parse(query, new HashMap<String, Predicate>());
+	}
+	
+	private static CPQ parse(String query, Map<String, Predicate> labels) throws IllegalArgumentException{
+		if(query.startsWith("(") && query.endsWith(")")){
+			query = query.substring(1, query.length() - 1);
+		}
+		
+		List<String> parts = split(query, CPQ.CHAR_JOIN);
+		if(parts.size() > 1){
+			return CPQ.concat(parts.stream().map(part->{
+				return parse(part, labels);
+			}).collect(Collectors.toList()));
+		}
+		
+		parts = split(query, CPQ.CHAR_CAP);
+		if(parts.size() > 1){
+			if(parts.size() > 2){
+				throw new IllegalArgumentException("No brackets around intersection, please use brackets to chain conjuction.");
+			}
+			
+			return CPQ.intersect(
+				parse(parts.get(0), labels),
+				parse(parts.get(1), labels)
+			);
+		}
+		
+		boolean inv = false;
+		if(query.charAt(query.length() - 1) == CPQ.CHAR_INVERSE){
+			inv = true;
+			query = query.substring(0, query.length() - 1);
+		}
+		
+		Predicate label = labels.computeIfAbsent(query, k->new Predicate(labels.size(), k));
+		return CPQ.label(inv ? label.getInverse() : label);
+	}
+	
+	protected static List<String> split(String str, char symbol) throws IllegalArgumentException{
+		List<String> parts = new ArrayList<String>();
+		
+		int start = 0;
+		for(int i = 0; i < str.length(); i++){
+			if(str.charAt(i) == '('){
+				i++;
+				int open = 1;
+				while(true){
+					if(str.charAt(i) == '('){
+						open++;
+					}else if(str.charAt(i) == ')'){
+						open--;
+						if(open == 0){
+							break;
+						}
+					}
+					
+					i++;
+					if(i >= str.length()){
+						throw new IllegalArgumentException("Unbalanced brackets.");
+					}
+				}
+			}else if(str.charAt(i) == symbol){
+				parts.add(str.substring(start, i).trim());
+				start = i + 1;
+			}
+		}
+		
+		parts.add(str.substring(start, str.length()).trim());
+
+		return parts;
 	}
 
 	@Override

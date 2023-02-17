@@ -21,6 +21,7 @@ package dev.roanh.gmark.conjunct.cpq;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -294,6 +295,38 @@ public class QueryGraphCPQTest{
 				CPQ.labels(l3, l3.getInverse())
 			)
 		));
+	}
+	
+	@Test
+	public void core0(){
+		QueryGraphCPQ g = CPQ.intersect(CPQ.labels(l1, l2), CPQ.labels(l1, l2)).toQueryGraph();
+		
+		UniqueGraph<Vertex, Predicate> core = g.computeCore();
+		assertEquals(3, core.getNodeCount());
+		assertEquals(2, core.getEdgeCount());
+		
+		//src -a-> n -b-> trg
+		GraphNode<Vertex, Predicate> node = core.getNode(g.getSourceVertex());
+		assertEquals(g.getSourceVertex(), node.getData());
+		assertNotEquals(g.getTargetVertex(), node.getData());
+		assertEquals(0, node.getInCount());
+		assertEquals(1, node.getOutCount());
+		assertEquals(l1, node.getOutEdges().iterator().next().getData());
+		
+		node = node.getOutEdges().iterator().next().getTargetNode();
+		assertNotEquals(g.getSourceVertex(), node.getData());
+		assertNotEquals(g.getTargetVertex(), node.getData());
+		assertEquals(1, node.getInCount());
+		assertEquals(1, node.getOutCount());
+		assertEquals(l1, node.getInEdges().iterator().next().getData());
+		assertEquals(l2, node.getOutEdges().iterator().next().getData());
+		
+		node = node.getOutEdges().iterator().next().getTargetNode();
+		assertNotEquals(g.getSourceVertex(), node.getData());
+		assertEquals(g.getTargetVertex(), node.getData());
+		assertEquals(1, node.getInCount());
+		assertEquals(0, node.getOutCount());
+		assertEquals(l2, node.getInEdges().iterator().next().getData());
 	}
 	
 	public boolean isHomomorphic(CPQ cpq1, CPQ cpq2){

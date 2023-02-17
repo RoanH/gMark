@@ -28,6 +28,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.swing.undo.UndoManager;
+
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.util.SimpleGraph;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
@@ -299,6 +301,20 @@ public class QueryGraphCPQ{
 		
 		//a non empty root implies query homomorphism
 		return !maps.getData().matches.isEmpty();
+	}
+	
+	public UniqueGraph<Vertex, Predicate> computeCore(){
+		UniqueGraph<Vertex, Predicate> core = toUniqueGraph();
+		
+		List<GraphEdge<Vertex, Predicate>> edges = new ArrayList<GraphEdge<Vertex, Predicate>>(core.getEdges());
+		for(GraphEdge<Vertex, Predicate> edge : edges){
+			edge.remove();
+			if(!isHomomorphicTo(core)){
+				edge.restore();
+			}
+		}
+		
+		return core;
 	}
 	
 	/**

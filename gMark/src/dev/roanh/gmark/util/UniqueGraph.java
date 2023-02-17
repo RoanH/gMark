@@ -584,6 +584,24 @@ public class UniqueGraph<V, E>{
 		}
 		
 		/**
+		 * If this edge was previously removed from the 
+		 * graph using {@link #remove()} this method can
+		 * be used to add the edge back to the graph. If
+		 * an equivalent edge was added in the mean time
+		 * then the edge is not restored.
+		 * @return True if the edge was restored, false
+		 *         if an equivalent edge was already present.
+		 */
+		public boolean restore(){
+			if(source.out.add(this) && source.in.add(this)){
+				source.graph.edges.add(this);
+				return true;
+			}else{
+				return false;
+			}
+		}
+		
+		/**
 		 * Gets the source node for this edge.
 		 * @return The source node for this edge.
 		 * @see #getSource()

@@ -346,6 +346,21 @@ public class QueryGraphCPQTest{
 		assertEquals(3, core.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).filter("1"::equals).count());
 	}
 	
+	@Test
+	public void core2(){
+		QueryGraphCPQ g = CPQ.parse("((1⁻ ∩ 1⁻)◦((1 ∩ id) ∩ (0⁻ ∩ ((((1⁻ ∩ 0)◦1⁻) ∩ 0) ∩ (1⁻ ∩ id)))))").toQueryGraph();
+		UniqueGraph<Vertex, Predicate> core = g.computeCore();
+		assertEquals(2, core.getNodeCount());
+		assertEquals(5, core.getEdgeCount());
+		assertEquals(2, core.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).filter("0"::equals).count());
+		assertEquals(3, core.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).filter("1"::equals).count());
+		assertEquals(g.getSourceVertex(), core.getNode(g.getTargetVertex()).getData());
+		assertEquals(g.getTargetVertex(), core.getNode(g.getSourceVertex()).getData());
+		assertEquals(4, core.getNode(g.getSourceVertex()).getOutCount());
+		assertEquals(3, core.getNode(g.getSourceVertex()).getInCount());
+	}
+	
+	
 	public boolean isHomomorphic(CPQ cpq1, CPQ cpq2){
 		Vertex s = new Vertex();
 		Vertex t = new Vertex();

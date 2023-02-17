@@ -276,23 +276,31 @@ public class QueryGraphCPQ{
 					continue;
 				}
 				
-				List<Edge> out = outEdges.get(edge.src);
-				if(!checkEquivalent(out, other.getSourceNode().getOutEdges())){
+//				List<Edge> out = outEdges.get(edge.src);
+//				if(!checkEquivalent(out, other.getSourceNode().getOutEdges())){
+//					continue;
+//				}
+//				
+//				List<Edge> in = inEdges.get(edge.src);
+//				if(!checkEquivalent(in, other.getSourceNode().getInEdges())){
+//					continue;
+//				}
+//				
+//				out = outEdges.get(edge.trg);
+//				if(!checkEquivalent(out, other.getTargetNode().getOutEdges())){
+//					continue;
+//				}
+//				
+//				in = inEdges.get(edge.trg);
+//				if(!checkEquivalent(in, other.getTargetNode().getInEdges())){
+//					continue;
+//				}
+				
+				if(!known.get(edge.src).contains(other.getSourceNode())){
 					continue;
 				}
 				
-				List<Edge> in = inEdges.get(edge.src);
-				if(!checkEquivalent(in, other.getSourceNode().getInEdges())){
-					continue;
-				}
-				
-				out = outEdges.get(edge.trg);
-				if(!checkEquivalent(out, other.getTargetNode().getOutEdges())){
-					continue;
-				}
-				
-				in = inEdges.get(edge.trg);
-				if(!checkEquivalent(in, other.getTargetNode().getInEdges())){
+				if(!known.get(edge.trg).contains(other.getTargetNode())){
 					continue;
 				}
 				
@@ -344,15 +352,15 @@ public class QueryGraphCPQ{
 		return !maps.getData().matches.isEmpty();
 	}
 	
-//	private String pmap(Object p){
-//		if(p instanceof GraphEdge){
-//			@SuppressWarnings("unchecked")
-//			GraphEdge<Vertex, Predicate> pp = (GraphEdge<Vertex, Predicate>)p;
-//			return "(" + pp.getSource() + "," + pp.getTarget() + "," + pp.getData().getAlias() + ")";
-//		}else{
-//			return p.toString();
-//		}
-//	}
+	private String pmap(Object p){
+		if(p instanceof GraphEdge){
+			@SuppressWarnings("unchecked")
+			GraphEdge<Vertex, Predicate> pp = (GraphEdge<Vertex, Predicate>)p;
+			return "(" + pp.getSource() + "," + pp.getTarget() + "," + pp.getData().getAlias() + ")";
+		}else{
+			return p.toString();
+		}
+	}
 
 	
 	public UniqueGraph<Vertex, Predicate> computeCore(){
@@ -360,7 +368,11 @@ public class QueryGraphCPQ{
 		
 		List<GraphEdge<Vertex, Predicate>> edges = new ArrayList<GraphEdge<Vertex, Predicate>>(core.getEdges());
 		for(GraphEdge<Vertex, Predicate> edge : edges){
-			edge.remove();
+			edge.remove();//TODO this should follow label deletion rules - so for join edges we have some more rewriting to do
+			//TODO can we still detect what was from intersection and what was from join?
+			//TODO do we need to merge vertices before testing homomorphism or is after also fine?
+			//TODO is it possible for source and target to become the same node? If so how do we deal with this -- probably not possible
+			
 			if(!isHomomorphicTo(core)){
 				edge.restore();
 				System.out.println("Restore: " + edge);
@@ -369,15 +381,18 @@ public class QueryGraphCPQ{
 			}
 		}
 		
-		core.removeNodeIf(n->n.getInCount() == 0 && n.getOutCount() == 0);
+//		core.removeNodeIf(n->n.getInCount() == 0 && n.getOutCount() == 0);
 		return core;
 	}
 	
 	public static void main(String[] args){
 		while(true){
 //			CPQ q = CPQ.generateRandomCPQ(2*5, 2);
-			CPQ q = CPQ.parse("(((0⁻◦1) ∩ id)◦(((1 ∩ ((0◦0⁻)◦1))◦((1 ∩ id)◦0)) ∩ 0⁻))");
+			CPQ q = CPQ.parse("((0◦(((0◦0⁻) ∩ ((1◦1) ∩ (1⁻ ∩ id)))◦1⁻))◦(1⁻◦(0⁻◦1)))");
 			System.out.println("test: " + q);
+			
+			//TODO wrong: disconnected: ((0◦(((0◦0⁻) ∩ ((1◦1) ∩ (1⁻ ∩ id)))◦1⁻))◦(1⁻◦(0⁻◦1)))
+			//maybe force edges between mapped vertices
 			
 			QueryGraphCPQ g = q.toQueryGraph();
 			UniqueGraph<Vertex, Predicate> core = g.computeCore();

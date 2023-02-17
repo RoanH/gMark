@@ -298,6 +298,14 @@ public class QueryGraphCPQTest{
 	}
 	
 	@Test
+	public void homomorphism11(){
+		assertFalse(isHomomorphic(
+			CPQ.parse("(0◦(((1◦0) ∩ (1◦1))◦1⁻))"),
+			CPQ.parse("(0◦((1◦0)◦1⁻))")
+		));
+	}
+	
+	@Test
 	public void core0(){
 		QueryGraphCPQ g = CPQ.intersect(CPQ.labels(l1, l2), CPQ.labels(l1, l2)).toQueryGraph();
 		

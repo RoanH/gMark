@@ -230,24 +230,8 @@ public class QueryGraphCPQ{
 		}
 		
 		for(Edge edge : edges){
-			List<Object> matches = new ArrayList<Object>();
-			for(GraphEdge<Vertex, Predicate> other : graph.getEdges()){
-				if((edge.src == source) ^ (other.getSource() == source)){
-					continue;
-				}
-				
-				if((edge.trg == target) ^ (other.getTarget() == target)){
-					continue;
-				}
-				
-				if(other.getData().equals(edge.label)){
-					matches.add(other);
-				}
-			}
-			
 			outEdges.get(edge.src).add(edge);
 			inEdges.get(edge.trg).add(edge);
-			known.put(edge, matches);
 		}
 		
 		for(Vertex vertex : vertices){
@@ -277,10 +261,51 @@ public class QueryGraphCPQ{
 			known.put(vertex, matches);
 		}
 		
-		for(Entry<QueryGraphComponent, List<Object>> entry : known.entrySet()){
-			System.out.println(entry.getKey() + " -> " + entry.getValue().stream().map(this::pmap).collect(Collectors.toList()));
+		for(Edge edge : edges){
+			List<Object> matches = new ArrayList<Object>();
+			for(GraphEdge<Vertex, Predicate> other : graph.getEdges()){
+				if((edge.src == source) ^ (other.getSource() == source)){
+					continue;
+				}
+				
+				if((edge.trg == target) ^ (other.getTarget() == target)){
+					continue;
+				}
+				
+				if(!other.getData().equals(edge.label)){
+					continue;
+				}
+				
+				List<Edge> out = outEdges.get(edge.src);
+				if(!checkEquivalent(out, other.getSourceNode().getOutEdges())){
+					continue;
+				}
+				
+				List<Edge> in = inEdges.get(edge.src);
+				if(!checkEquivalent(in, other.getSourceNode().getInEdges())){
+					continue;
+				}
+				
+				out = outEdges.get(edge.trg);
+				if(!checkEquivalent(out, other.getTargetNode().getOutEdges())){
+					continue;
+				}
+				
+				in = inEdges.get(edge.trg);
+				if(!checkEquivalent(in, other.getTargetNode().getInEdges())){
+					continue;
+				}
+				
+				matches.add(other);
+			}
+			
+			known.put(edge, matches);
 		}
 		
+//		for(Entry<QueryGraphComponent, List<Object>> entry : known.entrySet()){
+//			System.out.println(entry.getKey() + " -> " + entry.getValue().stream().map(this::pmap).collect(Collectors.toList()));
+//		}
+//		
 		//copy structure & compute candidate maps
 		Tree<PartialMap> maps = decomp.cloneStructure(PartialMap::new);
 		
@@ -293,11 +318,11 @@ public class QueryGraphCPQ{
 			node.getData().matches = Util.cartesianProduct(sets);
 		});
 		
-		System.out.println("===============");
-		maps.forEach(t->{
-			System.out.println(t.getDepth() + ": " + t.getData().left);
-			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
-		});
+//		System.out.println("===============");
+//		maps.forEach(t->{
+//			System.out.println(t.getDepth() + ": " + t.getData().left);
+//			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
+//		});
 		
 		//join nodes bottom up
 		maps.forEachBottomUp(node->{
@@ -309,25 +334,25 @@ public class QueryGraphCPQ{
 			}
 		});
 		
-		System.out.println("===============");
-		maps.forEach(t->{
-			System.out.println(t.getDepth() + ": " + t.getData().left);
-			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
-		});
+//		System.out.println("===============");
+//		maps.forEach(t->{
+//			System.out.println(t.getDepth() + ": " + t.getData().left);
+//			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
+//		});
 
 		//a non empty root implies query homomorphism
 		return !maps.getData().matches.isEmpty();
 	}
 	
-	private String pmap(Object p){
-		if(p instanceof GraphEdge){
-			@SuppressWarnings("unchecked")
-			GraphEdge<Vertex, Predicate> pp = (GraphEdge<Vertex, Predicate>)p;
-			return "(" + pp.getSource() + "," + pp.getTarget() + "," + pp.getData().getAlias() + ")";
-		}else{
-			return p.toString();
-		}
-	}
+//	private String pmap(Object p){
+//		if(p instanceof GraphEdge){
+//			@SuppressWarnings("unchecked")
+//			GraphEdge<Vertex, Predicate> pp = (GraphEdge<Vertex, Predicate>)p;
+//			return "(" + pp.getSource() + "," + pp.getTarget() + "," + pp.getData().getAlias() + ")";
+//		}else{
+//			return p.toString();
+//		}
+//	}
 
 	
 	public UniqueGraph<Vertex, Predicate> computeCore(){
@@ -350,8 +375,8 @@ public class QueryGraphCPQ{
 	
 	public static void main(String[] args){
 		while(true){
-			CPQ q = CPQ.generateRandomCPQ(5, 2);
-//			CPQ q = CPQ.parse("(0◦(((1◦0) ∩ (1◦1))◦1⁻))");
+//			CPQ q = CPQ.generateRandomCPQ(2*5, 2);
+			CPQ q = CPQ.parse("(((0⁻◦1) ∩ id)◦(((1 ∩ ((0◦0⁻)◦1))◦((1 ∩ id)◦0)) ∩ 0⁻))");
 			System.out.println("test: " + q);
 			
 			QueryGraphCPQ g = q.toQueryGraph();

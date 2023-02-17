@@ -337,6 +337,15 @@ public class QueryGraphCPQTest{
 		assertEquals(l2, node.getInEdges().iterator().next().getData());
 	}
 	
+	@Test
+	public void core1(){
+		UniqueGraph<Vertex, Predicate> core = CPQ.parse("(((0⁻◦1) ∩ id)◦(((1 ∩ ((0◦0⁻)◦1))◦((1 ∩ id)◦0)) ∩ 0⁻))").toQueryGraph().computeCore();
+		assertEquals(5, core.getNodeCount());
+		assertEquals(7, core.getEdgeCount());
+		assertEquals(4, core.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).filter("0"::equals).count());
+		assertEquals(3, core.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).filter("1"::equals).count());
+	}
+	
 	public boolean isHomomorphic(CPQ cpq1, CPQ cpq2){
 		Vertex s = new Vertex();
 		Vertex t = new Vertex();

@@ -593,7 +593,7 @@ public class UniqueGraph<V, E>{
 		 *         if an equivalent edge was already present.
 		 */
 		public boolean restore(){
-			if(source.out.add(this) && source.in.add(this)){
+			if(source.out.add(this) && target.in.add(this)){
 				source.graph.edges.add(this);
 				return true;
 			}else{

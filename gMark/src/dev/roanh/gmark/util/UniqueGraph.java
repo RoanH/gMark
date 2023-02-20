@@ -288,7 +288,7 @@ public class UniqueGraph<V, E>{
 		UniqueGraph<V, E> copy = new UniqueGraph<V, E>();
 		
 		for(GraphNode<V, E> node : nodes){
-			copy.addUniqueNode(node.data);
+			copy.addUniqueNode(node.getData());
 		}
 		
 		for(GraphEdge<V, E> edge : edges){

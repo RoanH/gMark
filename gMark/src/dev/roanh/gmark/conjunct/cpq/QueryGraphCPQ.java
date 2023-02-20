@@ -463,7 +463,7 @@ public class QueryGraphCPQ{
 		
 		
 		
-//		core.removeNodeIf(n->n.getInCount() == 0 && n.getOutCount() == 0);
+		core.removeNodeIf(n->n.getInCount() == 0 && n.getOutCount() == 0);
 		return core;
 	}
 	
@@ -471,10 +471,10 @@ public class QueryGraphCPQ{
 		while(true){
 			//CPQ q = CPQ.generateRandomCPQ(2*5, 2);
 //			CPQ q = CPQ.parse("(((0 ∩ (0⁻◦1⁻))◦1) ∩ (((0⁻◦0)◦(0◦0⁻)) ∩ ((1 ∩ 1)◦1)))");
-			//CPQ q = CPQ.parse("((0◦(((0◦0⁻) ∩ ((1◦1) ∩ (1⁻ ∩ id)))◦1⁻))◦(1⁻◦(0⁻◦1)))");
+			CPQ q = CPQ.parse("((0◦(((0◦0⁻) ∩ ((1◦1) ∩ (1⁻ ∩ id)))◦1⁻))◦(1⁻◦(0⁻◦1)))");
 			
 //			CPQ q = CPQ.parse("((0◦0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0◦0))");
-			CPQ q = CPQ.parse("((0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0))");
+//			CPQ q = CPQ.parse("((0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0))");
 
 			
 			

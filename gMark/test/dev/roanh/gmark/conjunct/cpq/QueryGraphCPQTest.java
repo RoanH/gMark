@@ -259,7 +259,7 @@ public class QueryGraphCPQTest{
 	
 	@Test
 	public void homomorphism7(){
-		assertTrue(isHomomorphic(
+		assertFalse(isHomomorphic(
 			CPQ.intersect(CPQ.labels(l1, l1, l1), CPQ.id()),
 			CPQ.intersect(CPQ.labels(l1, l1, l1, l1, l1), CPQ.id())
 		));
@@ -267,7 +267,7 @@ public class QueryGraphCPQTest{
 	
 	@Test
 	public void homomorphism8(){
-		assertTrue(isHomomorphic(
+		assertFalse(isHomomorphic(
 			CPQ.intersect(CPQ.labels(l1, l1, l1, l1, l1), CPQ.id()),
 			CPQ.intersect(CPQ.labels(l1, l1, l1), CPQ.id())
 		));

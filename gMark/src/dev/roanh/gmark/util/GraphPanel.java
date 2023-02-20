@@ -261,7 +261,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	
 	/**
 	 * Utility subroutine to show the query graph of the given CPQ in a JFrame.
-	 * @param q THe CPQ to display.
+	 * @param q The CPQ to display.
 	 */
 	public static void show(CPQ q){
 		show(q.toQueryGraph());
@@ -269,7 +269,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	
 	/**
 	 * Utility subroutine to show the given CPQ query graph in a JFrame.
-	 * @param cpq THe CPQ to display.
+	 * @param cpq The CPQ to display.
 	 */
 	public static void show(QueryGraphCPQ cpq){
 		show(cpq.toUniqueGraph(), cpq::getVertexLabel, Predicate::getAlias);

@@ -231,6 +231,18 @@ public class GeneratorCPQ implements ConjunctGenerator{
 		return CPQ.label(inv ? label.getInverse() : label);
 	}
 	
+	/**
+	 * Splits the given string into parts on the given character.
+	 * The given character will not be returned in an parts and
+	 * the found parts will bee trimmed of leading and trailing
+	 * whitespace. This method will ignore any regions of the
+	 * input string that are enclosed in (nested) round brackets.
+	 * @param str The string to split.
+	 * @param symbol The character to split on.
+	 * @return The input string split on the given character.
+	 * @throws IllegalArgumentException When brackets are present
+	 *         in the given string, but not balanced properly.
+	 */
 	protected static List<String> split(String str, char symbol) throws IllegalArgumentException{
 		List<String> parts = new ArrayList<String>();
 		

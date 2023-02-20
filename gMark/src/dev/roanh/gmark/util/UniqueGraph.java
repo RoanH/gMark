@@ -280,6 +280,10 @@ public class UniqueGraph<V, E>{
 		return adj;
 	}
 	
+	/**
+	 * Makes a deep copy of this graph.
+	 * @return The copy of this graph.
+	 */
 	public UniqueGraph<V, E> copy(){
 		UniqueGraph<V, E> copy = new UniqueGraph<V, E>();
 		
@@ -340,6 +344,13 @@ public class UniqueGraph<V, E>{
 			this.data = data;
 		}
 		
+		/**
+		 * Renames this node to the given replacement node.
+		 * This procedure will remove this node from the graph
+		 * and move all edges originally attached to this node
+		 * to the given replacement node.
+		 * @param replacement The replacement node.
+		 */
 		public void rename(GraphNode<V, E> replacement){
 			for(GraphEdge<V, E> edge : new ArrayList<GraphEdge<V, E>>(out)){
 				edge.source = replacement;
@@ -350,6 +361,9 @@ public class UniqueGraph<V, E>{
 				edge.target = replacement;
 				replacement.in.add(edge);
 			}
+			
+			graph.nodes.remove(this);
+			graph.nodeMap.remove(data);
 		}
 		
 		/**

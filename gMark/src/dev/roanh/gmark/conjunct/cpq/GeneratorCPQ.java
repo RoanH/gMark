@@ -233,8 +233,8 @@ public class GeneratorCPQ implements ConjunctGenerator{
 	
 	/**
 	 * Splits the given string into parts on the given character.
-	 * The given character will not be returned in an parts and
-	 * the found parts will bee trimmed of leading and trailing
+	 * The given character will not be returned in any parts and
+	 * the found parts will be trimmed of leading and trailing
 	 * whitespace. This method will ignore any regions of the
 	 * input string that are enclosed in (nested) round brackets.
 	 * @param str The string to split.

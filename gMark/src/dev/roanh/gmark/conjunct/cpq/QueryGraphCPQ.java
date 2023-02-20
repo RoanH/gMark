@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.util.GraphPanel;
 import dev.roanh.gmark.util.SimpleGraph;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.Tree;
@@ -341,6 +340,11 @@ public class QueryGraphCPQ{
 		return !maps.getData().matches.isEmpty();
 	}
 	
+	/**
+	 * Computes the core of this CPQ query graph. The core is the smallest
+	 * graph query homomorphically equivalent to this CPQ query graph.
+	 * @return The core of this CPQ query graph.
+	 */
 	public UniqueGraph<Vertex, Predicate> computeCore(){
 		UniqueGraph<Vertex, Predicate> core = toUniqueGraph();
 		

@@ -350,35 +350,11 @@ public class QueryGraphCPQ{
 
 			if(!isHomomorphicTo(core)){
 				edge.restore();
-				System.out.println("Restore: " + edge);
 			}
 		}
 		
 		core.removeNodeIf(n->n.getInCount() == 0 && n.getOutCount() == 0);
 		return core;
-	}
-	
-	public static void main(String[] args){
-		while(true){
-			CPQ q = CPQ.generateRandomCPQ(2*5, 2);
-			
-			QueryGraphCPQ g = q.toQueryGraph();
-			UniqueGraph<Vertex, Predicate> core = g.computeCore();
-			
-			g.isHomomorphicTo(core);
-			
-			if(g.getEdgeCount() == core.getEdgeCount()){
-				System.out.println("Core not found");
-				continue;
-			}
-			
-			System.out.println("CORE FOUND!");
-			
-			GraphPanel.show(g.toUniqueGraph(), v->g.getVertexLabel(v) + "/" + v.toString(), Predicate::getAlias);
-			GraphPanel.show(core, v->g.getVertexLabel(v) + "/" + v.toString(), Predicate::getAlias);
-			
-			return;
-		}
 	}
 	
 	/**

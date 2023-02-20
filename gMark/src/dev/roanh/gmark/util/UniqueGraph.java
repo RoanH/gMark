@@ -281,6 +281,24 @@ public class UniqueGraph<V, E>{
 	}
 	
 	/**
+	 * Makes a deep copy of this graph.
+	 * @return The copy of this graph.
+	 */
+	public UniqueGraph<V, E> copy(){
+		UniqueGraph<V, E> copy = new UniqueGraph<V, E>();
+		
+		for(GraphNode<V, E> node : nodes){
+			copy.addUniqueNode(node.getData());
+		}
+		
+		for(GraphEdge<V, E> edge : edges){
+			copy.addUniqueEdge(edge.getSource(), edge.getTarget(), edge.getData());
+		}
+		
+		return copy;
+	}
+	
+	/**
 	 * Represents a single node in the graph that is
 	 * uniquely identifiable by some data.
 	 * @author Roan
@@ -324,6 +342,28 @@ public class UniqueGraph<V, E>{
 			this.id = id;
 			this.graph = graph;
 			this.data = data;
+		}
+		
+		/**
+		 * Renames this node to the given replacement node.
+		 * This procedure will remove this node from the graph
+		 * and move all edges originally attached to this node
+		 * to the given replacement node.
+		 * @param replacement The replacement node.
+		 */
+		public void rename(GraphNode<V, E> replacement){
+			for(GraphEdge<V, E> edge : new ArrayList<GraphEdge<V, E>>(out)){
+				edge.source = replacement;
+				replacement.out.add(edge);
+			}
+			
+			for(GraphEdge<V, E> edge : new ArrayList<GraphEdge<V, E>>(in)){
+				edge.target = replacement;
+				replacement.in.add(edge);
+			}
+			
+			graph.nodes.remove(this);
+			graph.nodeMap.remove(data);
 		}
 		
 		/**
@@ -581,6 +621,24 @@ public class UniqueGraph<V, E>{
 			source.out.remove(this);
 			target.in.remove(this);
 			source.graph.edges.remove(this);
+		}
+		
+		/**
+		 * If this edge was previously removed from the 
+		 * graph using {@link #remove()} this method can
+		 * be used to add the edge back to the graph. If
+		 * an equivalent edge was added in the mean time
+		 * then the edge is not restored.
+		 * @return True if the edge was restored, false
+		 *         if an equivalent edge was already present.
+		 */
+		public boolean restore(){
+			if(source.out.add(this) && target.in.add(this)){
+				source.graph.edges.add(this);
+				return true;
+			}else{
+				return false;
+			}
 		}
 		
 		/**

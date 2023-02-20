@@ -37,8 +37,12 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import dev.roanh.gmark.conjunct.cpq.CPQ;
+import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ;
+import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.UniqueGraph.GraphNode;
 
@@ -227,6 +231,48 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 
 	@Override
 	public void mouseExited(MouseEvent e){
+	}
+	
+	/**
+	 * Utility subroutine to show the given graph in a JFrame.
+	 * @param <V> The vertex data type.
+	 * @param <E> The edge data type.
+	 * @param graph The graph to display.
+	 * @param nodeLabel The function to use to determine node labels.
+	 * @param edgeLabel The function to use to determine edge labels.
+	 */
+	public static <V, E> void show(UniqueGraph<V, E> graph, Function<V, String> nodeLabel, Function<E, String> edgeLabel){
+		JFrame frame = new JFrame("GraphPanel v:" + graph.getNodeCount() + " e:" + graph.getEdgeCount());
+		frame.add(new GraphPanel<V, E>(graph, nodeLabel, edgeLabel));
+		frame.setSize(600, 400);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+	}
+	
+	/**
+	 * Utility subroutine to show the given graph in a JFrame.
+	 * @param <V> The vertex data type.
+	 * @param <E> The edge data type.
+	 * @param graph The graph to display.
+	 */
+	public static <V, E> void show(UniqueGraph<V, E> graph){
+		show(graph, Object::toString, Object::toString);
+	}
+	
+	/**
+	 * Utility subroutine to show the query graph of the given CPQ in a JFrame.
+	 * @param q The CPQ to display.
+	 */
+	public static void show(CPQ q){
+		show(q.toQueryGraph());
+	}
+	
+	/**
+	 * Utility subroutine to show the given CPQ query graph in a JFrame.
+	 * @param cpq The CPQ query graph to display.
+	 */
+	public static void show(QueryGraphCPQ cpq){
+		show(cpq.toUniqueGraph(), cpq::getVertexLabel, Predicate::getAlias);
 	}
 	
 	/**

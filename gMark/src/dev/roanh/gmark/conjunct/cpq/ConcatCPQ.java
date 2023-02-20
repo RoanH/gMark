@@ -51,7 +51,7 @@ public class ConcatCPQ implements CPQ{
 	
 	@Override
 	public String toString(){
-		StringJoiner builder = new StringJoiner("◦", "(", ")");
+		StringJoiner builder = new StringJoiner(String.valueOf(CPQ.CHAR_JOIN), "(", ")");
 		for(CPQ item : cpq){
 			builder.add(item.toString());
 		}

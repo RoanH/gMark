@@ -18,7 +18,10 @@
  */
 package dev.roanh.gmark.conjunct.cpq;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.ConjunctGenerator;
@@ -146,6 +149,132 @@ public class GeneratorCPQ implements ConjunctGenerator{
 				return CPQ.intersect(generatePlainCPQ(split, true, labels), generatePlainCPQ(ruleApplications - split - 1, false, labels));
 			}
 		}
+	}
+	
+	/**
+	 * Parses the given CPQ in string form to a CPQ instance. The input is assumed
+	 * to use brackets where possible and to use the '{@code id}', '{@value CPQ#CHAR_JOIN}',
+	 * '{@value CPQ#CHAR_CAP}' and '{@value Predicate#CHAR_INVERSE}' symbols to denote
+	 * operations. Example input: {@code (0◦(((1◦0) ∩ (1◦1))◦1⁻))}.
+	 * @param query The CPQ to parse.
+	 * @return The parsed CPQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
+	 * @see #parse(String, char, char, char)
+	 */
+	public static CPQ parse(String query) throws IllegalArgumentException{
+		return parse(query, CPQ.CHAR_JOIN, CPQ.CHAR_CAP, Predicate.CHAR_INVERSE);
+	}
+	
+	/**
+	 * Parses the given CPQ in string form to a CPQ instance. Unlike
+	 * {@link #parse(String)} this subroutine allows custom symbols
+	 * to be used to input the CPQ.
+	 * @param query The CPQ to parse.
+	 * @param join The symbol to use for the join/concatenation operation.
+	 * @param intersect The symbol to use for the intersection/conjunction operation.
+	 * @param inverse The symbol to use for the inverse edge label operation.
+	 * @return The parsed CPQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
+	 * @see #parse(String)
+	 */
+	public static CPQ parse(String query, char join, char intersect, char inverse) throws IllegalArgumentException{
+		return parse(query, new HashMap<String, Predicate>(), join, intersect, inverse);
+	}
+	
+	/**
+	 * Parses the given CPQ in string form to a CPQ instance. Unlike
+	 * {@link #parse(String)} this subroutine allows custom symbols
+	 * to be used to input the CPQ.
+	 * @param query The CPQ to parse.
+	 * @param labels A map with predicates found so far.
+	 * @param join The symbol to use for the join/concatenation operation.
+	 * @param intersect The symbol to use for the intersection/conjunction operation.
+	 * @param inverse The symbol to use for the inverse edge label operation.
+	 * @return The parsed CPQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
+	 */
+	private static CPQ parse(String query, Map<String, Predicate> labels, char join, char intersect, char inverse) throws IllegalArgumentException{
+		if(query.startsWith("(") && query.endsWith(")")){
+			query = query.substring(1, query.length() - 1);
+		}
+		
+		List<String> parts = split(query, join);
+		if(parts.size() > 1){
+			return CPQ.concat(parts.stream().map(part->{
+				return parse(part, labels, join, intersect, inverse);
+			}).collect(Collectors.toList()));
+		}
+		
+		parts = split(query, intersect);
+		if(parts.size() > 1){
+			if(parts.size() > 2){
+				throw new IllegalArgumentException("No brackets around intersection, please use brackets to chain conjuction.");
+			}
+			
+			return CPQ.intersect(
+				parse(parts.get(0), labels, join, intersect, inverse),
+				parse(parts.get(1), labels, join, intersect, inverse)
+			);
+		}
+		
+		if(query.equals("id")){
+			return CPQ.IDENTITY;
+		}
+		
+		boolean inv = false;
+		if(query.charAt(query.length() - 1) == inverse){
+			inv = true;
+			query = query.substring(0, query.length() - 1);
+		}
+		
+		Predicate label = labels.computeIfAbsent(query, k->new Predicate(labels.size(), k));
+		return CPQ.label(inv ? label.getInverse() : label);
+	}
+	
+	/**
+	 * Splits the given string into parts on the given character.
+	 * The given character will not be returned in any parts and
+	 * the found parts will be trimmed of leading and trailing
+	 * whitespace. This method will ignore any regions of the
+	 * input string that are enclosed in (nested) round brackets.
+	 * @param str The string to split.
+	 * @param symbol The character to split on.
+	 * @return The input string split on the given character.
+	 * @throws IllegalArgumentException When brackets are present
+	 *         in the given string, but not balanced properly.
+	 */
+	protected static List<String> split(String str, char symbol) throws IllegalArgumentException{
+		List<String> parts = new ArrayList<String>();
+		
+		int start = 0;
+		for(int i = 0; i < str.length(); i++){
+			if(str.charAt(i) == '('){
+				i++;
+				int open = 1;
+				while(true){
+					if(str.charAt(i) == '('){
+						open++;
+					}else if(str.charAt(i) == ')'){
+						open--;
+						if(open == 0){
+							break;
+						}
+					}
+					
+					i++;
+					if(i >= str.length()){
+						throw new IllegalArgumentException("Unbalanced brackets.");
+					}
+				}
+			}else if(str.charAt(i) == symbol){
+				parts.add(str.substring(start, i).trim());
+				start = i + 1;
+			}
+		}
+		
+		parts.add(str.substring(start, str.length()).trim());
+
+		return parts;
 	}
 
 	@Override

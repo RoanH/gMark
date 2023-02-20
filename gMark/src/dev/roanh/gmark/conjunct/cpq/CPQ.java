@@ -19,6 +19,7 @@
 package dev.roanh.gmark.conjunct.cpq;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
@@ -33,6 +34,14 @@ import dev.roanh.gmark.util.IndentWriter;
  * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
  */
 public abstract interface CPQ extends OutputSQL, OutputXML{
+	/**
+	 * The character used to denote the intersection/conjunction operator.
+	 */
+	public static final char CHAR_CAP = '∩';
+	/**
+	 * The character used to denote the join/concatenation operator.
+	 */
+	public static final char CHAR_JOIN = '◦';
 	/**
 	 * Constant for the special identity CPQ.
 	 */
@@ -118,9 +127,23 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	 * of the given CPQs.
 	 * @param cpqs The CPQs to concatenate (in order).
 	 * @return The concatenation of the given CPQs.
+	 * @throws IllegalArgumentException When the given list
+	 *         of CPQs is empty.
 	 */
-	public static CPQ concat(CPQ... cpqs){
+	public static CPQ concat(CPQ... cpqs) throws IllegalArgumentException{
 		return new ConcatCPQ(Arrays.asList(cpqs));
+	}
+	
+	/**
+	 * Returns a CPQ representing the concatenation in order
+	 * of the given CPQs.
+	 * @param cpqs The CPQs to concatenate (in order).
+	 * @return The concatenation of the given CPQs.
+	 * @throws IllegalArgumentException When the given list
+	 *         of CPQs is empty.
+	 */
+	public static CPQ concat(List<CPQ> cpqs) throws IllegalArgumentException{
+		return new ConcatCPQ(cpqs);
 	}
 	
 	/**
@@ -163,5 +186,19 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	 */
 	public static CPQ generateRandomCPQ(int ruleApplications, int labels) throws IllegalArgumentException{
 		return GeneratorCPQ.generatePlainCPQ(ruleApplications, labels);
+	}
+	
+	/**
+	 * Parses the given CPQ in string form to a CPQ instance. The input is assumed
+	 * to use brackets where possible and to use the '{@code id}', '{@value CPQ#CHAR_JOIN}',
+	 * '{@value CPQ#CHAR_CAP}' and '{@value Predicate#CHAR_INVERSE}' symbols to denote
+	 * operations. Example input: {@code (0◦(((1◦0) ∩ (1◦1))◦1⁻))}.
+	 * @param query The CPQ to parse.
+	 * @return The parsed CPQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
+	 * @see GeneratorCPQ#parse(String, char, char, char)
+	 */
+	public static CPQ parse(String query) throws IllegalArgumentException{
+		return GeneratorCPQ.parse(query);
 	}
 }

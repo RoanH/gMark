@@ -228,24 +228,8 @@ public class QueryGraphCPQ{
 		}
 		
 		for(Edge edge : edges){
-			List<Object> matches = new ArrayList<Object>();
-			for(GraphEdge<Vertex, Predicate> other : graph.getEdges()){
-				if((edge.src == source) ^ (other.getSource() == source)){
-					continue;
-				}
-				
-				if((edge.trg == target) ^ (other.getTarget() == target)){
-					continue;
-				}
-				
-				if(other.getData().equals(edge.label)){
-					matches.add(other);
-				}
-			}
-			
 			outEdges.get(edge.src).add(edge);
 			inEdges.get(edge.trg).add(edge);
-			known.put(edge, matches);
 		}
 		
 		for(Vertex vertex : vertices){
@@ -275,6 +259,35 @@ public class QueryGraphCPQ{
 			known.put(vertex, matches);
 		}
 		
+		for(Edge edge : edges){
+			List<Object> matches = new ArrayList<Object>();
+			for(GraphEdge<Vertex, Predicate> other : graph.getEdges()){
+				if((edge.src == source) ^ (other.getSource() == source)){
+					continue;
+				}
+				
+				if((edge.trg == target) ^ (other.getTarget() == target)){
+					continue;
+				}
+				
+				if(!other.getData().equals(edge.label)){
+					continue;
+				}
+				
+				if(!known.get(edge.src).contains(other.getSourceNode())){
+					continue;
+				}
+				
+				if(!known.get(edge.trg).contains(other.getTargetNode())){
+					continue;
+				}
+				
+				matches.add(other);
+			}
+			
+			known.put(edge, matches);
+		}
+		
 		//copy structure & compute candidate maps
 		Tree<PartialMap> maps = decomp.cloneStructure(PartialMap::new);
 		
@@ -287,6 +300,32 @@ public class QueryGraphCPQ{
 			node.getData().matches = Util.cartesianProduct(sets);
 		});
 		
+		//expand each list with dependent variables
+		maps.forEach(t->{
+			PartialMap map = t.getData();
+			List<QueryGraphComponent> data = map.left;
+			final int size = data.size();
+			for(int i = 0; i < size; i++){
+				if(data.get(i).isEdge()){
+					Edge edge = (Edge)data.get(i);
+
+					if(!data.contains(edge.src)){
+						data.add(edge.src);
+						for(List<Object> list : map.matches){
+							list.add(((GraphEdge<?, ?>)list.get(i)).getSourceNode());
+						}
+					}
+
+					if(!data.contains(edge.trg)){
+						data.add(edge.trg);
+						for(List<Object> list : map.matches){
+							list.add(((GraphEdge<?, ?>)list.get(i)).getTargetNode());
+						}
+					}
+				}
+			}
+		});
+		
 		//join nodes bottom up
 		maps.forEachBottomUp(node->{
 			if(!node.isLeaf()){
@@ -296,9 +335,30 @@ public class QueryGraphCPQ{
 				}
 			}
 		});
-		
+
 		//a non empty root implies query homomorphism
 		return !maps.getData().matches.isEmpty();
+	}
+	
+	/**
+	 * Computes the core of this CPQ query graph. The core is the smallest
+	 * graph query homomorphically equivalent to this CPQ query graph.
+	 * @return The core of this CPQ query graph.
+	 */
+	public UniqueGraph<Vertex, Predicate> computeCore(){
+		UniqueGraph<Vertex, Predicate> core = toUniqueGraph();
+		
+		List<GraphEdge<Vertex, Predicate>> edges = new ArrayList<GraphEdge<Vertex, Predicate>>(core.getEdges());
+		for(GraphEdge<Vertex, Predicate> edge : edges){
+			edge.remove();
+
+			if(!isHomomorphicTo(core)){
+				edge.restore();
+			}
+		}
+		
+		core.removeNodeIf(n->n.getInCount() == 0 && n.getOutCount() == 0);
+		return core;
 	}
 	
 	/**
@@ -583,46 +643,24 @@ public class QueryGraphCPQ{
 		 * @param other The other partial map to join with.
 		 */
 		private void semiJoin(PartialMap other){
+			int[] map = new int[left.size()];
+			for(int i = 0; i < map.length; i++){
+				map[i] = other.left.indexOf(left.get(i));
+			}
+			
 			matches.removeIf(match->{
-				for(List<Object> filter : other.matches){
-					for(Object obj : filter){
-						if(mapContains(match, obj)){
-							return false;
+				test: for(List<Object> filter : other.matches){
+					for(int i = 0; i < map.length; i++){
+						if(map[i] != -1 && !match.get(i).equals(filter.get(map[i]))){
+							continue test;
 						}
 					}
+					
+					return false;
 				}
 				
 				return true;
 			});
-		}
-		
-		/**
-		 * Helper method to check if the given map match contains
-		 * the given item. This method will make sure to extract
-		 * vertices from edges as required. An edge is contained
-		 * if at least one of its vertices is present and similarly
-		 * a vertex is present if it is part of an edge.
-		 * @param map The matching map to search.
-		 * @param item The item to search for.
-		 * @return True if the partial map contains the given item.
-		 */
-		private static boolean mapContains(List<Object> map, Object item){
-			if(item instanceof GraphEdge){
-				GraphEdge<?, ?> edge = (GraphEdge<?, ?>)item;
-				return mapContains(map, edge.getSourceNode()) || mapContains(map, edge.getTargetNode());
-			}else{
-				for(Object elem : map){
-					if(elem == item){
-						return true;
-					}else if(elem instanceof GraphEdge){
-						GraphEdge<?, ?> edge = (GraphEdge<?, ?>)elem;
-						if(edge.getSourceNode() == item || edge.getTargetNode() == item){
-							return true;
-						}
-					}
-				}
-				return false;
-			}
 		}
 	}
 }

@@ -74,7 +74,7 @@ public class Tree<T>{
 	 */
 	public void forEachBottomUp(Consumer<Tree<T>> nodeVisitor){
 		for(Tree<T> child : children){
-			child.forEach(nodeVisitor);
+			child.forEachBottomUp(nodeVisitor);
 		}
 		nodeVisitor.accept(this);
 	}

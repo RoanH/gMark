@@ -280,6 +280,20 @@ public class UniqueGraph<V, E>{
 		return adj;
 	}
 	
+	public UniqueGraph<V, E> copy(){
+		UniqueGraph<V, E> copy = new UniqueGraph<V, E>();
+		
+		for(GraphNode<V, E> node : nodes){
+			copy.addUniqueNode(node.data);
+		}
+		
+		for(GraphEdge<V, E> edge : edges){
+			copy.addUniqueEdge(edge.getSource(), edge.getTarget(), edge.getData());
+		}
+		
+		return copy;
+	}
+	
 	/**
 	 * Represents a single node in the graph that is
 	 * uniquely identifiable by some data.
@@ -324,6 +338,18 @@ public class UniqueGraph<V, E>{
 			this.id = id;
 			this.graph = graph;
 			this.data = data;
+		}
+		
+		public void rename(GraphNode<V, E> replacement){
+			for(GraphEdge<V, E> edge : new ArrayList<GraphEdge<V, E>>(out)){
+				edge.source = replacement;
+				replacement.out.add(edge);
+			}
+			
+			for(GraphEdge<V, E> edge : new ArrayList<GraphEdge<V, E>>(in)){
+				edge.target = replacement;
+				replacement.in.add(edge);
+			}
 		}
 		
 		/**

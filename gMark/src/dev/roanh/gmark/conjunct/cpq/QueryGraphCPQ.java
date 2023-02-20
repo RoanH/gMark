@@ -219,6 +219,25 @@ public class QueryGraphCPQ{
 		//compute a query decomposition
 		Tree<List<QueryGraphComponent>> decomp = Util.computeTreeDecompositionWidth2(toIncidenceGraph());
 		
+//		//expand each list with dependent variables
+//		decomp.forEach(t->{
+//			List<QueryGraphComponent> data = t.getData();
+//			final int size = data.size();
+//			for(int i = 0; i < size; i++){
+//				if(data.get(i).isEdge()){
+//					Edge edge = (Edge)data.get(i);
+//					
+//					if(!data.contains(edge.src)){
+//						data.add(edge.src);
+//					}
+//					
+//					if(!data.contains(edge.trg)){
+//						data.add(edge.trg);
+//					}
+//				}
+//			}
+//		});
+		
 		//pre compute mappings
 		Map<QueryGraphComponent, List<Object>> known = new HashMap<QueryGraphComponent, List<Object>>();
 		Map<Vertex, List<Edge>> outEdges = new HashMap<Vertex, List<Edge>>();
@@ -310,9 +329,9 @@ public class QueryGraphCPQ{
 			known.put(edge, matches);
 		}
 		
-//		for(Entry<QueryGraphComponent, List<Object>> entry : known.entrySet()){
-//			System.out.println(entry.getKey() + " -> " + entry.getValue().stream().map(this::pmap).collect(Collectors.toList()));
-//		}
+		for(Entry<QueryGraphComponent, List<Object>> entry : known.entrySet()){
+			System.out.println(entry.getKey() + " -> " + entry.getValue().stream().map(this::pmap).collect(Collectors.toList()));
+		}
 //		
 		//copy structure & compute candidate maps
 		Tree<PartialMap> maps = decomp.cloneStructure(PartialMap::new);
@@ -326,11 +345,51 @@ public class QueryGraphCPQ{
 			node.getData().matches = Util.cartesianProduct(sets);
 		});
 		
-//		System.out.println("===============");
-//		maps.forEach(t->{
-//			System.out.println(t.getDepth() + ": " + t.getData().left);
-//			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
-//		});
+		System.out.println("===============");
+		maps.forEach(t->{
+			System.out.println(t.getDepth() + ": " + t.getData().left);
+			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
+		});
+		
+		//expand each list with dependent variables
+		maps.forEach(t->{
+			PartialMap map = t.getData();
+			
+			{
+				List<QueryGraphComponent> data = map.left;
+				final int size = data.size();
+				for(int i = 0; i < size; i++){
+					if(data.get(i).isEdge()){
+						Edge edge = (Edge)data.get(i);
+						
+						if(!data.contains(edge.src)){
+							data.add(edge.src);
+							for(List<Object> list : map.matches){
+								list.add(((GraphEdge<?,?>)list.get(i)).getSourceNode());
+							}
+						}
+						
+						if(!data.contains(edge.trg)){
+							data.add(edge.trg);
+							for(List<Object> list : map.matches){
+								list.add(((GraphEdge<?,?>)list.get(i)).getTargetNode());
+							}
+						}
+					}
+				}
+			}
+			
+//			for(List<Object> data : map.matches){
+//				final int size = data.size();
+//				for(int i = 0; i < size; i++){
+//					if(data.get(i) instanceof GraphEdge<?, ?>){
+//						GraphEdge<?, ?> edge = (GraphEdge<?, ?>)data.get(i);
+//						data.add(edge.getSourceNode());
+//						data.add(edge.getTargetNode());
+//					}
+//				}
+//			}
+		});
 		
 		//join nodes bottom up
 		maps.forEachBottomUp(node->{
@@ -342,11 +401,11 @@ public class QueryGraphCPQ{
 			}
 		});
 		
-//		System.out.println("===============");
-//		maps.forEach(t->{
-//			System.out.println(t.getDepth() + ": " + t.getData().left);
-//			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
-//		});
+		System.out.println("===============");
+		maps.forEach(t->{
+			System.out.println(t.getDepth() + ": " + t.getData().left);
+			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
+		});
 
 		//a non empty root implies query homomorphism
 		return !maps.getData().matches.isEmpty();
@@ -373,13 +432,36 @@ public class QueryGraphCPQ{
 			//TODO do we need to merge vertices before testing homomorphism or is after also fine?
 			//TODO is it possible for source and target to become the same node? If so how do we deal with this -- probably not possible
 			
+//			UniqueGraph<Vertex, Predicate> c/opy = core.copy();
+			
+//			if(edge.getSourceNode().getOutCount() == 0){
+//				assert edge.getSourceNode().getInCount() == 1;
+//			}
+//			
+//			if(edge.getTargetNode().getInCount() == 0){
+//				
+//			}
+//			
+//			
+//			edge.getTargetNode().rename(edge.getSourceNode());
+
+			
 			if(!isHomomorphicTo(core)){
 				edge.restore();
 				System.out.println("Restore: " + edge);
 			}else{
 				System.out.println("Permanently remove: " + edge);
+//				if(edge.getTargetNode().getInCount() == 0 && edge.getTargetNode().getOutCount() == 1){
+//					edge.getTargetNode().rename(edge.getSourceNode());
+//				}else if(edge.getSourceNode().getInCount() == 1 && edge.getSourceNode().getOutCount() == 0){
+//					edge.getSourceNode().rename(edge.getTargetNode());
+//				}
+				
+//				GraphPanel.show(core);
 			}
 		}
+		
+		
 		
 //		core.removeNodeIf(n->n.getInCount() == 0 && n.getOutCount() == 0);
 		return core;
@@ -387,8 +469,30 @@ public class QueryGraphCPQ{
 	
 	public static void main(String[] args){
 		while(true){
-//			CPQ q = CPQ.generateRandomCPQ(2*5, 2);
-			CPQ q = CPQ.parse("((0◦(((0◦0⁻) ∩ ((1◦1) ∩ (1⁻ ∩ id)))◦1⁻))◦(1⁻◦(0⁻◦1)))");
+			//CPQ q = CPQ.generateRandomCPQ(2*5, 2);
+//			CPQ q = CPQ.parse("(((0 ∩ (0⁻◦1⁻))◦1) ∩ (((0⁻◦0)◦(0◦0⁻)) ∩ ((1 ∩ 1)◦1)))");
+			//CPQ q = CPQ.parse("((0◦(((0◦0⁻) ∩ ((1◦1) ∩ (1⁻ ∩ id)))◦1⁻))◦(1⁻◦(0⁻◦1)))");
+			
+//			CPQ q = CPQ.parse("((0◦0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0◦0))");
+			CPQ q = CPQ.parse("((0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0))");
+
+			
+			
+//			Predicate l1 = new Predicate(1, "a");
+//			Predicate l2 = new Predicate(2, "b");
+//			
+//			CPQ q = CPQ.concat(
+//				CPQ.label(l1),
+//				CPQ.intersect(
+//					CPQ.concat(
+//						CPQ.label(l2),
+//						CPQ.intersect(CPQ.label(l2), CPQ.id()),
+//						CPQ.label(l2)
+//					),
+//					CPQ.id()
+//				)
+//			);
+			
 			System.out.println("test: " + q);
 			
 			//TODO wrong: disconnected: ((0◦(((0◦0⁻) ∩ ((1◦1) ∩ (1⁻ ∩ id)))◦1⁻))◦(1⁻◦(0⁻◦1)))
@@ -396,11 +500,17 @@ public class QueryGraphCPQ{
 			
 			QueryGraphCPQ g = q.toQueryGraph();
 			UniqueGraph<Vertex, Predicate> core = g.computeCore();
+			
+			g.isHomomorphicTo(core);
+			
 			if(g.getEdgeCount() == core.getEdgeCount()){
+				System.out.println("Core not found");
+				System.exit(0);
 				continue;
 			}
 			
-			System.out.println("core found!");
+			System.out.println("CORE FOUND!");
+			
 			GraphPanel.show(g.toUniqueGraph(), v->g.getVertexLabel(v) + "/" + v.toString(), Predicate::getAlias);
 			GraphPanel.show(core, v->g.getVertexLabel(v) + "/" + v.toString(), Predicate::getAlias);
 			
@@ -706,13 +816,35 @@ public class QueryGraphCPQ{
 		 * @param other The other partial map to join with.
 		 */
 		private void semiJoin(PartialMap other){
+//			matches.removeIf(match->{
+//				for(List<Object> filter : other.matches){
+//					for(Object obj : filter){
+//						if(mapContains(match, obj)){
+//							return false;
+//						}
+//					}
+//				}
+//				
+//				return true;
+//			});
+			
+			int[] map = new int[left.size()];
+			for(int i = 0; i < map.length; i++){
+				map[i] = other.left.indexOf(left.get(i));
+			}
+			
+			//TODO one thing the old method did correctly was checking for the sub parts of edges
 			matches.removeIf(match->{
-				for(List<Object> filter : other.matches){
-					for(Object obj : filter){
-						if(mapContains(match, obj)){
-							return false;
+				test: for(List<Object> filter : other.matches){
+					for(int i = 0; i < map.length; i++){
+						if(map[i] == -1 || match.get(i).equals(filter.get(map[i]))){
+							//ok
+						}else{
+							continue test;
 						}
 					}
+					
+					return false;
 				}
 				
 				return true;

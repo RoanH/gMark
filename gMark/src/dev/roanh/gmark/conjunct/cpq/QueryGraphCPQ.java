@@ -469,12 +469,7 @@ public class QueryGraphCPQ{
 	
 	public static void main(String[] args){
 		while(true){
-			//CPQ q = CPQ.generateRandomCPQ(2*5, 2);
-//			CPQ q = CPQ.parse("(((0 ∩ (0⁻◦1⁻))◦1) ∩ (((0⁻◦0)◦(0◦0⁻)) ∩ ((1 ∩ 1)◦1)))");
-			CPQ q = CPQ.parse("((0◦(((0◦0⁻) ∩ ((1◦1) ∩ (1⁻ ∩ id)))◦1⁻))◦(1⁻◦(0⁻◦1)))");
-			
-//			CPQ q = CPQ.parse("((0◦0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0◦0))");
-//			CPQ q = CPQ.parse("((0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0))");
+			CPQ q = CPQ.generateRandomCPQ(2*5, 2);
 
 			
 			

@@ -360,6 +360,36 @@ public class QueryGraphCPQTest{
 		assertEquals(3, core.getNode(g.getSourceVertex()).getInCount());
 	}
 	
+	@Test
+	public void core3(){
+		QueryGraphCPQ g = CPQ.parse("((0◦(((0◦0⁻) ∩ ((1◦1) ∩ (1⁻ ∩ id)))◦1⁻))◦(1⁻◦(0⁻◦1)))").toQueryGraph();
+		
+		UniqueGraph<Vertex, Predicate> core = g.computeCore();
+		assertEquals(7, core.getNodeCount());
+		assertEquals(7, core.getEdgeCount());
+		assertEquals(3, core.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).filter("0"::equals).count());
+		assertEquals(4, core.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).filter("1"::equals).count());
+	}
+	
+	@Test
+	public void core4(){
+		QueryGraphCPQ g = CPQ.parse("((0◦0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0◦0))").toQueryGraph();
+		
+		UniqueGraph<Vertex, Predicate> core = g.computeCore();
+		assertEquals(8, core.getNodeCount());
+		assertEquals(7, core.getEdgeCount());
+		assertEquals(7, core.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).filter("0"::equals).count());
+		assertEquals(1, core.getNode(g.getSourceVertex()).getOutCount());
+		assertEquals(0, core.getNode(g.getSourceVertex()).getInCount());
+		assertEquals(0, core.getNode(g.getTargetVertex()).getOutCount());
+		assertEquals(1, core.getNode(g.getTargetVertex()).getInCount());
+		for(GraphNode<Vertex, Predicate> node : core.getNodes()){
+			if(node.getData() != g.getSourceVertex() && node.getData() != g.getTargetVertex()){
+				assertEquals(1, node.getOutCount());
+				assertEquals(1, node.getInCount());
+			}
+		}
+	}
 	
 	public boolean isHomomorphic(CPQ cpq1, CPQ cpq2){
 		Vertex s = new Vertex();

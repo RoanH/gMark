@@ -53,7 +53,7 @@ public class IntersectionCPQ implements CPQ{
 	
 	@Override
 	public String toString(){
-		return "(" + first + " ∩ " + second + ")";
+		return "(" + first + " " + CPQ.CHAR_CAP + " " + second + ")";
 	}
 
 	@Override

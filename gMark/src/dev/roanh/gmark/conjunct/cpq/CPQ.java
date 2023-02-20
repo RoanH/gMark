@@ -34,9 +34,14 @@ import dev.roanh.gmark.util.IndentWriter;
  * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
  */
 public abstract interface CPQ extends OutputSQL, OutputXML{
+	/**
+	 * The character used to denote the intersection/conjunction operator.
+	 */
 	public static final char CHAR_CAP = '∩';
+	/**
+	 * The character used to denote the join/concatenation operator.
+	 */
 	public static final char CHAR_JOIN = '◦';
-	public static final char CHAR_INVERSE = '\u207B';
 	/**
 	 * Constant for the special identity CPQ.
 	 */
@@ -183,7 +188,17 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 		return GeneratorCPQ.generatePlainCPQ(ruleApplications, labels);
 	}
 	
-	public static CPQ parse(String query){
+	/**
+	 * Parses the given CPQ in string form to a CPQ instance. The input is assumed
+	 * to use brackets where possible and to use the '{@code id}', '{@value CPQ#CHAR_JOIN}',
+	 * '{@value CPQ#CHAR_CAP}' and '{@value Predicate#CHAR_INVERSE}' symbols to denote
+	 * operations. Example input: {@code (0◦(((1◦0) ∩ (1◦1))◦1⁻))}.
+	 * @param query The CPQ to parse.
+	 * @return The parsed CPQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
+	 * @see GeneratorCPQ#parse(String, char, char, char)
+	 */
+	public static CPQ parse(String query) throws IllegalArgumentException{
 		return GeneratorCPQ.parse(query);
 	}
 }

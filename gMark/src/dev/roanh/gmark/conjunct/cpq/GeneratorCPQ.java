@@ -151,31 +151,69 @@ public class GeneratorCPQ implements ConjunctGenerator{
 		}
 	}
 	
-	public static CPQ parse(String query){
-		return parse(query, new HashMap<String, Predicate>());
+	/**
+	 * Parses the given CPQ in string form to a CPQ instance. The input is assumed
+	 * to use brackets where possible and to use the '{@code id}', '{@value CPQ#CHAR_JOIN}',
+	 * '{@value CPQ#CHAR_CAP}' and '{@value Predicate#CHAR_INVERSE}' symbols to denote
+	 * operations. Example input: {@code (0◦(((1◦0) ∩ (1◦1))◦1⁻))}.
+	 * @param query The CPQ to parse.
+	 * @return The parsed CPQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
+	 * @see #parse(String, char, char, char)
+	 */
+	public static CPQ parse(String query) throws IllegalArgumentException{
+		return parse(query, CPQ.CHAR_JOIN, CPQ.CHAR_CAP, Predicate.CHAR_INVERSE);
 	}
 	
-	private static CPQ parse(String query, Map<String, Predicate> labels) throws IllegalArgumentException{
+	/**
+	 * Parses the given CPQ in string form to a CPQ instance. Unlike
+	 * {@link #parse(String)} this subroutine allows custom symbols
+	 * to be used to input the CPQ.
+	 * @param query The CPQ to parse.
+	 * @param join The symbol to use for the join/concatenation operation.
+	 * @param intersect The symbol to use for the intersection/conjunction operation.
+	 * @param inverse The symbol to use for the inverse edge label operation.
+	 * @return The parsed CPQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
+	 * @see #parse(String)
+	 */
+	public static CPQ parse(String query, char join, char intersect, char inverse) throws IllegalArgumentException{
+		return parse(query, new HashMap<String, Predicate>(), join, intersect, inverse);
+	}
+	
+	/**
+	 * Parses the given CPQ in string form to a CPQ instance. Unlike
+	 * {@link #parse(String)} this subroutine allows custom symbols
+	 * to be used to input the CPQ.
+	 * @param query The CPQ to parse.
+	 * @param labels A map with predicates found so far.
+	 * @param join The symbol to use for the join/concatenation operation.
+	 * @param intersect The symbol to use for the intersection/conjunction operation.
+	 * @param inverse The symbol to use for the inverse edge label operation.
+	 * @return The parsed CPQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
+	 */
+	private static CPQ parse(String query, Map<String, Predicate> labels, char join, char intersect, char inverse) throws IllegalArgumentException{
 		if(query.startsWith("(") && query.endsWith(")")){
 			query = query.substring(1, query.length() - 1);
 		}
 		
-		List<String> parts = split(query, CPQ.CHAR_JOIN);
+		List<String> parts = split(query, join);
 		if(parts.size() > 1){
 			return CPQ.concat(parts.stream().map(part->{
-				return parse(part, labels);
+				return parse(part, labels, join, intersect, inverse);
 			}).collect(Collectors.toList()));
 		}
 		
-		parts = split(query, CPQ.CHAR_CAP);
+		parts = split(query, intersect);
 		if(parts.size() > 1){
 			if(parts.size() > 2){
 				throw new IllegalArgumentException("No brackets around intersection, please use brackets to chain conjuction.");
 			}
 			
 			return CPQ.intersect(
-				parse(parts.get(0), labels),
-				parse(parts.get(1), labels)
+				parse(parts.get(0), labels, join, intersect, inverse),
+				parse(parts.get(1), labels, join, intersect, inverse)
 			);
 		}
 		
@@ -184,7 +222,7 @@ public class GeneratorCPQ implements ConjunctGenerator{
 		}
 		
 		boolean inv = false;
-		if(query.charAt(query.length() - 1) == CPQ.CHAR_INVERSE){
+		if(query.charAt(query.length() - 1) == inverse){
 			inv = true;
 			query = query.substring(0, query.length() - 1);
 		}

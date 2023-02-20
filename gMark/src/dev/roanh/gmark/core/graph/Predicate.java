@@ -33,6 +33,10 @@ import dev.roanh.gmark.util.IndentWriter;
  */
 public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>{
 	/**
+	 * The character used to denote negated predicates.
+	 */
+	public static final char CHAR_INVERSE = '⁻';
+	/**
 	 * The unique ID of this predicate. This ID uniquely
 	 * identifies this predicate among all predicates.
 	 * Note that the inverse predicate has the same ID.
@@ -112,7 +116,7 @@ public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>{
 	 * @return The predicate alias.
 	 */
 	public String getAlias(){
-		return isInverse ? (alias + "\u207B") : alias;
+		return isInverse ? (alias + CHAR_INVERSE) : alias;
 	}
 	
 	/**

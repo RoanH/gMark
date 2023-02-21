@@ -32,7 +32,10 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
+import dev.roanh.gmark.conjunct.cpq.CPQ;
+import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.QueryGraphComponent;
 import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
+import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 
 public class UtilTest{
 
@@ -270,6 +273,18 @@ public class UtilTest{
 	}
 	
 	@Test
+	public void decomp12(){
+		SimpleGraph<QueryGraphComponent> g = CPQ.parse("((0⁻ ∩ 0)◦(0⁻◦0))").toQueryGraph().toIncidenceGraph();
+		List<QueryGraphComponent> vertices = g.getVertices().stream().map(SimpleVertex::getData).collect(Collectors.toList());
+		List<SimpleEdge<QueryGraphComponent>> edges = new ArrayList<SimpleEdge<QueryGraphComponent>>(g.getEdges());
+		assertValidTreeDecomposition(
+			Util.computeTreeDecompositionWidth2(g),
+			vertices,
+			edges
+		);
+	}
+	
+	@Test
 	public void testCartesian0(){
 		List<List<String>> prod = Util.cartesianProduct(Arrays.asList(
 			Arrays.asList("a", "b"),
@@ -322,17 +337,17 @@ public class UtilTest{
 		assertEquals(0, prod.size());
 	}
 	
-	private void assertValidTreeDecomposition(Tree<List<String>> decomp, List<String> vertices, List<SimpleEdge<String>> edges){
+	public static <T> void assertValidTreeDecomposition(Tree<List<T>> decomp, List<T> vertices, List<SimpleEdge<T>> edges){
 		//1. All vertices are in the decomposition
-		Set<String> found = new HashSet<String>();
+		Set<T> found = new HashSet<T>();
 		decomp.forEach(t->found.addAll(t.getData()));
 		assertEquals(vertices.size(), found.size());
 		found.addAll(vertices);
 		assertEquals(vertices.size(), found.size());
 		
 		//2. All edges are in a bag
-		outer: for(SimpleEdge<String> e : edges){
-			for(List<String> bag : decomp.stream().map(Tree::getData).collect(Collectors.toList())){
+		outer: for(SimpleEdge<T> e : edges){
+			for(List<T> bag : decomp.stream().map(Tree::getData).collect(Collectors.toList())){
 				if(bag.contains(e.getFirstVertex().getData()) && bag.contains(e.getSecondVertex().getData())){
 					continue outer;
 				}
@@ -342,15 +357,15 @@ public class UtilTest{
 		}
 		
 		//3. Check each vertex induces a connected subgraph
-		for(String vertex : vertices){
-			List<Tree<List<String>>> bags = new ArrayList<Tree<List<String>>>();
+		for(T vertex : vertices){
+			List<Tree<List<T>>> bags = new ArrayList<Tree<List<T>>>();
 			decomp.forEach(t->{
 				if(t.getData().contains(vertex)){
 					bags.add(t);
 				}
 			});
 
-			Tree<List<String>> root = bags.get(0);
+			Tree<List<T>> root = bags.get(0);
 			while(!root.isRoot() && root.getParent().getData().contains(vertex)){
 				root = root.getParent();
 			}
@@ -359,7 +374,7 @@ public class UtilTest{
 		}
 	}
 	
-	private int findVertex(Tree<List<String>> root, String v){
+	private static <T> int findVertex(Tree<List<T>> root, T v){
 		if(root.getData().contains(v)){
 			return 1 + root.getChildren().stream().mapToInt(t->findVertex(t, v)).sum();
 		}else{

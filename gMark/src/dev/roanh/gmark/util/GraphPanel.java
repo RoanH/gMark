@@ -243,8 +243,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 */
 	public static <V, E> void show(UniqueGraph<V, E> graph, Function<V, String> nodeLabel, Function<E, String> edgeLabel){
 		JFrame frame = new JFrame("GraphPanel v:" + graph.getNodeCount() + " e:" + graph.getEdgeCount());
-		GraphPanel<V, E> panel = new GraphPanel<V, E>(graph, nodeLabel, edgeLabel);
-		frame.add(panel);
+		frame.add(new GraphPanel<V, E>(graph, nodeLabel, edgeLabel));
 		frame.setSize(600, 400);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);

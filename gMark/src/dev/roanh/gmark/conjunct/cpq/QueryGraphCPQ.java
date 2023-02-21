@@ -26,13 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.util.GraphPanel;
 import dev.roanh.gmark.util.SimpleGraph;
-import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.Tree;
 import dev.roanh.gmark.util.UniqueGraph;
@@ -335,12 +332,6 @@ public class QueryGraphCPQ{
 			});
 		});
 		
-		System.out.println("E===============");
-		maps.forEach(t->{
-			System.out.println(t.getDepth() + ": " + t.getData().left);
-			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
-		});
-		
 		//expand each list with dependent variables
 		maps.forEach(t->{
 			PartialMap map = t.getData();
@@ -367,12 +358,6 @@ public class QueryGraphCPQ{
 			}
 		});
 		
-		System.out.println("J===============");
-		maps.forEach(t->{
-			System.out.println(t.getDepth() + ": " + t.getData().left);
-			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
-		});
-		
 		//join nodes bottom up
 		maps.forEachBottomUp(node->{
 			if(!node.isLeaf()){
@@ -383,12 +368,6 @@ public class QueryGraphCPQ{
 			}
 		});
 
-		System.out.println("F===============");
-		maps.forEach(t->{
-			System.out.println(t.getDepth() + ": " + t.getData().left);
-			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
-		});
-		
 		//a non empty root implies query homomorphism
 		return !maps.getData().matches.isEmpty();
 	}
@@ -614,80 +593,6 @@ public class QueryGraphCPQ{
 		public String toString(){
 			return "(" + src + "," + trg + "," + label.getAlias() + ")";
 		}
-	}
-	
-	public static void main(String[] args){
-		while(true){
-			CPQ q = CPQ.parse("((0⁻ ∩ 0)◦(0⁻◦0))");//CPQ.generateRandomCPQ(3, 1);
-			QueryGraphCPQ g = q.toQueryGraph();
-
-			Function<QueryGraphComponent, String> vf = v->{
-				if(v.isEdge()){
-					Edge e = (Edge)v;
-					String ss = g.getVertexLabel(e.src);
-					if(ss.isEmpty()){
-//						ss = "  ";
-						ss = e.src.toString();
-					}
-					String tt = g.getVertexLabel(e.trg);
-					if(tt.isEmpty()){
-//						tt = "  ";
-						tt = e.trg.toString();
-					}
-					
-					return e.label.getAlias() + "(" + ss + ", " + tt + ")";
-				}else{
-					String vv = g.getVertexLabel((Vertex)v);
-					if(vv.isEmpty()){
-						vv = v.toString();
-					}
-					
-					return vv;
-				}
-			};
-			
-			UniqueGraph<Vertex, Predicate> core = g.computeCore();
-//			if(core.getEdgeCount() == g.getEdgeCount()){
-//				continue;
-//			}
-//			
-//			if(count(core.getNodes().get(0), new HashSet<Vertex>()) == core.getNodeCount()){
-//				System.out.println("skip");
-//				continue;
-//			}
-			
-			System.out.println(q);
-			GraphPanel.show(g);
-			GraphPanel.show(core, n->vf.apply(n), Predicate::getAlias);
-			break;
-		}
-	}
-	
-	private String pmap(Object p){
-		if(p instanceof GraphEdge){
-			@SuppressWarnings("unchecked")
-			GraphEdge<Vertex, Predicate> pp = (GraphEdge<Vertex, Predicate>)p;
-			return "(" + pp.getSource() + "," + pp.getTarget() + "," + pp.getData().getAlias() + ")";
-		}else{
-			return p.toString();
-		}
-	}
-
-	
-	public static int count(GraphNode<Vertex, Predicate> n, Set<Vertex> found){
-		found.add(n.getData());
-		int count = 1;
-		for(GraphEdge<Vertex, Predicate> o : n.getInEdges()){
-			if(!found.contains(o.getSource())){
-				count += count(o.getSourceNode(), found);
-			}
-		}
-		for(GraphEdge<Vertex, Predicate> o : n.getOutEdges()){
-			if(!found.contains(o.getTarget())){
-				count += count(o.getTargetNode(), found);
-			}
-		}
-		return count;
 	}
 	
 	/**

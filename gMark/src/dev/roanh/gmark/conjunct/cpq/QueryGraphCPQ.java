@@ -216,7 +216,7 @@ public class QueryGraphCPQ{
 		
 		//compute a query decomposition
 		Tree<List<QueryGraphComponent>> decomp = Util.computeTreeDecompositionWidth2(toIncidenceGraph());
-		
+
 		//pre compute mappings
 		Map<QueryGraphComponent, List<Object>> known = new HashMap<QueryGraphComponent, List<Object>>();
 		Map<Vertex, List<Edge>> outEdges = new HashMap<Vertex, List<Edge>>();
@@ -298,6 +298,38 @@ public class QueryGraphCPQ{
 			}
 			
 			node.getData().matches = Util.cartesianProduct(sets);
+			node.getData().matches.removeIf(map->{
+				Map<Vertex, Vertex> assign = new HashMap<Vertex, Vertex>();
+				
+				for(int i = 0; i < node.getData().left.size(); i++){
+					QueryGraphComponent comp = node.getData().left.get(i);
+					if(comp.isEdge()){
+						@SuppressWarnings("unchecked")
+						GraphEdge<Vertex, Predicate> target = (GraphEdge<Vertex, Predicate>)map.get(i);
+						
+						Vertex v = target.getSource();
+						Vertex old = assign.put(((Edge)comp).src, v);
+						if(old != null && !old.equals(v)){
+							return true;
+						}
+						
+						v = target.getTarget();
+						old = assign.put(((Edge)comp).trg, v);
+						if(old != null && !old.equals(v)){
+							return true;
+						}
+					}else{
+						@SuppressWarnings("unchecked")
+						Vertex v = ((GraphNode<Vertex, Predicate>)map.get(i)).getData();
+						Vertex old = assign.put((Vertex)comp, v);
+						if(old != null && !old.equals(v)){
+							return true;
+						}
+					}
+				}
+				
+				return false;
+			});
 		});
 		
 		//expand each list with dependent variables

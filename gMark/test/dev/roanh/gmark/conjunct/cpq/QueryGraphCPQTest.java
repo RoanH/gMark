@@ -25,7 +25,9 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -211,7 +213,7 @@ public class QueryGraphCPQTest{
 	
 	@Test
 	public void homomorphism5(){
-		assertTrue(isHomomorphic(
+		assertFalse(isHomomorphic(
 			CPQ.concat(
 				CPQ.label(l1),
 				CPQ.intersect(
@@ -312,6 +314,7 @@ public class QueryGraphCPQTest{
 		UniqueGraph<Vertex, Predicate> core = g.computeCore();
 		assertEquals(3, core.getNodeCount());
 		assertEquals(2, core.getEdgeCount());
+		assertEquals(3, countNodes(core.getNode(g.getSourceVertex()), new HashSet<Vertex>()));
 		
 		//src -a-> n -b-> trg
 		GraphNode<Vertex, Predicate> node = core.getNode(g.getSourceVertex());
@@ -339,11 +342,13 @@ public class QueryGraphCPQTest{
 	
 	@Test
 	public void core1(){
-		UniqueGraph<Vertex, Predicate> core = CPQ.parse("(((0⁻◦1) ∩ id)◦(((1 ∩ ((0◦0⁻)◦1))◦((1 ∩ id)◦0)) ∩ 0⁻))").toQueryGraph().computeCore();
+		QueryGraphCPQ g = CPQ.parse("(((0⁻◦1) ∩ id)◦(((1 ∩ ((0◦0⁻)◦1))◦((1 ∩ id)◦0)) ∩ 0⁻))").toQueryGraph();
+		UniqueGraph<Vertex, Predicate> core = g.computeCore();
 		assertEquals(5, core.getNodeCount());
 		assertEquals(7, core.getEdgeCount());
 		assertEquals(4, core.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).filter("0"::equals).count());
 		assertEquals(3, core.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).filter("1"::equals).count());
+		assertEquals(5, countNodes(core.getNode(g.getSourceVertex()), new HashSet<Vertex>()));
 	}
 	
 	@Test
@@ -358,6 +363,7 @@ public class QueryGraphCPQTest{
 		assertEquals(g.getTargetVertex(), core.getNode(g.getSourceVertex()).getData());
 		assertEquals(4, core.getNode(g.getSourceVertex()).getOutCount());
 		assertEquals(3, core.getNode(g.getSourceVertex()).getInCount());
+		assertEquals(2, countNodes(core.getNode(g.getSourceVertex()), new HashSet<Vertex>()));
 	}
 	
 	@Test
@@ -369,6 +375,7 @@ public class QueryGraphCPQTest{
 		assertEquals(7, core.getEdgeCount());
 		assertEquals(3, core.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).filter("0"::equals).count());
 		assertEquals(4, core.getEdges().stream().map(GraphEdge::getData).map(Predicate::getAlias).filter("1"::equals).count());
+		assertEquals(7, countNodes(core.getNode(g.getSourceVertex()), new HashSet<Vertex>()));
 	}
 	
 	@Test
@@ -383,6 +390,7 @@ public class QueryGraphCPQTest{
 		assertEquals(0, core.getNode(g.getSourceVertex()).getInCount());
 		assertEquals(0, core.getNode(g.getTargetVertex()).getOutCount());
 		assertEquals(1, core.getNode(g.getTargetVertex()).getInCount());
+		assertEquals(8, countNodes(core.getNode(g.getSourceVertex()), new HashSet<Vertex>()));
 		for(GraphNode<Vertex, Predicate> node : core.getNodes()){
 			if(node.getData() != g.getSourceVertex() && node.getData() != g.getTargetVertex()){
 				assertEquals(1, node.getOutCount());
@@ -391,9 +399,42 @@ public class QueryGraphCPQTest{
 		}
 	}
 	
-	public boolean isHomomorphic(CPQ cpq1, CPQ cpq2){
+	@Test
+	public void core5(){
+		QueryGraphCPQ g = CPQ.parse("((0⁻ ∩ 0)◦(0⁻◦0))").toQueryGraph();
+		
+		UniqueGraph<Vertex, Predicate> core = g.computeCore();
+		assertEquals(4, core.getNodeCount());
+		assertEquals(4, core.getEdgeCount());
+		assertEquals(1, core.getNode(g.getSourceVertex()).getOutCount());
+		assertEquals(2, core.getNode(g.getSourceVertex()).getInCount());
+		assertEquals(0, core.getNode(g.getTargetVertex()).getOutCount());
+		assertEquals(1, core.getNode(g.getTargetVertex()).getInCount());
+		assertEquals(4, countNodes(core.getNode(g.getSourceVertex()), new HashSet<Vertex>()));
+	}
+	
+	private boolean isHomomorphic(CPQ cpq1, CPQ cpq2){
 		Vertex s = new Vertex();
 		Vertex t = new Vertex();
 		return cpq1.toQueryGraph(s, t).isHomomorphicTo(cpq2.toQueryGraph(s, t).toUniqueGraph());
+	}
+	
+	private int countNodes(GraphNode<Vertex, Predicate> n, Set<Vertex> found){
+		found.add(n.getData());
+		int count = 1;
+		
+		for(GraphEdge<Vertex, Predicate> o : n.getInEdges()){
+			if(!found.contains(o.getSource())){
+				count += countNodes(o.getSourceNode(), found);
+			}
+		}
+		
+		for(GraphEdge<Vertex, Predicate> o : n.getOutEdges()){
+			if(!found.contains(o.getTarget())){
+				count += countNodes(o.getTargetNode(), found);
+			}
+		}
+		
+		return count;
 	}
 }

@@ -211,7 +211,7 @@ public class QueryGraphCPQTest{
 	
 	@Test
 	public void homomorphism5(){
-		assertTrue(isHomomorphic(
+		assertFalse(isHomomorphic(
 			CPQ.concat(
 				CPQ.label(l1),
 				CPQ.intersect(
@@ -389,6 +389,19 @@ public class QueryGraphCPQTest{
 				assertEquals(1, node.getInCount());
 			}
 		}
+	}
+	
+	@Test
+	public void core5(){
+		QueryGraphCPQ g = CPQ.parse("((0⁻ ∩ 0)◦(0⁻◦0))").toQueryGraph();
+		
+		UniqueGraph<Vertex, Predicate> core = g.computeCore();
+		assertEquals(4, core.getNodeCount());
+		assertEquals(4, core.getEdgeCount());
+		assertEquals(1, core.getNode(g.getSourceVertex()).getOutCount());
+		assertEquals(2, core.getNode(g.getSourceVertex()).getInCount());
+		assertEquals(0, core.getNode(g.getTargetVertex()).getOutCount());
+		assertEquals(1, core.getNode(g.getTargetVertex()).getInCount());
 	}
 	
 	public boolean isHomomorphic(CPQ cpq1, CPQ cpq2){

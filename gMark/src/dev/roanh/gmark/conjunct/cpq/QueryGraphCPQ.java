@@ -26,10 +26,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.GraphPanel;
 import dev.roanh.gmark.util.SimpleGraph;
+import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.Tree;
 import dev.roanh.gmark.util.UniqueGraph;
@@ -194,6 +197,51 @@ public class QueryGraphCPQ{
 		return g;
 	}
 	
+	public static <T> void assertValidTreeDecomposition(Tree<List<T>> decomp, List<T> vertices, List<SimpleEdge<T>> edges){
+		//1. All vertices are in the decomposition
+		Set<T> found = new HashSet<T>();
+		decomp.forEach(t->found.addAll(t.getData()));
+		assert vertices.size() == found.size();
+		found.addAll(vertices);
+		assert vertices.size() == found.size();
+		
+		//2. All edges are in a bag
+		outer: for(SimpleEdge<T> e : edges){
+			for(List<T> bag : decomp.stream().map(Tree::getData).collect(Collectors.toList())){
+				if(bag.contains(e.getFirstVertex().getData()) && bag.contains(e.getSecondVertex().getData())){
+					continue outer;
+				}
+			}
+			
+			assert false : "Edge not in a bag";
+		}
+		
+		//3. Check each vertex induces a connected subgraph
+		for(T vertex : vertices){
+			List<Tree<List<T>>> bags = new ArrayList<Tree<List<T>>>();
+			decomp.forEach(t->{
+				if(t.getData().contains(vertex)){
+					bags.add(t);
+				}
+			});
+
+			Tree<List<T>> root = bags.get(0);
+			while(!root.isRoot() && root.getParent().getData().contains(vertex)){
+				root = root.getParent();
+			}
+			
+			assert bags.size() == findVertex(root, vertex);
+		}
+	}
+	
+	private static <T> int findVertex(Tree<List<T>> root, T v){
+		if(root.getData().contains(v)){
+			return 1 + root.getChildren().stream().mapToInt(t->findVertex(t, v)).sum();
+		}else{
+			return 0;
+		}
+	}
+	
 	/**
 	 * Computes if there is a <b>query</b> homomorphism from this query graph <code>G</code>
 	 * to the given other graph <code>G'</code>. This implies that any edge traversal made in
@@ -215,8 +263,12 @@ public class QueryGraphCPQ{
 		merge();
 		
 		//compute a query decomposition
-		Tree<List<QueryGraphComponent>> decomp = Util.computeTreeDecompositionWidth2(toIncidenceGraph());
-		
+		SimpleGraph<QueryGraphComponent> ic = toIncidenceGraph();
+		List<QueryGraphComponent> vertices22 = ic.getVertices().stream().map(v->v.getData()).collect(Collectors.toList());
+		List<SimpleEdge<QueryGraphComponent>> edges22 = new ArrayList<SimpleEdge<QueryGraphComponent>>(ic.getEdges());
+		Tree<List<QueryGraphComponent>> decomp = Util.computeTreeDecompositionWidth2(ic);
+		assertValidTreeDecomposition(decomp, vertices22, edges22);
+
 		//pre compute mappings
 		Map<QueryGraphComponent, List<Object>> known = new HashMap<QueryGraphComponent, List<Object>>();
 		Map<Vertex, List<Edge>> outEdges = new HashMap<Vertex, List<Edge>>();
@@ -298,6 +350,37 @@ public class QueryGraphCPQ{
 			}
 			
 			node.getData().matches = Util.cartesianProduct(sets);
+			node.getData().matches.removeIf(map->{
+				Map<Vertex, Vertex> assign = new HashMap<Vertex, Vertex>();
+				
+				for(int i = 0; i < node.getData().left.size(); i++){
+					QueryGraphComponent comp = node.getData().left.get(i);
+					if(comp.isEdge()){
+						if(assign.put(((Edge)comp).src, ((GraphEdge<Vertex, Predicate>)map.get(i)).getSource()) != null){
+							System.out.println("REMOVE");
+							return true;
+						}
+						if(assign.put(((Edge)comp).trg, ((GraphEdge<Vertex, Predicate>)map.get(i)).getTarget()) != null){
+							System.out.println("REMOVE");
+							return true;
+						}
+					}else{
+						if(assign.put((Vertex)comp, ((GraphNode<Vertex, Predicate>)map.get(i)).getData()) != null){
+							System.out.println("REMOVE");
+							return true;
+						}
+					}
+				}
+				
+				return false;
+				
+			});
+		});
+		
+		System.out.println("E===============");
+		maps.forEach(t->{
+			System.out.println(t.getDepth() + ": " + t.getData().left);
+			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
 		});
 		
 		//expand each list with dependent variables
@@ -326,6 +409,12 @@ public class QueryGraphCPQ{
 			}
 		});
 		
+		System.out.println("J===============");
+		maps.forEach(t->{
+			System.out.println(t.getDepth() + ": " + t.getData().left);
+			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
+		});
+		
 		//join nodes bottom up
 		maps.forEachBottomUp(node->{
 			if(!node.isLeaf()){
@@ -336,6 +425,12 @@ public class QueryGraphCPQ{
 			}
 		});
 
+		System.out.println("F===============");
+		maps.forEach(t->{
+			System.out.println(t.getDepth() + ": " + t.getData().left);
+			System.out.println("  -> " + t.getData().matches.stream().map(l->l.stream().map(this::pmap).collect(Collectors.toList())).collect(Collectors.toList()));
+		});
+		
 		//a non empty root implies query homomorphism
 		return !maps.getData().matches.isEmpty();
 	}
@@ -354,6 +449,9 @@ public class QueryGraphCPQ{
 
 			if(!isHomomorphicTo(core)){
 				edge.restore();
+				System.out.println("restore");
+			}else{
+				System.out.println("remove");
 			}
 		}
 		
@@ -558,6 +656,80 @@ public class QueryGraphCPQ{
 		public String toString(){
 			return "(" + src + "," + trg + "," + label.getAlias() + ")";
 		}
+	}
+	
+	public static void main(String[] args){
+		while(true){
+			CPQ q = CPQ.parse("((0⁻ ∩ 0)◦(0⁻◦0))");//CPQ.generateRandomCPQ(3, 1);
+			QueryGraphCPQ g = q.toQueryGraph();
+
+			Function<QueryGraphComponent, String> vf = v->{
+				if(v.isEdge()){
+					Edge e = (Edge)v;
+					String ss = g.getVertexLabel(e.src);
+					if(ss.isEmpty()){
+//						ss = "  ";
+						ss = e.src.toString();
+					}
+					String tt = g.getVertexLabel(e.trg);
+					if(tt.isEmpty()){
+//						tt = "  ";
+						tt = e.trg.toString();
+					}
+					
+					return e.label.getAlias() + "(" + ss + ", " + tt + ")";
+				}else{
+					String vv = g.getVertexLabel((Vertex)v);
+					if(vv.isEmpty()){
+						vv = v.toString();
+					}
+					
+					return vv;
+				}
+			};
+			
+			UniqueGraph<Vertex, Predicate> core = g.computeCore();
+//			if(core.getEdgeCount() == g.getEdgeCount()){
+//				continue;
+//			}
+//			
+//			if(count(core.getNodes().get(0), new HashSet<Vertex>()) == core.getNodeCount()){
+//				System.out.println("skip");
+//				continue;
+//			}
+			
+			System.out.println(q);
+			GraphPanel.show(g);
+			GraphPanel.show(core, n->vf.apply(n), Predicate::getAlias);
+			break;
+		}
+	}
+	
+	private String pmap(Object p){
+		if(p instanceof GraphEdge){
+			@SuppressWarnings("unchecked")
+			GraphEdge<Vertex, Predicate> pp = (GraphEdge<Vertex, Predicate>)p;
+			return "(" + pp.getSource() + "," + pp.getTarget() + "," + pp.getData().getAlias() + ")";
+		}else{
+			return p.toString();
+		}
+	}
+
+	
+	public static int count(GraphNode<Vertex, Predicate> n, Set<Vertex> found){
+		found.add(n.getData());
+		int count = 1;
+		for(GraphEdge<Vertex, Predicate> o : n.getInEdges()){
+			if(!found.contains(o.getSource())){
+				count += count(o.getSourceNode(), found);
+			}
+		}
+		for(GraphEdge<Vertex, Predicate> o : n.getOutEdges()){
+			if(!found.contains(o.getTarget())){
+				count += count(o.getTargetNode(), found);
+			}
+		}
+		return count;
 	}
 	
 	/**

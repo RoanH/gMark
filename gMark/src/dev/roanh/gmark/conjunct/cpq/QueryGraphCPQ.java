@@ -356,22 +356,33 @@ public class QueryGraphCPQ{
 				for(int i = 0; i < node.getData().left.size(); i++){
 					QueryGraphComponent comp = node.getData().left.get(i);
 					if(comp.isEdge()){
-						if(assign.put(((Edge)comp).src, ((GraphEdge<Vertex, Predicate>)map.get(i)).getSource()) != null){
-							System.out.println("REMOVE");
+						Vertex v = ((GraphEdge<Vertex, Predicate>)map.get(i)).getSource();
+						
+						
+						System.out.println("pre: " + ((GraphEdge<Vertex, Predicate>)map.get(i)).getSource());
+						Vertex old = assign.put(((Edge)comp).src, v);
+						if(old != null && !old.equals(v)){
+							System.out.println("REMOVE " + ((Edge)comp).src + " / " + old + " / " + ((GraphEdge<Vertex, Predicate>)map.get(i)).getSource() + " / " + (old == ((GraphEdge<Vertex, Predicate>)map.get(i)).getSource()));
 							return true;
 						}
-						if(assign.put(((Edge)comp).trg, ((GraphEdge<Vertex, Predicate>)map.get(i)).getTarget()) != null){
+						
+						v = ((GraphEdge<Vertex, Predicate>)map.get(i)).getTarget();
+						old = assign.put(((Edge)comp).trg, v);
+						if(old != null && !old.equals(v)){
 							System.out.println("REMOVE");
 							return true;
 						}
 					}else{
-						if(assign.put((Vertex)comp, ((GraphNode<Vertex, Predicate>)map.get(i)).getData()) != null){
+						Vertex v = ((GraphNode<Vertex, Predicate>)map.get(i)).getData();
+						Vertex old = assign.put((Vertex)comp, v);
+						if(old != null && !old.equals(v)){
 							System.out.println("REMOVE");
 							return true;
 						}
 					}
 				}
 				
+				System.out.println("Not remove");
 				return false;
 				
 			});

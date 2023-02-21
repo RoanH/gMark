@@ -386,9 +386,6 @@ public class QueryGraphCPQ{
 
 			if(!isHomomorphicTo(core)){
 				edge.restore();
-				System.out.println("restore");
-			}else{
-				System.out.println("remove");
 			}
 		}
 		

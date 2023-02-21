@@ -197,51 +197,6 @@ public class QueryGraphCPQ{
 		return g;
 	}
 	
-	public static <T> void assertValidTreeDecomposition(Tree<List<T>> decomp, List<T> vertices, List<SimpleEdge<T>> edges){
-		//1. All vertices are in the decomposition
-		Set<T> found = new HashSet<T>();
-		decomp.forEach(t->found.addAll(t.getData()));
-		assert vertices.size() == found.size();
-		found.addAll(vertices);
-		assert vertices.size() == found.size();
-		
-		//2. All edges are in a bag
-		outer: for(SimpleEdge<T> e : edges){
-			for(List<T> bag : decomp.stream().map(Tree::getData).collect(Collectors.toList())){
-				if(bag.contains(e.getFirstVertex().getData()) && bag.contains(e.getSecondVertex().getData())){
-					continue outer;
-				}
-			}
-			
-			assert false : "Edge not in a bag";
-		}
-		
-		//3. Check each vertex induces a connected subgraph
-		for(T vertex : vertices){
-			List<Tree<List<T>>> bags = new ArrayList<Tree<List<T>>>();
-			decomp.forEach(t->{
-				if(t.getData().contains(vertex)){
-					bags.add(t);
-				}
-			});
-
-			Tree<List<T>> root = bags.get(0);
-			while(!root.isRoot() && root.getParent().getData().contains(vertex)){
-				root = root.getParent();
-			}
-			
-			assert bags.size() == findVertex(root, vertex);
-		}
-	}
-	
-	private static <T> int findVertex(Tree<List<T>> root, T v){
-		if(root.getData().contains(v)){
-			return 1 + root.getChildren().stream().mapToInt(t->findVertex(t, v)).sum();
-		}else{
-			return 0;
-		}
-	}
-	
 	/**
 	 * Computes if there is a <b>query</b> homomorphism from this query graph <code>G</code>
 	 * to the given other graph <code>G'</code>. This implies that any edge traversal made in
@@ -263,11 +218,7 @@ public class QueryGraphCPQ{
 		merge();
 		
 		//compute a query decomposition
-		SimpleGraph<QueryGraphComponent> ic = toIncidenceGraph();
-		List<QueryGraphComponent> vertices22 = ic.getVertices().stream().map(v->v.getData()).collect(Collectors.toList());
-		List<SimpleEdge<QueryGraphComponent>> edges22 = new ArrayList<SimpleEdge<QueryGraphComponent>>(ic.getEdges());
-		Tree<List<QueryGraphComponent>> decomp = Util.computeTreeDecompositionWidth2(ic);
-		assertValidTreeDecomposition(decomp, vertices22, edges22);
+		Tree<List<QueryGraphComponent>> decomp = Util.computeTreeDecompositionWidth2(toIncidenceGraph());
 
 		//pre compute mappings
 		Map<QueryGraphComponent, List<Object>> known = new HashMap<QueryGraphComponent, List<Object>>();
@@ -356,35 +307,31 @@ public class QueryGraphCPQ{
 				for(int i = 0; i < node.getData().left.size(); i++){
 					QueryGraphComponent comp = node.getData().left.get(i);
 					if(comp.isEdge()){
-						Vertex v = ((GraphEdge<Vertex, Predicate>)map.get(i)).getSource();
+						@SuppressWarnings("unchecked")
+						GraphEdge<Vertex, Predicate> target = ((GraphEdge<Vertex, Predicate>)map.get(i));
 						
-						
-						System.out.println("pre: " + ((GraphEdge<Vertex, Predicate>)map.get(i)).getSource());
+						Vertex v = target.getSource();
 						Vertex old = assign.put(((Edge)comp).src, v);
 						if(old != null && !old.equals(v)){
-							System.out.println("REMOVE " + ((Edge)comp).src + " / " + old + " / " + ((GraphEdge<Vertex, Predicate>)map.get(i)).getSource() + " / " + (old == ((GraphEdge<Vertex, Predicate>)map.get(i)).getSource()));
 							return true;
 						}
 						
-						v = ((GraphEdge<Vertex, Predicate>)map.get(i)).getTarget();
+						v = target.getTarget();
 						old = assign.put(((Edge)comp).trg, v);
 						if(old != null && !old.equals(v)){
-							System.out.println("REMOVE");
 							return true;
 						}
 					}else{
+						@SuppressWarnings("unchecked")
 						Vertex v = ((GraphNode<Vertex, Predicate>)map.get(i)).getData();
 						Vertex old = assign.put((Vertex)comp, v);
 						if(old != null && !old.equals(v)){
-							System.out.println("REMOVE");
 							return true;
 						}
 					}
 				}
 				
-				System.out.println("Not remove");
 				return false;
-				
 			});
 		});
 		

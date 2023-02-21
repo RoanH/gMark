@@ -305,7 +305,7 @@ public class QueryGraphCPQ{
 					QueryGraphComponent comp = node.getData().left.get(i);
 					if(comp.isEdge()){
 						@SuppressWarnings("unchecked")
-						GraphEdge<Vertex, Predicate> target = ((GraphEdge<Vertex, Predicate>)map.get(i));
+						GraphEdge<Vertex, Predicate> target = (GraphEdge<Vertex, Predicate>)map.get(i);
 						
 						Vertex v = target.getSource();
 						Vertex old = assign.put(((Edge)comp).src, v);

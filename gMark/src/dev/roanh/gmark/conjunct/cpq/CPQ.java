@@ -165,6 +165,15 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	}
 	
 	/**
+	 * Returns a CPQ representing a chain of labelled edge traversals.
+	 * @param labels The labels of the traversed edges.
+	 * @return The label traversal CPQ.
+	 */
+	public static CPQ labels(List<Predicate> labels){
+		return new ConcatCPQ(labels.stream().map(EdgeCPQ::new).collect(Collectors.toList()));
+	}
+	
+	/**
 	 * Generates a random CPQ created by applying the intersection
 	 * (conjunction) and concatenation steps from the CPQ grammar
 	 * the given number of times. A set of labels of the given size

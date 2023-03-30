@@ -123,6 +123,37 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	}
 	
 	/**
+	 * Returns a CPQ representing the intersection of the given CPQs
+	 * from left to right. For example {@code ((q1 ∩ q2) ∩ q3)}.
+	 * @param cpqs The CPQs to intersect.
+	 * @return The intersection of the given CPQs.
+	 * @throws IllegalArgumentException When less than 2 CPQs are provided.
+	 */
+	public static CPQ intersect(CPQ... cpqs) throws IllegalArgumentException{
+		return intersect(Arrays.asList(cpqs));
+	}
+	
+	/**
+	 * Returns a CPQ representing the intersection of the given CPQs
+	 * from left to right. For example {@code ((q1 ∩ q2) ∩ q3)}.
+	 * @param cpqs The CPQs to intersect.
+	 * @return The intersection of the given CPQs.
+	 * @throws IllegalArgumentException When less than 2 CPQs are provided.
+	 */
+	public static CPQ intersect(List<CPQ> cpqs) throws IllegalArgumentException{
+		if(cpqs.size() < 2){
+			throw new IllegalArgumentException("Not enough CPQs given (need at least 2)");
+		}
+		
+		CPQ cpq = intersect(cpqs.get(0), cpqs.get(1));
+		for(int i = 2; i < cpqs.size(); i++){
+			cpq = intersect(cpq, cpqs.get(i));
+		}
+		
+		return cpq;
+	}
+	
+	/**
 	 * Returns a CPQ representing the concatenation in order
 	 * of the given CPQs.
 	 * @param cpqs The CPQs to concatenate (in order).

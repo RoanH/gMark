@@ -436,11 +436,38 @@ public class Util{
 		return product;
 	}
 	
+	/**
+	 * Computes all unordered subsets of the given list of items. Computed
+	 * sets are passed to the given consumer and should be treated as ephemeral.
+	 * They only exist for the during of the consumer call and should be copied
+	 * if persistence is required. Note that unordered subsets are computed,
+	 * this means that the output will not contain identical sets with a different
+	 * order of items. In addition, while technically a valid subset, the empty set
+	 * is never returned from this subroutine. Note that the input list itself will
+	 * be one of the returned subsets.
+	 * @param <T> The list data type.
+	 * @param items The items to compute subsets of.
+	 * @param consumer The consumer computed subsets are passed to.
+	 */
 	public static <T> void computeAllSubsets(List<T> items, Consumer<List<T>> consumer){
 		computeAllSubsets(items, 0, new ArrayList<T>(), consumer);
 	}
 	
-	//some impl note about the set would be good
+	/**
+	 * Computes all unordered subsets of the given list of items. Computed
+	 * sets are passed to the given consumer and should be treated as ephemeral.
+	 * They only exist for the during of the consumer call and should be copied
+	 * if persistence is required. Note that unordered subsets are computed,
+	 * this means that the output will not contain identical sets with a different
+	 * order of items. In addition, while technically a valid subset, the empty set
+	 * is never returned from this subroutine. Note that the input list itself will
+	 * be one of the returned subsets.
+	 * @param <T> The list data type.
+	 * @param items The items to compute subsets of.
+	 * @param offset The current item to consider of inclusion in the output.
+	 * @param set The current output working set.
+	 * @param consumer The consumer computed subsets are passed to.
+	 */
 	private static <T> void computeAllSubsets(List<T> items, int offset, List<T> set, Consumer<List<T>> consumer){
 		if(offset >= items.size()){
 			if(!set.isEmpty()){

@@ -435,4 +435,25 @@ public class Util{
 		
 		return product;
 	}
+	
+	public static <T> void computeAllSubsets(List<T> items, Consumer<List<T>> consumer){
+		computeAllSubsets(items, 0, new ArrayList<T>(), consumer);
+	}
+	
+	//some impl note about the set would be good
+	private static <T> void computeAllSubsets(List<T> items, int offset, List<T> set, Consumer<List<T>> consumer){
+		if(offset >= items.size()){
+			if(!set.isEmpty()){
+				consumer.accept(set);
+			}
+		}else{
+			//don't pick the element
+			computeAllSubsets(items, offset + 1, set, consumer);
+			
+			//pick the element
+			set.add(items.get(offset));
+			computeAllSubsets(items, offset + 1, set, consumer);
+			set.remove(set.size() - 1);
+		}
+	}
 }

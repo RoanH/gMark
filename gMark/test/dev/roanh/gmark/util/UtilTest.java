@@ -19,8 +19,10 @@
 package dev.roanh.gmark.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
@@ -335,6 +337,106 @@ public class UtilTest{
 		));
 		
 		assertEquals(0, prod.size());
+	}
+	
+	@Test
+	public void testSubsets0(){
+		List<String> items = Arrays.asList("a", "b", "c", "d");
+		Set<Set<String>> found = new HashSet<Set<String>>();
+		Util.computeAllSubsets(items, set->found.add(new HashSet<String>(set)));
+		
+		assertEquals(4 + 6 + 4 + 1, found.size());
+		
+		assertFalse(found.contains(new HashSet<String>()));
+		for(Set<String> set : found){
+			assertTrue(set.size() >= 1);
+			assertTrue(set.size() <= 4);
+			System.out.println(set);
+		}
+		
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d"))));
+		
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "c"))));
+		
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "b", "c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "b", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "c", "b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "c", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "d", "b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "d", "c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "a", "c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "a", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "c", "a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "c", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "d", "a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "d", "c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "a", "b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "a", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "b", "a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "b", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "d", "a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "d", "b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "a", "b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "a", "c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "b", "a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "b", "c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "c", "a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "c", "b"))));
+		
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "b", "c", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "b", "d", "c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "c", "b", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "c", "d", "b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "d", "b", "c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a", "d", "c", "b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "a", "c", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "a", "d", "c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "c", "a", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "c", "d", "a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "d", "a", "c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("b", "d", "c", "a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "a", "b", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "a", "d", "b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "b", "a", "d"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "b", "d", "a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "d", "a", "b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("c", "d", "b", "a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "a", "b", "c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "a", "c", "b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "b", "a", "c"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "b", "c", "a"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "c", "a", "b"))));
+		assertTrue(found.contains(new HashSet<String>(Arrays.asList("d", "c", "b", "a"))));
+	}
+	
+	@Test
+	public void testSubsets1(){
+		Util.computeAllSubsets(new ArrayList<String>(), s->fail());
+	}
+	
+	@Test
+	public void testSubsets2(){
+		List<String> items = Arrays.asList("a");
+		List<List<String>> found = new ArrayList<List<String>>();
+		Util.computeAllSubsets(items, set->found.add(new ArrayList<String>(set)));
+		
+		assertEquals(1, found.size());
+		assertEquals(1, found.get(0).size());
+		assertEquals("a", found.get(0).get(0));
 	}
 	
 	public static <T> void assertValidTreeDecomposition(Tree<List<T>> decomp, List<T> vertices, List<SimpleEdge<T>> edges){

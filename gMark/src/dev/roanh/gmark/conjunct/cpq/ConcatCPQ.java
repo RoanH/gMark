@@ -119,4 +119,9 @@ public class ConcatCPQ implements CPQ{
 		chain.setTarget(target);
 		return chain;
 	}
+
+	@Override
+	public int getDiameter(){
+		return cpq.stream().mapToInt(CPQ::getDiameter).sum();
+	}
 }

@@ -65,6 +65,11 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 		public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
 			return new QueryGraphCPQ(source, target);
 		}
+
+		@Override
+		public int getDiameter(){
+			return 0;
+		}
 	};
 	
 	/**
@@ -90,6 +95,15 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	 * @see #toQueryGraph()
 	 */
 	public abstract QueryGraphCPQ toQueryGraph(Vertex source, Vertex target);
+	
+	/**
+	 * Returns the diameter of this CPQ. The diameter of a CPQ is
+	 * the largest number of labels to which the join operation is
+	 * applied. A simpler way to think of this concept is the length
+	 * of the largest path through the CPQ from source to target.
+	 * @return The diameter of this CPQ.
+	 */
+	public abstract int getDiameter();
 	
 	/**
 	 * Returns the identity CPQ.

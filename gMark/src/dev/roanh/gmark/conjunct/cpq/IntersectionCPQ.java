@@ -77,4 +77,9 @@ public class IntersectionCPQ implements CPQ{
 	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
 		return first.toQueryGraph(source, target).union(second.toQueryGraph(source, target));
 	}
+
+	@Override
+	public int getDiameter(){
+		return Math.max(first.getDiameter(), second.getDiameter());
+	}
 }

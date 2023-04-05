@@ -207,14 +207,9 @@ public class GeneratorCPQ implements ConjunctGenerator{
 		
 		parts = split(query, intersect);
 		if(parts.size() > 1){
-			if(parts.size() > 2){
-				throw new IllegalArgumentException("No brackets around intersection, please use brackets to chain conjuction.");
-			}
-			
-			return CPQ.intersect(
-				parse(parts.get(0), labels, join, intersect, inverse),
-				parse(parts.get(1), labels, join, intersect, inverse)
-			);
+			return CPQ.intersect(parts.stream().map(part->{
+				return parse(part, labels, join, intersect, inverse);
+			}).collect(Collectors.toList()));
 		}
 		
 		if(query.equals("id")){
@@ -227,8 +222,12 @@ public class GeneratorCPQ implements ConjunctGenerator{
 			query = query.substring(0, query.length() - 1);
 		}
 		
-		Predicate label = labels.computeIfAbsent(query, k->new Predicate(labels.size(), k));
-		return CPQ.label(inv ? label.getInverse() : label);
+		if(query.indexOf('(') == -1 && query.indexOf(')') == -1 && query.indexOf(join) == -1 && query.indexOf(intersect) == -1 && query.indexOf(inverse) == -1){
+			Predicate label = labels.computeIfAbsent(query, k->new Predicate(labels.size(), k));
+			return CPQ.label(inv ? label.getInverse() : label);
+		}
+
+		throw new IllegalArgumentException("Invalid CPQ.");
 	}
 	
 	/**

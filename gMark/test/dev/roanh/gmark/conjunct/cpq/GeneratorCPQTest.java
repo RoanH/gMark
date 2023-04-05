@@ -90,7 +90,7 @@ public class GeneratorCPQTest{
 	
 	@Test
 	public void parse2(){
-		assertThrows(IllegalArgumentException.class, ()->CPQ.parse("a ∩ b ∩ c"));
+		assertEquals("((a ∩ b) ∩ c)", CPQ.parse("a ∩ b ∩ c").toString());
 	}
 	
 	@Test

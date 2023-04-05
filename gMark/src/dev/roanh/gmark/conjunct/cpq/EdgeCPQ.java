@@ -66,11 +66,11 @@ public class EdgeCPQ implements CPQ{
 
 	@Override
 	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-		return symbol.isInverse() ? new QueryGraphCPQ(symbol.getInverse(), target, source) : new QueryGraphCPQ(symbol, source, target);
+		return new QueryGraphCPQ(symbol, source, target);
 	}
 
 	@Override
 	public int getDiameter(){
-		return 1;
+		return 0;
 	}
 }

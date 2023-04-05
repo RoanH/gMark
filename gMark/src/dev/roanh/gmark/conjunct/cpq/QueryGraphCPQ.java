@@ -85,7 +85,7 @@ public class QueryGraphCPQ{
 	/**
 	 * Constructs a new query graph for the CPQ containing
 	 * only a single edge label traversal.
-	 * @param label The label being traversed. Should not be a negated predicate.
+	 * @param label The label being traversed.
 	 * @param source The CPQ source vertex where the edge traversal starts.
 	 * @param target The CPQ target vertex where the edge traversal ends.
 	 */
@@ -94,7 +94,11 @@ public class QueryGraphCPQ{
 		this.target = target;
 		vertices.add(source);
 		vertices.add(target);
-		edges.add(new Edge(source, target, label));
+		if(label.isInverse()){
+			edges.add(new Edge(target, source, label.getInverse()));
+		}else{
+			edges.add(new Edge(source, target, label));
+		}
 	}
 	
 	/**

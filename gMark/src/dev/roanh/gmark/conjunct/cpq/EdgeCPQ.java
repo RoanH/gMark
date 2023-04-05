@@ -71,6 +71,6 @@ public class EdgeCPQ implements CPQ{
 
 	@Override
 	public int getDiameter(){
-		return 0;
+		return 1;
 	}
 }

@@ -444,13 +444,15 @@ public class Util{
 	 * this means that the output will not contain identical sets with a different
 	 * order of items. In addition, while technically a valid subset, the empty set
 	 * is never returned from this subroutine. Note that the input list itself will
-	 * be one of the returned subsets.
+	 * be one of the returned subsets. As an implementation note, it is allowed to
+	 * add elements to the passed list of items in the consumer, though these items
+	 * will not be considered for any subsets.
 	 * @param <T> The list data type.
 	 * @param items The items to compute subsets of.
 	 * @param consumer The consumer computed subsets are passed to.
 	 */
 	public static <T> void computeAllSubsets(List<T> items, Consumer<List<T>> consumer){
-		computeAllSubsets(items, 0, new ArrayList<T>(), consumer);
+		computeAllSubsets(items, 0, items.size(), new ArrayList<T>(), consumer);
 	}
 	
 	/**
@@ -461,25 +463,28 @@ public class Util{
 	 * this means that the output will not contain identical sets with a different
 	 * order of items. In addition, while technically a valid subset, the empty set
 	 * is never returned from this subroutine. Note that the input list itself will
-	 * be one of the returned subsets.
+	 * be one of the returned subsets. As an implementation note, it is allowed to
+	 * add elements to the passed list of items in the consumer, though these items
+	 * will not be considered for any subsets.
 	 * @param <T> The list data type.
 	 * @param items The items to compute subsets of.
 	 * @param offset The current item to consider of inclusion in the output.
+	 * @param max The maximum index in the array to consider for any subset.
 	 * @param set The current output working set.
 	 * @param consumer The consumer computed subsets are passed to.
 	 */
-	private static <T> void computeAllSubsets(List<T> items, int offset, List<T> set, Consumer<List<T>> consumer){
-		if(offset >= items.size()){
+	private static <T> void computeAllSubsets(List<T> items, int offset, final int max, List<T> set, Consumer<List<T>> consumer){
+		if(offset >= max){
 			if(!set.isEmpty()){
 				consumer.accept(set);
 			}
 		}else{
 			//don't pick the element
-			computeAllSubsets(items, offset + 1, set, consumer);
+			computeAllSubsets(items, offset + 1, max, set, consumer);
 			
 			//pick the element
 			set.add(items.get(offset));
-			computeAllSubsets(items, offset + 1, set, consumer);
+			computeAllSubsets(items, offset + 1, max, set, consumer);
 			set.remove(set.size() - 1);
 		}
 	}

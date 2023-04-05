@@ -194,10 +194,6 @@ public class GeneratorCPQ implements ConjunctGenerator{
 	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
 	 */
 	private static CPQ parse(String query, Map<String, Predicate> labels, char join, char intersect, char inverse) throws IllegalArgumentException{
-		if(query.startsWith("(") && query.endsWith(")")){
-			query = query.substring(1, query.length() - 1);
-		}
-		
 		List<String> parts = split(query, join);
 		if(parts.size() > 1){
 			return CPQ.concat(parts.stream().map(part->{
@@ -216,15 +212,21 @@ public class GeneratorCPQ implements ConjunctGenerator{
 			return CPQ.IDENTITY;
 		}
 		
-		boolean inv = false;
-		if(query.charAt(query.length() - 1) == inverse){
-			inv = true;
-			query = query.substring(0, query.length() - 1);
+		if(query.startsWith("(") && query.endsWith(")")){
+			return parse(query.substring(1, query.length() - 1), labels, join, intersect, inverse);
 		}
 		
-		if(query.indexOf('(') == -1 && query.indexOf(')') == -1 && query.indexOf(join) == -1 && query.indexOf(intersect) == -1 && query.indexOf(inverse) == -1){
-			Predicate label = labels.computeIfAbsent(query, k->new Predicate(labels.size(), k));
-			return CPQ.label(inv ? label.getInverse() : label);
+		if(query.indexOf('(') == -1 && query.indexOf(')') == -1 && query.indexOf(join) == -1 && query.indexOf(intersect) == -1){
+			boolean inv = false;
+			if(query.charAt(query.length() - 1) == inverse){
+				inv = true;
+				query = query.substring(0, query.length() - 1);
+			}
+			
+			if(query.indexOf(inverse) == -1){
+				Predicate label = labels.computeIfAbsent(query, k->new Predicate(labels.size(), k));
+				return CPQ.label(inv ? label.getInverse() : label);
+			}
 		}
 
 		throw new IllegalArgumentException("Invalid CPQ.");

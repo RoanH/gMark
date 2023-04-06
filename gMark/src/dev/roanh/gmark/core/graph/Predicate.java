@@ -152,7 +152,7 @@ public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>{
 	
 	@Override
 	public String toString(){
-		return "Predicate[id=" + id + ",alias=\"" + getAlias() + "]";
+		return "Predicate[id=" + id + ",alias=\"" + getAlias() + "\"]";
 	}
 	
 	@Override

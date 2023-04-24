@@ -31,28 +31,29 @@ import java.util.stream.Collectors;
  * graph are uniquely identified by some piece of data.
  * @author Roan
  * @param <T> The vertex data type
+ * @param <M> The metadata data type
  */
-public class SimpleGraph<T extends IDable>{
+public class SimpleGraph<T extends IDable, M>{
 	/**
 	 * Map from identifying data to associated vertex.
 	 */
-	private final RangeList<SimpleVertex<T>> vertexMap;
+	private final RangeList<SimpleVertex<T, M>> vertexMap;
 	/**
 	 * Set of all edges in the graph.
 	 */
-	private final Set<SimpleEdge<T>> edges = new HashSet<SimpleEdge<T>>();
+	private final Set<SimpleEdge<T, M>> edges = new HashSet<SimpleEdge<T, M>>();
 	
 	public SimpleGraph(int vertexCount){
-		vertexMap = new RangeList<SimpleVertex<T>>(vertexCount);
+		vertexMap = new RangeList<SimpleVertex<T, M>>(vertexCount);
 	}
 	
 	/**
 	 * Deletes the given vertex from the graph.
 	 * @param vertex The vertex to delete
 	 */
-	public void deleteVertex(SimpleVertex<T> vertex){
+	public void deleteVertex(SimpleVertex<T, M> vertex){
 		vertexMap.set(vertex.getData(), null);
-		for(SimpleEdge<T> edge : vertex.getEdges()){
+		for(SimpleEdge<T, M> edge : vertex.getEdges()){
 			edges.remove(edge);
 			edge.getTarget(vertex).edges.remove(edge);
 		}
@@ -63,7 +64,7 @@ public class SimpleGraph<T extends IDable>{
 	 * @param data The data uniquely identifying the requested vertex.
 	 * @return The vertex associated with the passed data.
 	 */
-	public SimpleVertex<T> getVertex(T data){
+	public SimpleVertex<T, M> getVertex(T data){
 		return vertexMap.get(data);
 	}
 	
@@ -71,7 +72,7 @@ public class SimpleGraph<T extends IDable>{
 	 * Gets all the edges in this graph.
 	 * @return All the edges in this graph.
 	 */
-	public Set<SimpleEdge<T>> getEdges(){
+	public Set<SimpleEdge<T, M>> getEdges(){
 		return edges;
 	}
 	
@@ -81,12 +82,12 @@ public class SimpleGraph<T extends IDable>{
 	 * @return The newly added vertex or the already existing vertex if a vertex identified
 	 *         by the same piece of data was already present in the graph.
 	 */
-	public SimpleVertex<T> addVertex(T data){
-		SimpleVertex<T> v = vertexMap.get(data);
+	public SimpleVertex<T, M> addVertex(T data){
+		SimpleVertex<T, M> v = vertexMap.get(data);
 		if(v != null){
 			return v;
 		}else{
-			v = new SimpleVertex<T>(data);
+			v = new SimpleVertex<T, M>(data);
 			vertexMap.set(data, v);
 			return v;
 		}
@@ -98,7 +99,7 @@ public class SimpleGraph<T extends IDable>{
 	 * @param b The data uniquely identifying the second vertex.
 	 * @return The newly added edge.
 	 */
-	public SimpleEdge<T> addEdge(T a, T b){
+	public SimpleEdge<T, M> addEdge(T a, T b){
 		return addEdge(vertexMap.get(a), b);
 	}
 	
@@ -108,7 +109,7 @@ public class SimpleGraph<T extends IDable>{
 	 * @param b The data uniquely identifying the second vertex.
 	 * @return The newly added edge.
 	 */
-	public SimpleEdge<T> addEdge(SimpleVertex<T> a, T b){
+	public SimpleEdge<T, M> addEdge(SimpleVertex<T, M> a, T b){
 		return addEdge(a, vertexMap.get(b));
 	}
 	
@@ -118,8 +119,8 @@ public class SimpleGraph<T extends IDable>{
 	 * @param b The second vertex.
 	 * @return The newly added edge.
 	 */
-	public SimpleEdge<T> addEdge(SimpleVertex<T> a, SimpleVertex<T> b){
-		SimpleEdge<T> edge = new SimpleEdge<T>(a, b);
+	public SimpleEdge<T, M> addEdge(SimpleVertex<T, M> a, SimpleVertex<T, M> b){
+		SimpleEdge<T, M> edge = new SimpleEdge<T, M>(a, b);
 		b.edges.add(edge);
 		a.edges.add(edge);
 		edges.add(edge);
@@ -132,7 +133,7 @@ public class SimpleGraph<T extends IDable>{
 	 */
 	public int getVertexCount(){
 		int count = 0;
-		for(SimpleVertex<T> vertex : vertexMap){
+		for(SimpleVertex<T, M> vertex : vertexMap){
 			if(vertex != null){
 				count++;
 			}
@@ -152,8 +153,8 @@ public class SimpleGraph<T extends IDable>{
 	 * Gets all the vertices in this graph.
 	 * @return All the vertices in this graph.
 	 */
-	public List<SimpleVertex<T>> getVertices(){
-		List<SimpleVertex<T>> vertices = new ArrayList<SimpleVertex<T>>(vertexMap.size());
+	public List<SimpleVertex<T, M>> getVertices(){
+		List<SimpleVertex<T, M>> vertices = new ArrayList<SimpleVertex<T, M>>(vertexMap.size());
 		vertexMap.forEachNonNull(vertices::add);
 		return vertices;
 	}
@@ -168,7 +169,7 @@ public class SimpleGraph<T extends IDable>{
 		UniqueGraph<T, Void> g = new UniqueGraph<T, Void>();
 		
 		vertexMap.forEachNonNull(v->g.addUniqueNode(v.getData()));
-		for(SimpleEdge<T> edge : edges){
+		for(SimpleEdge<T, M> edge : edges){
 			g.addUniqueEdge(edge.getFirstVertex().getData(), edge.getSecondVertex().getData());
 			g.addUniqueEdge(edge.getSecondVertex().getData(), edge.getFirstVertex().getData());
 		}
@@ -184,15 +185,15 @@ public class SimpleGraph<T extends IDable>{
 	 * @param edge The edge to contracted.
 	 * @param vertex The vertex to represent the contracted edge and vertices.
 	 */
-	public void contractEdge(SimpleEdge<T> edge, SimpleVertex<T> vertex){
-		SimpleVertex<T> v1 = edge.getFirstVertex();
-		SimpleVertex<T> v2 = edge.getSecondVertex();
+	public void contractEdge(SimpleEdge<T, M> edge, SimpleVertex<T, M> vertex){
+		SimpleVertex<T, M> v1 = edge.getFirstVertex();
+		SimpleVertex<T, M> v2 = edge.getSecondVertex();
 		
 		edges.remove(edge);
 		vertexMap.set(v1.getData(), null);
 		vertexMap.set(v2.getData(), null);
 		
-		for(SimpleEdge<T> e : edges){
+		for(SimpleEdge<T, M> e : edges){
 			if(e.getFirstVertex() == v1 || e.getFirstVertex() == v2){
 				e.v1 = vertex;
 			}else if(e.getSecondVertex() == v1 || e.getSecondVertex() == v2){
@@ -213,32 +214,42 @@ public class SimpleGraph<T extends IDable>{
 	 * Represents a single undirected edge between two nodes in the graph.
 	 * @author Roan
 	 * @param <T> The graph data type.
+	 * @param <M> The metadata data type.
 	 */
-	public static final class SimpleEdge<T extends IDable>{
+	public static final class SimpleEdge<T extends IDable, M>{
 		/**
 		 * The first end point of this edge.
 		 */
-		private SimpleVertex<T> v1;
+		private SimpleVertex<T, M> v1;
 		/**
 		 * The second end point of this edge.
 		 */
-		private SimpleVertex<T> v2;
+		private SimpleVertex<T, M> v2;
+		private M metadata;
 		
 		/**
 		 * Constructs a new edge between the given two vertices.
 		 * @param v1 The first end point of the edge.
 		 * @param v2 The second end point of the edge.
 		 */
-		private SimpleEdge(SimpleVertex<T> v1, SimpleVertex<T> v2){
+		private SimpleEdge(SimpleVertex<T, M> v1, SimpleVertex<T, M> v2){
 			this.v1 = v1;
 			this.v2 = v2;
+		}
+		
+		public M getMetadata(){
+			return metadata;
+		}
+		
+		public void setMetadata(M meta){
+			metadata = meta;
 		}
 		
 		/**
 		 * Gets the first end point vertex for this end.
 		 * @return The first vertex for this edge.
 		 */
-		public SimpleVertex<T> getFirstVertex(){
+		public SimpleVertex<T, M> getFirstVertex(){
 			return v1;
 		}
 		
@@ -246,7 +257,7 @@ public class SimpleGraph<T extends IDable>{
 		 * Gets the second end point vertex for this end.
 		 * @return The second vertex for this edge.
 		 */
-		public SimpleVertex<T> getSecondVertex(){
+		public SimpleVertex<T, M> getSecondVertex(){
 			return v2;
 		}
 		
@@ -257,15 +268,15 @@ public class SimpleGraph<T extends IDable>{
 		 * @param source The source vertex to use to determine the target vertex.
 		 * @return The target vertex of this edge from the point of view of the source vertex.
 		 */
-		public SimpleVertex<T> getTarget(SimpleVertex<T> source){
+		public SimpleVertex<T, M> getTarget(SimpleVertex<T, M> source){
 			assert v1 == source || v2 == source;
 			return v1 == source ? v2 : v1;
 		}
 		
 		@Override
 		public boolean equals(Object obj){
-			if(obj instanceof SimpleEdge<?>){
-				SimpleEdge<?> edge = (SimpleEdge<?>)obj;
+			if(obj instanceof SimpleEdge<?, ?>){
+				SimpleEdge<?, ?> edge = (SimpleEdge<?, ?>)obj;
 				return (v1.equals(edge.v1) && v2.equals(edge.v2)) || (v1.equals(edge.v2) && v2.equals(edge.v1));
 			}else{
 				return false;
@@ -282,8 +293,9 @@ public class SimpleGraph<T extends IDable>{
 	 * Represents a single vertex in the graph.
 	 * @author Roan
 	 * @param <T> The data type of data stored at vertices.
+	 * @param <M> The metadata data type.
 	 */
-	public static final class SimpleVertex<T extends IDable> implements IDable{
+	public static final class SimpleVertex<T extends IDable, M> implements IDable{
 		/**
 		 * The data stored at this vertex that uniquely identifies it in the graph.
 		 */
@@ -291,22 +303,30 @@ public class SimpleGraph<T extends IDable>{
 		/**
 		 * The edges this vertex is an end point for.
 		 */
-		private Set<SimpleEdge<T>> edges = new HashSet<SimpleEdge<T>>();
+		private Set<SimpleEdge<T, M>> edges = new HashSet<SimpleEdge<T, M>>();
+		private M metadata;
 		
 		/**
-		 * Constructs a new vertex with the given ID and data.
-		 * @param id The ID of this vertex.
+		 * Constructs a new vertex with the given data.
 		 * @param data The data uniquely identifying this vertex.
 		 */
 		private SimpleVertex(T data){
 			this.data = data;
 		}
 		
+		public M getMetadata(){
+			return metadata;
+		}
+		
+		public void setMetadata(M meta){
+			metadata = meta;
+		}
+		
 		/**
 		 * Gets a set of all edges that this vertex participates in as an end point.
 		 * @return All the edges that this vertex is and end point of.
 		 */
-		public Set<SimpleEdge<T>> getEdges(){
+		public Set<SimpleEdge<T, M>> getEdges(){
 			return edges;
 		}
 		
@@ -333,7 +353,7 @@ public class SimpleGraph<T extends IDable>{
 		 * @param target The vertex to check for an edge to.
 		 * @return True if this vertex has and edge to the given target vertex.
 		 */
-		public boolean hasEdge(SimpleVertex<T> target){
+		public boolean hasEdge(SimpleVertex<T, M> target){
 			return getEdge(target) != null;
 		}
 		
@@ -343,8 +363,8 @@ public class SimpleGraph<T extends IDable>{
 		 * @return The edge from this vertex to the given target vertex
 		 *         or <code>null</code> if no such edge exists.
 		 */
-		public SimpleEdge<T> getEdge(SimpleVertex<T> target){
-			for(SimpleEdge<T> edge : edges){
+		public SimpleEdge<T, M> getEdge(SimpleVertex<T, M> target){
+			for(SimpleEdge<T, M> edge : edges){
 				if(edge.v2 == target || edge.v1 == target){
 					return edge;
 				}
@@ -356,7 +376,7 @@ public class SimpleGraph<T extends IDable>{
 		 * Gets a list of all the neighbour vertices for this vertex, excluding itself.
 		 * @return All neighbours of this vertex.
 		 */
-		public List<SimpleVertex<T>> getNeighbours(){
+		public List<SimpleVertex<T, M>> getNeighbours(){
 			return edges.stream().map(e->e.getTarget(this)).collect(Collectors.toList());
 		}
 		
@@ -378,7 +398,7 @@ public class SimpleGraph<T extends IDable>{
 		
 		@Override
 		public boolean equals(Object obj){
-			return obj instanceof SimpleVertex<?> ? ((SimpleVertex<?>)obj).data.equals(data) : false;
+			return obj instanceof SimpleVertex<?, ?> ? ((SimpleVertex<?, ?>)obj).data.equals(data) : false;
 		}
 		
 		@Override

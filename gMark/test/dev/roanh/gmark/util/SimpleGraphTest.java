@@ -36,7 +36,7 @@ public class SimpleGraphTest{
 	
 	@Test
 	public void build(){
-		SimpleGraph<Predicate> g = new SimpleGraph<Predicate>(4);
+		SimpleGraph<Predicate, Void> g = new SimpleGraph<Predicate, Void>(4);
 		
 		g.addVertex(a);
 		g.addVertex(b);
@@ -53,19 +53,19 @@ public class SimpleGraphTest{
 
 	@Test
 	public void contract(){
-		SimpleGraph<Predicate> g = new SimpleGraph<Predicate>(5);
+		SimpleGraph<Predicate, Void> g = new SimpleGraph<Predicate, Void>(5);
 		Predicate v = new Predicate(4, "v");
 		
 		g.addVertex(a);
 		g.addVertex(b);
 		g.addVertex(c);
 		g.addVertex(d);
-		SimpleVertex<Predicate> vertex = g.addVertex(v);
+		SimpleVertex<Predicate, Void> vertex = g.addVertex(v);
 		
 		g.addEdge(a, b);
 		g.addEdge(b, d);
 		g.addEdge(a, c);
-		SimpleEdge<Predicate> edge = g.addEdge(c, d);
+		SimpleEdge<Predicate, Void> edge = g.addEdge(c, d);
 		
 		g.contractEdge(edge, vertex);
 		

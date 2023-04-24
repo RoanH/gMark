@@ -182,16 +182,17 @@ public class QueryGraphCPQ{
 	 * are represented as vertices. Edges are only present between an edge nodes
 	 * and vertex nodes and only if the vertex node represents a vertex that was
 	 * one of the end points of the edge node in the original query graph.
+	 * @param <M> The graph metadata data types.
 	 * @return The incidence graph for this graph.
 	 * @see QueryGraphComponent
 	 */
-	public SimpleGraph<QueryGraphComponent> toIncidenceGraph(){
+	public <M> SimpleGraph<QueryGraphComponent, M> toIncidenceGraph(){
 		merge();
-		SimpleGraph<QueryGraphComponent> g = new SimpleGraph<QueryGraphComponent>(vertices.size() + edges.size());
+		SimpleGraph<QueryGraphComponent, M> g = new SimpleGraph<QueryGraphComponent, M>(vertices.size() + edges.size());
 		vertices.forEach(g::addVertex);
 		
 		for(Edge edge : edges){
-			SimpleVertex<QueryGraphComponent> v = g.addVertex(edge);
+			SimpleVertex<QueryGraphComponent, M> v = g.addVertex(edge);
 			g.addEdge(v, edge.src);
 			g.addEdge(v, edge.trg);
 		}

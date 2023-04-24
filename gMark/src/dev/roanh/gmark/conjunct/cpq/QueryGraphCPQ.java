@@ -225,18 +225,18 @@ public class QueryGraphCPQ{
 
 		//pre compute mappings
 		Map<QueryGraphComponent, List<Object>> known = new HashMap<QueryGraphComponent, List<Object>>();
-		Map<Vertex, List<Edge>> outEdges = new HashMap<Vertex, List<Edge>>();
-		Map<Vertex, List<Edge>> inEdges = new HashMap<Vertex, List<Edge>>();
-		
-		for(Vertex vertex : vertices){
-			outEdges.put(vertex, new ArrayList<Edge>());
-			inEdges.put(vertex, new ArrayList<Edge>());
-		}
-		
-		for(Edge edge : edges){
-			outEdges.get(edge.src).add(edge);
-			inEdges.get(edge.trg).add(edge);
-		}
+//		Map<Vertex, List<Edge>> outEdges = new HashMap<Vertex, List<Edge>>();
+//		Map<Vertex, List<Edge>> inEdges = new HashMap<Vertex, List<Edge>>();
+//		
+//		for(Vertex vertex : vertices){
+//			outEdges.put(vertex, new ArrayList<Edge>());
+//			inEdges.put(vertex, new ArrayList<Edge>());
+//		}
+//		
+//		for(Edge edge : edges){
+//			outEdges.get(edge.src).add(edge);
+//			inEdges.get(edge.trg).add(edge);
+//		}
 		
 		for(Vertex vertex : vertices){
 			List<Object> matches = new ArrayList<Object>();
@@ -249,15 +249,15 @@ public class QueryGraphCPQ{
 					continue;
 				}
 				
-				List<Edge> out = outEdges.get(vertex);
-				if(!checkEquivalent(out, other.getOutEdges())){
-					continue;
-				}
-				
-				List<Edge> in = inEdges.get(vertex);
-				if(!checkEquivalent(in, other.getInEdges())){
-					continue;
-				}
+//				List<Edge> out = outEdges.get(vertex);
+//				if(!checkEquivalent(out, other.getOutEdges())){
+//					continue;
+//				}
+//				
+//				List<Edge> in = inEdges.get(vertex);
+//				if(!checkEquivalent(in, other.getInEdges())){
+//					continue;
+//				}
 				
 				matches.add(other);
 			}
@@ -488,33 +488,33 @@ public class QueryGraphCPQ{
 		return "QueryGraphCPQ[V=" + vertices + ",E=" + edges + ",src=" + source + ",trg=" + target + ",Fid=" + fid + "]";
 	}
 	
-	/**
-	 * Helper method to check if the predicates on the edges in the given
-	 * list all occur at least once in the given second set of edges.
-	 * @param first The set of edges whose predicates to find.
-	 * @param second The set of edges where the same predicates need to
-	 *        exist at least once.
-	 * @return True if the second set contains all the predicates from
-	 *         the first set at least once.
-	 */
-	private static boolean checkEquivalent(List<Edge> first, Set<GraphEdge<Vertex, Predicate>> second){
-		Iterator<Predicate> edges = first.stream().map(e->e.label).sorted().distinct().iterator();
-		Iterator<Predicate> other = second.stream().map(GraphEdge::getData).sorted().distinct().iterator();
-		
-		while(edges.hasNext()){
-			Predicate p = edges.next();
-			
-			while(true){
-				if(!other.hasNext()){
-					return false;
-				}else if(p.equals(other.next())){
-					break;
-				}
-			}
-		}
-		
-		return true;
-	}
+//	/**
+//	 * Helper method to check if the predicates on the edges in the given
+//	 * list all occur at least once in the given second set of edges.
+//	 * @param first The set of edges whose predicates to find.
+//	 * @param second The set of edges where the same predicates need to
+//	 *        exist at least once.
+//	 * @return True if the second set contains all the predicates from
+//	 *         the first set at least once.
+//	 */
+//	private static boolean checkEquivalent(List<Edge> first, Set<GraphEdge<Vertex, Predicate>> second){
+//		Iterator<Predicate> edges = first.stream().map(e->e.label).sorted().distinct().iterator();
+//		Iterator<Predicate> other = second.stream().map(GraphEdge::getData).sorted().distinct().iterator();
+//		
+//		while(edges.hasNext()){
+//			Predicate p = edges.next();
+//			
+//			while(true){
+//				if(!other.hasNext()){
+//					return false;
+//				}else if(p.equals(other.next())){
+//					break;
+//				}
+//			}
+//		}
+//		
+//		return true;
+//	}
 	
 	/**
 	 * Shared base interface for query graph elements.
@@ -529,18 +529,14 @@ public class QueryGraphCPQ{
 		 * @return True if this is a vertex.
 		 * @see Vertex
 		 */
-		public default boolean isVertex(){
-			return this instanceof Vertex;
-		}
+		public abstract boolean isVertex();
 		
 		/**
 		 * Checks if this query graph component is an edge.
 		 * @return True if this is an edge.
 		 * @see Edge
 		 */
-		public default boolean isEdge(){
-			return this instanceof Edge;
-		}
+		public abstract  boolean isEdge();
 	}
 	
 	/**
@@ -558,6 +554,16 @@ public class QueryGraphCPQ{
 		@Override
 		public int getID(){
 			return id;
+		}
+
+		@Override
+		public boolean isVertex(){
+			return true;
+		}
+
+		@Override
+		public boolean isEdge(){
+			return false;
 		}
 	}
 	
@@ -616,6 +622,16 @@ public class QueryGraphCPQ{
 		@Override
 		public int getID(){
 			return id;
+		}
+
+		@Override
+		public boolean isVertex(){
+			return false;
+		}
+
+		@Override
+		public boolean isEdge(){
+			return true;
 		}
 	}
 	

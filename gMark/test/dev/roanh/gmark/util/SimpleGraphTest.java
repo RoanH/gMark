@@ -24,33 +24,56 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
+import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 
 public class SimpleGraphTest{
+	private static final Predicate a = new Predicate(0, "a");
+	private static final Predicate b = new Predicate(1, "b");
+	private static final Predicate c = new Predicate(2, "c");
+	private static final Predicate d = new Predicate(3, "d");
+	
+	@Test
+	public void build(){
+		SimpleGraph<Predicate> g = new SimpleGraph<Predicate>(4);
+		
+		g.addVertex(a);
+		g.addVertex(b);
+		g.addVertex(c);
+		g.addVertex(d);
+		
+		g.addEdge(a, b);
+		g.addEdge(b, d);
+		g.addEdge(a, c);
+		
+		assertEquals(4, g.getVertexCount());
+		assertEquals(3, g.getEdgeCount());
+	}
 
 	@Test
 	public void contract(){
-		SimpleGraph<String> g = new SimpleGraph<String>();
+		SimpleGraph<Predicate> g = new SimpleGraph<Predicate>(5);
+		Predicate v = new Predicate(4, "v");
 		
-		g.addVertex("a");
-		g.addVertex("b");
-		g.addVertex("c");
-		g.addVertex("d");
-		SimpleVertex<String> vertex = g.addVertex("v");
+		g.addVertex(a);
+		g.addVertex(b);
+		g.addVertex(c);
+		g.addVertex(d);
+		SimpleVertex<Predicate> vertex = g.addVertex(v);
 		
-		g.addEdge("a", "b");
-		g.addEdge("b", "d");
-		g.addEdge("a", "c");
-		SimpleEdge<String> edge = g.addEdge("c", "d");
+		g.addEdge(a, b);
+		g.addEdge(b, d);
+		g.addEdge(a, c);
+		SimpleEdge<Predicate> edge = g.addEdge(c, d);
 		
 		g.contractEdge(edge, vertex);
 		
-		assertNotNull(g.getVertex("a"));
-		assertNotNull(g.getVertex("b"));
-		assertNotNull(g.getVertex("v"));
-		assertNull(g.getVertex("c"));
-		assertNull(g.getVertex("d"));
+		assertNotNull(g.getVertex(a));
+		assertNotNull(g.getVertex(b));
+		assertNotNull(g.getVertex(v));
+		assertNull(g.getVertex(c));
+		assertNull(g.getVertex(d));
 		
 		assertEquals(3, g.getVertexCount());
 		assertEquals(3, g.getEdgeCount());

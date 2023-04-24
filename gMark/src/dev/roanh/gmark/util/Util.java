@@ -283,7 +283,7 @@ public class Util{
 	 * @throws IllegalArgumentException When the input graph is not connected or has a
 	 *         treewidth that is larger than 2.
 	 */
-	public static <T> Tree<List<T>> computeTreeDecompositionWidth2(SimpleGraph<T> graph) throws IllegalArgumentException{
+	public static <T extends IDable> Tree<List<T>> computeTreeDecompositionWidth2(SimpleGraph<T> graph) throws IllegalArgumentException{
 		Deque<SimpleVertex<T>> deg2 = new ArrayDeque<SimpleVertex<T>>();
 		Map<SimpleVertex<T>, List<Tree<List<T>>>> vMaps = new HashMap<SimpleVertex<T>, List<Tree<List<T>>>>();
 		Map<SimpleEdge<T>, List<Tree<List<T>>>> eMaps = new HashMap<SimpleEdge<T>, List<Tree<List<T>>>>();
@@ -369,7 +369,7 @@ public class Util{
 	 * @param graph The graph to find a maximal matching for.
 	 * @return The edges of the found maximal matching.
 	 */
-	public static <T> List<SimpleEdge<T>> findMaximalMatching(SimpleGraph<T> graph){
+	public static <T extends IDable> List<SimpleEdge<T>> findMaximalMatching(SimpleGraph<T> graph){
 		List<SimpleEdge<T>> matching = new ArrayList<SimpleEdge<T>>();
 		Set<SimpleVertex<T>> usedVertices = new HashSet<SimpleVertex<T>>();
 		

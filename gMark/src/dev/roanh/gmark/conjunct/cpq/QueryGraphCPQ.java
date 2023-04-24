@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.IDable;
 import dev.roanh.gmark.util.SimpleGraph;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.Tree;
@@ -186,7 +187,7 @@ public class QueryGraphCPQ{
 	 */
 	public SimpleGraph<QueryGraphComponent> toIncidenceGraph(){
 		merge();
-		SimpleGraph<QueryGraphComponent> g = new SimpleGraph<QueryGraphComponent>();
+		SimpleGraph<QueryGraphComponent> g = new SimpleGraph<QueryGraphComponent>(vertices.size() + edges.size());
 		vertices.forEach(g::addVertex);
 		
 		for(Edge edge : edges){
@@ -443,6 +444,15 @@ public class QueryGraphCPQ{
 			}
 			fid.removeIf(p->p.first == elem.first || p.second == elem.first);
 		}
+		
+		int id = 0;
+		for(Vertex v : vertices){
+			v.id = id++;
+		}
+		
+		for(Edge e : edges){
+			e.id = id++;
+		}
 	}
 	
 	/**
@@ -511,7 +521,7 @@ public class QueryGraphCPQ{
 	 * or an {@link Edge}.
 	 * @author Roan
 	 */
-	public static abstract interface QueryGraphComponent{
+	public static abstract interface QueryGraphComponent extends IDable{
 		
 		/**
 		 * Checks if this query graph component is a vertex.
@@ -537,10 +547,16 @@ public class QueryGraphCPQ{
 	 * @author Roan
 	 */
 	public static class Vertex implements QueryGraphComponent{
+		private int id;
 		
 		@Override
 		public String toString(){
 			return String.valueOf((char)('a' + (this.hashCode() % 26)));
+		}
+
+		@Override
+		public int getID(){
+			return id;
 		}
 	}
 	
@@ -561,6 +577,7 @@ public class QueryGraphCPQ{
 		 * The edge label.
 		 */
 		private final Predicate label;
+		private int id;
 		
 		/**
 		 * Constructs a new edge with the given source
@@ -593,6 +610,11 @@ public class QueryGraphCPQ{
 		@Override
 		public String toString(){
 			return "(" + src + "," + trg + "," + label.getAlias() + ")";
+		}
+
+		@Override
+		public int getID(){
+			return id;
 		}
 	}
 	

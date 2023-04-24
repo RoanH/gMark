@@ -18,11 +18,9 @@
  */
 package dev.roanh.gmark.util;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,26 +32,26 @@ import java.util.stream.Collectors;
  * @author Roan
  * @param <T> The vertex data type
  */
-public class SimpleGraph<T>{
+public class SimpleGraph<T extends IDable>{
 	/**
 	 * Map from identifying data to associated vertex.
 	 */
-	private Map<T, SimpleVertex<T>> vertexMap = new LinkedHashMap<T, SimpleVertex<T>>();
+	private final RangeList<SimpleVertex<T>> vertexMap;
 	/**
 	 * Set of all edges in the graph.
 	 */
-	private Set<SimpleEdge<T>> edges = new HashSet<SimpleEdge<T>>();
-	/**
-	 * The ID to assign to the next node added to the graph.
-	 */
-	private int nextNodeID = 0;
+	private final Set<SimpleEdge<T>> edges = new HashSet<SimpleEdge<T>>();
+	
+	public SimpleGraph(int vertexCount){
+		vertexMap = new RangeList<SimpleVertex<T>>(vertexCount);
+	}
 	
 	/**
 	 * Deletes the given vertex from the graph.
 	 * @param vertex The vertex to delete
 	 */
 	public void deleteVertex(SimpleVertex<T> vertex){
-		vertexMap.remove(vertex.getData());
+		vertexMap.set(vertex.getData(), null);
 		for(SimpleEdge<T> edge : vertex.getEdges()){
 			edges.remove(edge);
 			edge.getTarget(vertex).edges.remove(edge);
@@ -88,8 +86,8 @@ public class SimpleGraph<T>{
 		if(v != null){
 			return v;
 		}else{
-			v = new SimpleVertex<T>(nextNodeID++, data);
-			vertexMap.put(data, v);
+			v = new SimpleVertex<T>(data);
+			vertexMap.set(data, v);
 			return v;
 		}
 	}
@@ -133,7 +131,13 @@ public class SimpleGraph<T>{
 	 * @return The total number of vertices in this graph.
 	 */
 	public int getVertexCount(){
-		return vertexMap.size();
+		int count = 0;
+		for(SimpleVertex<T> vertex : vertexMap){
+			if(vertex != null){
+				count++;
+			}
+		}
+		return count;
 	}
 	
 	/**
@@ -148,8 +152,10 @@ public class SimpleGraph<T>{
 	 * Gets all the vertices in this graph.
 	 * @return All the vertices in this graph.
 	 */
-	public Collection<SimpleVertex<T>> getVertices(){
-		return vertexMap.values();
+	public List<SimpleVertex<T>> getVertices(){
+		List<SimpleVertex<T>> vertices = new ArrayList<SimpleVertex<T>>(vertexMap.size());
+		vertexMap.forEachNonNull(vertices::add);
+		return vertices;
 	}
 	
 	/**
@@ -160,11 +166,13 @@ public class SimpleGraph<T>{
 	 */
 	public UniqueGraph<T, Void> toUniqueGraph(){
 		UniqueGraph<T, Void> g = new UniqueGraph<T, Void>();
-		vertexMap.keySet().forEach(g::addUniqueNode);
+		
+		vertexMap.forEachNonNull(v->g.addUniqueNode(v.getData()));
 		for(SimpleEdge<T> edge : edges){
 			g.addUniqueEdge(edge.getFirstVertex().getData(), edge.getSecondVertex().getData());
 			g.addUniqueEdge(edge.getSecondVertex().getData(), edge.getFirstVertex().getData());
 		}
+		
 		return g;
 	}
 	
@@ -181,8 +189,8 @@ public class SimpleGraph<T>{
 		SimpleVertex<T> v2 = edge.getSecondVertex();
 		
 		edges.remove(edge);
-		vertexMap.remove(v1.getData());
-		vertexMap.remove(v2.getData());
+		vertexMap.set(v1.getData(), null);
+		vertexMap.set(v2.getData(), null);
 		
 		for(SimpleEdge<T> e : edges){
 			if(e.getFirstVertex() == v1 || e.getFirstVertex() == v2){
@@ -197,7 +205,7 @@ public class SimpleGraph<T>{
 	 * Deletes all edges in this graph.
 	 */
 	public void dropAllEdges(){
-		vertexMap.values().forEach(v->v.edges.clear());
+		vertexMap.forEachNonNull(v->v.edges.clear());
 		edges.clear();
 	}
 	
@@ -206,7 +214,7 @@ public class SimpleGraph<T>{
 	 * @author Roan
 	 * @param <T> The graph data type.
 	 */
-	public static final class SimpleEdge<T>{
+	public static final class SimpleEdge<T extends IDable>{
 		/**
 		 * The first end point of this edge.
 		 */
@@ -275,7 +283,7 @@ public class SimpleGraph<T>{
 	 * @author Roan
 	 * @param <T> The data type of data stored at vertices.
 	 */
-	public static final class SimpleVertex<T> implements IDable{
+	public static final class SimpleVertex<T extends IDable> implements IDable{
 		/**
 		 * The data stored at this vertex that uniquely identifies it in the graph.
 		 */
@@ -284,18 +292,13 @@ public class SimpleGraph<T>{
 		 * The edges this vertex is an end point for.
 		 */
 		private Set<SimpleEdge<T>> edges = new HashSet<SimpleEdge<T>>();
-		/**
-		 * The ID of this vertex in the graph.
-		 */
-		private final int id;
 		
 		/**
 		 * Constructs a new vertex with the given ID and data.
 		 * @param id The ID of this vertex.
 		 * @param data The data uniquely identifying this vertex.
 		 */
-		private SimpleVertex(int id, T data){
-			this.id = id;
+		private SimpleVertex(T data){
 			this.data = data;
 		}
 		
@@ -370,7 +373,7 @@ public class SimpleGraph<T>{
 		 */
 		@Override
 		public int getID(){
-			return id;
+			return data.getID();
 		}
 		
 		@Override

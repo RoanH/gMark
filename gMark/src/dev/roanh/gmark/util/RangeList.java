@@ -19,6 +19,7 @@
 package dev.roanh.gmark.util;
 
 import java.util.Iterator;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -110,6 +111,14 @@ public class RangeList<T> implements Iterable<T>{
 	 */
 	public int size(){
 		return data.length;
+	}
+	
+	public void forEachNonNull(Consumer<T> fun){
+		for(T val : data){
+			if(val != null){
+				fun.accept(val);
+			}
+		}
 	}
 
 	@Override

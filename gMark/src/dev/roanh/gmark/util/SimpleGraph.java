@@ -42,6 +42,7 @@ public class SimpleGraph<T extends IDable, M>{
 	 * Set of all edges in the graph.
 	 */
 	private final Set<SimpleEdge<T, M>> edges = new HashSet<SimpleEdge<T, M>>();
+	private int vertices = 0;
 	
 	public SimpleGraph(int vertexCount){
 		vertexMap = new RangeList<SimpleVertex<T, M>>(vertexCount);
@@ -53,6 +54,7 @@ public class SimpleGraph<T extends IDable, M>{
 	 */
 	public void deleteVertex(SimpleVertex<T, M> vertex){
 		vertexMap.set(vertex.getData(), null);
+		vertices--;
 		for(SimpleEdge<T, M> edge : vertex.getEdges()){
 			edges.remove(edge);
 			edge.getTarget(vertex).edges.remove(edge);
@@ -89,6 +91,7 @@ public class SimpleGraph<T extends IDable, M>{
 		}else{
 			v = new SimpleVertex<T, M>(data);
 			vertexMap.set(data, v);
+			vertices++;
 			return v;
 		}
 	}
@@ -132,13 +135,7 @@ public class SimpleGraph<T extends IDable, M>{
 	 * @return The total number of vertices in this graph.
 	 */
 	public int getVertexCount(){
-		int count = 0;
-		for(SimpleVertex<T, M> vertex : vertexMap){
-			if(vertex != null){
-				count++;
-			}
-		}
-		return count;
+		return vertices;
 	}
 	
 	/**
@@ -178,31 +175,6 @@ public class SimpleGraph<T extends IDable, M>{
 	}
 	
 	/**
-	 * Contracts the given edge in this graph by removing the given edge and the two
-	 * nodes at its ends and then replacing them with the given vertex. All edges
-	 * originally connected to either of the two removed vertices will now be
-	 * connected to the given vertex.
-	 * @param edge The edge to contracted.
-	 * @param vertex The vertex to represent the contracted edge and vertices.
-	 */
-	public void contractEdge(SimpleEdge<T, M> edge, SimpleVertex<T, M> vertex){
-		SimpleVertex<T, M> v1 = edge.getFirstVertex();
-		SimpleVertex<T, M> v2 = edge.getSecondVertex();
-		
-		edges.remove(edge);
-		vertexMap.set(v1.getData(), null);
-		vertexMap.set(v2.getData(), null);
-		
-		for(SimpleEdge<T, M> e : edges){
-			if(e.getFirstVertex() == v1 || e.getFirstVertex() == v2){
-				e.v1 = vertex;
-			}else if(e.getSecondVertex() == v1 || e.getSecondVertex() == v2){
-				e.v2 = vertex;
-			}
-		}
-	}
-	
-	/**
 	 * Deletes all edges in this graph.
 	 */
 	public void dropAllEdges(){
@@ -220,12 +192,13 @@ public class SimpleGraph<T extends IDable, M>{
 		/**
 		 * The first end point of this edge.
 		 */
-		private SimpleVertex<T, M> v1;
+		private final SimpleVertex<T, M> v1;
 		/**
 		 * The second end point of this edge.
 		 */
-		private SimpleVertex<T, M> v2;
+		private final SimpleVertex<T, M> v2;
 		private M metadata;
+		private int hashcode;
 		
 		/**
 		 * Constructs a new edge between the given two vertices.
@@ -235,6 +208,7 @@ public class SimpleGraph<T extends IDable, M>{
 		private SimpleEdge(SimpleVertex<T, M> v1, SimpleVertex<T, M> v2){
 			this.v1 = v1;
 			this.v2 = v2;
+			hashcode = Objects.hash(v1.hashCode() ^ v2.hashCode());
 		}
 		
 		public M getMetadata(){
@@ -285,7 +259,7 @@ public class SimpleGraph<T extends IDable, M>{
 		
 		@Override
 		public int hashCode(){
-			return Objects.hash(v1.hashCode() ^ v2.hashCode());
+			return hashcode;
 		}
 	}
 	

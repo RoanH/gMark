@@ -333,6 +333,10 @@ public class QueryGraphCPQTest{
 		));
 	}
 	
+	public static void main(String[] args){
+		new QueryGraphCPQTest().core0();
+	}
+	
 	@Test
 	public void core0(){
 		QueryGraphCPQ g = CPQ.intersect(CPQ.labels(l1, l2), CPQ.labels(l1, l2)).toQueryGraph();

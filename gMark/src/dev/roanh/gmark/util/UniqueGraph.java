@@ -569,12 +569,14 @@ public class UniqueGraph<V, E>{
 		
 		@Override
 		public boolean equals(Object other){
-			return other instanceof GraphNode ? ((GraphNode<?, ?>)other).data.equals(data) : false;
+			//nodes are uniquely tied to data
+			//so there can never be two distinct equal node objects
+			return super.equals(other);
 		}
 		
 		@Override
 		public int hashCode(){
-			return Objects.hash(data);
+			return super.hashCode();
 		}
 	}
 	

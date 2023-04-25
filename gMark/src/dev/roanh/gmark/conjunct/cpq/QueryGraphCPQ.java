@@ -275,25 +275,30 @@ public class QueryGraphCPQ{
 			known.set(edge, matches);
 		}
 		
-		//copy structure & compute candidate maps and dependent variables
+		//copy structure with empty partial maps
 		Tree<PartialMap> maps = decomp.cloneStructure(PartialMap::new);
-		maps.forEach(node->expandPartialMap(node.getData(), known));//rename fun?
 		
-		//join nodes bottom up
-		maps.forEachBottomUp(node->{
+		//join nodes bottom up while computing candidate maps and dependent variables
+		return !maps.forEachBottomUp(node->{
+			expandPartialMap(node.getData(), known);
+			
 			if(!node.isLeaf()){
 				PartialMap map = node.getData();
 				for(Tree<PartialMap> child : node.getChildren()){
 					map.semiJoin(child.getData());
+					if(map.matches.isEmpty()){
+						//if any intermediate map is empty the result will be empty
+						return true;
+					}
 				}
 			}
+			
+			//a non empty root implies query homomorphism
+			return false;
 		});
-
-		//a non empty root implies query homomorphism
-		return !maps.getData().matches.isEmpty();
 	}
 	
-	//mod cartesian with filtering and dep vars
+	//mod cartesian with filtering and dep vars, TODO final name
 	private void expandPartialMap(PartialMap data, RangeList<List<Object>> known){
 		//sets to compute the Cartesian product of
 		List<List<Object>> sets = new ArrayList<List<Object>>();

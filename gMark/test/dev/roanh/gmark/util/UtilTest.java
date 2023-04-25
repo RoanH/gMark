@@ -455,7 +455,10 @@ public class UtilTest{
 	public static <T extends IDable, M> void assertValidTreeDecomposition(Tree<List<T>> decomp, List<T> vertices, List<SimpleEdge<T, M>> edges){
 		//1. All vertices are in the decomposition
 		Set<T> found = new HashSet<T>();
-		decomp.forEach(t->found.addAll(t.getData()));
+		decomp.forEach(t->{
+			found.addAll(t.getData());
+			return false;
+		});
 		assertEquals(vertices.size(), found.size());
 		found.addAll(vertices);
 		assertEquals(vertices.size(), found.size());
@@ -478,6 +481,7 @@ public class UtilTest{
 				if(t.getData().contains(vertex)){
 					bags.add(t);
 				}
+				return false;
 			});
 
 			Tree<List<T>> root = bags.get(0);

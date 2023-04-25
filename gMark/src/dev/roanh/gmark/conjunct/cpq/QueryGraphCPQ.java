@@ -19,8 +19,6 @@
 package dev.roanh.gmark.conjunct.cpq;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,6 +30,7 @@ import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.util.IDable;
+import dev.roanh.gmark.util.RangeList;
 import dev.roanh.gmark.util.SimpleGraph;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.Tree;
@@ -226,19 +225,7 @@ public class QueryGraphCPQ{
 		Tree<List<QueryGraphComponent>> decomp = Util.computeTreeDecompositionWidth2(toIncidenceGraph());
 
 		//pre compute mappings
-		Map<QueryGraphComponent, List<Object>> known = new HashMap<QueryGraphComponent, List<Object>>();
-//		Map<Vertex, List<Edge>> outEdges = new HashMap<Vertex, List<Edge>>();
-//		Map<Vertex, List<Edge>> inEdges = new HashMap<Vertex, List<Edge>>();
-//		
-//		for(Vertex vertex : vertices){
-//			outEdges.put(vertex, new ArrayList<Edge>());
-//			inEdges.put(vertex, new ArrayList<Edge>());
-//		}
-//		
-//		for(Edge edge : edges){
-//			outEdges.get(edge.src).add(edge);
-//			inEdges.get(edge.trg).add(edge);
-//		}
+		RangeList<List<Object>> known = new RangeList<List<Object>>(vertices.size() + edges.size());
 		
 		for(Vertex vertex : vertices){
 			List<Object> matches = new ArrayList<Object>();
@@ -251,20 +238,14 @@ public class QueryGraphCPQ{
 					continue;
 				}
 				
-//				List<Edge> out = outEdges.get(vertex);
-//				if(!checkEquivalent(out, other.getOutEdges())){
-//					continue;
-//				}
-//				
-//				List<Edge> in = inEdges.get(vertex);
-//				if(!checkEquivalent(in, other.getInEdges())){
-//					continue;
-//				}
+				//note: it would be possible for force in/out edges here
+				//but for the small graphs we usually work with that is
+				//too intensive than it is worth (see thesis for more details).
 				
 				matches.add(other);
 			}
 			
-			known.put(vertex, matches);
+			known.set(vertex, matches);
 		}
 		
 		for(Edge edge : edges){
@@ -282,115 +263,23 @@ public class QueryGraphCPQ{
 					continue;
 				}
 				
-				if(!known.get(edge.src).contains(other.getSourceNode())){
+				if(!known.get(edge.src).contains(other.getSourceNode())){//TODO these seem to be the main cost right now?
 					continue;
 				}
 				
-				if(!known.get(edge.trg).contains(other.getTargetNode())){
+				if(!known.get(edge.trg).contains(other.getTargetNode())){//TODO ^
 					continue;
 				}
 				
 				matches.add(other);
 			}
 			
-			known.put(edge, matches);
+			known.set(edge, matches);
 		}
 		
-		//copy structure & compute candidate maps
+		//copy structure & compute candidate maps and dependent variables
 		Tree<PartialMap> maps = decomp.cloneStructure(PartialMap::new);
-		
-//		System.out.println("known:");
-//		known.entrySet().forEach(e->System.out.println(e.getKey() + ": " + e.getValue().stream().map(this::objToString).collect(Collectors.toList())));
-		
-		maps.forEach(node->expandPartialMap(node.getData(), known));
-		
-//		maps.forEach(node->{
-//			List<List<Object>> sets = new ArrayList<List<Object>>();
-//			for(QueryGraphComponent arg : node.getData().left){
-//				sets.add(known.get(arg));
-//			}
-//			
-//			
-//			System.out.println("Filter for: " + node.getData().left);
-//			
-//			node.getData().matches = Util.cartesianProduct(sets);
-//			node.getData().matches.removeIf(map->{
-//				Map<Vertex, Vertex> assign = new HashMap<Vertex, Vertex>();
-//				
-//				for(int i = 0; i < node.getData().left.size(); i++){
-//					QueryGraphComponent comp = node.getData().left.get(i);
-//					if(comp.isEdge()){
-//						@SuppressWarnings("unchecked")
-//						GraphEdge<Vertex, Predicate> target = (GraphEdge<Vertex, Predicate>)map.get(i);
-//						
-//						Vertex v = target.getSource();
-//						Vertex old = assign.put(((Edge)comp).src, v);
-//						if(old != null && !old.equals(v)){
-//							System.out.print("BAD s  ");
-//							printVal(map);
-//							return true;
-//						}
-//						
-//						v = target.getTarget();
-//						old = assign.put(((Edge)comp).trg, v);
-//						if(old != null && !old.equals(v)){
-//							System.out.print("BAD t  ");
-//							printVal(map);
-//							return true;
-//						}
-//					}else{
-//						@SuppressWarnings("unchecked")
-//						Vertex v = ((GraphNode<Vertex, Predicate>)map.get(i)).getData();
-//						Vertex old = assign.put((Vertex)comp, v);
-//						if(old != null && !old.equals(v)){
-//							System.out.print("BAD v  ");
-//							printVal(map);
-//							return true;
-//						}
-//					}
-//				}
-//				
-//				System.out.print("OK     ");
-//				printVal(map);
-//				return false;
-//			});
-//		});
-//		
-//		//expand each list with dependent variables
-//		maps.forEach(t->{
-//			PartialMap map = t.getData();
-//			List<QueryGraphComponent> data = map.left;
-//			final int size = data.size();
-//			for(int i = 0; i < size; i++){
-//				if(data.get(i).isEdge()){
-//					Edge edge = (Edge)data.get(i);
-//
-//					if(!data.contains(edge.src)){
-//						data.add(edge.src);
-//						for(List<Object> list : map.matches){
-//							list.add(((GraphEdge<?, ?>)list.get(i)).getSourceNode());
-//						}
-//					}
-//
-//					if(!data.contains(edge.trg)){
-//						data.add(edge.trg);
-//						for(List<Object> list : map.matches){
-//							list.add(((GraphEdge<?, ?>)list.get(i)).getTargetNode());
-//						}
-//					}
-//				}
-//			}
-//		});
-		
-//		System.out.println("============== FINAL MAPPINGs =========");
-//		maps.forEach(t->{
-//			System.out.println("key: " + t.getData().left);
-//			for(List<Object> val : t.getData().matches){
-//				printVal(val);
-//			}
-//			
-//		});
-//		System.out.println("\n\n");
+		maps.forEach(node->expandPartialMap(node.getData(), known));//rename fun?
 		
 		//join nodes bottom up
 		maps.forEachBottomUp(node->{
@@ -406,29 +295,16 @@ public class QueryGraphCPQ{
 		return !maps.getData().matches.isEmpty();
 	}
 	
-	private void printVal(List<Object> val){
-		System.out.print("      ");
-		for(Object vv : val){
-			System.out.print(objToString(vv));
-			System.out.print(", ");
-		}
-		System.out.println();
-	}
-	
-	private String objToString(Object vv){
-		if(vv instanceof GraphEdge){
-			GraphEdge<?, Predicate> e = (GraphEdge<?, Predicate>)vv;
-			return "(" + e.getSource() + "," + e.getTarget() + "," + e.getData().getAlias() + ")";
-		}else{
-			return vv.toString();
-		}
-	}
-	
-	private void expandPartialMap(PartialMap data, Map<QueryGraphComponent, List<Object>> known){
+	//mod cartesian with filtering and dep vars
+	private void expandPartialMap(PartialMap data, RangeList<List<Object>> known){
+		//sets to compute the Cartesian product of
 		List<List<Object>> sets = new ArrayList<List<Object>>();
+		
+		//new left hand side of the mapping with dependent variables
 		List<QueryGraphComponent> newLeft = new ArrayList<QueryGraphComponent>();
+		
+		//reference map stating for each edge where the independent variables for its end points are (else -1 or -2)
 		List<int[]> refs = new ArrayList<int[]>();
-//		data.left.sort(Comparator.comparing(QueryGraphComponent::isEdge));
 		
 		for(QueryGraphComponent arg : data.left){
 			if(arg.isEdge()){
@@ -436,64 +312,57 @@ public class QueryGraphCPQ{
 				
 				int si = newLeft.indexOf(e.src);
 				int ti = newLeft.indexOf(e.trg);
-				if(e.src.equals(e.trg)){//TODO deal with pairs that are inherent inconsistent (7,7) -> (5,2)
-					ti = -2;
+				if(e.src.equals(e.trg)){
+					ti = -2;//self loops only generate one dependent variable, signalled with -2 instead of -1
 				}
 				
+				//independent variable
 				newLeft.add(e);
 				refs.add(new int[]{si, ti});
 				sets.add(known.get(arg));
-//				System.out.println("put: " + e + " / " + Arrays.toString(refs.get(refs.size() - 1)));
 				
+				//dependent variables
 				if(si == -1){
 					newLeft.add(e.src);
-//					System.out.println("put: " + e.src);
 				}
 				
 				if(ti == -1){
 					newLeft.add(e.trg);
-//					System.out.println("put: " + e.trg);
 				}
 			}else{
-				int vi = newLeft.indexOf(arg);
-				if(vi == -1){
+				//dependent vertex variables are only added once and without reference
+				if(newLeft.indexOf(arg) == -1){
 					newLeft.add(arg);
 					refs.add(new int[0]);
 					sets.add(known.get(arg));
-//					System.out.println("put: " + arg + " / ref[0] / " + refs.get(refs.size() - 1).length);
 				}
 			}
 		}
 		data.left = newLeft;
 		
-//		System.out.println("KEY: " + data.left);
-		
-		//special cartesian
-		
+		//Cartesian product of all sets
 		int size = sets.stream().mapToInt(List::size).reduce(StrictMath::multiplyExact).getAsInt();
 		List<List<Object>> product = new ArrayList<List<Object>>(size);
 		for(int i = 0; i < size; i++){
 			product.add(new ArrayList<Object>());
 		}
 		
+		//if one set is empty we're done
 		if(size == 0){
 			data.matches = product;
 			return;
 		}
 		
-		
+		//build all output sets one with once element from each set at a time
 		for(int setIdx = 0; setIdx < sets.size(); setIdx++){
-//			System.out.println("product:");
-//			product.forEach(System.out::println);
-//			System.out.println("-----");
-			
 			List<Object> set = sets.get(setIdx);
 			size /= set.size();
 			
 			int idx = 0;
-//			System.out.println("new col");
 			for(int o = 0; idx < product.size(); o++){
 				List<Object> head = product.get(idx);
+				
+				//check if the candidate was previous discarded
 				if(head == null){
 					idx += size;
 					continue;
@@ -503,88 +372,49 @@ public class QueryGraphCPQ{
 				Object obj = set.get(elemIdx);
 				int[] ref = refs.get(setIdx);
 
-				//bad edge mapping
-//				System.out.println("handle: " + elemIdx + " / " + obj + " r/ " + Arrays.toString(ref) + " / " + head);
-//				printVal(head);
 				if(ref.length != 0){
+					//if we have refs we have an edge
 					GraphEdge<?, ?> edge = (GraphEdge<?, ?>)obj;
-					
-					
-					if(
 
-					(
-
-					ref[0] >= 0 && !head.get(ref[0]).equals(edge.getSourceNode())
-
-					) ||
-
-					    (
-
-						ref[1] >= 0 && !head.get(ref[1]).equals(edge.getTargetNode())
-
-						)
-
-					    
-					    
-					    || (
-					    	
-					    	
-					    	ref[1] == -2 && !edge.getSource().equals(edge.getTarget())
-					    	
-					    	
-					    	)
-					    
-					    
-					    
-					){
-						
-						
-						
-//						System.out.println(setIdx + "/REJECT");
+					//check if referenced nodes match and the loop status matches
+					if((ref[0] >= 0 && !head.get(ref[0]).equals(edge.getSourceNode())) || (ref[1] >= 0 && !head.get(ref[1]).equals(edge.getTargetNode())) || ref[1] == -2 && !edge.getSource().equals(edge.getTarget())){						
+						//if not these candidates are invalid
 						for(int i = 0; i < size; i++){
 							product.set(idx++, null);
 						}
+						
 						continue;
 					}else{
-//						System.out.println(setIdx + "/ACCEPT EDGE");
-
+						//valid edge mapping candidate
 						for(int i = 0; i < size; i++){
-							product.get(idx).add(obj);
+							//add independent variable
+							head.add(obj);
+							
+							//add dependent variables
 							if(ref[0] == -1){
-								product.get(idx).add(edge.getSourceNode());
+								head.add(edge.getSourceNode());
 							}
+							
 							if(ref[1] == -1){
-								product.get(idx).add(edge.getTargetNode());
+								head.add(edge.getTargetNode());
 							}
+							
 							idx++;
 						}
-						
 					}
-
-					
-
-
 				}else{
-//					System.out.println(setIdx + "/ACCEPT VERTEX");
-
+					//valid vertex mapping
 					for(int i = 0; i < size; i++){
-						product.get(idx++).add(obj);
+						head.add(obj);
+						idx++;
 					}
 				}
 			}
 		}
 		
+		///remove invalid candidates and return
 		product.removeIf(Objects::isNull);
-
-//		product.forEach(this::printVal);
-		
-//		System.out.println("======================================= END");
-		
 		data.matches = product;
-		
-		
-		
-		
 	}
 	
 	/**

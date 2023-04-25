@@ -20,6 +20,7 @@ package dev.roanh.gmark.conjunct.cpq;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -298,8 +299,8 @@ public class QueryGraphCPQ{
 		//copy structure & compute candidate maps
 		Tree<PartialMap> maps = decomp.cloneStructure(PartialMap::new);
 		
-		System.out.println("known:");
-		known.entrySet().forEach(e->System.out.println(e.getKey() + ": " + e.getValue().stream().map(this::objToString).collect(Collectors.toList())));
+//		System.out.println("known:");
+//		known.entrySet().forEach(e->System.out.println(e.getKey() + ": " + e.getValue().stream().map(this::objToString).collect(Collectors.toList())));
 		
 		maps.forEach(node->expandPartialMap(node.getData(), known));
 		
@@ -381,15 +382,15 @@ public class QueryGraphCPQ{
 //			}
 //		});
 		
-		System.out.println("============== FINAL MAPPINGs =========");
-		maps.forEach(t->{
-			System.out.println("key: " + t.getData().left);
-			for(List<Object> val : t.getData().matches){
-				printVal(val);
-			}
-			
-		});
-		System.out.println("\n\n");
+//		System.out.println("============== FINAL MAPPINGs =========");
+//		maps.forEach(t->{
+//			System.out.println("key: " + t.getData().left);
+//			for(List<Object> val : t.getData().matches){
+//				printVal(val);
+//			}
+//			
+//		});
+//		System.out.println("\n\n");
 		
 		//join nodes bottom up
 		maps.forEachBottomUp(node->{
@@ -427,9 +428,7 @@ public class QueryGraphCPQ{
 		List<List<Object>> sets = new ArrayList<List<Object>>();
 		List<QueryGraphComponent> newLeft = new ArrayList<QueryGraphComponent>();
 		List<int[]> refs = new ArrayList<int[]>();
-		data.left.sort((a, b)->{
-			return Boolean.compare(a.isEdge(), b.isEdge());
-		});
+//		data.left.sort(Comparator.comparing(QueryGraphComponent::isEdge));
 		
 		for(QueryGraphComponent arg : data.left){
 			if(arg.isEdge()){
@@ -437,6 +436,10 @@ public class QueryGraphCPQ{
 				
 				int si = newLeft.indexOf(e.src);
 				int ti = newLeft.indexOf(e.trg);
+				if(e.src.equals(e.trg)){//TODO deal with pairs that are inherent inconsistent (7,7) -> (5,2)
+					ti = -2;
+				}
+				
 				newLeft.add(e);
 				refs.add(new int[]{si, ti});
 				sets.add(known.get(arg));
@@ -463,7 +466,7 @@ public class QueryGraphCPQ{
 		}
 		data.left = newLeft;
 		
-		System.out.println("KEY: " + data.left);
+//		System.out.println("KEY: " + data.left);
 		
 		//special cartesian
 		
@@ -511,24 +514,39 @@ public class QueryGraphCPQ{
 
 					(
 
-					ref[0] != -1 && !head.get(ref[0]).equals(edge.getSourceNode())
+					ref[0] >= 0 && !head.get(ref[0]).equals(edge.getSourceNode())
 
 					) ||
 
 					    (
 
-						ref[1] != -1 && !head.get(ref[1]).equals(edge.getTargetNode())
+						ref[1] >= 0 && !head.get(ref[1]).equals(edge.getTargetNode())
 
 						)
 
+					    
+					    
+					    || (
+					    	
+					    	
+					    	ref[1] == -2 && !edge.getSource().equals(edge.getTarget())
+					    	
+					    	
+					    	)
+					    
+					    
+					    
 					){
-						System.out.println("REJECT");
+						
+						
+						
+//						System.out.println(setIdx + "/REJECT");
 						for(int i = 0; i < size; i++){
 							product.set(idx++, null);
 						}
 						continue;
 					}else{
-						System.out.println("ACCEPT EDGE");
+//						System.out.println(setIdx + "/ACCEPT EDGE");
 
 						for(int i = 0; i < size; i++){
 							product.get(idx).add(obj);
@@ -547,7 +565,7 @@ public class QueryGraphCPQ{
 
 
 				}else{
-					System.out.println("ACCEPT VERTEX");
+//					System.out.println(setIdx + "/ACCEPT VERTEX");
 
 					for(int i = 0; i < size; i++){
 						product.get(idx++).add(obj);
@@ -558,9 +576,9 @@ public class QueryGraphCPQ{
 		
 		product.removeIf(Objects::isNull);
 
-		product.forEach(this::printVal);
+//		product.forEach(this::printVal);
 		
-		System.out.println("======================================= END");
+//		System.out.println("======================================= END");
 		
 		data.matches = product;
 		

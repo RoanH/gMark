@@ -334,7 +334,7 @@ public class QueryGraphCPQTest{
 	}
 	
 	public static void main(String[] args){
-		new QueryGraphCPQTest().core0();
+		new QueryGraphCPQTest().core3();
 	}
 	
 	@Test

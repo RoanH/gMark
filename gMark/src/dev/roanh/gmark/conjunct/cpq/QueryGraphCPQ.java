@@ -19,11 +19,9 @@
 package dev.roanh.gmark.conjunct.cpq;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -377,7 +375,7 @@ public class QueryGraphCPQ{
 					GraphEdge<?, ?> edge = (GraphEdge<?, ?>)obj;
 
 					//check if referenced nodes match and the loop status matches
-					if((ref[0] >= 0 && !head.get(ref[0]).equals(edge.getSourceNode())) || (ref[1] >= 0 && !head.get(ref[1]).equals(edge.getTargetNode())) || ref[1] == -2 && !edge.getSource().equals(edge.getTarget())){						
+					if((ref[0] >= 0 && !head.get(ref[0]).equals(edge.getSourceNode())) || (ref[1] >= 0 && !head.get(ref[1]).equals(edge.getTargetNode())) || (ref[1] == -2 && !edge.getSource().equals(edge.getTarget()))){						
 						//if not these candidates are invalid
 						for(int i = 0; i < size; i++){
 							product.set(idx++, null);
@@ -388,15 +386,15 @@ public class QueryGraphCPQ{
 						//valid edge mapping candidate
 						for(int i = 0; i < size; i++){
 							//add independent variable
-							head.add(obj);
+							product.get(idx).add(obj);
 							
 							//add dependent variables
 							if(ref[0] == -1){
-								head.add(edge.getSourceNode());
+								product.get(idx).add(edge.getSourceNode());
 							}
 							
 							if(ref[1] == -1){
-								head.add(edge.getTargetNode());
+								product.get(idx).add(edge.getTargetNode());
 							}
 							
 							idx++;
@@ -405,8 +403,7 @@ public class QueryGraphCPQ{
 				}else{
 					//valid vertex mapping
 					for(int i = 0; i < size; i++){
-						head.add(obj);
-						idx++;
+						product.get(idx++).add(obj);
 					}
 				}
 			}

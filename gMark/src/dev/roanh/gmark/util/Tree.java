@@ -60,13 +60,11 @@ public class Tree<T>{
 	 */
 	public boolean forEach(TreeVisitor<T> nodeVisitor){
 		if(nodeVisitor.visitNode(this)){
-			System.out.println("return early a");
 			return true;
 		}
 		
 		for(Tree<T> child : children){
 			if(child.forEach(nodeVisitor)){
-				System.out.println("return early c");
 				return true;
 			}
 		}
@@ -85,7 +83,6 @@ public class Tree<T>{
 	public boolean forEachBottomUp(TreeVisitor<T> nodeVisitor){
 		for(Tree<T> child : children){
 			if(child.forEachBottomUp(nodeVisitor)){
-				System.out.println("return early b");
 				return true;
 			}
 		}

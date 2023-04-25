@@ -280,10 +280,10 @@ public class QueryGraphCPQ{
 		
 		//join nodes bottom up while computing candidate maps and dependent variables
 		return !maps.forEachBottomUp(node->{
-			expandPartialMap(node.getData(), known);
+			PartialMap map = node.getData();
+			expandPartialMap(map, known);
 			
 			if(!node.isLeaf()){
-				PartialMap map = node.getData();
 				for(Tree<PartialMap> child : node.getChildren()){
 					map.semiJoin(child.getData());
 					if(map.matches.isEmpty()){
@@ -294,7 +294,7 @@ public class QueryGraphCPQ{
 			}
 			
 			//a non empty root implies query homomorphism
-			return false;
+			return map.matches.isEmpty();
 		});
 	}
 	

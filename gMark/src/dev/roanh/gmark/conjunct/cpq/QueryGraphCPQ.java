@@ -219,9 +219,6 @@ public class QueryGraphCPQ{
 	public boolean isHomomorphicTo(UniqueGraph<Vertex, Predicate> graph){
 		merge();
 		
-		//compute a query decomposition
-		Tree<List<QueryGraphComponent>> decomp = Util.computeTreeDecompositionWidth2(toIncidenceGraph());
-
 		//pre compute mappings
 		RangeList<List<Object>> known = new RangeList<List<Object>>(vertices.size() + edges.size());
 		
@@ -241,6 +238,11 @@ public class QueryGraphCPQ{
 				//too intensive than it is worth (see thesis for more details).
 				
 				matches.add(other);
+			}
+			
+			if(matches.isEmpty()){
+				//if a vertex cannot be mapped there is no homomorphism
+				return false;
 			}
 			
 			known.set(vertex, matches);
@@ -272,11 +274,16 @@ public class QueryGraphCPQ{
 				matches.add(other);
 			}
 			
+			if(matches.isEmpty()){
+				//if an edge cannot be mapped there is no homomorphism
+				return false;
+			}
+			
 			known.set(edge, matches);
 		}
 		
-		//copy structure with empty partial maps
-		Tree<PartialMap> maps = decomp.cloneStructure(PartialMap::new);
+		//compute a query decomposition with empty partial maps
+		Tree<PartialMap> maps = Util.computeTreeDecompositionWidth2(toIncidenceGraph()).cloneStructure(PartialMap::new);
 		
 		//join nodes bottom up while computing candidate maps and dependent variables
 		return !maps.forEachBottomUp(node->{

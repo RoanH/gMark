@@ -84,10 +84,23 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	}
 	
 	/**
+	 * Tests if the query graph for this CPQ is homomorphic
+	 * to the query graph for the given other CPQ.
+	 * @param other The other CPQ to test against.
+	 * @return True if this CPQ is homorphic to the other CPQ.
+	 * @see #toQueryGraph()
+	 * @see QueryGraphCPQ#isHomomorphicTo(QueryGraphCPQ)
+	 */
+	public default boolean isHomomorphicTo(CPQ other){
+		return toQueryGraph().isHomomorphicTo(other.toQueryGraph());
+	}
+	
+	/**
 	 * Computes and returns the query graph for this CPQ using
 	 * the given source and target vertices for the computation.
 	 * Usually using {@link #toQueryGraph()} instead should be
-	 * sufficient for most use cases.
+	 * sufficient for most use cases, using this version instead
+	 * can lead to unexpected results.
 	 * @param source The source vertex to use.
 	 * @param target The target vertex to use.
 	 * @return The query graph for this CPQ.

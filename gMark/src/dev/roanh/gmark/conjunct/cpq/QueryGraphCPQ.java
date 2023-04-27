@@ -40,11 +40,12 @@ import dev.roanh.gmark.util.Util;
 /**
  * Object representing the query graph of a CPQ. This
  * is effectively a visual representation of the CPQ
- * as a graph. The implementation is loosely based on
- * an algorithm proposed by Seiji Maekawa.
+ * as a graph. The implementation for query graph
+ * construction is loosely based on an algorithm
+ * proposed by Seiji Maekawa.
  * @author Roan
  */
-public class QueryGraphCPQ{
+public class QueryGraphCPQ implements Cloneable{
 	/**
 	 * The set of vertices for this query graph.
 	 */
@@ -80,6 +81,7 @@ public class QueryGraphCPQ{
 		vertices.add(source);
 		vertices.add(target);
 		fid.add(new Pair(source, target));
+		System.out.println("Add pair: " + source.hashCode() + " / " + target.hashCode());
 	}
 	
 	/**
@@ -95,10 +97,25 @@ public class QueryGraphCPQ{
 		vertices.add(source);
 		vertices.add(target);
 		if(label.isInverse()){
-			edges.add(new Edge(target, source, label.getInverse()));
+			System.out.println("dupe: " + edges.add(new Edge(target, source, label.getInverse())));
+			System.out.println("add edge: " + target.hashCode() + " - " + source.hashCode() + " with " + label.getInverse().getAlias() + " / " + edges.size());
+
 		}else{
-			edges.add(new Edge(source, target, label));
+			System.out.println("dupe: " + edges.add(new Edge(source, target, label)));
+			System.out.println("add edge: " + source.hashCode() + " - " + target.hashCode() + " with " + label.getAlias() + " / " + edges.size());
+
 		}
+		source.deg++;
+//		if(source != target){
+			target.deg++;
+//		}
+			
+	}
+	
+	/**
+	 * No args constructor for use by {@link #clone()}.
+	 */
+	private QueryGraphCPQ(){
 	}
 	
 	/**
@@ -131,8 +148,15 @@ public class QueryGraphCPQ{
 	 */
 	protected QueryGraphCPQ union(QueryGraphCPQ other){
 		vertices.addAll(other.vertices);
-		edges.addAll(other.edges);
+//		edges.addAll(other.edges);
 		fid.addAll(other.fid);
+		for(Edge e : other.edges){
+			if(!edges.add(e)){
+				System.out.println("dupe found! " + e.src.hashCode() + " - " + e.trg.hashCode() + " with " + e.label.getAlias());
+				e.src.deg--;
+				e.trg.deg--;
+			}
+		}
 		return this;
 	}
 	
@@ -199,87 +223,45 @@ public class QueryGraphCPQ{
 		return g;
 	}
 	
+//	/**
+//	 * Computes if there is a <b>query</b> homomorphism from this query graph <code>G</code>
+//	 * to the given other graph <code>G'</code>. This implies that any edge traversal made in
+//	 * this graph can be mimicked in the given other graph. Formally {@code G -> G'} or
+//	 * <code>G</code> is contained in <code>G'</code> (as a subgraph).
+//	 * <p>
+//	 * Note: This method tests for <b>query</b> homomorphism, as such the identity of the source
+//	 * and target vertices is extremely important. Specifically, the given other graph should use
+//	 * the exact same source and target vertices as this query graph. If not, there will never be
+//	 * a query homomorphism. To achieve this it is either possible to reuse the vertices from this
+//	 * graph or to manually pass source and target vertices when creating the query graph using
+//	 * the {@link CPQ#toQueryGraph(Vertex, Vertex)} method.
+//	 * @param graph The other graph to test for query homomorphism to.
+//	 * @return True when this query graph is query homomorphic to the given graph.
+//	 * @see <a href="https://doi.org/10.1016/S0304-3975(99)00220-0">Chandra Chekuri and Anand Rajaraman,
+//	 *      "Conjunctive query containment revisited", in Theoretical Computer Science, vol. 239, 2000, pp. 211-229</a>
+//	 */
+//	public boolean isHomomorphicTo(UniqueGraph<Vertex, Predicate> graph, Vertex src, Vertex trg){
+//		merge();
+//		return isHomomorphicTo(computeMappings(graph, src, trg));
+//	}
+	
 	/**
 	 * Computes if there is a <b>query</b> homomorphism from this query graph <code>G</code>
 	 * to the given other graph <code>G'</code>. This implies that any edge traversal made in
 	 * this graph can be mimicked in the given other graph. Formally {@code G -> G'} or
 	 * <code>G</code> is contained in <code>G'</code> (as a subgraph).
-	 * <p>
-	 * Note: This method tests for <b>query</b> homomorphism, as such the identity of the source
-	 * and target vertices is extremely important. Specifically, the given other graph should use
-	 * the exact same source and target vertices as this query graph. If not, there will never be
-	 * a query homomorphism. To achieve this it is either possible to reuse the vertices from this
-	 * graph or to manually pass source and target vertices when creating the query graph using
-	 * the {@link CPQ#toQueryGraph(Vertex, Vertex)} method.
 	 * @param graph The other graph to test for query homomorphism to.
-	 * @return True when this query graph is query homomorphic to the given graph.
+	 * @return True when this query graph is query homomorphic to the given graph map.
 	 * @see <a href="https://doi.org/10.1016/S0304-3975(99)00220-0">Chandra Chekuri and Anand Rajaraman,
 	 *      "Conjunctive query containment revisited", in Theoretical Computer Science, vol. 239, 2000, pp. 211-229</a>
 	 */
-	public boolean isHomomorphicTo(UniqueGraph<Vertex, Predicate> graph){
+	public boolean isHomomorphicTo(QueryGraphCPQ graph){
 		merge();
 		
-		//pre compute mappings
-		RangeList<List<Object>> known = new RangeList<List<Object>>(vertices.size() + edges.size());
-		
-		for(Vertex vertex : vertices){
-			List<Object> matches = new ArrayList<Object>();
-			for(GraphNode<Vertex, Predicate> other : graph.getNodes()){
-				if((vertex == source) ^ (other.getData() == source)){
-					continue;
-				}
-				
-				if((vertex == target) ^ (other.getData() == target)){
-					continue;
-				}
-				
-				//note: it would be possible for force in/out edges here
-				//but for the small graphs we usually work with that is
-				//too intensive than it is worth (see thesis for more details).
-				
-				matches.add(other);
-			}
-			
-			if(matches.isEmpty()){
-				//if a vertex cannot be mapped there is no homomorphism
-				return false;
-			}
-			
-			known.set(vertex, matches);
-		}
-		
-		for(Edge edge : edges){
-			List<Object> matches = new ArrayList<Object>();
-			for(GraphEdge<Vertex, Predicate> other : graph.getEdges()){
-				if((edge.src == source) ^ (other.getSource() == source)){
-					continue;
-				}
-				
-				if((edge.trg == target) ^ (other.getTarget() == target)){
-					continue;
-				}
-				
-				if(!other.getData().equals(edge.label)){
-					continue;
-				}
-				
-				if(!known.get(edge.src).contains(other.getSourceNode())){//TODO these seem to be the main cost right now?
-					continue;
-				}
-				
-				if(!known.get(edge.trg).contains(other.getTargetNode())){//TODO ^
-					continue;
-				}
-				
-				matches.add(other);
-			}
-			
-			if(matches.isEmpty()){
-				//if an edge cannot be mapped there is no homomorphism
-				return false;
-			}
-			
-			known.set(edge, matches);
+		//compute base mappings
+		RangeList<List<QueryGraphComponent>> known = computeMappings(graph);
+		if(known == null){
+			return false;
 		}
 		
 		//compute a query decomposition with empty partial maps
@@ -305,10 +287,142 @@ public class QueryGraphCPQ{
 		});
 	}
 	
+	private RangeList<List<QueryGraphComponent>> computeMappings(QueryGraphCPQ graph){
+		RangeList<List<QueryGraphComponent>> known = new RangeList<List<QueryGraphComponent>>(vertices.size() + edges.size());
+		
+		for(Vertex vertex : vertices){
+			List<QueryGraphComponent> matches = new ArrayList<QueryGraphComponent>();
+			for(Vertex other : graph.vertices){
+				if((vertex == source) ^ (other == graph.source)){
+					continue;
+				}
+				
+				if((vertex == target) ^ (other == graph.target)){
+					continue;
+				}
+				
+				//note: it would be possible for force in/out edges here
+				//but for the small graphs we usually work with that is
+				//too intensive than it is worth (see thesis for more details).
+				
+				matches.add(other);
+			}
+			
+			if(matches.isEmpty()){
+				//if a vertex cannot be mapped there is no homomorphism
+				return null;
+			}
+			
+			known.set(vertex, matches);
+		}
+		
+		for(Edge edge : edges){
+			List<QueryGraphComponent> matches = new ArrayList<QueryGraphComponent>();
+			for(Edge other : graph.edges){
+				if((edge.src == source) ^ (other.src == graph.source)){
+					continue;
+				}
+				
+				if((edge.trg == target) ^ (other.trg == graph.target)){
+					continue;
+				}
+				
+				if(!other.label.equals(edge.label)){
+					continue;
+				}
+				
+				if(!known.get(edge.src).contains(other.src)){//TODO these seem to be the main cost right now?
+					continue;
+				}
+				
+				if(!known.get(edge.trg).contains(other.trg)){//TODO ^
+					continue;
+				}
+				
+				matches.add(other);
+			}
+			
+			if(matches.isEmpty()){
+				//if an edge cannot be mapped there is no homomorphism
+				return null;
+			}
+			
+			known.set(edge, matches);
+		}
+		
+		return known;
+	}
+	
+//	private RangeList<List<Object>> computeMappings(UniqueGraph<Vertex, Predicate> graph, Vertex src, Vertex trg){
+//		RangeList<List<Object>> known = new RangeList<List<Object>>(vertices.size() + edges.size());
+//		
+//		for(Vertex vertex : vertices){
+//			List<Object> matches = new ArrayList<Object>();
+//			for(GraphNode<Vertex, Predicate> other : graph.getNodes()){
+//				if((vertex == source) ^ (other.getData() == src)){
+//					continue;
+//				}
+//				
+//				if((vertex == target) ^ (other.getData() == trg)){
+//					continue;
+//				}
+//				
+//				//note: it would be possible for force in/out edges here
+//				//but for the small graphs we usually work with that is
+//				//too intensive than it is worth (see thesis for more details).
+//				
+//				matches.add(other);
+//			}
+//			
+//			if(matches.isEmpty()){
+//				//if a vertex cannot be mapped there is no homomorphism
+//				return null;
+//			}
+//			
+//			known.set(vertex, matches);
+//		}
+//		
+//		for(Edge edge : edges){
+//			List<Object> matches = new ArrayList<Object>();
+//			for(GraphEdge<Vertex, Predicate> other : graph.getEdges()){
+//				if((edge.src == source) ^ (other.getSource() == src)){
+//					continue;
+//				}
+//				
+//				if((edge.trg == target) ^ (other.getTarget() == trg)){
+//					continue;
+//				}
+//				
+//				if(!other.getData().equals(edge.label)){
+//					continue;
+//				}
+//				
+//				if(!known.get(edge.src).contains(other.getSourceNode())){//TODO these seem to be the main cost right now?
+//					continue;
+//				}
+//				
+//				if(!known.get(edge.trg).contains(other.getTargetNode())){//TODO ^
+//					continue;
+//				}
+//				
+//				matches.add(other);
+//			}
+//			
+//			if(matches.isEmpty()){
+//				//if an edge cannot be mapped there is no homomorphism
+//				return null;
+//			}
+//			
+//			known.set(edge, matches);
+//		}
+//		
+//		return known;
+//	}
+	
 	//mod cartesian with filtering and dep vars, TODO final name
-	private void expandPartialMap(PartialMap data, RangeList<List<Object>> known){
+	private void expandPartialMap(PartialMap data, RangeList<List<QueryGraphComponent>> known){
 		//sets to compute the Cartesian product of
-		List<List<Object>> sets = new ArrayList<List<Object>>();
+		List<List<QueryGraphComponent>> sets = new ArrayList<List<QueryGraphComponent>>();
 		
 		//new left hand side of the mapping with dependent variables
 		List<QueryGraphComponent> newLeft = new ArrayList<QueryGraphComponent>();
@@ -365,7 +479,7 @@ public class QueryGraphCPQ{
 		
 		//build all output sets one with once element from each set at a time
 		for(int setIdx = 0; setIdx < sets.size(); setIdx++){
-			List<Object> set = sets.get(setIdx);
+			List<QueryGraphComponent> set = sets.get(setIdx);
 			size /= set.size();
 			
 			int idx = 0;
@@ -384,10 +498,10 @@ public class QueryGraphCPQ{
 
 				if(ref.length != 0){
 					//if we have refs we have an edge
-					GraphEdge<?, ?> edge = (GraphEdge<?, ?>)obj;
+					Edge edge = (Edge)obj;
 
 					//check if referenced nodes match and the loop status matches
-					if((ref[0] >= 0 && !head.get(ref[0]).equals(edge.getSourceNode())) || (ref[1] >= 0 && !head.get(ref[1]).equals(edge.getTargetNode())) || (ref[1] == -2 && !edge.getSource().equals(edge.getTarget()))){						
+					if((ref[0] >= 0 && !head.get(ref[0]).equals(edge.src)) || (ref[1] >= 0 && !head.get(ref[1]).equals(edge.trg)) || (ref[1] == -2 && !edge.src.equals(edge.trg))){						
 						//if not these candidates are invalid
 						for(int i = 0; i < size; i++){
 							product.set(idx++, null);
@@ -402,11 +516,11 @@ public class QueryGraphCPQ{
 							
 							//add dependent variables
 							if(ref[0] == -1){
-								product.get(idx).add(edge.getSourceNode());
+								product.get(idx).add(edge.src);
 							}
 							
 							if(ref[1] == -1){
-								product.get(idx).add(edge.getTargetNode());
+								product.get(idx).add(edge.trg);
 							}
 							
 							idx++;
@@ -431,19 +545,21 @@ public class QueryGraphCPQ{
 	 * graph query homomorphically equivalent to this CPQ query graph.
 	 * @return The core of this CPQ query graph.
 	 */
-	public UniqueGraph<Vertex, Predicate> computeCore(){
-		UniqueGraph<Vertex, Predicate> core = toUniqueGraph();
+	public QueryGraphCPQ computeCore(){
+		QueryGraphCPQ core = this.clone();
 		
-		List<GraphEdge<Vertex, Predicate>> edges = new ArrayList<GraphEdge<Vertex, Predicate>>(core.getEdges());
-		for(GraphEdge<Vertex, Predicate> edge : edges){
-			edge.remove();
+		for(Edge edge : new ArrayList<Edge>(core.edges)){
+			core.edges.remove(edge);
 
 			if(!isHomomorphicTo(core)){
-				edge.restore();
+				core.edges.add(edge);
+			}else{
+				edge.src.deg--;
+				edge.trg.deg--;
 			}
 		}
 		
-		core.removeNodeIf(n->n.getInCount() == 0 && n.getOutCount() == 0);
+		core.vertices.removeIf(v->v.deg == 0);
 		return core;
 	}
 	
@@ -453,6 +569,8 @@ public class QueryGraphCPQ{
 	 * vertex due to intersections with the identity operation.
 	 */
 	protected void merge(){
+//		if(1!=2) return;
+		
 		//essentially picks a pair of vertices that needs to be the same node and
 		//replaces all instances of the first node with the second node
 		while(!fid.isEmpty()){
@@ -460,20 +578,49 @@ public class QueryGraphCPQ{
 			
 			//remove the old vertex
 			vertices.remove(elem.first);
+//			elem.second.deg += elem.first.deg;
+//			if(elem.first == elem.second){
+				System.out.println("hi " + elem.first.deg + " / " + elem.second.deg);
+				if(elem.first != elem.second){
+					System.out.println("same");
+//					return;
+				}
+//			}
 			
 			//replace edge source/target vertex with the new vertex
 			for(Edge edge : edges.stream().collect(Collectors.toList())){
-				if(edge.src == elem.first){
-					edges.add(new Edge(elem.second, edge.trg, edge.label));
-				}
-				
-				if(edge.trg == elem.first){
-					edges.add(new Edge(edge.src, elem.second, edge.label));
-				}
-				
 				if(edge.src == elem.first && edge.trg == elem.first){
-					edges.add(new Edge(elem.second, elem.second, edge.label));
+					if(edges.add(new Edge(elem.second, elem.second, edge.label))){
+						System.out.println("add two");
+						elem.second.deg += 2;
+					}else{
+						System.out.println("was dupe 1");
+					}
+					continue;
 				}
+
+
+				if(edge.src == elem.first){
+					if(edges.add(new Edge(elem.second, edge.trg, edge.label))){
+						elem.second.deg++;
+						System.out.println("add one");
+					}else{
+						edge.trg.deg--;
+						System.out.println("was dupe 2");
+					}
+				}
+
+				if(edge.trg == elem.first){
+					if(edges.add(new Edge(edge.src, elem.second, edge.label))){
+						elem.second.deg++;
+						System.out.println("add one");
+					}else{
+						edge.src.deg--;
+						System.out.println("was dupe 3");
+					}
+				}
+				
+				
 			}
 			edges.removeIf(e->e.src == elem.first || e.trg == elem.first);
 			
@@ -564,6 +711,16 @@ public class QueryGraphCPQ{
 //		return true;
 //	}
 	
+	@Override
+	protected QueryGraphCPQ clone(){
+		QueryGraphCPQ copy = new QueryGraphCPQ();
+		copy.source = source;
+		copy.target = target;
+		copy.edges = new HashSet<Edge>(edges);
+		copy.vertices = new HashSet<Vertex>(vertices);
+		return copy;
+	}
+	
 	/**
 	 * Shared base interface for query graph elements.
 	 * Objects of this type are either a {@link Vertex}
@@ -593,6 +750,7 @@ public class QueryGraphCPQ{
 	 */
 	public static class Vertex implements QueryGraphComponent{
 		private int id;
+		public int deg;
 		
 		@Override
 		public String toString(){

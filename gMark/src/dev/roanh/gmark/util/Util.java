@@ -39,7 +39,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Predicate;
@@ -306,8 +305,19 @@ public class Util{
 				
 				//save maps
 				Tree<List<T>> bag = new Tree<List<T>>(asArrayList(v.getData(), target.getData()));
-				runIfNotNull(v.getMetadata(), l->l.forEach(bag::addChild));
-				runIfNotNull(edge.getMetadata(), l->l.forEach(bag::addChild));
+				
+				if(v.getMetadata() != null){
+					for(Tree<List<T>> tree : v.getMetadata()){
+						bag.addChild(tree);
+					}
+				}
+				
+				if(edge.getMetadata() != null){
+					for(Tree<List<T>> tree : edge.getMetadata()){
+						bag.addChild(tree);
+					}
+				}
+				
 				if(target.getMetadata() == null){
 					target.setMetadata(new ArrayList<Tree<List<T>>>());
 				}
@@ -335,9 +345,25 @@ public class Util{
 				
 				//save map
 				Tree<List<T>> bag = new Tree<List<T>>(asArrayList(v.getData(), v1.getData(), v2.getData()));
-				runIfNotNull(e1.getMetadata(), l->l.forEach(bag::addChild));
-				runIfNotNull(e2.getMetadata(), l->l.forEach(bag::addChild));
-				runIfNotNull(v.getMetadata(), l->l.forEach(bag::addChild));
+				
+				if(e1.getMetadata() != null){
+					for(Tree<List<T>> tree : e1.getMetadata()){
+						bag.addChild(tree);
+					}
+				}
+				
+				if(e2.getMetadata() != null){
+					for(Tree<List<T>> tree : e2.getMetadata()){
+						bag.addChild(tree);
+					}
+				}
+				
+				if(v.getMetadata() != null){
+					for(Tree<List<T>> tree : v.getMetadata()){
+						bag.addChild(tree);
+					}
+				}
+				
 				if(edge.getMetadata() == null){
 					edge.setMetadata(new ArrayList<Tree<List<T>>>());
 				}
@@ -360,9 +386,25 @@ public class Util{
 		}
 		
 		//everything remaining is the root node
-		Tree<List<T>> root = new Tree<List<T>>(graph.getVertices().stream().map(SimpleVertex::getData).collect(Collectors.toCollection(ArrayList::new)));
-		graph.getEdges().forEach(e->runIfNotNull(e.getMetadata(), l->l.forEach(root::addChild)));
-		graph.getVertices().forEach(v->runIfNotNull(v.getMetadata(), l->l.forEach(root::addChild)));
+		List<T> rootData = new ArrayList<T>();
+		Tree<List<T>> root = new Tree<List<T>>(rootData);
+		for(SimpleVertex<T, List<Tree<List<T>>>> v : graph.getVertices()){
+			rootData.add(v.getData());
+			if(v.getMetadata() != null){
+				for(Tree<List<T>> tree : v.getMetadata()){
+					root.addChild(tree);
+				}
+			}
+		}
+		
+		for(SimpleEdge<T, List<Tree<List<T>>>> edge : graph.getEdges()){
+			if(edge.getMetadata() != null){
+				for(Tree<List<T>> tree : edge.getMetadata()){
+					root.addChild(tree);
+				}
+			}
+		}
+
 		return root;
 	}
 	

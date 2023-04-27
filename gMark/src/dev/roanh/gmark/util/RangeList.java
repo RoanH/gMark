@@ -68,7 +68,7 @@ public class RangeList<T> implements Iterable<T>{
 	 * @see IDable
 	 */
 	public T get(IDable index){
-		return get(index.getID());
+		return data[index.getID()];
 	}
 
 	/**

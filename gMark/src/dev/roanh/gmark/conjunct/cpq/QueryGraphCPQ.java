@@ -33,8 +33,6 @@ import dev.roanh.gmark.util.SimpleGraph;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.Tree;
 import dev.roanh.gmark.util.UniqueGraph;
-import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
-import dev.roanh.gmark.util.UniqueGraph.GraphNode;
 import dev.roanh.gmark.util.Util;
 
 /**
@@ -81,7 +79,6 @@ public class QueryGraphCPQ implements Cloneable{
 		vertices.add(source);
 		vertices.add(target);
 		fid.add(new Pair(source, target));
-		System.out.println("Add pair: " + source.hashCode() + " / " + target.hashCode());
 	}
 	
 	/**
@@ -96,20 +93,15 @@ public class QueryGraphCPQ implements Cloneable{
 		this.target = target;
 		vertices.add(source);
 		vertices.add(target);
+		
 		if(label.isInverse()){
-			System.out.println("dupe: " + edges.add(new Edge(target, source, label.getInverse())));
-			System.out.println("add edge: " + target.hashCode() + " - " + source.hashCode() + " with " + label.getInverse().getAlias() + " / " + edges.size());
-
+			edges.add(new Edge(target, source, label.getInverse()));
 		}else{
-			System.out.println("dupe: " + edges.add(new Edge(source, target, label)));
-			System.out.println("add edge: " + source.hashCode() + " - " + target.hashCode() + " with " + label.getAlias() + " / " + edges.size());
-
+			edges.add(new Edge(source, target, label));
 		}
+		
 		source.deg++;
-//		if(source != target){
-			target.deg++;
-//		}
-			
+		target.deg++;
 	}
 	
 	/**
@@ -148,15 +140,14 @@ public class QueryGraphCPQ implements Cloneable{
 	 */
 	protected QueryGraphCPQ union(QueryGraphCPQ other){
 		vertices.addAll(other.vertices);
-//		edges.addAll(other.edges);
 		fid.addAll(other.fid);
 		for(Edge e : other.edges){
 			if(!edges.add(e)){
-				System.out.println("dupe found! " + e.src.hashCode() + " - " + e.trg.hashCode() + " with " + e.label.getAlias());
 				e.src.deg--;
 				e.trg.deg--;
 			}
 		}
+		
 		return this;
 	}
 	
@@ -222,28 +213,6 @@ public class QueryGraphCPQ implements Cloneable{
 
 		return g;
 	}
-	
-//	/**
-//	 * Computes if there is a <b>query</b> homomorphism from this query graph <code>G</code>
-//	 * to the given other graph <code>G'</code>. This implies that any edge traversal made in
-//	 * this graph can be mimicked in the given other graph. Formally {@code G -> G'} or
-//	 * <code>G</code> is contained in <code>G'</code> (as a subgraph).
-//	 * <p>
-//	 * Note: This method tests for <b>query</b> homomorphism, as such the identity of the source
-//	 * and target vertices is extremely important. Specifically, the given other graph should use
-//	 * the exact same source and target vertices as this query graph. If not, there will never be
-//	 * a query homomorphism. To achieve this it is either possible to reuse the vertices from this
-//	 * graph or to manually pass source and target vertices when creating the query graph using
-//	 * the {@link CPQ#toQueryGraph(Vertex, Vertex)} method.
-//	 * @param graph The other graph to test for query homomorphism to.
-//	 * @return True when this query graph is query homomorphic to the given graph.
-//	 * @see <a href="https://doi.org/10.1016/S0304-3975(99)00220-0">Chandra Chekuri and Anand Rajaraman,
-//	 *      "Conjunctive query containment revisited", in Theoretical Computer Science, vol. 239, 2000, pp. 211-229</a>
-//	 */
-//	public boolean isHomomorphicTo(UniqueGraph<Vertex, Predicate> graph, Vertex src, Vertex trg){
-//		merge();
-//		return isHomomorphicTo(computeMappings(graph, src, trg));
-//	}
 	
 	/**
 	 * Computes if there is a <b>query</b> homomorphism from this query graph <code>G</code>
@@ -331,11 +300,11 @@ public class QueryGraphCPQ implements Cloneable{
 					continue;
 				}
 				
-				if(!known.get(edge.src).contains(other.src)){//TODO these seem to be the main cost right now?
+				if(!known.get(edge.src).contains(other.src)){
 					continue;
 				}
 				
-				if(!known.get(edge.trg).contains(other.trg)){//TODO ^
+				if(!known.get(edge.trg).contains(other.trg)){
 					continue;
 				}
 				
@@ -353,73 +322,7 @@ public class QueryGraphCPQ implements Cloneable{
 		return known;
 	}
 	
-//	private RangeList<List<Object>> computeMappings(UniqueGraph<Vertex, Predicate> graph, Vertex src, Vertex trg){
-//		RangeList<List<Object>> known = new RangeList<List<Object>>(vertices.size() + edges.size());
-//		
-//		for(Vertex vertex : vertices){
-//			List<Object> matches = new ArrayList<Object>();
-//			for(GraphNode<Vertex, Predicate> other : graph.getNodes()){
-//				if((vertex == source) ^ (other.getData() == src)){
-//					continue;
-//				}
-//				
-//				if((vertex == target) ^ (other.getData() == trg)){
-//					continue;
-//				}
-//				
-//				//note: it would be possible for force in/out edges here
-//				//but for the small graphs we usually work with that is
-//				//too intensive than it is worth (see thesis for more details).
-//				
-//				matches.add(other);
-//			}
-//			
-//			if(matches.isEmpty()){
-//				//if a vertex cannot be mapped there is no homomorphism
-//				return null;
-//			}
-//			
-//			known.set(vertex, matches);
-//		}
-//		
-//		for(Edge edge : edges){
-//			List<Object> matches = new ArrayList<Object>();
-//			for(GraphEdge<Vertex, Predicate> other : graph.getEdges()){
-//				if((edge.src == source) ^ (other.getSource() == src)){
-//					continue;
-//				}
-//				
-//				if((edge.trg == target) ^ (other.getTarget() == trg)){
-//					continue;
-//				}
-//				
-//				if(!other.getData().equals(edge.label)){
-//					continue;
-//				}
-//				
-//				if(!known.get(edge.src).contains(other.getSourceNode())){//TODO these seem to be the main cost right now?
-//					continue;
-//				}
-//				
-//				if(!known.get(edge.trg).contains(other.getTargetNode())){//TODO ^
-//					continue;
-//				}
-//				
-//				matches.add(other);
-//			}
-//			
-//			if(matches.isEmpty()){
-//				//if an edge cannot be mapped there is no homomorphism
-//				return null;
-//			}
-//			
-//			known.set(edge, matches);
-//		}
-//		
-//		return known;
-//	}
-	
-	//mod cartesian with filtering and dep vars, TODO final name
+	//TODO final name, docs
 	private void expandPartialMap(PartialMap data, RangeList<List<QueryGraphComponent>> known){
 		//sets to compute the Cartesian product of
 		List<List<QueryGraphComponent>> sets = new ArrayList<List<QueryGraphComponent>>();
@@ -569,8 +472,6 @@ public class QueryGraphCPQ implements Cloneable{
 	 * vertex due to intersections with the identity operation.
 	 */
 	protected void merge(){
-//		if(1!=2) return;
-		
 		//essentially picks a pair of vertices that needs to be the same node and
 		//replaces all instances of the first node with the second node
 		while(!fid.isEmpty()){
@@ -578,49 +479,32 @@ public class QueryGraphCPQ implements Cloneable{
 			
 			//remove the old vertex
 			vertices.remove(elem.first);
-//			elem.second.deg += elem.first.deg;
-//			if(elem.first == elem.second){
-				System.out.println("hi " + elem.first.deg + " / " + elem.second.deg);
-				if(elem.first != elem.second){
-					System.out.println("same");
-//					return;
-				}
-//			}
 			
 			//replace edge source/target vertex with the new vertex
 			for(Edge edge : edges.stream().collect(Collectors.toList())){
 				if(edge.src == elem.first && edge.trg == elem.first){
 					if(edges.add(new Edge(elem.second, elem.second, edge.label))){
-						System.out.println("add two");
 						elem.second.deg += 2;
-					}else{
-						System.out.println("was dupe 1");
 					}
+
 					continue;
 				}
-
 
 				if(edge.src == elem.first){
 					if(edges.add(new Edge(elem.second, edge.trg, edge.label))){
 						elem.second.deg++;
-						System.out.println("add one");
 					}else{
 						edge.trg.deg--;
-						System.out.println("was dupe 2");
 					}
 				}
 
 				if(edge.trg == elem.first){
 					if(edges.add(new Edge(edge.src, elem.second, edge.label))){
 						elem.second.deg++;
-						System.out.println("add one");
 					}else{
 						edge.src.deg--;
-						System.out.println("was dupe 3");
 					}
 				}
-				
-				
 			}
 			edges.removeIf(e->e.src == elem.first || e.trg == elem.first);
 			
@@ -682,34 +566,6 @@ public class QueryGraphCPQ implements Cloneable{
 	public String toString(){
 		return "QueryGraphCPQ[V=" + vertices + ",E=" + edges + ",src=" + source + ",trg=" + target + ",Fid=" + fid + "]";
 	}
-	
-//	/**
-//	 * Helper method to check if the predicates on the edges in the given
-//	 * list all occur at least once in the given second set of edges.
-//	 * @param first The set of edges whose predicates to find.
-//	 * @param second The set of edges where the same predicates need to
-//	 *        exist at least once.
-//	 * @return True if the second set contains all the predicates from
-//	 *         the first set at least once.
-//	 */
-//	private static boolean checkEquivalent(List<Edge> first, Set<GraphEdge<Vertex, Predicate>> second){
-//		Iterator<Predicate> edges = first.stream().map(e->e.label).sorted().distinct().iterator();
-//		Iterator<Predicate> other = second.stream().map(GraphEdge::getData).sorted().distinct().iterator();
-//		
-//		while(edges.hasNext()){
-//			Predicate p = edges.next();
-//			
-//			while(true){
-//				if(!other.hasNext()){
-//					return false;
-//				}else if(p.equals(other.next())){
-//					break;
-//				}
-//			}
-//		}
-//		
-//		return true;
-//	}
 	
 	@Override
 	protected QueryGraphCPQ clone(){
@@ -890,7 +746,7 @@ public class QueryGraphCPQ implements Cloneable{
 	 * Object used to store partial mapping required for the
 	 * query homomorphism testing algorithm.
 	 * @author Roan
-	 * @see QueryGraphCPQ#isHomomorphicTo(UniqueGraph)
+	 * @see QueryGraphCPQ#isHomomorphicTo(QueryGraphCPQ)
 	 */
 	private static final class PartialMap{
 		/**

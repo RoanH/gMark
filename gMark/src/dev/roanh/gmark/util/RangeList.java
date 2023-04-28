@@ -19,6 +19,7 @@
 package dev.roanh.gmark.util;
 
 import java.util.Iterator;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -67,7 +68,7 @@ public class RangeList<T> implements Iterable<T>{
 	 * @see IDable
 	 */
 	public T get(IDable index){
-		return get(index.getID());
+		return data[index.getID()];
 	}
 
 	/**
@@ -110,6 +111,21 @@ public class RangeList<T> implements Iterable<T>{
 	 */
 	public int size(){
 		return data.length;
+	}
+	
+	/**
+	 * Similar to {@link #forEach(Consumer)} this method
+	 * will iterate over all elements in this list and
+	 * pass them to the given consumer. However, null
+	 * elements will be skipped instead of forwarded.
+	 * @param fun The consumer to pass elements to.
+	 */
+	public void forEachNonNull(Consumer<T> fun){
+		for(T val : data){
+			if(val != null){
+				fun.accept(val);
+			}
+		}
 	}
 
 	@Override

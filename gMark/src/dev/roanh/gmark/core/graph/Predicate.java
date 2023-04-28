@@ -22,6 +22,7 @@ import java.util.Objects;
 
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
+import dev.roanh.gmark.util.IDable;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
@@ -31,7 +32,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * inverse direction from target to source.
  * @author Roan
  */
-public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>{
+public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>, IDable{
 	/**
 	 * The character used to denote negated predicates.
 	 */
@@ -132,11 +133,13 @@ public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>{
 	}
 	
 	/**
-	 * Gets the unique ID of this predicate. Uniquely identifies
-	 * this predicate among all predicates. Note that the
-	 * inverse predicate has the same ID.
+	 * {@inheritDoc}
+	 * <p>
+	 * Uniquely identifies this predicate among all predicates.
+	 * Note that the inverse predicate has the same ID.
 	 * @return The unique ID of this predicate.
 	 */
+	@Override
 	public int getID(){
 		return id;
 	}

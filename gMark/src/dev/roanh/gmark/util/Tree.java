@@ -20,7 +20,6 @@ package dev.roanh.gmark.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -57,12 +56,20 @@ public class Tree<T>{
 	 * Invokes the given consumer for all nodes in this tree
 	 * that are in the sub tree rooted at this tree node.
 	 * @param nodeVisitor The consumer to pass nodes to.
+	 * @return True if the search was interrupted early.
 	 */
-	public void forEach(Consumer<Tree<T>> nodeVisitor){
-		nodeVisitor.accept(this);
-		for(Tree<T> child : children){
-			child.forEach(nodeVisitor);
+	public boolean forEach(TreeVisitor<T> nodeVisitor){
+		if(nodeVisitor.visitNode(this)){
+			return true;
 		}
+		
+		for(Tree<T> child : children){
+			if(child.forEach(nodeVisitor)){
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	/**
@@ -71,12 +78,16 @@ public class Tree<T>{
 	 * will be guaranteed that all the child nodes will be
 	 * visited before their parent.
 	 * @param nodeVisitor The consumer to pass nodes to.
+	 * @return True if the search was interrupted early.
 	 */
-	public void forEachBottomUp(Consumer<Tree<T>> nodeVisitor){
+	public boolean forEachBottomUp(TreeVisitor<T> nodeVisitor){
 		for(Tree<T> child : children){
-			child.forEachBottomUp(nodeVisitor);
+			if(child.forEachBottomUp(nodeVisitor)){
+				return true;
+			}
 		}
-		nodeVisitor.accept(this);
+		
+		return nodeVisitor.visitNode(this);
 	}
 	
 	/**
@@ -166,5 +177,21 @@ public class Tree<T>{
 		Tree<N> root = new Tree<N>(map.apply(data));
 		children.forEach(c->root.addChild(c.cloneStructure(map)));
 		return root;
+	}
+	
+	/**
+	 * Interface for tree traversal implementations.
+	 * @author Roan
+	 * @param <T> The tree data type.
+	 */
+	@FunctionalInterface
+	public static abstract interface TreeVisitor<T>{
+		
+		/**
+		 * Called when the visitor arrives at a new node.
+		 * @param node The node visited.
+		 * @return True if this search should be stopped.
+		 */
+		public abstract boolean visitNode(Tree<T> node);
 	}
 }

@@ -256,6 +256,14 @@ public class QueryGraphCPQ implements Cloneable{
 		});
 	}
 	
+	/**
+	 * Computes mappings from the vertices and edges of this graph to similar
+	 * vertices and edges in the other given graph.
+	 * @param graph The graph to compute mappings to.
+	 * @return The mappings between this graph and the given other graph,
+	 *         if no mappings are found for some vertex or edge then <code>
+	 *         null</code> is returned.
+	 */
 	private RangeList<List<QueryGraphComponent>> computeMappings(QueryGraphCPQ graph){
 		RangeList<List<QueryGraphComponent>> known = new RangeList<List<QueryGraphComponent>>(vertices.size() + edges.size());
 		
@@ -270,9 +278,9 @@ public class QueryGraphCPQ implements Cloneable{
 					continue;
 				}
 				
-				//note: it would be possible for force in/out edges here
+				//note: it would be possible to force in/out edges here
 				//but for the small graphs we usually work with that is
-				//too intensive than it is worth (see thesis for more details).
+				//more intensive than it is worth (see thesis for more details).
 				
 				matches.add(other);
 			}
@@ -322,7 +330,12 @@ public class QueryGraphCPQ implements Cloneable{
 		return known;
 	}
 	
-	//TODO final name, docs
+	/**
+	 * Computes the right hand side of the given partial mapping.
+	 * Both sides of the mapping are also extended with dependent variables.
+	 * @param data The partial map to expand.
+	 * @param known A map of know mappings for individual vertices and edges.
+	 */
 	private void expandPartialMap(PartialMap data, RangeList<List<QueryGraphComponent>> known){
 		//sets to compute the Cartesian product of
 		List<List<QueryGraphComponent>> sets = new ArrayList<List<QueryGraphComponent>>();
@@ -525,6 +538,7 @@ public class QueryGraphCPQ implements Cloneable{
 			fid.removeIf(p->p.first == elem.first || p.second == elem.first);
 		}
 		
+		//assign numerical identifiers to all components
 		int id = 0;
 		for(Vertex v : vertices){
 			v.id = id++;
@@ -605,8 +619,16 @@ public class QueryGraphCPQ implements Cloneable{
 	 * @author Roan
 	 */
 	public static class Vertex implements QueryGraphComponent{
+		/**
+		 * The ID of this vertex.
+		 */
 		private int id;
-		public int deg;
+		/**
+		 * The degree of this vertex, this counts both incoming
+		 * and outgoing edges. This means self loops are counted
+		 * twice for the degree.
+		 */
+		private int deg;
 		
 		@Override
 		public String toString(){
@@ -646,6 +668,9 @@ public class QueryGraphCPQ implements Cloneable{
 		 * The edge label.
 		 */
 		private final Predicate label;
+		/**
+		 * The ID of this edge.
+		 */
 		private int id;
 		
 		/**

@@ -233,10 +233,6 @@ public class UtilTest{
 		assertThrows(IllegalArgumentException.class, ()->Util.computeTreeDecompositionWidth2(g));
 	}
 	
-	public static void main(String[] args){
-		new UtilTest().decomp9();
-	}
-	
 	@Test
 	public void decomp9(){
 		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> g = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(6);

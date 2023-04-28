@@ -84,6 +84,16 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	}
 	
 	/**
+	 * Computes and returns the core of the query graph for this CPQ.
+	 * @return The core of this CPQ.
+	 * @see QueryGraphCPQ
+	 * @see QueryGraphCPQ#computeCore()
+	 */
+	public default QueryGraphCPQ computeCore(){
+		return toQueryGraph().computeCore();
+	}
+	
+	/**
 	 * Tests if the query graph for this CPQ is homomorphic
 	 * to the query graph for the given other CPQ.
 	 * @param other The other CPQ to test against.

@@ -220,7 +220,7 @@ public class QueryGraphCPQ implements Cloneable{
 	 * this graph can be mimicked in the given other graph. Formally {@code G -> G'} or
 	 * <code>G</code> is contained in <code>G'</code> (as a subgraph).
 	 * @param graph The other graph to test for query homomorphism to.
-	 * @return True when this query graph is query homomorphic to the given graph map.
+	 * @return True when this query graph is query homomorphic to the given graph.
 	 * @see <a href="https://doi.org/10.1016/S0304-3975(99)00220-0">Chandra Chekuri and Anand Rajaraman,
 	 *      "Conjunctive query containment revisited", in Theoretical Computer Science, vol. 239, 2000, pp. 211-229</a>
 	 */

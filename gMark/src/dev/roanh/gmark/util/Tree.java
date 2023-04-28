@@ -179,9 +179,19 @@ public class Tree<T>{
 		return root;
 	}
 	
+	/**
+	 * Interface for tree traversal implementations.
+	 * @author Roan
+	 * @param <T> The tree data type.
+	 */
 	@FunctionalInterface
 	public static abstract interface TreeVisitor<T>{
 		
+		/**
+		 * Called when the visitor arrives at a new node.
+		 * @param node The node visited.
+		 * @return True if this search should be stopped.
+		 */
 		public abstract boolean visitNode(Tree<T> node);
 	}
 }

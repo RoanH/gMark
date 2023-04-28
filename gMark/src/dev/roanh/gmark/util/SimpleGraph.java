@@ -42,8 +42,17 @@ public class SimpleGraph<T extends IDable, M>{
 	 * Set of all edges in the graph.
 	 */
 	private final Set<SimpleEdge<T, M>> edges = new HashSet<SimpleEdge<T, M>>();
+	/**
+	 * The total number of vertices in this graph.
+	 */
 	private int vertices = 0;
 	
+	/**
+	 * Constructs a new simple graph with capacity for the given number
+	 * of vertices. Note that all vertices added should have an ID that
+	 * is lower than the vertex count.
+	 * @param vertexCount The number of vertices to allocate space for.
+	 */
 	public SimpleGraph(int vertexCount){
 		vertexMap = new RangeList<SimpleVertex<T, M>>(vertexCount);
 	}
@@ -197,7 +206,13 @@ public class SimpleGraph<T extends IDable, M>{
 		 * The second end point of this edge.
 		 */
 		private final SimpleVertex<T, M> v2;
+		/**
+		 * The metadata stored at this edge.
+		 */
 		private M metadata;
+		/**
+		 * The cached hashcode for this edge.
+		 */
 		private int hashcode;
 		
 		/**
@@ -211,10 +226,18 @@ public class SimpleGraph<T extends IDable, M>{
 			hashcode = Objects.hash(v1.hashCode() ^ v2.hashCode());
 		}
 		
+		/**
+		 * Gets the metadata stored at this edge.
+		 * @return The metadata stored at this edge.
+		 */
 		public M getMetadata(){
 			return metadata;
 		}
 		
+		/**
+		 * Sets the metadata stored at this edge.
+		 * @param meta The new metadata to store at this edge.
+		 */
 		public void setMetadata(M meta){
 			metadata = meta;
 		}
@@ -278,6 +301,9 @@ public class SimpleGraph<T extends IDable, M>{
 		 * The edges this vertex is an end point for.
 		 */
 		private Set<SimpleEdge<T, M>> edges = new HashSet<SimpleEdge<T, M>>();
+		/**
+		 * The metadata stored at this vertex.
+		 */
 		private M metadata;
 		
 		/**
@@ -288,10 +314,18 @@ public class SimpleGraph<T extends IDable, M>{
 			this.data = data;
 		}
 		
+		/**
+		 * Gets the metadata stored at this vertex.
+		 * @return The metadata stored at this vertex.
+		 */
 		public M getMetadata(){
 			return metadata;
 		}
 		
+		/**
+		 * Sets the metadata stored at this vertex.
+		 * @param meta The new metadata to store at this vertex.
+		 */
 		public void setMetadata(M meta){
 			metadata = meta;
 		}

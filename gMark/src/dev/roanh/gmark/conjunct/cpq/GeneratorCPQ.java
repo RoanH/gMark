@@ -193,7 +193,7 @@ public class GeneratorCPQ implements ConjunctGenerator{
 	 * @return The parsed CPQ.
 	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
 	 */
-	private static CPQ parse(String query, Map<String, Predicate> labels, char join, char intersect, char inverse) throws IllegalArgumentException{
+	public static CPQ parse(String query, Map<String, Predicate> labels, char join, char intersect, char inverse) throws IllegalArgumentException{
 		List<String> parts = split(query, join);
 		if(parts.size() > 1){
 			return CPQ.concat(parts.stream().map(part->{

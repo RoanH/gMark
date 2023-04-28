@@ -113,6 +113,13 @@ public class RangeList<T> implements Iterable<T>{
 		return data.length;
 	}
 	
+	/**
+	 * Similar to {@link #forEach(Consumer)} this method
+	 * will iterate over all elements in this list and
+	 * pass them to the given consumer. However, null
+	 * elements will not skipped instead of forwarded.
+	 * @param fun The consumer to pass elements to.
+	 */
 	public void forEachNonNull(Consumer<T> fun){
 		for(T val : data){
 			if(val != null){

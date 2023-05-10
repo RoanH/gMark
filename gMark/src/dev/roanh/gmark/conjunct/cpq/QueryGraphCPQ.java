@@ -393,7 +393,7 @@ public class QueryGraphCPQ implements Cloneable{
 			return;
 		}
 		
-		//build all output sets one with once element from each set at a time
+		//build all output sets at once with one element from each set at a time
 		for(int setIdx = 0; setIdx < sets.size(); setIdx++){
 			List<QueryGraphComponent> set = sets.get(setIdx);
 			size /= set.size();

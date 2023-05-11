@@ -382,9 +382,9 @@ public class QueryGraphCPQ implements Cloneable{
 		
 		//Cartesian product of all sets
 		int size = sets.stream().mapToInt(List::size).reduce(StrictMath::multiplyExact).getAsInt();
-		List<List<Object>> product = new ArrayList<List<Object>>(size);
+		List<List<QueryGraphComponent>> product = new ArrayList<List<QueryGraphComponent>>(size);
 		for(int i = 0; i < size; i++){
-			product.add(new ArrayList<Object>());
+			product.add(new ArrayList<QueryGraphComponent>());
 		}
 		
 		//if one set is empty we're done
@@ -400,7 +400,7 @@ public class QueryGraphCPQ implements Cloneable{
 			
 			int idx = 0;
 			for(int o = 0; idx < product.size(); o++){
-				List<Object> head = product.get(idx);
+				List<QueryGraphComponent> head = product.get(idx);
 				
 				//check if the candidate was previous discarded
 				if(head == null){
@@ -408,8 +408,7 @@ public class QueryGraphCPQ implements Cloneable{
 					continue;
 				}
 				
-				int elemIdx = o % set.size();
-				Object obj = set.get(elemIdx);
+				QueryGraphComponent obj = set.get(o % set.size());
 				int[] ref = refs.get(setIdx);
 
 				if(ref.length != 0){
@@ -784,7 +783,7 @@ public class QueryGraphCPQ implements Cloneable{
 		 * The parts of the other graph that are equivalent
 		 * to the {@link #left} part of the original graph.
 		 */
-		private List<List<Object>> matches;
+		private List<List<QueryGraphComponent>> matches;
 		
 		/**
 		 * Constructs a new partial map with the given set
@@ -811,7 +810,7 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 			
 			matches.removeIf(match->{
-				test: for(List<Object> filter : other.matches){
+				test: for(List<QueryGraphComponent> filter : other.matches){
 					for(int i = 0; i < map.length; i++){
 						if(map[i] != -1 && !match.get(i).equals(filter.get(map[i]))){
 							continue test;

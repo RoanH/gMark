@@ -710,14 +710,26 @@ public class QueryGraphCPQ implements Cloneable{
 			this.label = label;
 		}
 		
+		/**
+		 * Gets the source vertex of this edge.
+		 * @return The source vertex of this edge.
+		 */
 		public Vertex getSource(){
 			return src;
 		}
 		
+		/**
+		 * Gets the target vertex of this edge.
+		 * @return The target vertex of this edge.
+		 */
 		public Vertex getTarget(){
 			return trg;
 		}
 		
+		/**
+		 * Gets the label of this edge.
+		 * @return The label of this edge.
+		 */
 		public Predicate getLabel(){
 			return label;
 		}

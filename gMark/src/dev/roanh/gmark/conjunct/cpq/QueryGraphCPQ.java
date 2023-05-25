@@ -191,6 +191,31 @@ public class QueryGraphCPQ implements Cloneable{
 	}
 	
 	/**
+	 * Gets the set of edges for this query graph.
+	 * @return The set of edges for this query graph.
+	 */
+	public Set<Edge> getEdges(){
+		return edges;
+	}
+	
+	/**
+	 * Gets the set of vertices for this query graph.
+	 * @return The set of vertices for this query graph.
+	 */
+	public Set<Vertex> getVertices(){
+		return vertices;
+	}
+	
+	/**
+	 * Checks if this query graph is a loop, that is, the
+	 * source and target vertex of this query are the same vertex.
+	 * @return True if this query graph is a loop.
+	 */
+	public boolean isLoop(){
+		return source.equals(target);
+	}
+	
+	/**
 	 * Computes the incidence graph of this query graph. The incidence graph of
 	 * a query graph is a graph where both vertices and edges from the query graph
 	 * are represented as vertices. Edges are only present between an edge nodes
@@ -683,6 +708,18 @@ public class QueryGraphCPQ implements Cloneable{
 			this.src = src;
 			this.trg = trg;
 			this.label = label;
+		}
+		
+		public Vertex getSource(){
+			return src;
+		}
+		
+		public Vertex getTarget(){
+			return trg;
+		}
+		
+		public Predicate getLabel(){
+			return label;
 		}
 		
 		@Override

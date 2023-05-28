@@ -39,7 +39,7 @@ public class IntersectionCPQ implements CPQ{
 	 * Constructs a new intersection CPQ with
 	 * the given CPQs to intersect.
 	 * @param cpq The CPQs to intersect.
-	 * @throw IllegalArgumentException When less than two CPQs are provided.
+	 * @throws IllegalArgumentException When less than two CPQs are provided.
 	 */
 	public IntersectionCPQ(List<CPQ> cpq){
 		this.cpq = cpq;

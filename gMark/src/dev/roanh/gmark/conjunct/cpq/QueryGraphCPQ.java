@@ -266,7 +266,6 @@ public class QueryGraphCPQ implements Cloneable{
 		//compute base mappings
 		RangeList<List<QueryGraphComponent>> known = computeMappings(graph);
 		if(known == null){
-			System.out.println("No base mappings");
 			return false;
 		}
 		
@@ -324,7 +323,6 @@ public class QueryGraphCPQ implements Cloneable{
 			
 			if(matches.isEmpty()){
 				//if a vertex cannot be mapped there is no homomorphism
-				System.out.println("no vertex mapping: " + getVertexLabel(vertex));
 				return null;
 			}
 			

@@ -19,7 +19,6 @@
 package dev.roanh.gmark.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 

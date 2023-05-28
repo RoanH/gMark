@@ -111,6 +111,17 @@ public class QueryGraphCPQ implements Cloneable{
 	}
 	
 	/**
+	 * Reverses the query graph by swapping the source and target vertex.
+	 * Naturally, this changes nothing for graphs that are a loop.
+	 * @see #isLoop()
+	 */
+	public void reverse(){
+		Vertex oldSrc = source;
+		source = target;
+		target = oldSrc;
+	}
+	
+	/**
 	 * Gets the number of vertices in this query graph.
 	 * @return The number of vertices in this query graph.
 	 */

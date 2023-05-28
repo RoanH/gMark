@@ -306,11 +306,11 @@ public class QueryGraphCPQ implements Cloneable{
 		for(Vertex vertex : vertices){
 			List<QueryGraphComponent> matches = new ArrayList<QueryGraphComponent>();
 			for(Vertex other : graph.vertices){
-				if((vertex == source) ^ (other == graph.source)){
+				if(vertex == source && other != graph.source){
 					continue;
 				}
 				
-				if((vertex == target) ^ (other == graph.target)){
+				if(vertex == target && other != graph.target){
 					continue;
 				}
 				
@@ -332,11 +332,11 @@ public class QueryGraphCPQ implements Cloneable{
 		for(Edge edge : edges){
 			List<QueryGraphComponent> matches = new ArrayList<QueryGraphComponent>();
 			for(Edge other : graph.edges){
-				if((edge.src == source) ^ (other.src == graph.source)){
+				if((edge.src == source) && (other.src != graph.source)){
 					continue;
 				}
 				
-				if((edge.trg == target) ^ (other.trg == graph.target)){
+				if((edge.trg == target) && (other.trg != graph.target)){
 					continue;
 				}
 				

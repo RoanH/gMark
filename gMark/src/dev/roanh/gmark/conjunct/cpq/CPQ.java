@@ -183,6 +183,7 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	/**
 	 * Returns a CPQ representing the intersection of the given CPQs
 	 * from left to right. For example {@code ((q1 ∩ q2) ∩ q3)}.
+	 * Note that the given list is not copied.
 	 * @param cpqs The CPQs to intersect.
 	 * @return The intersection of the given CPQs.
 	 * @throws IllegalArgumentException When less than 2 CPQs are provided.
@@ -205,7 +206,7 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	
 	/**
 	 * Returns a CPQ representing the concatenation in order
-	 * of the given CPQs.
+	 * of the given CPQs. Note that the given list is not copied.
 	 * @param cpqs The CPQs to concatenate (in order).
 	 * @return The concatenation of the given CPQs.
 	 * @throws IllegalArgumentException When the given list

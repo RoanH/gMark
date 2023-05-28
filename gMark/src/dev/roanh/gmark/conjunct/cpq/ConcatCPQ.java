@@ -124,4 +124,9 @@ public class ConcatCPQ implements CPQ{
 	public int getDiameter(){
 		return cpq.stream().mapToInt(CPQ::getDiameter).sum();
 	}
+
+	@Override
+	public boolean isLoop(){
+		return false;
+	}
 }

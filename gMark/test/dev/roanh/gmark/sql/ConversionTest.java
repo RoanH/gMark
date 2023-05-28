@@ -85,7 +85,7 @@ public class ConversionTest{
 	}
 	
 	@Test
-	public void identityThrows(){
-		assertThrows(IllegalStateException.class, ()->CPQ.IDENTITY.toSQL());
+	public void identityToSQL(){
+		assertEquals("((SELECT src, src AS trg FROM edge) UNION (SELECT trg AS src, trg FROM edge))", CPQ.IDENTITY.toSQL());
 	}
 }

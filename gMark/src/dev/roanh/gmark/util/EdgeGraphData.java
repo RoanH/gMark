@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import dev.roanh.gmark.conjunct.cpq.CPQ;
 import dev.roanh.gmark.conjunct.cpq.ConcatCPQ;
 import dev.roanh.gmark.conjunct.cpq.EdgeCPQ;
-import dev.roanh.gmark.conjunct.cpq.IntersectionCPQ;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Type;
@@ -319,7 +318,7 @@ public abstract class EdgeGraphData{
 
 		@Override
 		public CPQ toCPQ(){
-			return new IntersectionCPQ(
+			return CPQ.intersect(
 				first.size() == 1 ? first.getFirst().toCPQ() : new ConcatCPQ(first.stream().map(EdgeGraphData::toCPQ).collect(Collectors.toList())),
 				second.size() == 1 ? second.getFirst().toCPQ() : new ConcatCPQ(second.stream().map(EdgeGraphData::toCPQ).collect(Collectors.toList()))
 			);

@@ -73,4 +73,9 @@ public class EdgeCPQ implements CPQ{
 	public int getDiameter(){
 		return 1;
 	}
+
+	@Override
+	public boolean isLoop(){
+		return false;
+	}
 }

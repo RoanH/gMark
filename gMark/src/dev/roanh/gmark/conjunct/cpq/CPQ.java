@@ -18,6 +18,7 @@
  */
 package dev.roanh.gmark.conjunct.cpq;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,7 +54,7 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 
 		@Override
 		public String toSQL(){
-			throw new IllegalStateException("Identity to OutputSQL not supported (and never generated).");
+			return "((SELECT src, src AS trg FROM edge) UNION (SELECT trg AS src, trg FROM edge))";
 		}
 
 		@Override
@@ -69,6 +70,11 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 		@Override
 		public int getDiameter(){
 			return 0;
+		}
+
+		@Override
+		public boolean isLoop(){
+			return true;
 		}
 	};
 	
@@ -129,6 +135,17 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	public abstract int getDiameter();
 	
 	/**
+	 * Tests if this CPQ is a loop, meaning its source and target
+	 * are the same. When visualised as a query graph this means
+	 * that the source and target node are the same node. In its
+	 * grammar form this means that there is an intersection with
+	 * identity at the highest level in the CPQ.
+	 * @return True if this CPQ is a loop.
+	 * @see QueryGraphCPQ
+	 */
+	public abstract boolean isLoop();
+	
+	/**
 	 * Returns the identity CPQ.
 	 * @return The identity CPQ.
 	 * @see #IDENTITY
@@ -139,24 +156,17 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	
 	/**
 	 * Returns a CPQ representing the intersection (conjunction)
-	 * of the two given CPQs.
-	 * @param first The first CPQ.
-	 * @param second The second CPQ.
-	 * @return The intersection of the given CPQs.
-	 */
-	public static CPQ intersect(CPQ first, CPQ second){
-		return new IntersectionCPQ(first, second);
-	}
-	
-	/**
-	 * Returns a CPQ representing the intersection (conjunction)
 	 * of the two given single edge label traversals.
-	 * @param first The first edge label.
-	 * @param second The second edge label.
+	 * @param predicates The labels to traverse.
 	 * @return The intersection of the given label traversals.
+	 * @throws IllegalArgumentException When less than 2 predicates are provided.
 	 */
-	public static CPQ intersect(Predicate first, Predicate second){
-		return new IntersectionCPQ(label(first), label(second));
+	public static CPQ intersect(Predicate... predicates) throws IllegalArgumentException{
+		List<CPQ> labels = new ArrayList<CPQ>(predicates.length);
+		for(Predicate p : predicates){
+			labels.add(label(p));
+		}
+		return new IntersectionCPQ(labels);
 	}
 	
 	/**
@@ -178,16 +188,7 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	 * @throws IllegalArgumentException When less than 2 CPQs are provided.
 	 */
 	public static CPQ intersect(List<CPQ> cpqs) throws IllegalArgumentException{
-		if(cpqs.size() < 2){
-			throw new IllegalArgumentException("Not enough CPQs given (need at least 2)");
-		}
-		
-		CPQ cpq = intersect(cpqs.get(0), cpqs.get(1));
-		for(int i = 2; i < cpqs.size(); i++){
-			cpq = intersect(cpq, cpqs.get(i));
-		}
-		
-		return cpq;
+		return new IntersectionCPQ(cpqs);
 	}
 	
 	/**

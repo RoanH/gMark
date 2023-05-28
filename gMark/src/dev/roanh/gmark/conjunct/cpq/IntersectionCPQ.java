@@ -18,68 +18,84 @@
  */
 package dev.roanh.gmark.conjunct.cpq;
 
+import java.util.List;
+import java.util.StringJoiner;
+
 import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
- * CPQ modelling the intersection between two CPQs
+ * CPQ modelling the intersection between CPQs
  * (also known as the conjunction operation).
  * @author Roan
  */
 public class IntersectionCPQ implements CPQ{
 	/**
-	 * The first CPQ of the intersection.
+	 * The CPQs of the intersection.
 	 */
-	private CPQ first;
-	/**
-	 * The second CPQ of the intersection.
-	 */
-	private CPQ second;
+	private List<CPQ> cpq;
 	
 	/**
 	 * Constructs a new intersection CPQ with
-	 * the given two CPQs to intersect.
-	 * @param first The first CPQ of the intersection.
-	 * @param second The second CPQ of the intersection.
+	 * the given CPQs to intersect.
+	 * @param cpq The CPQs to intersect.
+	 * @throw IllegalArgumentException When less than two CPQs are provided.
 	 */
-	public IntersectionCPQ(CPQ first, CPQ second){
-		this.first = first;
-		this.second = second;
-		if(first == CPQ.IDENTITY){
-			this.first = this.second;
-			this.second = CPQ.IDENTITY;
+	public IntersectionCPQ(List<CPQ> cpq){
+		this.cpq = cpq;
+		if(cpq.size() < 2){
+			throw new IllegalArgumentException("Not enough CPQs given (need at least 2)");
 		}
 	}
 	
 	@Override
 	public String toString(){
-		return "(" + first + " " + CPQ.CHAR_CAP + " " + second + ")";
+		StringJoiner builder = new StringJoiner(" " + CPQ.CHAR_CAP + " ", "(", ")");
+		for(CPQ item : cpq){
+			builder.add(item.toString());
+		}
+		return builder.toString();
 	}
 
 	@Override
 	public String toSQL(){
-		if(second == CPQ.IDENTITY){
-			return "(SELECT ii.src AS src, ii.trg AS trg FROM " + first.toSQL() + " AS ii WHERE ii.src = ii.trg)";
-		}else{
-			return "(" + first.toSQL() + " INTERSECT " + second.toSQL() + ")";
-		}
+		StringJoiner joiner = new StringJoiner(" INTERSECT ", "(", ")");
+		cpq.forEach(q->joiner.add(q.toSQL()));
+		return joiner.toString();
 	}
 
 	@Override
 	public void writeXML(IndentWriter writer){
 		writer.println("<cpq type=\"intersect\">", 2);
-		first.writeXML(writer);
-		second.writeXML(writer);
+		cpq.forEach(c->c.writeXML(writer));
 		writer.println(2, "</cpq>");
 	}
 
 	@Override
 	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-		return first.toQueryGraph(source, target).union(second.toQueryGraph(source, target));
+		QueryGraphCPQ g = cpq.get(0).toQueryGraph(source, target);
+		for(int i = 1; i < cpq.size(); i++){
+			g.union(cpq.get(i).toQueryGraph(source, target));
+		}
+		return g;
 	}
 
 	@Override
 	public int getDiameter(){
-		return Math.max(first.getDiameter(), second.getDiameter());
+		int max = 0;
+		for(CPQ q : cpq){
+			max = Math.max(max, q.getDiameter());
+		}
+		return max;
+	}
+
+	@Override
+	public boolean isLoop(){
+		for(CPQ q : cpq){
+			if(q.isLoop()){
+				return true;
+			}
+		}
+		return false;
 	}
 }

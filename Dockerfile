@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM openjdk:8 AS compile
+FROM eclipse-temurin:17 AS compile
 LABEL maintainer="roan@roanh.dev"
 WORKDIR /gMark
 ADD gMark/gradle/wrapper/ /gMark/gradle/wrapper/
@@ -10,7 +10,7 @@ ADD gMark/settings.gradle /gMark/
 RUN chmod -R 755 ./
 RUN ./gradlew :cliJar
 
-FROM openjdk:8
+FROM eclipse-temurin:17
 LABEL maintainer="roan@roanh.dev"
 WORKDIR /gMark
 COPY --from=compile /gMark/build/libs/gMark-cli.jar ./gMark.jar

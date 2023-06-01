@@ -19,6 +19,8 @@
 package dev.roanh.gmark.conjunct.cpq;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +29,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.GraphPanel;
 import dev.roanh.gmark.util.IDable;
 import dev.roanh.gmark.util.RangeList;
 import dev.roanh.gmark.util.SimpleGraph;
@@ -272,15 +275,21 @@ public class QueryGraphCPQ implements Cloneable{
 		//compute a query decomposition with empty partial maps
 		Tree<PartialMap> maps = Util.computeTreeDecompositionWidth2(toIncidenceGraph()).cloneStructure(PartialMap::new);
 		
+		maps.forEach(pm->{
+//			expandPartialMap(pm.getData(), known);
+			System.out.println(pm.getDepth() + " (" + pm.getChildren().size() + "): " + pm.getData());
+			return false;
+		});
+		
 		//join nodes bottom up while computing candidate maps and dependent variables
-		return !maps.forEachBottomUp(node->{
+		boolean is = !maps.forEachBottomUp(node->{
 			PartialMap map = node.getData();
 			expandPartialMap(map, known);
 			
 			if(!node.isLeaf()){
 				for(Tree<PartialMap> child : node.getChildren()){
 					map.semiJoin(child.getData());
-					if(map.matches.isEmpty()){
+					if(map.matches.length == 0){
 						//if any intermediate map is empty the result will be empty
 						return true;
 					}
@@ -288,8 +297,19 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 			
 			//a non empty root implies query homomorphism
-			return map.matches.isEmpty();
+			return map.matches.length == 0;
 		});
+		
+		System.out.println("post join: ");
+		maps.forEach(pm->{
+//			expandPartialMap(pm.getData(), known);
+			System.out.println(pm.getDepth() + " (" + pm.getChildren().size() + "): " + pm.getData().left + " -> " + Arrays.deepToString(pm.getData().matches));
+			return false;
+		});
+		
+		
+		
+		return is;
 	}
 	
 	/**
@@ -418,9 +438,9 @@ public class QueryGraphCPQ implements Cloneable{
 		
 		//Cartesian product of all sets
 		int size = sets.stream().mapToInt(List::size).reduce(StrictMath::multiplyExact).getAsInt();
-		List<List<QueryGraphComponent>> product = new ArrayList<List<QueryGraphComponent>>(size);
+		Row[] product = new Row[size];
 		for(int i = 0; i < size; i++){
-			product.add(new ArrayList<QueryGraphComponent>());
+			product[i] = new Row(data.left.size());
 		}
 		
 		//if one set is empty we're done
@@ -430,13 +450,14 @@ public class QueryGraphCPQ implements Cloneable{
 		}
 		
 		//build all output sets at once with one element from each set at a time
+		int nulls = 0;
 		for(int setIdx = 0; setIdx < sets.size(); setIdx++){
 			List<QueryGraphComponent> set = sets.get(setIdx);
 			size /= set.size();
 			
 			int idx = 0;
-			for(int o = 0; idx < product.size(); o++){
-				List<QueryGraphComponent> head = product.get(idx);
+			for(int o = 0; idx < product.length; o++){
+				Row head = product[idx];
 				
 				//check if the candidate was previous discarded
 				if(head == null){
@@ -455,23 +476,24 @@ public class QueryGraphCPQ implements Cloneable{
 					if((ref[0] >= 0 && !head.get(ref[0]).equals(edge.src)) || (ref[1] >= 0 && !head.get(ref[1]).equals(edge.trg)) || (ref[1] == -2 && !edge.src.equals(edge.trg))){						
 						//if not these candidates are invalid
 						for(int i = 0; i < size; i++){
-							product.set(idx++, null);
+							product[idx++] = null;
 						}
+						nulls += size;
 						
 						continue;
 					}else{
 						//valid edge mapping candidate
 						for(int i = 0; i < size; i++){
 							//add independent variable
-							product.get(idx).add(obj);
+							product[idx].add(obj);
 							
 							//add dependent variables
 							if(ref[0] == -1){
-								product.get(idx).add(edge.src);
+								product[idx].add(edge.src);
 							}
 							
 							if(ref[1] == -1){
-								product.get(idx).add(edge.trg);
+								product[idx].add(edge.trg);
 							}
 							
 							idx++;
@@ -480,15 +502,21 @@ public class QueryGraphCPQ implements Cloneable{
 				}else{
 					//valid vertex mapping
 					for(int i = 0; i < size; i++){
-						product.get(idx++).add(obj);
+						product[idx++].add(obj);
 					}
 				}
 			}
 		}
 		
 		///remove invalid candidates and return
-		product.removeIf(Objects::isNull);
-		data.matches = product;
+		data.matches = new Row[product.length - nulls];
+		int i = 0;
+		for(Row row : product){
+			if(row != null){
+				data.matches[i++] = row;
+			}
+		}
+		data.sort();
 	}
 	
 	/**
@@ -512,6 +540,23 @@ public class QueryGraphCPQ implements Cloneable{
 		
 		core.vertices.removeIf(v->v.deg == 0);
 		return core;
+	}
+	
+	public static void main(String[] args){
+		
+//		QueryGraphCPQ q = CPQ.parse("((1⁻) ∩ ((((0⁻)◦(0)) ∩ ((1⁻)◦(1)))◦(1⁻)))").toQueryGraph();
+		QueryGraphCPQ q = CPQ.parse("((0◦0) ∩ (0◦0))").toQueryGraph();
+		QueryGraphCPQ q1 = CPQ.parse("((0◦0◦0) ∩ id)").toQueryGraph();
+		QueryGraphCPQ q2 = CPQ.parse("((0◦0◦0◦0◦0) ∩ id)").toQueryGraph();
+
+//		QueryGraphCPQ core = q.computeCore();
+		
+		System.out.println("H: " + q2.isHomomorphicTo(q1));
+		
+		
+		
+//		GraphPanel.show(q);
+//		GraphPanel.show(q.computeCore());
 	}
 	
 	/**
@@ -605,9 +650,9 @@ public class QueryGraphCPQ implements Cloneable{
 	 */
 	public String getVertexLabel(Vertex vertex){
 		if(vertex == source){
-			return vertex == target ? "src,trg" : "src";
+			return vertex == target ? "src,trg " + vertex.id : "src " + vertex.id;
 		}else{
-			return vertex == target ? "trg" : "";
+			return vertex == target ? "trg "  + vertex.id : "" + vertex.id;
 		}
 	}
 	
@@ -632,7 +677,7 @@ public class QueryGraphCPQ implements Cloneable{
 	 * or an {@link Edge}.
 	 * @author Roan
 	 */
-	public static abstract interface QueryGraphComponent extends IDable{
+	public static abstract interface QueryGraphComponent extends IDable, Comparable<QueryGraphComponent>{
 		
 		/**
 		 * Checks if this query graph component is a vertex.
@@ -647,6 +692,11 @@ public class QueryGraphCPQ implements Cloneable{
 		 * @see Edge
 		 */
 		public abstract  boolean isEdge();
+		
+		@Override
+		public default int compareTo(QueryGraphComponent other){
+			return Integer.compare(getID(), other.getID());
+		}
 	}
 	
 	/**
@@ -843,7 +893,7 @@ public class QueryGraphCPQ implements Cloneable{
 		 * The parts of the other graph that are equivalent
 		 * to the {@link #left} part of the original graph.
 		 */
-		private List<List<QueryGraphComponent>> matches;
+		private Row[] matches;
 		
 		/**
 		 * Constructs a new partial map with the given set
@@ -852,6 +902,44 @@ public class QueryGraphCPQ implements Cloneable{
 		 */
 		private PartialMap(List<QueryGraphComponent> left){
 			this.left = left;
+		}
+		
+		private void sort(){
+			int min = Integer.MAX_VALUE;
+			int max = 0;
+			
+			for(QueryGraphComponent comp : left){
+				min = Math.min(min, comp.getID());
+				max = Math.max(max, comp.getID());
+			}
+			
+			int[] sorted = new int[max - min + 1];
+			for(int i = 0; i < left.size(); i++){
+				sorted[left.get(i).getID() - min] = i + 1;
+			}
+			
+			int target = 0;
+			for(int idx = 0; idx < sorted.length; idx++){
+				int i = sorted[idx];
+				if(i != 0){
+					sorted[swap(i - 1, target) - min] = i;
+					target++;
+				}
+			}
+		}
+		
+		private int swap(int i, int j){
+			QueryGraphComponent elem = left.get(i);
+			elem = left.set(j, elem);
+			left.set(i, elem);
+			
+			for(Row r : matches){
+				QueryGraphComponent old = r.match[i];
+				r.match[i] = r.match[j];
+				r.match[j] = old;
+			}
+			
+			return elem.getID();
 		}
 		
 		/**
@@ -863,25 +951,146 @@ public class QueryGraphCPQ implements Cloneable{
 		 * The result of the semi join is stored in this map.
 		 * @param other The other partial map to join with.
 		 */
+//		private void semiJoin(PartialMap other){
+//			int[] map = new int[left.size()];
+//			for(int i = 0; i < map.length; i++){
+//				map[i] = other.left.indexOf(left.get(i));
+//			}
+//			
+//			matches.removeIf(match->{
+//				test: for(Row filter : other.matches){
+//					for(int i = 0; i < map.length; i++){
+//						if(map[i] != -1 && !match.get(i).equals(filter.get(map[i]))){
+//							continue test;
+//						}
+//					}
+//					
+//					return false;
+//				}
+//				
+//				return true;
+//			});
+//		}
+		
 		private void semiJoin(PartialMap other){
-			int[] map = new int[left.size()];
-			for(int i = 0; i < map.length; i++){
-				map[i] = other.left.indexOf(left.get(i));
-			}
-			
-			matches.removeIf(match->{
-				test: for(List<QueryGraphComponent> filter : other.matches){
-					for(int i = 0; i < map.length; i++){
-						if(map[i] != -1 && !match.get(i).equals(filter.get(map[i]))){
-							continue test;
+			int nulls = 0;
+			for(int r = 0; r < matches.length; r++){
+				Row row = matches[r];
+				
+				filter: for(Row match : other.matches){
+					List<Map> maps = new ArrayList<Map>();
+					int ai = 0;
+					int bi = 0;
+					
+					while(bi < other.left.size()){
+						if(ai < left.size()){
+							QueryGraphComponent first = left.get(ai);
+							QueryGraphComponent second = other.left.get(bi);
+							
+							if(first == second){
+								if(row.match[ai] != match.match[bi]){
+									continue filter;
+								}
+								
+								ai++;
+								bi++;
+							}else if(first.getID() > second.getID()){
+								maps.add(new Map(other.left.get(bi), match.get(bi)));
+								bi++;
+							}else{
+								ai++;
+							}
+						}else{
+							maps.add(new Map(other.left.get(bi), match.get(bi)));
 						}
 					}
 					
-					return false;
+					//OK
+					row.other.add(maps);
 				}
 				
-				return true;
-			});
+				//remove rows that do not join with anything
+				if(row.other.isEmpty()){
+					matches[r] = null;
+					nulls++;
+				}
+			}
+			
+			Row[] data = matches;
+			matches = new Row[matches.length - nulls];
+			int i = 0;
+			for(Row row : data){
+				if(row != null){
+					matches[i++] = row;
+				}
+			}
+		}
+		
+//		private void join(PartialMap other){
+//			int[] map = new int[left.size()];
+//			for(int i = 0; i < map.length; i++){
+//				map[i] = other.left.indexOf(left.get(i));
+//			}
+//			
+//			
+//			
+//			matches.removeIf(match->{
+////				test: for(Row filter : other.matches){
+////					List<Map> meta = new ArrayList<Map>(filter.other);
+////					for(int i = 0; i < map.length; i++){
+////						int rel = map[i];
+////						
+////						if(rel != -1){
+////							if(!match.get(i).equals(filter.get(rel))){
+////								continue test;
+////							}
+////						}else{
+////							meta.add(new Map())
+////						}
+////					}
+////					
+////					return false;
+////				}
+//				
+//				//TODO attach meta
+//				return true;
+//			});
+//		}
+		
+		@Override
+		public String toString(){
+			return left + " -> " + Arrays.toString(matches);
+		}
+	}
+	
+	private static final record Map(QueryGraphComponent left, QueryGraphComponent right){
+		
+		@Override
+		public String toString(){
+			return left + "->" + right;
+		}
+	}
+	
+	private static final class Row{
+		private QueryGraphComponent[] match;
+		private List<List<Map>> other = new ArrayList<List<Map>>();
+		private int write = 0;
+		
+		private Row(int size){
+			match = new QueryGraphComponent[size];
+		}
+		
+		public QueryGraphComponent get(int idx){
+			return match[idx];
+		}
+		
+		public void add(QueryGraphComponent comp){
+			match[write++] = comp;
+		}
+		
+		@Override
+		public String toString(){
+			return Arrays.toString(match) + " | " + other;
 		}
 	}
 }

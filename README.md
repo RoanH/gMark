@@ -35,7 +35,7 @@ gmark -c config.xml -o ./output -s sql -w
 An example configuration XML file can be found both [in this repository](gMark/client/example.xml) and in the graphical interface of the standalone executable. The example RPQ workload configuration files included in the original gMark repository are also compatible and can be found [in the use-cases folder](https://github.com/gbagan/gmark/tree/master/use-cases).
 
 ### Executable download
-gMark is available as a standalone portable executable that has both a graphical interface and a command line interface. The graphical interface will only be launched when no command line arguments are passed. This version of gMark requires Java 8 or higher to run.
+gMark is available as a standalone portable executable that has both a graphical interface and a command line interface. The graphical interface will only be launched when no command line arguments are passed. This version of gMark requires Java 17 or higher to run.
    
 - [Windows executable download](https://github.com/RoanH/gMark/releases/download/v1.1/gMark-v1.1.exe)    
 - [Runnable Java archive (JAR) download](https://github.com/RoanH/gMark/releases/download/v1.1/gMark-v1.1.jar)

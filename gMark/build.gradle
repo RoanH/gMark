@@ -88,7 +88,7 @@ javadoc{
 eclipse.classpath.downloadJavadoc = true
 compileJava.options.encoding = 'UTF-8'
 compileClientJava.options.encoding = 'UTF-8'
-sourceCompatibility = 1.8
+sourceCompatibility = 1.17
 shadowJar.archiveName = 'gMark-v' + project.version + '.jar'
 
 repositories{

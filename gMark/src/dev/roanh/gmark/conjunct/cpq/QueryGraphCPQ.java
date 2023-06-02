@@ -264,36 +264,25 @@ public class QueryGraphCPQ implements Cloneable{
 	 *      "Conjunctive query containment revisited", in Theoretical Computer Science, vol. 239, 2000, pp. 211-229</a>
 	 */
 	public boolean isHomomorphicTo(QueryGraphCPQ graph){
+		return computeRelations(graph) != null;
+	}
+		
+	private Tree<PartialMap> computeRelations(QueryGraphCPQ graph){
 		merge();
 		
 		//compute base mappings
 		RangeList<List<QueryGraphComponent>> known = computeMappings(graph);
 		if(known == null){
-			return false;
+			return null;
 		}
 		
 		//compute a query decomposition with empty partial maps
 		Tree<PartialMap> maps = Util.computeTreeDecompositionWidth2(toIncidenceGraph()).cloneStructure(PartialMap::new);
 		
-		maps.forEach(pm->{
-//			expandPartialMap(pm.getData(), known);
-			System.out.println(pm.getDepth() + " (" + pm.getChildren().size() + "): " + pm.getData());
-			return false;
-		});
-		
-		maps.forEachBottomUp(map->{expandPartialMap(map.getData(), known);return false;});
-		
-		System.out.println("post part: ");
-		maps.forEach(pm->{
-//			expandPartialMap(pm.getData(), known);
-			System.out.println(pm.getDepth() + " (" + pm.getChildren().size() + "): " + pm.getData());
-			return false;
-		});
-		
 		//join nodes bottom up while computing candidate maps and dependent variables
-		boolean is = !maps.forEachBottomUp(node->{
+		boolean hasHomomorphism = !maps.forEachBottomUp(node->{
 			PartialMap map = node.getData();
-//			expandPartialMap(map, known);
+			expandPartialMap(map, known);
 			
 			if(!node.isLeaf()){
 				for(Tree<PartialMap> child : node.getChildren()){
@@ -309,16 +298,14 @@ public class QueryGraphCPQ implements Cloneable{
 			return map.matches.length == 0;
 		});
 		
+		//TODO remove
 		System.out.println("post join: ");
 		maps.forEach(pm->{
-//			expandPartialMap(pm.getData(), known);
 			System.out.println(pm.getDepth() + " (" + pm.getChildren().size() + "): " + pm.getData().left + " -> " + Arrays.deepToString(pm.getData().matches));
 			return false;
 		});
 		
-		
-		
-		return is;
+		return hasHomomorphism ? maps : null;
 	}
 	
 	/**
@@ -534,7 +521,7 @@ public class QueryGraphCPQ implements Cloneable{
 	 * graph query homomorphically equivalent to this CPQ query graph.
 	 * @return The core of this CPQ query graph.
 	 */
-	public QueryGraphCPQ computeCore(){
+	public QueryGraphCPQ computeCore2(){
 		QueryGraphCPQ core = this.clone();
 		
 		for(Edge edge : new ArrayList<Edge>(core.edges)){
@@ -552,19 +539,74 @@ public class QueryGraphCPQ implements Cloneable{
 		return core;
 	}
 	
+	//TODO check for redundant info!
+	
+	/**
+	 * Computes the core of this CPQ query graph. The core is the smallest
+	 * graph query homomorphically equivalent to this CPQ query graph.
+	 * @return The core of this CPQ query graph.
+	 */
+	public QueryGraphCPQ computeCore(){
+		Tree<PartialMap> maps = computeRelations(this);
+		
+		int bestCost = Integer.MAX_VALUE;
+		boolean[] bestUse = null;
+		for(Row row : maps.getData().matches){
+			for(List<Map> ext : row.other){
+				boolean[] used = computeUsage(row, ext);
+				int cost = computeCost(used);
+				if(cost < bestCost){
+					bestUse = used;
+				}
+			}
+		}
+		
+		final boolean[] used = bestUse;
+		QueryGraphCPQ core = this.clone();
+		core.edges.removeIf(edge->!used[edge.getID()]);
+		core.vertices.removeIf(vertex->!used[vertex.getID()]);
+		
+		return core;
+	}
+	
+	private boolean[] computeUsage(Row row, List<Map> ext){
+		boolean[] used = new boolean[vertices.size() + edges.size()];
+		
+		for(QueryGraphComponent c : row.match){
+			used[c.getID()] = true;
+		}
+		
+		for(Map map : ext){
+			used[map.right.getID()] = true;
+		}
+		
+		return used;
+	}
+	
+	private int computeCost(boolean[] used){
+		int cost = 0;
+		for(boolean val : used){
+			if(val){
+				cost++;
+			}
+		}
+		
+		return cost;
+	}
+	
 	public static void main(String[] args){
 		
-//		QueryGraphCPQ q = CPQ.parse("((1⁻) ∩ ((((0⁻)◦(0)) ∩ ((1⁻)◦(1)))◦(1⁻)))").toQueryGraph();
+		QueryGraphCPQ q = CPQ.parse("((1⁻) ∩ ((((0⁻)◦(0)) ∩ ((1⁻)◦(1)))◦(1⁻)))").toQueryGraph();
 //		QueryGraphCPQ q = CPQ.parse("((0◦0) ∩ (0◦0))").toQueryGraph();
-		QueryGraphCPQ q1 = CPQ.parse("((0◦0◦0) ∩ id)").toQueryGraph();
-		QueryGraphCPQ q2 = CPQ.parse("((0◦0◦0◦0◦0) ∩ id)").toQueryGraph();
+//		QueryGraphCPQ q1 = CPQ.parse("((0◦0◦0) ∩ id)").toQueryGraph();
+//		QueryGraphCPQ q2 = CPQ.parse("((0◦0◦0◦0◦0) ∩ id)").toQueryGraph();
 
 //		QueryGraphCPQ core = q.computeCore();
 		
-		System.out.println("H: " + q2.isHomomorphicTo(q1));
+		System.out.println("H: " + q.isHomomorphicTo(q));
 		
-		GraphPanel.show(q1);
-		GraphPanel.show(q2);
+//		GraphPanel.show(q1);
+//		GraphPanel.show(q2);
 		
 //		GraphPanel.show(q);
 //		GraphPanel.show(q.computeCore());
@@ -724,6 +766,7 @@ public class QueryGraphCPQ implements Cloneable{
 		 * and outgoing edges. This means self loops are counted
 		 * twice for the degree.
 		 */
+		@Deprecated
 		private int deg;
 		
 		@Override
@@ -1090,7 +1133,7 @@ public class QueryGraphCPQ implements Cloneable{
 		}
 	}
 	
-	private static final record Map(QueryGraphComponent left, QueryGraphComponent right){
+	private static final record Map(@Deprecated QueryGraphComponent left, QueryGraphComponent right){
 		
 		@Override
 		public String toString(){

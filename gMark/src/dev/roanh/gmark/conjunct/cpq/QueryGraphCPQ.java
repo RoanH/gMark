@@ -293,7 +293,7 @@ public class QueryGraphCPQ implements Cloneable{
 		//join nodes bottom up while computing candidate maps and dependent variables
 		boolean is = !maps.forEachBottomUp(node->{
 			PartialMap map = node.getData();
-			expandPartialMap(map, known);
+//			expandPartialMap(map, known);
 			
 			if(!node.isLeaf()){
 				for(Tree<PartialMap> child : node.getChildren()){
@@ -395,6 +395,10 @@ public class QueryGraphCPQ implements Cloneable{
 		return known;
 	}
 	
+	public static void main(String[] args){
+		CPQ.parse("((0◦0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0◦0))").toQueryGraph().computeCore();
+	}
+	
 	/**
 	 * Computes the right hand side of the given partial mapping.
 	 * Both sides of the mapping are also extended with dependent variables.
@@ -443,6 +447,7 @@ public class QueryGraphCPQ implements Cloneable{
 				}
 			}
 		}
+		List<QueryGraphComponent> oldLeft = data.left;
 		data.left = newLeft;
 		
 		//Cartesian product of all sets
@@ -551,7 +556,7 @@ public class QueryGraphCPQ implements Cloneable{
 		return core;
 	}
 	
-	public static void main(String[] args){
+	public static void main2(String[] args){
 		
 //		QueryGraphCPQ q = CPQ.parse("((1⁻) ∩ ((((0⁻)◦(0)) ∩ ((1⁻)◦(1)))◦(1⁻)))").toQueryGraph();
 		QueryGraphCPQ q = CPQ.parse("((0◦0) ∩ (0◦0))").toQueryGraph();

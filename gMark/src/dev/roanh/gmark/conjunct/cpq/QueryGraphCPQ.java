@@ -395,10 +395,6 @@ public class QueryGraphCPQ implements Cloneable{
 		return known;
 	}
 	
-	public static void main(String[] args){
-		CPQ.parse("((0◦0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0◦0))").toQueryGraph().computeCore();
-	}
-	
 	/**
 	 * Computes the right hand side of the given partial mapping.
 	 * Both sides of the mapping are also extended with dependent variables.
@@ -556,10 +552,10 @@ public class QueryGraphCPQ implements Cloneable{
 		return core;
 	}
 	
-	public static void main2(String[] args){
+	public static void main(String[] args){
 		
 //		QueryGraphCPQ q = CPQ.parse("((1⁻) ∩ ((((0⁻)◦(0)) ∩ ((1⁻)◦(1)))◦(1⁻)))").toQueryGraph();
-		QueryGraphCPQ q = CPQ.parse("((0◦0) ∩ (0◦0))").toQueryGraph();
+//		QueryGraphCPQ q = CPQ.parse("((0◦0) ∩ (0◦0))").toQueryGraph();
 		QueryGraphCPQ q1 = CPQ.parse("((0◦0◦0) ∩ id)").toQueryGraph();
 		QueryGraphCPQ q2 = CPQ.parse("((0◦0◦0◦0◦0) ∩ id)").toQueryGraph();
 
@@ -966,31 +962,45 @@ public class QueryGraphCPQ implements Cloneable{
 		 * The result of the semi join is stored in this map.
 		 * @param other The other partial map to join with.
 		 */
-//		private void semiJoin(PartialMap other){
-//			int[] map = new int[left.size()];
-//			for(int i = 0; i < map.length; i++){
-//				map[i] = other.left.indexOf(left.get(i));
-//			}
-//			
-//			matches.removeIf(match->{
-//				test: for(Row filter : other.matches){
-//					for(int i = 0; i < map.length; i++){
-//						if(map[i] != -1 && !match.get(i).equals(filter.get(map[i]))){
-//							continue test;
-//						}
-//					}
-//					
-//					return false;
-//				}
-//				
-//				return true;
-//			});
-//		}
+		private void semiJoin8(PartialMap other){
+			int[] map = new int[left.size()];
+			for(int i = 0; i < map.length; i++){
+				map[i] = other.left.indexOf(left.get(i));
+			}
+			
+			int nulls = 0;
+			outer: for(int m = 0; m < matches.length; m++){
+				Row match = matches[m];
+				test: for(Row filter : other.matches){
+					for(int i = 0; i < map.length; i++){
+						if(map[i] != -1 && !match.get(i).equals(filter.get(map[i]))){
+							continue test;
+						}
+					}
+					
+					match.other.add(new ArrayList<Map>());
+					continue outer;
+				}
+				
+				matches[m] = null;
+				nulls++;
+			}
+			
+			Row[] data = matches;
+			matches = new Row[matches.length - nulls];
+			int i = 0;
+			for(Row row : data){
+				if(row != null){
+					matches[i++] = row;
+				}
+			}
+		}
 		
 		private void semiJoin(PartialMap other){
 			int nulls = 0;
 			for(int r = 0; r < matches.length; r++){
 				Row row = matches[r];
+				boolean hasMatch = false;
 				
 				filter: for(Row match : other.matches){
 					List<Map> maps = new ArrayList<Map>();
@@ -1022,11 +1032,12 @@ public class QueryGraphCPQ implements Cloneable{
 					}
 					
 					//OK
+					hasMatch = true;
 					row.other.add(maps);
 				}
 				
 				//remove rows that do not join with anything
-				if(row.other.isEmpty()){
+				if(!hasMatch){
 					matches[r] = null;
 					nulls++;
 				}

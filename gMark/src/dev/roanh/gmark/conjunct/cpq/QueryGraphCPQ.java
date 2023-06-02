@@ -281,6 +281,15 @@ public class QueryGraphCPQ implements Cloneable{
 			return false;
 		});
 		
+		maps.forEachBottomUp(map->{expandPartialMap(map.getData(), known);return false;});
+		
+		System.out.println("post part: ");
+		maps.forEach(pm->{
+//			expandPartialMap(pm.getData(), known);
+			System.out.println(pm.getDepth() + " (" + pm.getChildren().size() + "): " + pm.getData());
+			return false;
+		});
+		
 		//join nodes bottom up while computing candidate maps and dependent variables
 		boolean is = !maps.forEachBottomUp(node->{
 			PartialMap map = node.getData();
@@ -553,7 +562,8 @@ public class QueryGraphCPQ implements Cloneable{
 		
 		System.out.println("H: " + q2.isHomomorphicTo(q1));
 		
-		
+		GraphPanel.show(q1);
+		GraphPanel.show(q2);
 		
 //		GraphPanel.show(q);
 //		GraphPanel.show(q.computeCore());
@@ -1002,6 +1012,7 @@ public class QueryGraphCPQ implements Cloneable{
 							}
 						}else{
 							maps.add(new Map(other.left.get(bi), match.get(bi)));
+							bi++;
 						}
 					}
 					

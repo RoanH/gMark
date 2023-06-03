@@ -67,7 +67,7 @@ public class QueryGraphCPQ implements Cloneable{
 	 * Set of identity pair that still need to be processed,
 	 * always empty for a fully constructed query graph.
 	 */
-	private Set<Pair> fid = new HashSet<Pair>();
+	private Set<Pair> fid;
 	
 	/**
 	 * Constructs a new query graph containing only the
@@ -82,6 +82,7 @@ public class QueryGraphCPQ implements Cloneable{
 		vertices.add(source);
 		vertices.add(target);
 		fid.add(new Pair(source, target));
+		fid = new HashSet<Pair>();
 	}
 	
 	/**
@@ -96,6 +97,7 @@ public class QueryGraphCPQ implements Cloneable{
 		this.target = target;
 		vertices.add(source);
 		vertices.add(target);
+		fid = new HashSet<Pair>();
 		
 		if(label.isInverse()){
 			edges.add(new Edge(target, source, label.getInverse()));
@@ -111,6 +113,7 @@ public class QueryGraphCPQ implements Cloneable{
 	 * No args constructor for use by {@link #clone()}.
 	 */
 	private QueryGraphCPQ(){
+		fid = null;
 	}
 	
 	/**
@@ -277,7 +280,12 @@ public class QueryGraphCPQ implements Cloneable{
 		}
 		
 		//compute a query decomposition with empty partial maps
-		Tree<PartialMap> maps = Util.computeTreeDecompositionWidth2(toIncidenceGraph()).cloneStructure(PartialMap::new);
+		SimpleGraph<QueryGraphComponent, List<Tree<List<QueryGraphComponent>>>> ic = toIncidenceGraph();
+		ic.getVertices().forEach(v->System.out.println("ic: " + v.getData()));
+		
+		Tree<PartialMap> maps = Util.computeTreeDecompositionWidth2(ic).cloneStructure(PartialMap::new);
+		System.out.println("tree keys");
+		maps.forEach(m->{System.out.println(m.getData().left);return false;});
 		
 		//join nodes bottom up while computing candidate maps and dependent variables
 		boolean hasHomomorphism = !maps.forEachBottomUp(node->{
@@ -571,16 +579,17 @@ public class QueryGraphCPQ implements Cloneable{
 	public static void main(String[] args){
 		
 //		QueryGraphCPQ q = CPQ.parse("((1⁻) ∩ ((((0⁻)◦(0)) ∩ ((1⁻)◦(1)))◦(1⁻)))").toQueryGraph();
-		QueryGraphCPQ q = CPQ.parse("(((0 ∩ 1) ◦ 1) ∩ (1 ◦ 1⁻) ∩ 1 ∩ 0 ∩ id)").toQueryGraph();
+		QueryGraphCPQ q = CPQ.parse("((0◦0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0◦0))").toQueryGraph();
 //		QueryGraphCPQ q = CPQ.parse("((0◦0) ∩ (0◦0))").toQueryGraph();
 //		QueryGraphCPQ q1 = CPQ.parse("((0◦0◦0) ∩ id)").toQueryGraph();
 //		QueryGraphCPQ q2 = CPQ.parse("((0◦0◦0◦0◦0) ∩ id)").toQueryGraph();
-
+		
 		QueryGraphCPQ core = q.computeCore();
 		
 //		System.out.println("H: " + q.isHomomorphicTo(q));
 		
 		GraphPanel.show(q);
+		
 		GraphPanel.show(core);
 		
 //		GraphPanel.show(q1);
@@ -596,6 +605,10 @@ public class QueryGraphCPQ implements Cloneable{
 	 * vertex due to intersections with the identity operation.
 	 */
 	protected void merge(){
+		if(fid == null){
+			return;
+		}
+		
 		//essentially picks a pair of vertices that needs to be the same node and
 		//replaces all instances of the first node with the second node
 		while(!fid.isEmpty()){
@@ -650,6 +663,7 @@ public class QueryGraphCPQ implements Cloneable{
 		}
 		
 		//assign numerical identifiers to all components
+		fid = null;
 		int id = 0;
 		for(Vertex v : vertices){
 			v.id = id++;
@@ -681,9 +695,9 @@ public class QueryGraphCPQ implements Cloneable{
 	 */
 	public String getVertexLabel(Vertex vertex){
 		if(vertex == source){
-			return vertex == target ? "src,trg " + vertex.id : "src " + vertex.id;
+			return vertex == target ? "src,trg " + vertex.id + " / " + vertex.hashCode() : "src " + vertex.id + " / " + vertex.hashCode();
 		}else{
-			return vertex == target ? "trg "  + vertex.id : "" + vertex.id;
+			return vertex == target ? "trg "  + vertex.id + " / " + vertex.hashCode() : "" + vertex.id + " / " + vertex.hashCode();
 		}
 	}
 	
@@ -694,6 +708,7 @@ public class QueryGraphCPQ implements Cloneable{
 	
 	@Override
 	protected QueryGraphCPQ clone(){
+		merge();
 		QueryGraphCPQ copy = new QueryGraphCPQ();
 		copy.source = source;
 		copy.target = target;
@@ -1113,6 +1128,8 @@ public class QueryGraphCPQ implements Cloneable{
 		}
 
 		public void add(List<Map> maps){
+			maps = new ArrayList<Map>(new HashSet<Map>(maps));//TODO remove or improve
+			
 			for(Map m : maps){
 				min = Math.min(min, m.right.getID());
 				max = Math.max(max, m.right.getID());

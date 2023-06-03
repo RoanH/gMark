@@ -81,8 +81,8 @@ public class QueryGraphCPQ implements Cloneable{
 		this.target = target;
 		vertices.add(source);
 		vertices.add(target);
-		fid.add(new Pair(source, target));
 		fid = new HashSet<Pair>();
+		fid.add(new Pair(source, target));
 	}
 	
 	/**
@@ -578,8 +578,8 @@ public class QueryGraphCPQ implements Cloneable{
 	
 	public static void main(String[] args){
 		
-//		QueryGraphCPQ q = CPQ.parse("((1⁻) ∩ ((((0⁻)◦(0)) ∩ ((1⁻)◦(1)))◦(1⁻)))").toQueryGraph();
-		QueryGraphCPQ q = CPQ.parse("((0◦0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0◦0))").toQueryGraph();
+		QueryGraphCPQ q = CPQ.parse("0◦0◦0◦0◦0◦0◦0").toQueryGraph();
+//		QueryGraphCPQ q = CPQ.parse("((0◦0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0◦0))").toQueryGraph();
 //		QueryGraphCPQ q = CPQ.parse("((0◦0) ∩ (0◦0))").toQueryGraph();
 //		QueryGraphCPQ q1 = CPQ.parse("((0◦0◦0) ∩ id)").toQueryGraph();
 //		QueryGraphCPQ q2 = CPQ.parse("((0◦0◦0◦0◦0) ∩ id)").toQueryGraph();
@@ -1032,7 +1032,7 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 		}
 		
-		private void semiJoin(PartialMap other){
+		private void semiJoin(PartialMap other){//TODO no need to compute maps for single tests -- optimise the old variant
 			int nulls = 0;
 			for(int r = 0; r < matches.length; r++){
 				Row row = matches[r];
@@ -1073,12 +1073,18 @@ public class QueryGraphCPQ implements Cloneable{
 					//if they agree on attribs join, otherwise keep both separate? -- also could already filter here
 					
 					if(!match.other.isEmpty()){//TODO I don't think we can blindly generate these without checking they aggree on attribs...
-						for(OptionSet former : match.other){//TODO could be a set but that may be more expensive
-							for(List<Map> opt : former.options){
-								opt.addAll(maps);
-								options.add(opt);//each set only has one parent
-							}
+//						for(OptionSet former : match.other){//TODO could be a set but that may be more expensive
+//							for(List<Map> opt : former.options){
+//								options.add(maps, opt);
+//							}
+//						}
+						
+						
+						for(OptionSet former : match.other){
+							maps.addAll(former.options.get(0));
 						}
+						options.add(maps);
+						
 					}else if(!maps.isEmpty()){
 						options.add(maps);
 					}
@@ -1113,7 +1119,7 @@ public class QueryGraphCPQ implements Cloneable{
 	
 	private static final class OptionSet{
 		private Row row;
-		private List<List<Map>> options = new ArrayList<List<Map>>();
+		private List<List<Map>> options = new ArrayList<List<Map>>();//TODO no need to get a list
 		
 		private int min = Integer.MAX_VALUE;
 		private int max = 0;
@@ -1127,6 +1133,12 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 		}
 
+		public void add(List<Map> maps, List<Map> opt){//TODO improve performance
+			List<Map> data = new ArrayList<Map>(maps);
+			data.addAll(opt);
+			add(data);
+		}
+
 		public void add(List<Map> maps){
 			maps = new ArrayList<Map>(new HashSet<Map>(maps));//TODO remove or improve
 			
@@ -1136,7 +1148,7 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 			
 			int cost = computeCost(maps);
-			if(cost <= this.cost){
+			if(cost < this.cost){
 				options.clear();
 				options.add(maps);
 				this.cost = cost;

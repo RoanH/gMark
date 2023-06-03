@@ -430,7 +430,6 @@ public class QueryGraphCPQ implements Cloneable{
 				}
 			}
 		}
-		List<QueryGraphComponent> oldLeft = data.left;
 		data.left = newLeft;
 		
 		//Cartesian product of all sets
@@ -549,19 +548,19 @@ public class QueryGraphCPQ implements Cloneable{
 	public QueryGraphCPQ computeCore(){
 		Tree<PartialMap> maps = computeRelations(this);
 		
+		System.out.println("cost:");
 		int bestCost = Integer.MAX_VALUE;
-		boolean[] bestUse = null;
+		Row bestRow = null;
 		for(Row row : maps.getData().matches){
-			for(List<Map> ext : row.other){
-				boolean[] used = computeUsage(row, ext);
-				int cost = computeCost(used);
-				if(cost < bestCost){
-					bestUse = used;
-				}
+			int cost = row.getCost();
+			if(cost < bestCost){
+				bestCost = cost;
+				bestRow = row;
 			}
+			System.out.println(Arrays.toString(row.match) + ": " + cost);
 		}
 		
-		final boolean[] used = bestUse;
+		final boolean[] used = bestRow.getUsage(vertices.size() + edges.size());
 		QueryGraphCPQ core = this.clone();
 		core.edges.removeIf(edge->!used[edge.getID()]);
 		core.vertices.removeIf(vertex->!used[vertex.getID()]);
@@ -569,41 +568,20 @@ public class QueryGraphCPQ implements Cloneable{
 		return core;
 	}
 	
-	private boolean[] computeUsage(Row row, List<Map> ext){
-		boolean[] used = new boolean[vertices.size() + edges.size()];
-		
-		for(QueryGraphComponent c : row.match){
-			used[c.getID()] = true;
-		}
-		
-		for(Map map : ext){
-			used[map.right.getID()] = true;
-		}
-		
-		return used;
-	}
-	
-	private int computeCost(boolean[] used){
-		int cost = 0;
-		for(boolean val : used){
-			if(val){
-				cost++;
-			}
-		}
-		
-		return cost;
-	}
-	
 	public static void main(String[] args){
 		
-		QueryGraphCPQ q = CPQ.parse("((1⁻) ∩ ((((0⁻)◦(0)) ∩ ((1⁻)◦(1)))◦(1⁻)))").toQueryGraph();
+//		QueryGraphCPQ q = CPQ.parse("((1⁻) ∩ ((((0⁻)◦(0)) ∩ ((1⁻)◦(1)))◦(1⁻)))").toQueryGraph();
+		QueryGraphCPQ q = CPQ.parse("(((0 ∩ 1) ◦ 1) ∩ (1 ◦ 1⁻) ∩ 1 ∩ 0 ∩ id)").toQueryGraph();
 //		QueryGraphCPQ q = CPQ.parse("((0◦0) ∩ (0◦0))").toQueryGraph();
 //		QueryGraphCPQ q1 = CPQ.parse("((0◦0◦0) ∩ id)").toQueryGraph();
 //		QueryGraphCPQ q2 = CPQ.parse("((0◦0◦0◦0◦0) ∩ id)").toQueryGraph();
 
-//		QueryGraphCPQ core = q.computeCore();
+		QueryGraphCPQ core = q.computeCore();
 		
-		System.out.println("H: " + q.isHomomorphicTo(q));
+//		System.out.println("H: " + q.isHomomorphicTo(q));
+		
+		GraphPanel.show(q);
+		GraphPanel.show(core);
 		
 //		GraphPanel.show(q1);
 //		GraphPanel.show(q2);
@@ -1005,6 +983,7 @@ public class QueryGraphCPQ implements Cloneable{
 		 * The result of the semi join is stored in this map.
 		 * @param other The other partial map to join with.
 		 */
+		@Deprecated
 		private void semiJoin8(PartialMap other){
 			int[] map = new int[left.size()];
 			for(int i = 0; i < map.length; i++){
@@ -1021,7 +1000,6 @@ public class QueryGraphCPQ implements Cloneable{
 						}
 					}
 					
-					match.other.add(new ArrayList<Map>());
 					continue outer;
 				}
 				
@@ -1044,7 +1022,7 @@ public class QueryGraphCPQ implements Cloneable{
 			for(int r = 0; r < matches.length; r++){
 				Row row = matches[r];
 				boolean hasMatch = false;
-				
+				OptionSet options = new OptionSet(row);
 				filter: for(Row match : other.matches){
 					List<Map> maps = new ArrayList<Map>();
 					int ai = 0;
@@ -1063,20 +1041,36 @@ public class QueryGraphCPQ implements Cloneable{
 								ai++;
 								bi++;
 							}else if(first.getID() > second.getID()){
-								maps.add(new Map(other.left.get(bi), match.get(bi)));
+								maps.add(new Map(match, other.left.get(bi), match.get(bi)));
 								bi++;
 							}else{
 								ai++;
 							}
 						}else{
-							maps.add(new Map(other.left.get(bi), match.get(bi)));
+							maps.add(new Map(match, other.left.get(bi), match.get(bi)));
 							bi++;
 						}
 					}
 					
 					//OK
 					hasMatch = true;
-					row.other.add(maps);
+					
+					//if they agree on attribs join, otherwise keep both separate? -- also could already filter here
+					
+					if(!match.other.isEmpty()){//TODO I don't think we can blindly generate these without checking they aggree on attribs...
+						for(OptionSet former : match.other){//TODO could be a set but that may be more expensive
+							for(List<Map> opt : former.options){
+								opt.addAll(maps);
+								options.add(opt);//each set only has one parent
+							}
+						}
+					}else if(!maps.isEmpty()){
+						options.add(maps);
+					}
+				}
+				
+				if(!options.options.isEmpty()){
+					row.other.add(options);
 				}
 				
 				//remove rows that do not join with anything
@@ -1096,44 +1090,70 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 		}
 		
-//		private void join(PartialMap other){
-//			int[] map = new int[left.size()];
-//			for(int i = 0; i < map.length; i++){
-//				map[i] = other.left.indexOf(left.get(i));
-//			}
-//			
-//			
-//			
-//			matches.removeIf(match->{
-////				test: for(Row filter : other.matches){
-////					List<Map> meta = new ArrayList<Map>(filter.other);
-////					for(int i = 0; i < map.length; i++){
-////						int rel = map[i];
-////						
-////						if(rel != -1){
-////							if(!match.get(i).equals(filter.get(rel))){
-////								continue test;
-////							}
-////						}else{
-////							meta.add(new Map())
-////						}
-////					}
-////					
-////					return false;
-////				}
-//				
-//				//TODO attach meta
-//				return true;
-//			});
-//		}
-		
 		@Override
 		public String toString(){
 			return left + " -> " + Arrays.toString(matches);
 		}
 	}
 	
-	private static final record Map(@Deprecated QueryGraphComponent left, QueryGraphComponent right){
+	private static final class OptionSet{
+		private Row row;
+		private List<List<Map>> options = new ArrayList<List<Map>>();
+		
+		private int min = Integer.MAX_VALUE;
+		private int max = 0;
+		private int cost = Integer.MAX_VALUE;
+		
+		private OptionSet(Row row){
+			this.row = row;
+			for(QueryGraphComponent c : row.match){
+				min = Math.min(min, c.getID());
+				max = Math.max(max, c.getID());
+			}
+		}
+
+		public void add(List<Map> maps){
+			for(Map m : maps){
+				min = Math.min(min, m.right.getID());
+				max = Math.max(max, m.right.getID());
+			}
+			
+			int cost = computeCost(maps);
+			if(cost <= this.cost){
+				options.clear();
+				options.add(maps);
+				this.cost = cost;
+			}
+		}
+		
+		private int computeCost(List<Map> maps){
+			boolean[] used = new boolean[max - min + 1];
+
+			for(QueryGraphComponent c : row.match){
+				used[c.getID() - min] = true;
+			}
+
+			for(Map map : maps){
+				used[map.right.getID() - min] = true;
+			}
+			
+			int cost = 0;
+			for(boolean val : used){
+				if(val){
+					cost++;
+				}
+			}
+			
+			return cost - row.match.length;
+		}
+		
+		@Override
+		public String toString(){
+			return options.toString();
+		}
+	}
+	
+	private static final record Map(Row source, @Deprecated QueryGraphComponent left, QueryGraphComponent right){
 		
 		@Override
 		public String toString(){
@@ -1143,19 +1163,43 @@ public class QueryGraphCPQ implements Cloneable{
 	
 	private static final class Row{
 		private QueryGraphComponent[] match;
-		private List<List<Map>> other = new ArrayList<List<Map>>();
+		private List<OptionSet> other = new ArrayList<OptionSet>();
 		private int write = 0;
 		
 		private Row(int size){
 			match = new QueryGraphComponent[size];
 		}
 		
+		private boolean[] getUsage(int size){
+			boolean[] used = new boolean[size];
+			
+			for(QueryGraphComponent c : match){
+				used[c.getID()] = true;
+			}
+			
+			for(OptionSet set : other){
+				for(Map m : set.options.get(0)){
+					used[m.right.getID()] = true;
+				}
+			}
+			
+			return used;
+		}
+
 		public QueryGraphComponent get(int idx){
 			return match[idx];
 		}
 		
 		public void add(QueryGraphComponent comp){
 			match[write++] = comp;
+		}
+		
+		private int getCost(){
+			int cost = 0;
+			for(OptionSet set : other){
+				cost += set.cost;
+			}
+			return cost;
 		}
 		
 		@Override

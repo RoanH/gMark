@@ -455,6 +455,20 @@ public class QueryGraphCPQTest{
 		assertEquals(4, countNodes(core.getNode(g.getSourceVertex()), new HashSet<Vertex>()));
 	}
 	
+	@Test
+	public void core6(){
+		QueryGraphCPQ g = CPQ.parse("0◦0◦0◦0◦0◦0◦0").toQueryGraph();
+		
+		UniqueGraph<Vertex, Predicate> core = g.computeCore().toUniqueGraph();
+		assertEquals(8, core.getNodeCount());
+		assertEquals(7, core.getEdgeCount());
+		assertEquals(1, core.getNode(g.getSourceVertex()).getOutCount());
+		assertEquals(0, core.getNode(g.getSourceVertex()).getInCount());
+		assertEquals(0, core.getNode(g.getTargetVertex()).getOutCount());
+		assertEquals(1, core.getNode(g.getTargetVertex()).getInCount());
+		assertEquals(8, countNodes(core.getNode(g.getSourceVertex()), new HashSet<Vertex>()));
+	}
+	
 	private boolean isHomomorphic(CPQ cpq1, CPQ cpq2){
 		return cpq1.toQueryGraph().isHomomorphicTo(cpq2.toQueryGraph());
 	}

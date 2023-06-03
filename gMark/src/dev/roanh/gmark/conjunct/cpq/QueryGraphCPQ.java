@@ -695,9 +695,9 @@ public class QueryGraphCPQ implements Cloneable{
 	 */
 	public String getVertexLabel(Vertex vertex){
 		if(vertex == source){
-			return vertex == target ? "src,trg " + vertex.id + " / " + vertex.hashCode() : "src " + vertex.id + " / " + vertex.hashCode();
+			return vertex == target ? "src,trg" : "src";
 		}else{
-			return vertex == target ? "trg "  + vertex.id + " / " + vertex.hashCode() : "" + vertex.id + " / " + vertex.hashCode();
+			return vertex == target ? "trg" : "";
 		}
 	}
 	

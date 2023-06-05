@@ -478,18 +478,8 @@ public class QueryGraphCPQTest{
 	public void core7(){
 		QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0))◦((id ∩ 0) ∩ (1◦1⁻)))").toQueryGraph();
 		
-		QueryGraphCPQ c = g.computeCore();
-		UniqueGraph<Vertex, Predicate> core = c.toUniqueGraph();
-		
-//		GraphPanel.show(g);
-//		GraphPanel.show(c);
-//		try{
-//			Thread.sleep(1000000000);
-//		}catch(InterruptedException e){
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		assertEquals(3, core.getNodeCount(), core.getNodes().toString() + " | " + c.getVertices().toString());
+		UniqueGraph<Vertex, Predicate> core = g.computeCore().toUniqueGraph();
+		assertEquals(3, core.getNodeCount());
 		assertEquals(5, core.getEdgeCount());
 		assertEquals(2, core.getNode(g.getSourceVertex()).getOutCount());
 		assertEquals(1, core.getNode(g.getSourceVertex()).getInCount());

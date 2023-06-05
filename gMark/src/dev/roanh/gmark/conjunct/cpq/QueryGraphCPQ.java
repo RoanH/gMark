@@ -572,13 +572,12 @@ public class QueryGraphCPQ implements Cloneable{
 		int bestCost = Integer.MAX_VALUE;
 		boolean[] bestUsage = null;
 		for(Row row : maps.getData().matches){
-			boolean[] use = row.getBestUsage(vertices.size() + edges.size());
-			int cost = row.computeCost(use);
-			if(cost < bestCost){
-				bestCost = cost;
-				bestUsage = use;
+			row.computeBestUsage(vertices.size() + edges.size());
+			if(row.cost < bestCost){
+				bestCost = row.cost;
+				bestUsage = row.best;
 			}
-			System.out.println(Arrays.toString(row.match) + ": " + cost);
+			System.out.println(Arrays.toString(row.match) + ": " + row.cost);
 		}
 		
 		final boolean[] used = bestUsage;
@@ -1289,7 +1288,8 @@ QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0
 			match = new QueryGraphComponent[size];
 		}
 		
-		private boolean[] getBestUsage(int size){//TODO this is wrong
+		@Deprecated
+		private boolean[] getBestUsageOld(int size){
 			boolean[] used = new boolean[size];
 			
 			for(QueryGraphComponent c : match){
@@ -1335,6 +1335,44 @@ QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0
 			}
 			
 			return used;
+		}
+		
+		private void computeBestUsage(int size){
+			computeBestUsage(0, new ArrayList<List<Map>>(), size);
+		}
+		
+		private void computeBestUsage(int offset, List<List<Map>> workSet, int size){
+			if(offset >= other.size()){
+				updateBest(workSet, size);
+			}else{
+				for(List<Map> opt : other.get(offset).options){
+					workSet.add(opt);
+					computeBestUsage(offset + 1, workSet, size);
+					workSet.remove(workSet.size() - 1);
+				}
+			}
+		}
+		
+		private boolean[] best;
+		private int cost = Integer.MAX_VALUE;
+		private void updateBest(List<List<Map>> workSet, int size){
+			boolean[] used = new boolean[size];
+			
+			for(QueryGraphComponent c : match){
+				used[c.getID()] = true;
+			}
+			
+			for(List<Map> opt : workSet){
+				for(Map m : opt){
+					used[m.right.getID()] = true;
+				}
+			}
+			
+			int cost = computeCost(used);
+			if(cost < this.cost){
+				best = used;
+				this.cost = cost;
+			}
 		}
 		
 		private int computeCost(boolean[] use){

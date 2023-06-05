@@ -746,7 +746,7 @@ QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0
 	 * @param vertex The vertex to get the label for.
 	 * @return The label for the given vertex.
 	 */
-	public String getVertexLabel2(Vertex vertex){
+	public String getVertexLabel(Vertex vertex){
 		if(vertex == source){
 			return vertex == target ? "src,trg" : "src";
 		}else{
@@ -754,9 +754,9 @@ QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0
 		}
 	}
 	
-	public String getVertexLabel(Vertex vertex){
-		return getVertexLabel2(vertex) + " | " + vertex.id;
-	}
+//	public String getVertexLabel(Vertex vertex){
+//		return getVertexLabel2(vertex) + " | " + vertex.id;
+//	}
 	
 	@Override
 	public String toString(){

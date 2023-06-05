@@ -546,6 +546,18 @@ public class QueryGraphCPQ implements Cloneable{
 		return core;
 	}
 	
+	public static void main(String[] args){
+		for(int i = 0; i < 10; i++){
+			CPQ q = CPQ.generateRandomCPQ(50, 4);
+			QueryGraphCPQ core1 = q.computeCore();
+			QueryGraphCPQ core2 = q.toQueryGraph().computeCore2();
+			
+			if(core1.edges.size() != core2.edges.size() || core1.vertices.size() != core2.vertices.size()){
+				throw new RuntimeException();
+			}
+		}
+	}
+	
 	//TODO check for redundant info!
 	
 	/**
@@ -576,7 +588,7 @@ public class QueryGraphCPQ implements Cloneable{
 		return core;
 	}
 	
-	public static void main(String[] args){
+	public static void maing(String[] args){
 		
 		QueryGraphCPQ q = CPQ.parse("0◦0◦0◦0◦0◦0◦0").toQueryGraph();
 //		QueryGraphCPQ q = CPQ.parse("((0◦0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0◦0))").toQueryGraph();
@@ -760,7 +772,7 @@ public class QueryGraphCPQ implements Cloneable{
 		 * twice for the degree.
 		 */
 		@Deprecated
-		private int deg;
+		public int deg;
 		
 		@Override
 		public String toString(){

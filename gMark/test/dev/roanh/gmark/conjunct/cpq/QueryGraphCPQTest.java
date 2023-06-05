@@ -24,12 +24,16 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Edge;
@@ -467,6 +471,51 @@ public class QueryGraphCPQTest{
 		assertEquals(0, core.getNode(g.getTargetVertex()).getOutCount());
 		assertEquals(1, core.getNode(g.getTargetVertex()).getInCount());
 		assertEquals(8, countNodes(core.getNode(g.getSourceVertex()), new HashSet<Vertex>()));
+	}
+	
+	@RepeatedTest(value = 10)
+	public void core7(){
+		CPQ q = CPQ.generateRandomCPQ(50, 4);
+		QueryGraphCPQ core1 = q.computeCore();
+		QueryGraphCPQ core2 = computeCoreOld(q.toQueryGraph());
+		
+		assertEquals(core2.getEdgeCount(), core1.getEdgeCount());
+		assertEquals(core2.getVertexCount(), core1.getVertexCount());
+	}
+	
+	@RepeatedTest(value = 100)
+	public void core8(){
+		CPQ q = CPQ.generateRandomCPQ(10, 2);
+		QueryGraphCPQ core1 = q.computeCore();
+		QueryGraphCPQ core2 = computeCoreOld(q.toQueryGraph());
+		
+		assertEquals(core2.getEdgeCount(), core1.getEdgeCount(), q.toString());
+		assertEquals(core2.getVertexCount(), core1.getVertexCount(), q.toString());
+	}
+	
+	public static QueryGraphCPQ computeCoreOld(QueryGraphCPQ graph){
+		QueryGraphCPQ core = graph.clone();
+		Set<Edge> edges = core.getEdges();
+		
+		Map<Vertex, Integer> deg = new HashMap<Vertex, Integer>();
+		for(Edge edge : edges){
+			deg.merge(edge.getSource(), 1, Integer::sum);
+			deg.merge(edge.getTarget(), 1, Integer::sum);
+		}
+		
+		for(Edge edge : new ArrayList<Edge>(edges)){
+			edges.remove(edge);
+
+			if(!graph.isHomomorphicTo(core)){
+				edges.add(edge);
+			}else{
+				deg.compute(edge.getSource(), (k, v)->v - 1);
+				deg.compute(edge.getTarget(), (k, v)->v - 1);
+			}
+		}
+		
+		core.getVertices().removeIf(v->deg.get(v) == 0);
+		return core;
 	}
 	
 	private boolean isHomomorphic(CPQ cpq1, CPQ cpq2){

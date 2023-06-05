@@ -546,7 +546,7 @@ public class QueryGraphCPQ implements Cloneable{
 		return core;
 	}
 	
-	public static void main(String[] args){
+	public static void mainddd(String[] args){
 		for(int i = 0; i < 10; i++){
 			CPQ q = CPQ.generateRandomCPQ(50, 4);
 			QueryGraphCPQ core1 = q.computeCore();
@@ -570,17 +570,18 @@ public class QueryGraphCPQ implements Cloneable{
 		
 		System.out.println("cost:");
 		int bestCost = Integer.MAX_VALUE;
-		Row bestRow = null;
+		boolean[] bestUsage = null;
 		for(Row row : maps.getData().matches){
-			int cost = row.getCost();
+			boolean[] use = row.getBestUsage(vertices.size() + edges.size());
+			int cost = row.computeCost(use);
 			if(cost < bestCost){
 				bestCost = cost;
-				bestRow = row;
+				bestUsage = use;
 			}
 			System.out.println(Arrays.toString(row.match) + ": " + cost);
 		}
 		
-		final boolean[] used = bestRow.getUsage(vertices.size() + edges.size());
+		final boolean[] used = bestUsage;
 		QueryGraphCPQ core = this.clone();
 		core.edges.removeIf(edge->!used[edge.getID()]);
 		core.vertices.removeIf(vertex->!used[vertex.getID()]);
@@ -588,9 +589,9 @@ public class QueryGraphCPQ implements Cloneable{
 		return core;
 	}
 	
-	public static void maing(String[] args){
+	public static void main(String[] args){
 		
-		QueryGraphCPQ q = CPQ.parse("0◦0◦0◦0◦0◦0◦0").toQueryGraph();
+		QueryGraphCPQ q = CPQ.parse("(((((1◦1) ∩ 1⁻)◦(0⁻◦0⁻)) ∩ (1◦(1⁻◦(0◦1⁻)))) ∩ (0◦1⁻))").toQueryGraph();
 //		QueryGraphCPQ q = CPQ.parse("((0◦0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0◦0))").toQueryGraph();
 //		QueryGraphCPQ q = CPQ.parse("((0◦0) ∩ (0◦0))").toQueryGraph();
 //		QueryGraphCPQ q1 = CPQ.parse("((0◦0◦0) ∩ id)").toQueryGraph();
@@ -712,6 +713,10 @@ public class QueryGraphCPQ implements Cloneable{
 			return vertex == target ? "trg" : "";
 		}
 	}
+	
+//	public String getVertexLabel(Vertex vertex){
+//		return getVertexLabel2(vertex) + " | " + vertex.id;
+//	}
 	
 	@Override
 	public String toString(){
@@ -1160,10 +1165,13 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 			
 			int cost = computeCost(maps);
-			if(cost < this.cost){
-				options.clear();
+			if(cost <= this.cost){
+				if(cost < this.cost){
+					options.clear();
+					this.cost = cost;
+				}
+				
 				options.add(maps);
-				this.cost = cost;
 			}
 		}
 		
@@ -1211,20 +1219,62 @@ public class QueryGraphCPQ implements Cloneable{
 			match = new QueryGraphComponent[size];
 		}
 		
-		private boolean[] getUsage(int size){
+		private boolean[] getBestUsage(int size){
 			boolean[] used = new boolean[size];
 			
 			for(QueryGraphComponent c : match){
 				used[c.getID()] = true;
 			}
 			
+			boolean[] best = null;
+			boolean[] tmp = null;
 			for(OptionSet set : other){
-				for(Map m : set.options.get(0)){
-					used[m.right.getID()] = true;
+				if(set.options.size() > 1){
+					tmp = used;
+					used = new boolean[size];
+					
+					int min = Integer.MAX_VALUE;
+					List<List<Map>> opts = set.options;
+					for(int i = 0; i < opts.size(); i++){
+						List<Map> opt = opts.get(i);
+						System.arraycopy(tmp, 0, used, 0, size);
+						for(Map m : opt){
+							used[m.right.getID()] = true;
+						}
+						
+						int cost = computeCost(used);
+						if(cost < min){
+							min = cost;
+							if(i != opts.size() - 1){
+								if(best == null){
+									best = new boolean[size];
+								}
+								System.arraycopy(used, 0, best, 0, size);
+							}else{
+								best = used;
+							}
+						}
+						
+						used = best;
+					}
+				}else{
+					for(Map m : set.options.get(0)){
+						used[m.right.getID()] = true;
+					}
 				}
 			}
 			
 			return used;
+		}
+		
+		private int computeCost(boolean[] use){
+			int cost = 0;
+			for(boolean val : use){
+				if(val){
+					cost++;
+				}
+			}
+			return cost;
 		}
 
 		public QueryGraphComponent get(int idx){
@@ -1233,14 +1283,6 @@ public class QueryGraphCPQ implements Cloneable{
 		
 		public void add(QueryGraphComponent comp){
 			match[write++] = comp;
-		}
-		
-		private int getCost(){
-			int cost = 0;
-			for(OptionSet set : other){
-				cost += set.cost;
-			}
-			return cost;
 		}
 		
 		@Override

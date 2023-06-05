@@ -40,6 +40,7 @@ import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Edge;
 import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.QueryGraphComponent;
 import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.GraphPanel;
 import dev.roanh.gmark.util.SimpleGraph;
 import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
@@ -473,8 +474,32 @@ public class QueryGraphCPQTest{
 		assertEquals(8, countNodes(core.getNode(g.getSourceVertex()), new HashSet<Vertex>()));
 	}
 	
-	@RepeatedTest(value = 10)
+	@Test
 	public void core7(){
+		QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0))◦((id ∩ 0) ∩ (1◦1⁻)))").toQueryGraph();
+		
+		QueryGraphCPQ c = g.computeCore();
+		UniqueGraph<Vertex, Predicate> core = c.toUniqueGraph();
+		
+//		GraphPanel.show(g);
+//		GraphPanel.show(c);
+//		try{
+//			Thread.sleep(1000000000);
+//		}catch(InterruptedException e){
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		assertEquals(3, core.getNodeCount(), core.getNodes().toString() + " | " + c.getVertices().toString());
+		assertEquals(5, core.getEdgeCount());
+		assertEquals(2, core.getNode(g.getSourceVertex()).getOutCount());
+		assertEquals(1, core.getNode(g.getSourceVertex()).getInCount());
+		assertEquals(3, core.getNode(g.getTargetVertex()).getOutCount());
+		assertEquals(2, core.getNode(g.getTargetVertex()).getInCount());
+		assertEquals(3, countNodes(core.getNode(g.getSourceVertex()), new HashSet<Vertex>()));
+	}
+	
+	@RepeatedTest(value = 10)
+	public void coreRan0(){
 		CPQ q = CPQ.generateRandomCPQ(50, 4);
 		QueryGraphCPQ core1 = q.computeCore();
 		QueryGraphCPQ core2 = computeCoreOld(q.toQueryGraph());
@@ -484,7 +509,7 @@ public class QueryGraphCPQTest{
 	}
 	
 	@RepeatedTest(value = 100)
-	public void core8(){
+	public void coreRan1(){
 		CPQ q = CPQ.generateRandomCPQ(10, 2);
 		QueryGraphCPQ core1 = q.computeCore();
 		QueryGraphCPQ core2 = computeCoreOld(q.toQueryGraph());

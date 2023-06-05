@@ -590,14 +590,55 @@ public class QueryGraphCPQ implements Cloneable{
 	}
 	
 	public static void main(String[] args){
+QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0))◦((id ∩ 0) ∩ (1◦1⁻)))").toQueryGraph();
 		
-		QueryGraphCPQ q = CPQ.parse("(((((1◦1) ∩ 1⁻)◦(0⁻◦0⁻)) ∩ (1◦(1⁻◦(0◦1⁻)))) ∩ (0◦1⁻))").toQueryGraph();
+		QueryGraphCPQ c = g.computeCore();
+		UniqueGraph<Vertex, Predicate> core = c.toUniqueGraph();
+		
+		GraphPanel.show(c);
+		try{
+			Thread.sleep(1000000);
+		}catch(InterruptedException e){
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.out.println(core.getEdgeCount() + " / " + core.getNodeCount());
+		for(Edge edge : c.edges){
+			System.out.println("e: " + edge);
+		}
+		for(Vertex v : c.vertices){
+			System.out.println("v: " + v);
+		}
+		
+//		assertEquals(3, core.getNodeCount(), core.getNodes().toString() + " | " + c.getVertices().toString());
+//		assertEquals(5, core.getEdgeCount());
+//		assertEquals(2, core.getNode(g.getSourceVertex()).getOutCount());
+//		assertEquals(1, core.getNode(g.getSourceVertex()).getInCount());
+//		assertEquals(3, core.getNode(g.getTargetVertex()).getOutCount());
+//		assertEquals(2, core.getNode(g.getTargetVertex()).getInCount());
+//		assertEquals(3, countNodes(core.getNode(g.getSourceVertex()), new HashSet<Vertex>()));
+	}
+	
+	public static void mainff(String[] args){
+		
+		QueryGraphCPQ q = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0))◦((id ∩ 0) ∩ (1◦1⁻)))").toQueryGraph();
 //		QueryGraphCPQ q = CPQ.parse("((0◦0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0◦0))").toQueryGraph();
 //		QueryGraphCPQ q = CPQ.parse("((0◦0) ∩ (0◦0))").toQueryGraph();
 //		QueryGraphCPQ q1 = CPQ.parse("((0◦0◦0) ∩ id)").toQueryGraph();
 //		QueryGraphCPQ q2 = CPQ.parse("((0◦0◦0◦0◦0) ∩ id)").toQueryGraph();
 		
 		QueryGraphCPQ core = q.computeCore();
+		System.out.println(core.getEdgeCount() + " / " + core.getVertexCount());
+		for(Edge edge : core.edges){
+			System.out.println("e: " + edge);
+		}
+		for(Vertex v : core.vertices){
+			System.out.println("v: " + v);
+		}
+		
+		UniqueGraph<Vertex, Predicate> u = core.toUniqueGraph();
+		System.out.println(u.getEdgeCount() + " / " + u.getNodeCount());
 		
 //		System.out.println("H: " + q.isHomomorphicTo(q));
 		
@@ -706,7 +747,7 @@ public class QueryGraphCPQ implements Cloneable{
 	 * @param vertex The vertex to get the label for.
 	 * @return The label for the given vertex.
 	 */
-	public String getVertexLabel(Vertex vertex){
+	public String getVertexLabel2(Vertex vertex){
 		if(vertex == source){
 			return vertex == target ? "src,trg" : "src";
 		}else{
@@ -714,9 +755,9 @@ public class QueryGraphCPQ implements Cloneable{
 		}
 	}
 	
-//	public String getVertexLabel(Vertex vertex){
-//		return getVertexLabel2(vertex) + " | " + vertex.id;
-//	}
+	public String getVertexLabel(Vertex vertex){
+		return getVertexLabel2(vertex) + " | " + vertex.id;
+	}
 	
 	@Override
 	public String toString(){
@@ -1097,10 +1138,12 @@ public class QueryGraphCPQ implements Cloneable{
 //						}
 						
 						
-						for(OptionSet former : match.other){
-							maps.addAll(former.options.get(0));
-						}
-						options.add(maps);
+//						for(OptionSet former : match.other){
+//							maps.addAll(former.options.get(0));//TOD NOPE
+//						}
+//						options.add(maps);
+						
+						options.addAll(maps, match.other);
 						
 					}else if(!maps.isEmpty()){
 						options.add(maps);
@@ -1149,15 +1192,31 @@ public class QueryGraphCPQ implements Cloneable{
 				max = Math.max(max, c.getID());
 			}
 		}
-
-		public void add(List<Map> maps, List<Map> opt){//TODO improve performance
-			List<Map> data = new ArrayList<Map>(maps);
-			data.addAll(opt);
-			add(data);
+		
+		private void addAll(List<Map> prefix, List<OptionSet> toAdd){
+			List<List<Map>> work = new ArrayList<List<Map>>(toAdd.size() + 1);
+			work.add(prefix);
+			addAll(toAdd, 0, work);
 		}
-
+		
+		private void addAll(List<OptionSet> toAdd, int offset, List<List<Map>> workSet){
+			if(offset >= toAdd.size()){
+				List<Map> data = new ArrayList<Map>();
+				for(List<Map> set : workSet){
+					data.addAll(set);
+				}
+				add(data);
+			}else{
+				for(List<Map> opt : toAdd.get(offset).options){
+					workSet.add(opt);
+					addAll(toAdd, offset + 1, workSet);
+					workSet.remove(workSet.size() - 1);
+				}
+			}
+		}
+		
 		public void add(List<Map> maps){
-			maps = new ArrayList<Map>(new HashSet<Map>(maps));//TODO remove or improve
+			maps = new ArrayList<Map>(new HashSet<Map>(maps));//TODO remove or improve -- ensure no modifiable sets are passed
 			
 			for(Map m : maps){
 				min = Math.min(min, m.right.getID());
@@ -1173,6 +1232,17 @@ public class QueryGraphCPQ implements Cloneable{
 				
 				options.add(maps);
 			}
+		}
+		
+		private int computeCost(boolean[] use){
+			int cost = 0;
+			for(boolean val : use){
+				if(val){
+					cost++;
+				}
+			}
+			
+			return cost - row.match.length;
 		}
 		
 		private int computeCost(List<Map> maps){
@@ -1219,7 +1289,7 @@ public class QueryGraphCPQ implements Cloneable{
 			match = new QueryGraphComponent[size];
 		}
 		
-		private boolean[] getBestUsage(int size){
+		private boolean[] getBestUsage(int size){//TODO this is wrong
 			boolean[] used = new boolean[size];
 			
 			for(QueryGraphComponent c : match){

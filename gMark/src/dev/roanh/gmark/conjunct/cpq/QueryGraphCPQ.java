@@ -272,12 +272,7 @@ public class QueryGraphCPQ implements Cloneable{
 		}
 		
 		//compute a query decomposition with empty partial maps
-		SimpleGraph<QueryGraphComponent, List<Tree<List<QueryGraphComponent>>>> ic = toIncidenceGraph();
-		ic.getVertices().forEach(v->System.out.println("ic: " + v.getData()));
-		
-		Tree<PartialMap> maps = Util.computeTreeDecompositionWidth2(ic).cloneStructure(PartialMap::new);
-		System.out.println("tree keys");
-		maps.forEach(m->{System.out.println(m.getData().left);return false;});
+		Tree<PartialMap> maps = Util.computeTreeDecompositionWidth2(toIncidenceGraph()).cloneStructure(PartialMap::new);
 		
 		//join nodes bottom up while computing candidate maps and dependent variables
 		boolean hasHomomorphism = !maps.forEachBottomUp(node->{
@@ -296,13 +291,6 @@ public class QueryGraphCPQ implements Cloneable{
 			
 			//a non empty root implies query homomorphism
 			return map.matches.length == 0;
-		});
-		
-		//TODO remove
-		System.out.println("post join: ");
-		maps.forEach(pm->{
-			System.out.println(pm.getDepth() + " (" + pm.getChildren().size() + "): " + pm.getData().left + " -> " + Arrays.deepToString(pm.getData().matches));
-			return false;
 		});
 		
 		return hasHomomorphism ? maps : null;
@@ -971,7 +959,7 @@ public class QueryGraphCPQ implements Cloneable{
 				boolean hasMatch = false;
 				OptionSet options = new OptionSet(row);
 				filter: for(Row match : other.matches){
-					List<Map> maps = new ArrayList<Map>();
+					List<QueryGraphComponent> maps = new ArrayList<QueryGraphComponent>();
 					int ai = 0;
 					int bi = 0;
 					
@@ -988,13 +976,13 @@ public class QueryGraphCPQ implements Cloneable{
 								ai++;
 								bi++;
 							}else if(first.getID() > second.getID()){
-								maps.add(new Map(match, other.left.get(bi), match.get(bi)));
+								maps.add(match.get(bi));
 								bi++;
 							}else{
 								ai++;
 							}
 						}else{
-							maps.add(new Map(match, other.left.get(bi), match.get(bi)));
+							maps.add(match.get(bi));
 							bi++;
 						}
 					}
@@ -1037,7 +1025,7 @@ public class QueryGraphCPQ implements Cloneable{
 	
 	private static final class OptionSet{
 		private Row row;
-		private List<List<Map>> options = new ArrayList<List<Map>>();
+		private List<List<QueryGraphComponent>> options = new ArrayList<List<QueryGraphComponent>>();
 		
 		private int min = Integer.MAX_VALUE;
 		private int max = 0;
@@ -1051,21 +1039,21 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 		}
 		
-		private void addAll(List<Map> prefix, List<OptionSet> toAdd){
-			List<List<Map>> work = new ArrayList<List<Map>>(toAdd.size() + 1);
+		private void addAll(List<QueryGraphComponent> prefix, List<OptionSet> toAdd){
+			List<List<QueryGraphComponent>> work = new ArrayList<List<QueryGraphComponent>>(toAdd.size() + 1);
 			work.add(prefix);
 			addAll(toAdd, 0, work);
 		}
 		
-		private void addAll(List<OptionSet> toAdd, int offset, List<List<Map>> workSet){
+		private void addAll(List<OptionSet> toAdd, int offset, List<List<QueryGraphComponent>> workSet){
 			if(offset >= toAdd.size()){
-				List<Map> data = new ArrayList<Map>();
-				for(List<Map> set : workSet){
+				List<QueryGraphComponent> data = new ArrayList<QueryGraphComponent>();
+				for(List<QueryGraphComponent> set : workSet){
 					data.addAll(set);
 				}
 				add(data);
 			}else{
-				for(List<Map> opt : toAdd.get(offset).options){
+				for(List<QueryGraphComponent> opt : toAdd.get(offset).options){
 					workSet.add(opt);
 					addAll(toAdd, offset + 1, workSet);
 					workSet.remove(workSet.size() - 1);
@@ -1073,12 +1061,10 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 		}
 		
-		public void add(List<Map> maps){
-			maps = new ArrayList<Map>(new HashSet<Map>(maps));//TODO remove or improve -- ensure no modifiable sets are passed
-			
-			for(Map m : maps){
-				min = Math.min(min, m.right.getID());
-				max = Math.max(max, m.right.getID());
+		public void add(List<QueryGraphComponent> maps){
+			for(QueryGraphComponent m : maps){
+				min = Math.min(min, m.getID());
+				max = Math.max(max, m.getID());
 			}
 			
 			int cost = computeCost(maps);
@@ -1092,26 +1078,15 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 		}
 		
-		private int computeCost(boolean[] use){
-			int cost = 0;
-			for(boolean val : use){
-				if(val){
-					cost++;
-				}
-			}
-			
-			return cost - row.match.length;
-		}
-		
-		private int computeCost(List<Map> maps){
+		private int computeCost(List<QueryGraphComponent> maps){
 			boolean[] used = new boolean[max - min + 1];
 
 			for(QueryGraphComponent c : row.match){
 				used[c.getID() - min] = true;
 			}
 
-			for(Map map : maps){
-				used[map.right.getID() - min] = true;
+			for(QueryGraphComponent map : maps){
+				used[map.getID() - min] = true;
 			}
 			
 			int cost = 0;
@@ -1130,15 +1105,6 @@ public class QueryGraphCPQ implements Cloneable{
 		}
 	}
 	
-	@Deprecated
-	private static final record Map(@Deprecated Row source, @Deprecated QueryGraphComponent left, QueryGraphComponent right){
-		
-		@Override
-		public String toString(){
-			return left + "->" + right;
-		}
-	}
-	
 	private static final class Row{
 		private QueryGraphComponent[] match;
 		private List<OptionSet> other = new ArrayList<OptionSet>();
@@ -1149,14 +1115,14 @@ public class QueryGraphCPQ implements Cloneable{
 		}
 		
 		private void computeBestUsage(int size){
-			computeBestUsage(0, new ArrayList<List<Map>>(), size);
+			computeBestUsage(0, new ArrayList<List<QueryGraphComponent>>(), size);
 		}
 		
-		private void computeBestUsage(int offset, List<List<Map>> workSet, int size){
+		private void computeBestUsage(int offset, List<List<QueryGraphComponent>> workSet, int size){
 			if(offset >= other.size()){
 				updateBest(workSet, size);
 			}else{
-				for(List<Map> opt : other.get(offset).options){
+				for(List<QueryGraphComponent> opt : other.get(offset).options){
 					workSet.add(opt);
 					computeBestUsage(offset + 1, workSet, size);
 					workSet.remove(workSet.size() - 1);
@@ -1166,16 +1132,16 @@ public class QueryGraphCPQ implements Cloneable{
 		
 		private boolean[] best;
 		private int cost = Integer.MAX_VALUE;
-		private void updateBest(List<List<Map>> workSet, int size){
+		private void updateBest(List<List<QueryGraphComponent>> workSet, int size){
 			boolean[] used = new boolean[size];
 			
 			for(QueryGraphComponent c : match){
 				used[c.getID()] = true;
 			}
 			
-			for(List<Map> opt : workSet){
-				for(Map m : opt){
-					used[m.right.getID()] = true;
+			for(List<QueryGraphComponent> opt : workSet){
+				for(QueryGraphComponent m : opt){
+					used[m.getID()] = true;
 				}
 			}
 			

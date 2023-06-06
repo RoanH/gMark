@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -505,6 +506,27 @@ public class QueryGraphCPQTest{
 		
 		assertEquals(core2.getEdgeCount(), core1.getEdgeCount(), q.toString());
 		assertEquals(core2.getVertexCount(), core1.getVertexCount(), q.toString());
+	}
+	
+	public static void main(String[] args){
+		long old = 0;
+		long now = 0;
+		
+		for(int i = 0; i < 100; i++){
+			CPQ q = CPQ.generateRandomCPQ(50, 2);
+			QueryGraphCPQ g = q.toQueryGraph();
+			long start = System.nanoTime();
+			g.computeCore();
+			long mid = System.nanoTime();
+			computeCoreOld(g);
+			long end = System.nanoTime();
+			
+			System.out.println(Duration.ofNanos(mid - start) + " vs " + Duration.ofNanos(end - mid));
+			old += end - mid;
+			now += mid - start;
+		}
+		
+		System.out.println(Duration.ofNanos(now) + " vs " + Duration.ofNanos(old));
 	}
 	
 	public static QueryGraphCPQ computeCoreOld(QueryGraphCPQ graph){

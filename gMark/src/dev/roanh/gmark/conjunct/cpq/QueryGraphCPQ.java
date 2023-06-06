@@ -20,7 +20,6 @@ package dev.roanh.gmark.conjunct.cpq;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -29,7 +28,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.util.GraphPanel;
 import dev.roanh.gmark.util.IDable;
 import dev.roanh.gmark.util.RangeList;
 import dev.roanh.gmark.util.SimpleGraph;
@@ -104,9 +102,6 @@ public class QueryGraphCPQ implements Cloneable{
 		}else{
 			edges.add(new Edge(source, target, label));
 		}
-		
-		source.deg++;
-		target.deg++;
 	}
 	
 	/**
@@ -159,10 +154,7 @@ public class QueryGraphCPQ implements Cloneable{
 		vertices.addAll(other.vertices);
 		fid.addAll(other.fid);
 		for(Edge e : other.edges){
-			if(!edges.add(e)){
-				e.src.deg--;
-				e.trg.deg--;
-			}
+			edges.add(e);
 		}
 		
 		return this;
@@ -523,41 +515,6 @@ public class QueryGraphCPQ implements Cloneable{
 		data.sort();
 	}
 	
-	/**
-	 * Computes the core of this CPQ query graph. The core is the smallest
-	 * graph query homomorphically equivalent to this CPQ query graph.
-	 * @return The core of this CPQ query graph.
-	 */
-	public QueryGraphCPQ computeCore2(){
-		QueryGraphCPQ core = this.clone();
-		
-		for(Edge edge : new ArrayList<Edge>(core.edges)){
-			core.edges.remove(edge);
-
-			if(!isHomomorphicTo(core)){
-				core.edges.add(edge);
-			}else{
-				edge.src.deg--;
-				edge.trg.deg--;
-			}
-		}
-		
-		core.vertices.removeIf(v->v.deg == 0);
-		return core;
-	}
-	
-	public static void mainddd(String[] args){
-		for(int i = 0; i < 10; i++){
-			CPQ q = CPQ.generateRandomCPQ(50, 4);
-			QueryGraphCPQ core1 = q.computeCore();
-			QueryGraphCPQ core2 = q.toQueryGraph().computeCore2();
-			
-			if(core1.edges.size() != core2.edges.size() || core1.vertices.size() != core2.vertices.size()){
-				throw new RuntimeException();
-			}
-		}
-	}
-	
 	//TODO check for redundant info!
 	
 	/**
@@ -588,70 +545,6 @@ public class QueryGraphCPQ implements Cloneable{
 		return core;
 	}
 	
-	public static void main(String[] args){
-QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0))◦((id ∩ 0) ∩ (1◦1⁻)))").toQueryGraph();
-		
-		QueryGraphCPQ c = g.computeCore();
-		UniqueGraph<Vertex, Predicate> core = c.toUniqueGraph();
-		
-		GraphPanel.show(c);
-		try{
-			Thread.sleep(1000000);
-		}catch(InterruptedException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		System.out.println(core.getEdgeCount() + " / " + core.getNodeCount());
-		for(Edge edge : c.edges){
-			System.out.println("e: " + edge);
-		}
-		for(Vertex v : c.vertices){
-			System.out.println("v: " + v);
-		}
-		
-//		assertEquals(3, core.getNodeCount(), core.getNodes().toString() + " | " + c.getVertices().toString());
-//		assertEquals(5, core.getEdgeCount());
-//		assertEquals(2, core.getNode(g.getSourceVertex()).getOutCount());
-//		assertEquals(1, core.getNode(g.getSourceVertex()).getInCount());
-//		assertEquals(3, core.getNode(g.getTargetVertex()).getOutCount());
-//		assertEquals(2, core.getNode(g.getTargetVertex()).getInCount());
-//		assertEquals(3, countNodes(core.getNode(g.getSourceVertex()), new HashSet<Vertex>()));
-	}
-	
-	public static void mainff(String[] args){
-		
-		QueryGraphCPQ q = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0))◦((id ∩ 0) ∩ (1◦1⁻)))").toQueryGraph();
-//		QueryGraphCPQ q = CPQ.parse("((0◦0◦0◦0◦0◦0◦0) ∩ (0◦0◦0◦0◦0◦0◦0))").toQueryGraph();
-//		QueryGraphCPQ q = CPQ.parse("((0◦0) ∩ (0◦0))").toQueryGraph();
-//		QueryGraphCPQ q1 = CPQ.parse("((0◦0◦0) ∩ id)").toQueryGraph();
-//		QueryGraphCPQ q2 = CPQ.parse("((0◦0◦0◦0◦0) ∩ id)").toQueryGraph();
-		
-		QueryGraphCPQ core = q.computeCore();
-		System.out.println(core.getEdgeCount() + " / " + core.getVertexCount());
-		for(Edge edge : core.edges){
-			System.out.println("e: " + edge);
-		}
-		for(Vertex v : core.vertices){
-			System.out.println("v: " + v);
-		}
-		
-		UniqueGraph<Vertex, Predicate> u = core.toUniqueGraph();
-		System.out.println(u.getEdgeCount() + " / " + u.getNodeCount());
-		
-//		System.out.println("H: " + q.isHomomorphicTo(q));
-		
-		GraphPanel.show(q);
-		
-		GraphPanel.show(core);
-		
-//		GraphPanel.show(q1);
-//		GraphPanel.show(q2);
-		
-//		GraphPanel.show(q);
-//		GraphPanel.show(q.computeCore());
-	}
-	
 	/**
 	 * Executes the final merge step of the query graph construction algorithm,
 	 * this step merges vertices that need to be merged together into the same
@@ -673,27 +566,16 @@ QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0
 			//replace edge source/target vertex with the new vertex
 			for(Edge edge : edges.stream().collect(Collectors.toList())){
 				if(edge.src == elem.first && edge.trg == elem.first){
-					if(edges.add(new Edge(elem.second, elem.second, edge.label))){
-						elem.second.deg += 2;
-					}
-
+					edges.add(new Edge(elem.second, elem.second, edge.label));
 					continue;
 				}
 
 				if(edge.src == elem.first){
-					if(edges.add(new Edge(elem.second, edge.trg, edge.label))){
-						elem.second.deg++;
-					}else{
-						edge.trg.deg--;
-					}
+					edges.add(new Edge(elem.second, edge.trg, edge.label));
 				}
 
 				if(edge.trg == elem.first){
-					if(edges.add(new Edge(edge.src, elem.second, edge.label))){
-						elem.second.deg++;
-					}else{
-						edge.src.deg--;
-					}
+					edges.add(new Edge(edge.src, elem.second, edge.label));
 				}
 			}
 			edges.removeIf(e->e.src == elem.first || e.trg == elem.first);
@@ -811,13 +693,6 @@ QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0
 		 * The ID of this vertex.
 		 */
 		private int id;
-		/**
-		 * The degree of this vertex, this counts both incoming
-		 * and outgoing edges. This means self loops are counted
-		 * twice for the degree.
-		 */
-		@Deprecated
-		public int deg;
 		
 		@Override
 		public String toString(){
@@ -1089,7 +964,7 @@ QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0
 			}
 		}
 		
-		private void semiJoin(PartialMap other){//TODO no need to compute maps for single tests -- optimise the old variant
+		private void semiJoin(PartialMap other){//TODO no need to compute maps for single tests -- optimise the old variant?
 			int nulls = 0;
 			for(int r = 0; r < matches.length; r++){
 				Row row = matches[r];
@@ -1126,24 +1001,8 @@ QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0
 					
 					//OK
 					hasMatch = true;
-					
-					//if they agree on attribs join, otherwise keep both separate? -- also could already filter here
-					
-					if(!match.other.isEmpty()){//TODO I don't think we can blindly generate these without checking they aggree on attribs...
-//						for(OptionSet former : match.other){//TODO could be a set but that may be more expensive
-//							for(List<Map> opt : former.options){
-//								options.add(maps, opt);
-//							}
-//						}
-						
-						
-//						for(OptionSet former : match.other){
-//							maps.addAll(former.options.get(0));//TOD NOPE
-//						}
-//						options.add(maps);
-						
+					if(!match.other.isEmpty()){
 						options.addAll(maps, match.other);
-						
 					}else if(!maps.isEmpty()){
 						options.add(maps);
 					}
@@ -1178,7 +1037,7 @@ QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0
 	
 	private static final class OptionSet{
 		private Row row;
-		private List<List<Map>> options = new ArrayList<List<Map>>();//TODO no need to get a list
+		private List<List<Map>> options = new ArrayList<List<Map>>();
 		
 		private int min = Integer.MAX_VALUE;
 		private int max = 0;
@@ -1271,7 +1130,8 @@ QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0
 		}
 	}
 	
-	private static final record Map(Row source, @Deprecated QueryGraphComponent left, QueryGraphComponent right){
+	@Deprecated
+	private static final record Map(@Deprecated Row source, @Deprecated QueryGraphComponent left, QueryGraphComponent right){
 		
 		@Override
 		public String toString(){
@@ -1286,55 +1146,6 @@ QueryGraphCPQ g = CPQ.parse("(((((0◦1)◦1⁻) ∩ 0⁻) ∩ ((1◦1⁻) ∩ 0
 		
 		private Row(int size){
 			match = new QueryGraphComponent[size];
-		}
-		
-		@Deprecated
-		private boolean[] getBestUsageOld(int size){
-			boolean[] used = new boolean[size];
-			
-			for(QueryGraphComponent c : match){
-				used[c.getID()] = true;
-			}
-			
-			boolean[] best = null;
-			boolean[] tmp = null;
-			for(OptionSet set : other){
-				if(set.options.size() > 1){
-					tmp = used;
-					used = new boolean[size];
-					
-					int min = Integer.MAX_VALUE;
-					List<List<Map>> opts = set.options;
-					for(int i = 0; i < opts.size(); i++){
-						List<Map> opt = opts.get(i);
-						System.arraycopy(tmp, 0, used, 0, size);
-						for(Map m : opt){
-							used[m.right.getID()] = true;
-						}
-						
-						int cost = computeCost(used);
-						if(cost < min){
-							min = cost;
-							if(i != opts.size() - 1){
-								if(best == null){
-									best = new boolean[size];
-								}
-								System.arraycopy(used, 0, best, 0, size);
-							}else{
-								best = used;
-							}
-						}
-						
-						used = best;
-					}
-				}else{
-					for(Map m : set.options.get(0)){
-						used[m.right.getID()] = true;
-					}
-				}
-			}
-			
-			return used;
 		}
 		
 		private void computeBestUsage(int size){

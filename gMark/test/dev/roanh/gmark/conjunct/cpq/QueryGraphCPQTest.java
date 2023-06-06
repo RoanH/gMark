@@ -40,7 +40,6 @@ import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Edge;
 import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.QueryGraphComponent;
 import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.util.GraphPanel;
 import dev.roanh.gmark.util.SimpleGraph;
 import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;

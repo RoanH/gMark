@@ -511,10 +511,18 @@ public class QueryGraphCPQTest{
 	public static void main(String[] args){
 		long old = 0;
 		long now = 0;
+		int nodes = 0;
 		
-		for(int i = 0; i < 100; i++){
-			CPQ q = CPQ.generateRandomCPQ(50, 2);
+//		try{
+//			Thread.sleep(10000);
+//		}catch(InterruptedException e){
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		for(int i = 0; i < 1000; i++){
+			CPQ q = CPQ.generateRandomCPQ(10, 2);
 			QueryGraphCPQ g = q.toQueryGraph();
+			nodes += g.getVertexCount();
 			long start = System.nanoTime();
 			g.computeCore();
 			long mid = System.nanoTime();
@@ -527,6 +535,7 @@ public class QueryGraphCPQTest{
 		}
 		
 		System.out.println(Duration.ofNanos(now) + " vs " + Duration.ofNanos(old));
+		System.out.println("nodes: " + (nodes / 1000));
 	}
 	
 	public static QueryGraphCPQ computeCoreOld(QueryGraphCPQ graph){

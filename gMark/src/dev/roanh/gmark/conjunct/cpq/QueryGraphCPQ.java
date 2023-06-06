@@ -487,14 +487,19 @@ public class QueryGraphCPQ implements Cloneable{
 		}
 		
 		///remove invalid candidates and return
-		data.matches = new Row[product.length - nulls];
+		data.matches = filterNull(product, nulls);
+		data.sort();
+	}
+	
+	private static final Row[] filterNull(Row[] data, int nulls){
+		Row[] rows = new Row[data.length - nulls];
 		int i = 0;
-		for(Row row : product){
+		for(Row row : data){
 			if(row != null){
-				data.matches[i++] = row;
+				rows[i++] = row;
 			}
 		}
-		data.sort();
+		return rows;
 	}
 	
 	//TODO check for redundant info!
@@ -934,40 +939,6 @@ public class QueryGraphCPQ implements Cloneable{
 		 * The result of the semi join is stored in this map.
 		 * @param other The other partial map to join with.
 		 */
-		@Deprecated
-		private void semiJoin8(PartialMap other){
-			int[] map = new int[left.size()];
-			for(int i = 0; i < map.length; i++){
-				map[i] = other.left.indexOf(left.get(i));
-			}
-			
-			int nulls = 0;
-			outer: for(int m = 0; m < matches.length; m++){
-				Row match = matches[m];
-				test: for(Row filter : other.matches){
-					for(int i = 0; i < map.length; i++){
-						if(map[i] != -1 && !match.get(i).equals(filter.get(map[i]))){
-							continue test;
-						}
-					}
-					
-					continue outer;
-				}
-				
-				matches[m] = null;
-				nulls++;
-			}
-			
-			Row[] data = matches;
-			matches = new Row[matches.length - nulls];
-			int i = 0;
-			for(Row row : data){
-				if(row != null){
-					matches[i++] = row;
-				}
-			}
-		}
-		
 		private void semiJoinSingle(PartialMap other){
 			int nulls = 0;
 			outer: for(int r = 0; r < matches.length; r++){
@@ -1007,14 +978,7 @@ public class QueryGraphCPQ implements Cloneable{
 				nulls++;
 			}
 			
-			Row[] data = matches;
-			matches = new Row[matches.length - nulls];
-			int i = 0;
-			for(Row row : data){
-				if(row != null){
-					matches[i++] = row;
-				}
-			}
+			matches = filterNull(matches, nulls);
 		}
 		
 		private void semiJoin(PartialMap other){//TODO no need to compute maps for single tests -- optimise the old variant?
@@ -1072,14 +1036,7 @@ public class QueryGraphCPQ implements Cloneable{
 				}
 			}
 			
-			Row[] data = matches;
-			matches = new Row[matches.length - nulls];
-			int i = 0;
-			for(Row row : data){
-				if(row != null){
-					matches[i++] = row;
-				}
-			}
+			matches = filterNull(matches, nulls);
 		}
 		
 		@Override

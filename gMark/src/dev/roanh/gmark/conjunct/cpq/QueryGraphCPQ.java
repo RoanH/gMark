@@ -259,43 +259,37 @@ public class QueryGraphCPQ implements Cloneable{
 	 *      "Conjunctive query containment revisited", in Theoretical Computer Science, vol. 239, 2000, pp. 211-229</a>
 	 */
 	public boolean isHomomorphicTo(QueryGraphCPQ graph){
-		return computeRelations(graph) != null;
-	}
-		
-	private Tree<PartialMap> computeRelations(QueryGraphCPQ graph){
 		merge();
-		
+
 		//compute base mappings
 		RangeList<List<QueryGraphComponent>> known = computeMappings(graph);
 		if(known == null){
-			return null;
+			return false;
 		}
-		
+
 		//compute a query decomposition with empty partial maps
 		Tree<PartialMap> maps = Util.computeTreeDecompositionWidth2(toIncidenceGraph()).cloneStructure(PartialMap::new);
-		
+
 		//join nodes bottom up while computing candidate maps and dependent variables
-		boolean hasHomomorphism = !maps.forEachBottomUp(node->{
+		return !maps.forEachBottomUp(node->{
 			PartialMap map = node.getData();
 			expandPartialMap(map, known);
-			
+
 			if(!node.isLeaf()){
 				for(Tree<PartialMap> child : node.getChildren()){
-					map.semiJoin(child.getData());
+					map.semiJoinSingle(child.getData());
 					if(map.matches.length == 0){
 						//if any intermediate map is empty the result will be empty
 						return true;
 					}
 				}
 			}
-			
+
 			//a non empty root implies query homomorphism
 			return map.matches.length == 0;
 		});
-		
-		return hasHomomorphism ? maps : null;
 	}
-	
+		
 	/**
 	 * Computes mappings from the vertices and edges of this graph to similar
 	 * vertices and edges in the other given graph.
@@ -511,8 +505,29 @@ public class QueryGraphCPQ implements Cloneable{
 	 * @return The core of this CPQ query graph.
 	 */
 	public QueryGraphCPQ computeCore(){
-		Tree<PartialMap> maps = computeRelations(this);
+		merge();
 		
+		//compute base mappings
+		RangeList<List<QueryGraphComponent>> known = computeMappings(this);
+		
+		//compute a query decomposition with empty partial maps
+		Tree<PartialMap> maps = Util.computeTreeDecompositionWidth2(toIncidenceGraph()).cloneStructure(PartialMap::new);
+		
+		//join nodes bottom up while computing candidate maps and dependent variables
+		maps.forEachBottomUp(node->{
+			PartialMap map = node.getData();
+			expandPartialMap(map, known);
+			
+			if(!node.isLeaf()){
+				for(Tree<PartialMap> child : node.getChildren()){
+					map.semiJoin(child.getData());
+				}
+			}
+			
+			return false;
+		});
+		
+		//pick the best mapping
 		System.out.println("cost:");
 		int bestCost = Integer.MAX_VALUE;
 		boolean[] bestUsage = null;
@@ -525,6 +540,7 @@ public class QueryGraphCPQ implements Cloneable{
 			System.out.println(Arrays.toString(row.match) + ": " + row.cost);
 		}
 		
+		//remove redundant graph components
 		final boolean[] used = bestUsage;
 		QueryGraphCPQ core = this.clone();
 		core.edges.removeIf(edge->!used[edge.getID()]);
@@ -939,6 +955,55 @@ public class QueryGraphCPQ implements Cloneable{
 				}
 				
 				matches[m] = null;
+				nulls++;
+			}
+			
+			Row[] data = matches;
+			matches = new Row[matches.length - nulls];
+			int i = 0;
+			for(Row row : data){
+				if(row != null){
+					matches[i++] = row;
+				}
+			}
+		}
+		
+		private void semiJoinSingle(PartialMap other){
+			int nulls = 0;
+			outer: for(int r = 0; r < matches.length; r++){
+				Row row = matches[r];
+				filter: for(Row match : other.matches){
+					int ai = 0;
+					int bi = 0;
+					
+					while(bi < other.left.size()){
+						if(ai < left.size()){
+							QueryGraphComponent first = left.get(ai);
+							QueryGraphComponent second = other.left.get(bi);
+							
+							if(first == second){
+								if(row.match[ai] != match.match[bi]){
+									continue filter;
+								}
+								
+								ai++;
+								bi++;
+							}else if(first.getID() > second.getID()){
+								bi++;
+							}else{
+								ai++;
+							}
+						}else{
+							bi++;
+						}
+					}
+					
+					//OK
+					continue outer;
+				}
+				
+				//remove rows that do not join with anything
+				matches[r] = null;
 				nulls++;
 			}
 			

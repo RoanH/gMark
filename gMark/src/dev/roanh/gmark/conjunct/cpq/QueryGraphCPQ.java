@@ -684,7 +684,6 @@ public class QueryGraphCPQ{
 		}
 	}
 	
-	
 	/**
 	 * Shared base interface for query graph elements. Objects of
 	 * this type are either a {@link Vertex} or an {@link Edge}.
@@ -711,7 +710,6 @@ public class QueryGraphCPQ{
 			return Integer.compare(getID(), other.getID());
 		}
 	}
-	
 	
 	/**
 	 * Represents a vertex in a CPQ query graph.
@@ -743,7 +741,6 @@ public class QueryGraphCPQ{
 			return false;
 		}
 	}
-	
 	
 	/**
 	 * Represents a directed edge in a CPQ query graph.
@@ -840,7 +837,6 @@ public class QueryGraphCPQ{
 		}
 	}
 	
-	
 	/**
 	 * Represents a pair of vertices used for identity processing.
 	 * @author Roan
@@ -885,7 +881,6 @@ public class QueryGraphCPQ{
 			return "(" + first + "," + second + ")";
 		}
 	}
-	
 	
 	/**
 	 * Object used to store partial mapping required for the
@@ -1101,7 +1096,6 @@ public class QueryGraphCPQ{
 		}
 	}
 	
-	
 	/**
 	 * Represents a set of possible mappings for attributes that
 	 * were processed in the past, but will not be seen again in
@@ -1261,7 +1255,6 @@ public class QueryGraphCPQ{
 			return options.toString();
 		}
 	}
-	
 	
 	/**
 	 * A row instance represents a single potential homomorphism mapping

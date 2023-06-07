@@ -44,7 +44,7 @@ import dev.roanh.gmark.util.Util;
  * proposed by Seiji Maekawa.
  * @author Roan
  */
-public class QueryGraphCPQ implements Cloneable{
+public class QueryGraphCPQ{
 	/**
 	 * The set of vertices for this query graph.
 	 */
@@ -105,14 +105,10 @@ public class QueryGraphCPQ implements Cloneable{
 	}
 	
 	/**
-	 * No args constructor for use by {@link #clone()}.
-	 * @param vertices The vertex set for the graph.
-	 * @param edges The edge set for the graph.
+	 * No args constructor that creates a completely empty query graph.
 	 */
-	private QueryGraphCPQ(Set<Vertex> vertices, Set<Edge> edges){
+	private QueryGraphCPQ(){
 		fid = null;
-		this.vertices.addAll(vertices);
-		this.edges.addAll(edges);
 	}
 	
 	/**
@@ -536,11 +532,26 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 		}
 		
-		//remove redundant graph components
-		final boolean[] used = bestUsage;
-		QueryGraphCPQ core = this.clone();
-		core.edges.removeIf(edge->!used[edge.getID()]);
-		core.vertices.removeIf(vertex->!used[vertex.getID()]);
+		//construct the core graph
+		QueryGraphCPQ core = new QueryGraphCPQ();
+		Vertex[] vMap = new Vertex[vertices.size()];
+		for(int i = 0; i < vertices.size(); i++){
+			if(bestUsage[i]){
+				Vertex v = new Vertex();
+				vMap[i] = v;
+				core.vertices.add(v);
+			}
+		}
+		
+		core.source = vMap[source.getID()];
+		core.target = vMap[target.getID()];
+		for(Edge edge : edges){
+			if(bestUsage[edge.getID()]){
+				core.edges.add(new Edge(vMap[edge.getSource().getID()], vMap[edge.getTarget().getID()], edge.getLabel()));
+			}
+		}
+		
+		core.assignIdentifiers();
 		
 		//return the constructed core
 		return core;
@@ -600,6 +611,13 @@ public class QueryGraphCPQ implements Cloneable{
 		
 		//assign numerical identifiers to all components
 		fid = null;
+		assignIdentifiers();
+	}
+	
+	/**
+	 * Assigns a unique ID to all components of this query graph.
+	 */
+	private void assignIdentifiers(){
 		int id = 0;
 		for(Vertex v : vertices){
 			v.id = id++;
@@ -640,15 +658,6 @@ public class QueryGraphCPQ implements Cloneable{
 	@Override
 	public String toString(){
 		return "QueryGraphCPQ[V=" + vertices + ",E=" + edges + ",src=" + source + ",trg=" + target + ",Fid=" + fid + "]";
-	}
-	
-	@Override
-	protected QueryGraphCPQ clone(){
-		merge();
-		QueryGraphCPQ copy = new QueryGraphCPQ(vertices, edges);
-		copy.source = source;
-		copy.target = target;
-		return copy;
 	}
 	
 	/**
@@ -1247,15 +1256,64 @@ public class QueryGraphCPQ implements Cloneable{
 		}
 	}
 	
+	/**
+	 * A row instance represents a single potential homomorphism mapping
+	 * for a partial map. A row also tracks information about past attributes
+	 * that are required to construct a complete homomorphism mapping.
+	 * @author Roan
+	 * @see PartialMap
+	 */
 	private static final class Row{
+		/**
+		 * The targets that this row maps the attributes from the partial map to.
+		 */
 		private QueryGraphComponent[] match;
+		/**
+		 * A list of option sets that complete the entire homomorphism mapping
+		 * when combined with the {@link #match} for this row. When constructing
+		 * the complete mapping exactly one option from each option set has to be used.
+		 */
 		private List<OptionSet> other = new ArrayList<OptionSet>();
+		/**
+		 * Current write index in {@link #match}, this is the next position
+		 * that a query graph component will be written to by {@link #add(QueryGraphComponent)}.
+		 */
 		private int write = 0;
+		/**
+		 * The best (smallest) complete mapping as represented by this row. This array
+		 * can be seen as a map from {@link QueryGraphComponent#getID()} to a boolean,
+		 * where true means the component was used in the mapping. The cost of this mapping
+		 * is given by {@link #cost} and both are computed by {@link #computeBestUsage(int)}.
+		 * @see #computeBestUsage(int)
+		 * @see #cost
+		 */
+		private boolean[] best;
+		/**
+		 * The cost of the smallest complete mapping for this row. This value is computed
+		 * by {@link #computeBestUsage(int)} and is {@link Integer#MAX_VALUE} before that.
+		 * @see #computeBestUsage(int)
+		 * @see #best
+		 */
+		private int cost = Integer.MAX_VALUE;
 		
+		/**
+		 * Constructs a new row with space for the given number of mapping targets.
+		 * @param size The number of mapping targets to allocate space for.
+		 */
 		private Row(int size){
 			match = new QueryGraphComponent[size];
 		}
 		
+		/**
+		 * Computes the best usage for this row. This is the selection of options
+		 * from the option sets in {@link #other} that together with {@link #match}
+		 * results in the mapping with the smallest number of distinct targets. For
+		 * this computation exactly on option from each option set has to be used.
+		 * The result of this computation is stored in #best and its cost in #cost.
+		 * @param size The size of the entire original query graph as the combined
+		 *        count of 
+		 *        
+		 */
 		private void computeBestUsage(int size){
 			computeBestUsage(0, new ArrayList<List<QueryGraphComponent>>(), size);
 		}
@@ -1272,8 +1330,6 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 		}
 		
-		private boolean[] best;
-		private int cost = Integer.MAX_VALUE;
 		private void updateBest(List<List<QueryGraphComponent>> workSet, int size){
 			boolean[] used = new boolean[size];
 			

@@ -27,7 +27,6 @@ import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
-import dev.roanh.gmark.util.IndentWriter;
 
 /**
  * Interface for conjunctive path queries (CPQs).
@@ -46,37 +45,7 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	/**
 	 * Constant for the special identity CPQ.
 	 */
-	public static final CPQ IDENTITY = new CPQ(){
-		@Override
-		public String toString(){
-			return "id";
-		}
-
-		@Override
-		public String toSQL(){
-			return "((SELECT src, src AS trg FROM edge) UNION (SELECT trg AS src, trg FROM edge))";
-		}
-
-		@Override
-		public void writeXML(IndentWriter writer){
-			writer.println("<cpq type=\"identity\"></cpq>");
-		}
-
-		@Override
-		public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-			return new QueryGraphCPQ(source, target);
-		}
-
-		@Override
-		public int getDiameter(){
-			return 0;
-		}
-
-		@Override
-		public boolean isLoop(){
-			return true;
-		}
-	};
+	public static final CPQ IDENTITY = new IdentityCPQ();
 	
 	/**
 	 * Computes and returns the query graph for this CPQ.

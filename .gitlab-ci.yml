@@ -1,4 +1,4 @@
-image: openjdk:8
+image: eclipse-temurin:17
 
 variables:
   NAME: "${CI_PROJECT_NAME}-${CI_PIPELINE_ID}-${CI_BUILD_REF_NAME}"

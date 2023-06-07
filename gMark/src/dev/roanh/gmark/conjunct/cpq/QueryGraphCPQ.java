@@ -684,6 +684,7 @@ public class QueryGraphCPQ{
 		}
 	}
 	
+	
 	/**
 	 * Shared base interface for query graph elements. Objects of
 	 * this type are either a {@link Vertex} or an {@link Edge}.
@@ -710,6 +711,7 @@ public class QueryGraphCPQ{
 			return Integer.compare(getID(), other.getID());
 		}
 	}
+	
 	
 	/**
 	 * Represents a vertex in a CPQ query graph.
@@ -741,6 +743,7 @@ public class QueryGraphCPQ{
 			return false;
 		}
 	}
+	
 	
 	/**
 	 * Represents a directed edge in a CPQ query graph.
@@ -837,6 +840,7 @@ public class QueryGraphCPQ{
 		}
 	}
 	
+	
 	/**
 	 * Represents a pair of vertices used for identity processing.
 	 * @author Roan
@@ -881,6 +885,7 @@ public class QueryGraphCPQ{
 			return "(" + first + "," + second + ")";
 		}
 	}
+	
 	
 	/**
 	 * Object used to store partial mapping required for the
@@ -1096,6 +1101,7 @@ public class QueryGraphCPQ{
 		}
 	}
 	
+	
 	/**
 	 * Represents a set of possible mappings for attributes that
 	 * were processed in the past, but will not be seen again in
@@ -1256,6 +1262,7 @@ public class QueryGraphCPQ{
 		}
 	}
 	
+	
 	/**
 	 * A row instance represents a single potential homomorphism mapping
 	 * for a partial map. A row also tracks information about past attributes
@@ -1308,16 +1315,26 @@ public class QueryGraphCPQ{
 		 * Computes the best usage for this row. This is the selection of options
 		 * from the option sets in {@link #other} that together with {@link #match}
 		 * results in the mapping with the smallest number of distinct targets. For
-		 * this computation exactly on option from each option set has to be used.
+		 * this computation exactly one option from each option set has to be used.
 		 * The result of this computation is stored in #best and its cost in #cost.
 		 * @param size The size of the entire original query graph as the combined
-		 *        count of 
-		 *        
+		 *        count of vertices and edges.
 		 */
 		private void computeBestUsage(int size){
 			computeBestUsage(0, new ArrayList<List<QueryGraphComponent>>(), size);
 		}
 		
+		/**
+		 * Computes the best usage for this row. This is the selection of options
+		 * from the option sets in {@link #other} that together with {@link #match}
+		 * results in the mapping with the smallest number of distinct targets. For
+		 * this computation exactly one option from each option set has to be used.
+		 * The result of this computation is stored in #best and its cost in #cost.
+		 * @param offset The current option set to pick from.
+		 * @param workSet The set of picked mappings so far.
+		 * @param size The size of the entire original query graph as the combined
+		 *        count of vertices and edges.
+		 */
 		private void computeBestUsage(int offset, List<List<QueryGraphComponent>> workSet, int size){
 			if(offset >= other.size()){
 				updateBest(workSet, size);
@@ -1330,6 +1347,14 @@ public class QueryGraphCPQ{
 			}
 		}
 		
+		/**
+		 * Updates best mapping candidate for this row with the given candidate if
+		 * this candidate has a lower cost than the current best candidate. The cost
+		 * is evaluated as the total number of distinct mapping targets.
+		 * @param workSet A set of picked mappings that together form the complete candidate.
+		 * @param size The size of the entire original query graph as the combined
+		 *        count of vertices and edges.
+		 */
 		private void updateBest(List<List<QueryGraphComponent>> workSet, int size){
 			boolean[] used = new boolean[size];
 			
@@ -1350,6 +1375,14 @@ public class QueryGraphCPQ{
 			}
 		}
 		
+		/**
+		 * Computes the cost of a mapping given an array containing a booleans
+		 * values indicating which components to use. The indices of the array
+		 * correspond to values for {@link QueryGraphComponent#getID()}. This
+		 * method essentially counts the number of true values.
+		 * @param use The mapping usage array.
+		 * @return The cost of the given mapping.
+		 */
 		private int computeCost(boolean[] use){
 			int cost = 0;
 			for(boolean val : use){
@@ -1360,10 +1393,19 @@ public class QueryGraphCPQ{
 			return cost;
 		}
 
+		/**
+		 * Gets the match component at the given index.
+		 * @param idx The index to get.
+		 * @return The match component at the given index.
+		 */
 		public QueryGraphComponent get(int idx){
 			return match[idx];
 		}
 		
+		/**
+		 * Adds a new match component to this row.
+		 * @param comp The component to append.
+		 */
 		public void add(QueryGraphComponent comp){
 			match[write++] = comp;
 		}

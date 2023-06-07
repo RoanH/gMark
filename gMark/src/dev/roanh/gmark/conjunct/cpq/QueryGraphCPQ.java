@@ -48,11 +48,11 @@ public class QueryGraphCPQ implements Cloneable{
 	/**
 	 * The set of vertices for this query graph.
 	 */
-	private Set<Vertex> vertices = new HashSet<Vertex>();
+	private final Set<Vertex> vertices = new HashSet<Vertex>();
 	/**
 	 * The set of edges for this query graph.
 	 */
-	private Set<Edge> edges = new HashSet<Edge>();
+	private final Set<Edge> edges = new HashSet<Edge>();
 	/**
 	 * The source vertex of the CPQ.
 	 */
@@ -63,7 +63,7 @@ public class QueryGraphCPQ implements Cloneable{
 	private Vertex target;
 	/**
 	 * Set of identity pair that still need to be processed,
-	 * always empty for a fully constructed query graph.
+	 * always null for a fully constructed query graph.
 	 */
 	private Set<Pair> fid;
 	
@@ -106,9 +106,13 @@ public class QueryGraphCPQ implements Cloneable{
 	
 	/**
 	 * No args constructor for use by {@link #clone()}.
+	 * @param vertices The vertex set for the graph.
+	 * @param edges The edge set for the graph.
 	 */
-	private QueryGraphCPQ(){
+	private QueryGraphCPQ(Set<Vertex> vertices, Set<Edge> edges){
 		fid = null;
+		this.vertices.addAll(vertices);
+		this.edges.addAll(edges);
 	}
 	
 	/**
@@ -185,8 +189,7 @@ public class QueryGraphCPQ implements Cloneable{
 	}
 	
 	/**
-	 * Converts this query graph to an actual
-	 * graph instance.
+	 * Converts this query graph to an actual graph instance.
 	 * @return The constructed graph instance.
 	 */
 	public UniqueGraph<Vertex, Predicate> toUniqueGraph(){
@@ -204,6 +207,7 @@ public class QueryGraphCPQ implements Cloneable{
 	 * @return The set of edges for this query graph.
 	 */
 	public Set<Edge> getEdges(){
+		merge();
 		return edges;
 	}
 	
@@ -212,6 +216,7 @@ public class QueryGraphCPQ implements Cloneable{
 	 * @return The set of vertices for this query graph.
 	 */
 	public Set<Vertex> getVertices(){
+		merge();
 		return vertices;
 	}
 	
@@ -221,6 +226,7 @@ public class QueryGraphCPQ implements Cloneable{
 	 * @return True if this query graph is a loop.
 	 */
 	public boolean isLoop(){
+		merge();
 		return source.equals(target);
 	}
 	
@@ -230,7 +236,7 @@ public class QueryGraphCPQ implements Cloneable{
 	 * are represented as vertices. Edges are only present between an edge nodes
 	 * and vertex nodes and only if the vertex node represents a vertex that was
 	 * one of the end points of the edge node in the original query graph.
-	 * @param <M> The graph metadata data types.
+	 * @param <M> The graph metadata data type.
 	 * @return The incidence graph for this graph.
 	 * @see QueryGraphComponent
 	 */
@@ -491,19 +497,6 @@ public class QueryGraphCPQ implements Cloneable{
 		data.sort();
 	}
 	
-	private static final Row[] filterNull(Row[] data, int nulls){
-		Row[] rows = new Row[data.length - nulls];
-		int i = 0;
-		for(Row row : data){
-			if(row != null){
-				rows[i++] = row;
-			}
-		}
-		return rows;
-	}
-	
-	//TODO check for redundant info!
-	
 	/**
 	 * Computes the core of this CPQ query graph. The core is the smallest
 	 * graph query homomorphically equivalent to this CPQ query graph.
@@ -518,7 +511,7 @@ public class QueryGraphCPQ implements Cloneable{
 		//compute a query decomposition with empty partial maps
 		Tree<PartialMap> maps = Util.computeTreeDecompositionWidth2(toIncidenceGraph()).cloneStructure(PartialMap::new);
 		
-		//join nodes bottom up while computing candidate maps and dependent variables
+		//join nodes bottom up while computing candidate maps, dependent variables and full mapping information
 		maps.forEachBottomUp(node->{
 			PartialMap map = node.getData();
 			expandPartialMap(map, known);
@@ -533,7 +526,6 @@ public class QueryGraphCPQ implements Cloneable{
 		});
 		
 		//pick the best mapping
-		System.out.println("cost:");
 		int bestCost = Integer.MAX_VALUE;
 		boolean[] bestUsage = null;
 		for(Row row : maps.getData().matches){
@@ -542,7 +534,6 @@ public class QueryGraphCPQ implements Cloneable{
 				bestCost = row.cost;
 				bestUsage = row.best;
 			}
-			System.out.println(Arrays.toString(row.match) + ": " + row.cost);
 		}
 		
 		//remove redundant graph components
@@ -551,6 +542,7 @@ public class QueryGraphCPQ implements Cloneable{
 		core.edges.removeIf(edge->!used[edge.getID()]);
 		core.vertices.removeIf(vertex->!used[vertex.getID()]);
 		
+		//return the constructed core
 		return core;
 	}
 	
@@ -645,10 +637,6 @@ public class QueryGraphCPQ implements Cloneable{
 		}
 	}
 	
-//	public String getVertexLabel(Vertex vertex){
-//		return getVertexLabel2(vertex) + " | " + vertex.id;
-//	}
-	
 	@Override
 	public String toString(){
 		return "QueryGraphCPQ[V=" + vertices + ",E=" + edges + ",src=" + source + ",trg=" + target + ",Fid=" + fid + "]";
@@ -657,18 +645,39 @@ public class QueryGraphCPQ implements Cloneable{
 	@Override
 	protected QueryGraphCPQ clone(){
 		merge();
-		QueryGraphCPQ copy = new QueryGraphCPQ();
+		QueryGraphCPQ copy = new QueryGraphCPQ(vertices, edges);
 		copy.source = source;
 		copy.target = target;
-		copy.edges = new HashSet<Edge>(edges);
-		copy.vertices = new HashSet<Vertex>(vertices);
 		return copy;
 	}
 	
 	/**
-	 * Shared base interface for query graph elements.
-	 * Objects of this type are either a {@link Vertex}
-	 * or an {@link Edge}.
+	 * Small utility function that returns a copy of the given
+	 * input array with all null entries removed.
+	 * @param data The input array containing null values.
+	 * @param nulls The number of null values in the passed array,
+	 *        if 0 then the input array is returned.
+	 * @return An array containing all non-null elements from the
+	 *         given input array in the same order.
+	 */
+	private static final Row[] filterNull(Row[] data, int nulls){
+		if(nulls == 0){
+			return data;
+		}else{
+			Row[] rows = new Row[data.length - nulls];
+			int i = 0;
+			for(Row row : data){
+				if(row != null){
+					rows[i++] = row;
+				}
+			}
+			return rows;
+		}
+	}
+	
+	/**
+	 * Shared base interface for query graph elements. Objects of
+	 * this type are either a {@link Vertex} or an {@link Edge}.
 	 * @author Roan
 	 */
 	public static abstract interface QueryGraphComponent extends IDable, Comparable<QueryGraphComponent>{
@@ -872,14 +881,16 @@ public class QueryGraphCPQ implements Cloneable{
 	 */
 	private static final class PartialMap{
 		/**
-		 * The left hand side of the map, this is the
-		 * side of the map with graph parts that need
-		 * to be matched to equivalent parts in the other graph. 
+		 * The left hand side of the map, this is the side of the map
+		 * with graph parts that need to be matched to equivalent parts
+		 * in the other graph. This list essentially represents the attribute
+		 * names of the relation for this map.
 		 */
 		private List<QueryGraphComponent> left;
 		/**
-		 * The parts of the other graph that are equivalent
-		 * to the {@link #left} part of the original graph.
+		 * The parts of the other graph that are equivalent to the {@link #left}
+		 * part of the original graph. This array is essentially a list of rows
+		 * in the relation, each representing a valid way of mapping all attributes.
 		 */
 		private Row[] matches;
 		
@@ -892,6 +903,13 @@ public class QueryGraphCPQ implements Cloneable{
 			this.left = left;
 		}
 		
+		/**
+		 * Sorts the relation for this map on attribute names.
+		 * This enforces a total order on the {@link #left} elements
+		 * and sorts the corresponding {@link #matches} at the same time.
+		 * This sort takes linear time in the largest distance between
+		 * two elements of the {@link #left} array.
+		 */
 		private void sort(){
 			int min = Integer.MAX_VALUE;
 			int max = 0;
@@ -916,6 +934,14 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 		}
 		
+		/**
+		 * Swaps the element at the i-th and j-th position in
+		 * {@link #left} and all {@link #matches}.
+		 * @param i The first element position.
+		 * @param j The second element position.
+		 * @return The {@link QueryGraphComponent#getID()} of
+		 *         the element originally at the j-th position.
+		 */
 		private int swap(int i, int j){
 			QueryGraphComponent elem = left.get(i);
 			elem = left.set(j, elem);
@@ -931,13 +957,14 @@ public class QueryGraphCPQ implements Cloneable{
 		}
 		
 		/**
-		 * Performs a natural left semi join of this partial map
-		 * with the given other partial map. This is effectively
-		 * a filtering operation where anything in this map
-		 * is dropped if it does not have any overlap with at
-		 * least one list in the given other partial map.
-		 * The result of the semi join is stored in this map.
+		 * Performs a natural left semi join of this partial map with the given other
+		 * partial map. This is effectively a filtering operation where anything in this
+		 * map is dropped if it does not have any overlap with at least one list in the
+		 * given other partial map. The result of the semi join is stored in this map.
+		 * Both maps are required to be sorted before running this join.
 		 * @param other The other partial map to join with.
+		 * @see #semiJoin(PartialMap)
+		 * @see #sort()
 		 */
 		private void semiJoinSingle(PartialMap other){
 			int nulls = 0;
@@ -981,7 +1008,22 @@ public class QueryGraphCPQ implements Cloneable{
 			matches = filterNull(matches, nulls);
 		}
 		
-		private void semiJoin(PartialMap other){//TODO no need to compute maps for single tests -- optimise the old variant?
+		/**
+		 * Performs a natural left semi join of this partial map with the given other
+		 * partial map. This is effectively a filtering operation where anything in this
+		 * map is dropped if it does not have any overlap with at least one list in the
+		 * given other partial map. The result of the semi join is stored in this map.
+		 * Both maps are required to be sorted before running this join.
+		 * <p>
+		 * Information about attributes from the given other map that did not appear in
+		 * this map is also collected and attached to the rows in the {@link #matches}
+		 * stored at this map. As a result this join makes it possible to reconstruct
+		 * complete graph homomorphism mappings.
+		 * @param other The other partial map to join with.
+		 * @see #semiJoinSingle(PartialMap)
+		 * @see #sort()
+		 */
+		private void semiJoin(PartialMap other){
 			int nulls = 0;
 			for(int r = 0; r < matches.length; r++){
 				Row row = matches[r];
@@ -1045,14 +1087,58 @@ public class QueryGraphCPQ implements Cloneable{
 		}
 	}
 	
+	/**
+	 * Represents a set of possible mappings for attributes that
+	 * were processed in the past, but will not be seen again in
+	 * future tree nodes. These mappings are essentially part of
+	 * complete homomorphism mappings for the graph, but are not
+	 * relevant to the homomorphism finding algorithm anymore.
+	 * Furthermore, this set automatically filters any elements
+	 * that are added, keeping only the smallest candidates.
+	 * Note that since the added elements represent attributes
+	 * that are never seen again we are free to map them in any
+	 * way we like without affecting the correct of the of the
+	 * algorithm, so we will only keep those candidates that map
+	 * to the fewest distinct targets.
+	 * @author Roan
+	 */
 	private static final class OptionSet{
-		private Row row;
-		private List<List<QueryGraphComponent>> options = new ArrayList<List<QueryGraphComponent>>();
-		
+		/**
+		 * The row this option set belongs to. The row essentially
+		 * tracks all the still relevant attributes, while past
+		 * attributes are tracked by this option set.
+		 */
+		private final Row row;
+		/**
+		 * All smallest past attribute mappings for this option set.
+		 * Note that while each candidate consists of only query graph
+		 * components, these are actually mapping from an attribute to
+		 * this component. However, we do not actually ever need to use
+		 * left hand side attribute of the map, so we do not store it.
+		 */
+		private final List<List<QueryGraphComponent>> options = new ArrayList<List<QueryGraphComponent>>();
+		/**
+		 * The largest ID of a graph component involved with this set or its {@link #row}.
+		 * @see QueryGraphComponent#getID()
+		 */
 		private int min = Integer.MAX_VALUE;
+		/**
+		 * The smallest ID of a graph component involved with this set or its {@link #row}.
+		 * @see QueryGraphComponent#getID()
+		 */
 		private int max = 0;
+		/**
+		 * The current cost of the lowest cost attribute mappings in {@link #options}. This
+		 * cost is the number of distinct mapping targets minus the number of attributes in
+		 * the {@link #row} for this option set.
+		 */
 		private int cost = Integer.MAX_VALUE;
 		
+		/**
+		 * Constructs a new empty option set for the given row.
+		 * @param row The row to create an option set for.
+		 * @see Row
+		 */
 		private OptionSet(Row row){
 			this.row = row;
 			for(QueryGraphComponent c : row.match){
@@ -1061,12 +1147,31 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 		}
 		
+		/**
+		 * Adds new mappings to the option set as constructed from the given prefix
+		 * and list of option sets to join with. This will attempt to add a new entry
+		 * for each unique combination of attribute mappings in the given list of option
+		 * sets, essentially computing a Cartesian product. The given prefix targets are
+		 * added to every candidate generated in this manner.
+		 * @param prefix The prefix mapping targets to add to every candidate.
+		 * @param toAdd The option sets to compute combinations of.
+		 */
 		private void addAll(List<QueryGraphComponent> prefix, List<OptionSet> toAdd){
 			List<List<QueryGraphComponent>> work = new ArrayList<List<QueryGraphComponent>>(toAdd.size() + 1);
 			work.add(prefix);
 			addAll(toAdd, 0, work);
 		}
 		
+		/**
+		 * Adds new mappings to the option set as constructed from the given prefix
+		 * and list of option sets to join with. This will attempt to add a new entry
+		 * for each unique combination of attribute mappings in the given list of option
+		 * sets, essentially computing a Cartesian product. The work set contains the
+		 * picked sets so far and the offset indicates the next option set to pick from.
+		 * @param toAdd The option sets to compute combinations of.
+		 * @param offset The next option set to pick from.
+		 * @param workSet The current set of picked lists.
+		 */
 		private void addAll(List<OptionSet> toAdd, int offset, List<List<QueryGraphComponent>> workSet){
 			if(offset >= toAdd.size()){
 				List<QueryGraphComponent> data = new ArrayList<QueryGraphComponent>();
@@ -1083,6 +1188,13 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 		}
 		
+		/**
+		 * Adds a new attribute mapping to this option set. However, if this mapping
+		 * has a higher cost than the current options it is discarded. Conversely,
+		 * if it has a lower cost all current options are discarded instead.
+		 * @param maps The new mapping to add (only the mapping targets).
+		 * @see #cost
+		 */
 		public void add(List<QueryGraphComponent> maps){
 			for(QueryGraphComponent m : maps){
 				min = Math.min(min, m.getID());
@@ -1100,6 +1212,14 @@ public class QueryGraphCPQ implements Cloneable{
 			}
 		}
 		
+		/**
+		 * Computes the cost of the given candidate mapping. The cost is the number
+		 * of distinct mapping targets when combined with the mappings at the {@link #row}
+		 * for this option set. The final cost is then the total number of distinct targets
+		 * minutes the number of attributes in the row.
+		 * @param maps The mapping to compute the cost of.
+		 * @return The cost of the given mapping.
+		 */
 		private int computeCost(List<QueryGraphComponent> maps){
 			boolean[] used = new boolean[max - min + 1];
 

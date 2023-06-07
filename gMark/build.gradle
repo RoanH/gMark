@@ -8,6 +8,7 @@ plugins{
 	id 'maven-publish'
 	id 'signing'
 	id 'edu.sc.seis.launch4j' version '2.5.1'
+	id 'com.github.spotbugs' version '5.0.14'
 }
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
@@ -39,6 +40,33 @@ sourceSets{
 		}
 		resources{
 			srcDir 'test'
+		}
+	}
+}
+
+spotbugs{
+	showProgress = true
+	effort = 'max'
+	reportLevel = 'low'
+	excludeFilter = file("exclude.xml")
+}
+
+spotbugsMain{
+	reports{
+		html{
+			required = true
+			outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+			stylesheet = 'fancy-hist.xsl'
+		}
+	}
+}
+
+spotbugsClient{
+	reports{
+		html{
+			required = true
+			outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+			stylesheet = 'fancy-hist.xsl'
 		}
 	}
 }

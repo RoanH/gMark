@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -354,10 +353,6 @@ public class QueryGraphCPQTest{
 		));
 	}
 	
-	public static void main(String[] args){
-		new QueryGraphCPQTest().core0();
-	}
-
 	@Test
 	public void core0(){
 		QueryGraphCPQ g = CPQ.intersect(CPQ.labels(l1, l2), CPQ.labels(l1, l2)).computeCore();
@@ -524,36 +519,6 @@ public class QueryGraphCPQTest{
 		
 		assertEquals(core2.getEdgeCount(), core1.getEdgeCount(), q.toString());
 		assertEquals(core2.getVertexCount(), core1.getVertexCount(), q.toString());
-	}
-	
-	public static void main3(String[] args){
-		long old = 0;
-		long now = 0;
-		int nodes = 0;
-		
-//		try{
-//			Thread.sleep(10000);
-//		}catch(InterruptedException e){
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		for(int i = 0; i < 1000; i++){
-			CPQ q = CPQ.generateRandomCPQ(10, 2);
-			QueryGraphCPQ g = q.toQueryGraph();
-			nodes += g.getVertexCount();
-			long start = System.nanoTime();
-			g.computeCore();
-			long mid = System.nanoTime();
-			computeCoreOld(q);
-			long end = System.nanoTime();
-			
-			System.out.println(Duration.ofNanos(mid - start) + " vs " + Duration.ofNanos(end - mid));
-			old += end - mid;
-			now += mid - start;
-		}
-		
-		System.out.println(Duration.ofNanos(now) + " vs " + Duration.ofNanos(old));
-		System.out.println("nodes: " + (nodes / 1000));
 	}
 	
 	public static QueryGraphCPQ computeCoreOld(CPQ q){

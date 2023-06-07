@@ -22,7 +22,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 import dev.roanh.gmark.output.ConcreteSyntax;
@@ -56,15 +55,6 @@ public class OutputWriter{
 	}
 	
 	/**
-	 * Writes generated graphs to a folder.
-	 * @throws IOException When an IOException occurs.
-	 */
-	public static void writeGeneratedGraphs() throws IOException{
-		//TODO
-		throw new IllegalStateException("Not yet implemented.");
-	}
-	
-	/**
 	 * Writes the given string to the given file.
 	 * @param file The file to write to.
 	 * @param content The string to write to the file.
@@ -75,17 +65,13 @@ public class OutputWriter{
 	 *         overwriting is not enabled.
 	 */
 	private static void write(Path file, String content, boolean overwrite) throws IOException{
-		BufferedWriter writer = null;
-		if(overwrite){
-			writer = Files.newBufferedWriter(file, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
-		}else if(!Files.exists(file)){
-			writer = Files.newBufferedWriter(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-		}else{
+		if(!overwrite && Files.exists(file)){
 			throw new IOException("File already exists and overwriting is disabled.");
 		}
 		
-		writer.append(content);
-		writer.flush();
-		writer.close();
+		try(BufferedWriter writer = Files.newBufferedWriter(file)){
+			writer.append(content);
+			writer.flush();
+		}
 	}
 }

@@ -19,7 +19,9 @@
 package dev.roanh.gmark.util;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -30,7 +32,7 @@ import java.util.stream.Stream;
  * @author Roan
  * @param <T> The store data type.
  */
-public class Tree<T>{
+public class Tree<T> implements Iterable<Tree<T>>{
 	/**
 	 * A list of child nodes for this tree node.
 	 */
@@ -177,6 +179,62 @@ public class Tree<T>{
 		Tree<N> root = new Tree<N>(map.apply(data));
 		children.forEach(c->root.addChild(c.cloneStructure(map)));
 		return root;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Note that nodes are iterated in such a way that all children
+	 * of a node are always returned before their parent.
+	 */
+	@Override
+	public Iterator<Tree<T>> iterator(){
+		if(children.isEmpty()){
+			return new Iterator<Tree<T>>(){
+				private boolean next = true;
+
+				@Override
+				public boolean hasNext(){
+					return next;
+				}
+
+				@Override
+				public Tree<T> next(){
+					if(next){
+						next = false;
+						return Tree.this;
+					}else{
+						throw new NoSuchElementException();
+					}
+				}
+			};
+		}else{
+			return new Iterator<Tree<T>>(){
+				private int idx = 1;
+				private Iterator<Tree<T>> current = children.get(0).iterator();
+				private boolean next = true;
+
+				@Override
+				public boolean hasNext(){
+					return next;
+				}
+
+				@Override
+				public Tree<T> next(){
+					if(current.hasNext()){
+						return current.next();
+					}else if(idx < children.size()){
+						current = children.get(idx++).iterator();
+						return current.next();
+					}else if(next){
+						next = false;
+						return Tree.this;
+					}else{
+						throw new NoSuchElementException();
+					}
+				}
+			};
+		}
 	}
 	
 	/**

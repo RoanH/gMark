@@ -273,7 +273,7 @@ public class QueryGraphCPQ{
 		Tree<PartialMap> maps = Util.computeTreeDecompositionWidth2(toIncidenceGraph()).cloneStructure(PartialMap::new);
 
 		//join nodes bottom up while computing candidate maps and dependent variables
-		return !maps.forEachBottomUp(node->{
+		for(Tree<PartialMap> node : maps){
 			PartialMap map = node.getData();
 			expandPartialMap(map, known);
 
@@ -282,14 +282,14 @@ public class QueryGraphCPQ{
 					map.semiJoinSingle(child.getData());
 					if(map.matches.length == 0){
 						//if any intermediate map is empty the result will be empty
-						return true;
+						return false;
 					}
 				}
 			}
-
-			//a non empty root implies query homomorphism
-			return map.matches.length == 0;
-		});
+		}
+		
+		//a non empty root implies query homomorphism
+		return maps.getData().matches.length != 0;
 	}
 		
 	/**
@@ -508,7 +508,7 @@ public class QueryGraphCPQ{
 		Tree<PartialMap> maps = Util.computeTreeDecompositionWidth2(toIncidenceGraph()).cloneStructure(PartialMap::new);
 		
 		//join nodes bottom up while computing candidate maps, dependent variables and full mapping information
-		maps.forEachBottomUp(node->{
+		for(Tree<PartialMap> node : maps){
 			PartialMap map = node.getData();
 			expandPartialMap(map, known);
 			
@@ -517,9 +517,7 @@ public class QueryGraphCPQ{
 					map.semiJoin(child.getData());
 				}
 			}
-			
-			return false;
-		});
+		}
 		
 		//pick the best mapping
 		int bestCost = Integer.MAX_VALUE;
@@ -689,7 +687,11 @@ public class QueryGraphCPQ{
 	 * this type are either a {@link Vertex} or an {@link Edge}.
 	 * @author Roan
 	 */
-	public static abstract interface QueryGraphComponent extends IDable, Comparable<QueryGraphComponent>{
+	public static abstract sealed class QueryGraphComponent implements IDable, Comparable<QueryGraphComponent> permits Vertex, Edge{
+		/**
+		 * The ID of this component.
+		 */
+		protected int id;
 		
 		/**
 		 * Checks if this query graph component is a vertex.
@@ -706,8 +708,13 @@ public class QueryGraphCPQ{
 		public abstract  boolean isEdge();
 		
 		@Override
-		public default int compareTo(QueryGraphComponent other){
+		public int compareTo(QueryGraphComponent other){
 			return Integer.compare(getID(), other.getID());
+		}
+		
+		@Override
+		public int getID(){
+			return id;
 		}
 	}
 	
@@ -715,20 +722,11 @@ public class QueryGraphCPQ{
 	 * Represents a vertex in a CPQ query graph.
 	 * @author Roan
 	 */
-	public static class Vertex implements QueryGraphComponent{
-		/**
-		 * The ID of this vertex.
-		 */
-		private int id;
+	public static final class Vertex extends QueryGraphComponent{
 		
 		@Override
 		public String toString(){
-			return String.valueOf(id);
-		}
-
-		@Override
-		public int getID(){
-			return id;
+			return String.valueOf(getID());
 		}
 
 		@Override
@@ -746,7 +744,7 @@ public class QueryGraphCPQ{
 	 * Represents a directed edge in a CPQ query graph.
 	 * @author Roan
 	 */
-	public static class Edge implements QueryGraphComponent{
+	public static final class Edge extends QueryGraphComponent{
 		/**
 		 * The edge source vertex.
 		 */
@@ -759,10 +757,6 @@ public class QueryGraphCPQ{
 		 * The edge label.
 		 */
 		private final Predicate label;
-		/**
-		 * The ID of this edge.
-		 */
-		private int id;
 		
 		/**
 		 * Constructs a new edge with the given source
@@ -819,11 +813,6 @@ public class QueryGraphCPQ{
 		@Override
 		public String toString(){
 			return "(" + src + "," + trg + "," + label.getAlias() + ")";
-		}
-
-		@Override
-		public int getID(){
-			return id;
 		}
 
 		@Override
@@ -1168,7 +1157,7 @@ public class QueryGraphCPQ{
 		private void addAll(List<QueryGraphComponent> prefix, List<OptionSet> toAdd){
 			List<List<QueryGraphComponent>> work = new ArrayList<List<QueryGraphComponent>>(toAdd.size() + 1);
 			work.add(prefix);
-			addAll(toAdd, 0, work);
+			addAll(toAdd, 0, work, prefix.size());
 		}
 		
 		/**
@@ -1180,10 +1169,11 @@ public class QueryGraphCPQ{
 		 * @param toAdd The option sets to compute combinations of.
 		 * @param offset The next option set to pick from.
 		 * @param workSet The current set of picked lists.
+		 * @param size The total number of component in the work set.
 		 */
-		private void addAll(List<OptionSet> toAdd, int offset, List<List<QueryGraphComponent>> workSet){
+		private void addAll(List<OptionSet> toAdd, int offset, List<List<QueryGraphComponent>> workSet, int size){
 			if(offset >= toAdd.size()){
-				List<QueryGraphComponent> data = new ArrayList<QueryGraphComponent>();
+				List<QueryGraphComponent> data = new ArrayList<QueryGraphComponent>(size);
 				for(List<QueryGraphComponent> set : workSet){
 					data.addAll(set);
 				}
@@ -1191,7 +1181,7 @@ public class QueryGraphCPQ{
 			}else{
 				for(List<QueryGraphComponent> opt : toAdd.get(offset).options){
 					workSet.add(opt);
-					addAll(toAdd, offset + 1, workSet);
+					addAll(toAdd, offset + 1, workSet, size + opt.size());
 					workSet.remove(workSet.size() - 1);
 				}
 			}
@@ -1314,7 +1304,7 @@ public class QueryGraphCPQ{
 		 *        count of vertices and edges.
 		 */
 		private void computeBestUsage(int size){
-			computeBestUsage(0, new ArrayList<List<QueryGraphComponent>>(), size);
+			computeBestUsage(0, new ArrayList<List<QueryGraphComponent>>(other.size()), size);
 		}
 		
 		/**

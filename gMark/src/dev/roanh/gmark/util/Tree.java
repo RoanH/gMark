@@ -191,6 +191,9 @@ public class Tree<T> implements Iterable<Tree<T>>{
 	public Iterator<Tree<T>> iterator(){
 		if(children.isEmpty()){
 			return new Iterator<Tree<T>>(){
+				/**
+				 * True while the parent has not been returned yet.
+				 */
 				private boolean next = true;
 
 				@Override
@@ -210,8 +213,17 @@ public class Tree<T> implements Iterable<Tree<T>>{
 			};
 		}else{
 			return new Iterator<Tree<T>>(){
+				/**
+				 * Current child being iterated.
+				 */
 				private int idx = 1;
+				/**
+				 * Iterator for the current child.
+				 */
 				private Iterator<Tree<T>> current = children.get(0).iterator();
+				/**
+				 * True while the parent has not been returned yet.
+				 */
 				private boolean next = true;
 
 				@Override

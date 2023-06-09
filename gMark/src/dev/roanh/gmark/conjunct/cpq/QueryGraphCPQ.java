@@ -20,6 +20,7 @@ package dev.roanh.gmark.conjunct.cpq;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -66,6 +67,11 @@ public class QueryGraphCPQ{
 	 * always null for a fully constructed query graph.
 	 */
 	private Set<Pair> fid;
+	/**
+	 * Bit set with true bits corresponding to edge labels
+	 * that appear somewhere in this graph.
+	 */
+	private long[] labelSet;
 	
 	/**
 	 * Constructs a new query graph containing only the
@@ -262,6 +268,17 @@ public class QueryGraphCPQ{
 	 */
 	public boolean isHomomorphicTo(QueryGraphCPQ graph){
 		merge();
+		
+		//check used labels, if we use labels the other graph does not have there is no homomorphism
+		if(labelSet.length > graph.labelSet.length){
+			return false;
+		}
+		
+		for(int i = 0; i < labelSet.length; i++){
+			if((labelSet[i] & graph.labelSet[i]) != labelSet[i]){
+				return false;
+			}
+		}
 
 		//compute base mappings
 		RangeList<List<QueryGraphComponent>> known = computeMappings(graph);
@@ -305,7 +322,7 @@ public class QueryGraphCPQ{
 		
 		for(Vertex vertex : vertices){
 			List<QueryGraphComponent> matches = new ArrayList<QueryGraphComponent>();
-			for(Vertex other : graph.vertices){
+			check: for(Vertex other : graph.vertices){
 				if(vertex == source && other != graph.source){
 					continue;
 				}
@@ -314,9 +331,19 @@ public class QueryGraphCPQ{
 					continue;
 				}
 				
-				//note: it would be possible to force in/out edges here
-				//but for the small graphs we usually work with that is
-				//more intensive than it is worth (see thesis for more details).
+				//required labels on incoming edges
+				for(int i = 0; i < vertex.in.length; i++){
+					if((vertex.in[i] & other.in[i]) != vertex.in[i]){
+						continue check;
+					}
+				}
+				
+				//required labels on outgoing edges
+				for(int i = 0; i < vertex.out.length; i++){
+					if((vertex.out[i] & other.out[i]) != vertex.out[i]){
+						continue check;
+					}
+				}
 				
 				matches.add(other);
 			}
@@ -521,7 +548,7 @@ public class QueryGraphCPQ{
 		
 		//pick the best mapping
 		int bestCost = Integer.MAX_VALUE;
-		boolean[] bestUsage = null;
+		BitSet bestUsage = null;
 		for(Row row : maps.getData().matches){
 			row.computeBestUsage(vertices.size() + edges.size());
 			if(row.cost < bestCost){
@@ -533,18 +560,21 @@ public class QueryGraphCPQ{
 		//construct the core graph
 		QueryGraphCPQ core = new QueryGraphCPQ();
 		Vertex[] vMap = new Vertex[vertices.size()];
-		for(int i = 0; i < vertices.size(); i++){
-			if(bestUsage[i]){
+		for(Vertex vertex : vertices){
+			if(bestUsage.get(vertex.id)){
 				Vertex v = new Vertex();
-				vMap[i] = v;
+				v.in = vertex.in;
+				v.out = vertex.out;
+				vMap[vertex.id] = v;
 				core.vertices.add(v);
 			}
 		}
 		
+		core.labelSet = labelSet;
 		core.source = vMap[source.getID()];
 		core.target = vMap[target.getID()];
 		for(Edge edge : edges){
-			if(bestUsage[edge.getID()]){
+			if(bestUsage.get(edge.id)){
 				core.edges.add(new Edge(vMap[edge.getSource().getID()], vMap[edge.getTarget().getID()], edge.getLabel()));
 			}
 		}
@@ -610,6 +640,25 @@ public class QueryGraphCPQ{
 		//assign numerical identifiers to all components
 		fid = null;
 		assignIdentifiers();
+		
+		//set in/out properties
+		int max = 0;
+		for(Edge e : edges){
+			max = Math.max(max, e.label.getID());
+		}
+		
+		labelSet = new long[max + 1];
+		for(Vertex v : vertices){
+			v.in = new long[max + 1];
+			v.out = new long[max + 1];
+		}
+		
+		for(Edge e : edges){
+			final int id = e.label.getID();
+			e.src.out[id >> 6] |= 1L << id;
+			e.trg.in[id >> 6] |= 1L << id;
+			labelSet[id >> 6] |= 1L << id;
+		}
 	}
 	
 	/**
@@ -723,6 +772,14 @@ public class QueryGraphCPQ{
 	 * @author Roan
 	 */
 	public static final class Vertex extends QueryGraphComponent{
+		/**
+		 * Bit set of label IDs on edges to this vertex.
+		 */
+		private long[] in;
+		/**
+		 * Bit set of label IDs on edges from this vertex.
+		 */
+		private long[] out;
 		
 		@Override
 		public String toString(){
@@ -1028,7 +1085,7 @@ public class QueryGraphCPQ{
 				boolean hasMatch = false;
 				OptionSet options = new OptionSet(row);
 				filter: for(Row match : other.matches){
-					List<QueryGraphComponent> maps = new ArrayList<QueryGraphComponent>();
+					BitSet maps = new BitSet();
 					int ai = 0;
 					int bi = 0;
 					
@@ -1045,13 +1102,13 @@ public class QueryGraphCPQ{
 								ai++;
 								bi++;
 							}else if(first.getID() > second.getID()){
-								maps.add(match.get(bi));
+								maps.set(match.get(bi).id);
 								bi++;
 							}else{
 								ai++;
 							}
 						}else{
-							maps.add(match.get(bi));
+							maps.set(match.get(bi).id);
 							bi++;
 						}
 					}
@@ -1097,16 +1154,12 @@ public class QueryGraphCPQ{
 	 * that are never seen again we are free to map them in any
 	 * way we like without affecting the correct of the of the
 	 * algorithm, so we will only keep those candidates that map
-	 * to the fewest distinct targets.
+	 * to the fewest distinct targets. The row essentially tracks
+	 * all the still relevant attributes, while past attributes
+	 * are tracked by this option set.
 	 * @author Roan
 	 */
 	private static final class OptionSet{
-		/**
-		 * The row this option set belongs to. The row essentially
-		 * tracks all the still relevant attributes, while past
-		 * attributes are tracked by this option set.
-		 */
-		private final Row row;
 		/**
 		 * All smallest past attribute mappings for this option set.
 		 * Note that while each candidate consists of only query graph
@@ -1114,21 +1167,16 @@ public class QueryGraphCPQ{
 		 * this component. However, we do not actually ever need to use
 		 * left hand side attribute of the map, so we do not store it.
 		 */
-		private final List<List<QueryGraphComponent>> options = new ArrayList<List<QueryGraphComponent>>();
+		private final List<BitSet> options = new ArrayList<BitSet>();
 		/**
-		 * The largest ID of a graph component involved with this set or its {@link #row}.
-		 * @see QueryGraphComponent#getID()
+		 * A bit set with the components in the match for the row
+		 * this option set belongs to set to true.
+		 * The row this option set belongs to.
 		 */
-		private int min = Integer.MAX_VALUE;
+		private final BitSet base = new BitSet();
 		/**
-		 * The smallest ID of a graph component involved with this set or its {@link #row}.
-		 * @see QueryGraphComponent#getID()
-		 */
-		private int max = 0;
-		/**
-		 * The current cost of the lowest cost attribute mappings in {@link #options}. This
-		 * cost is the number of distinct mapping targets minus the number of attributes in
-		 * the {@link #row} for this option set.
+		 * The current cost of the lowest cost attribute mappings in
+		 * {@link #options}. This cost is the number of distinct mapping targets.
 		 */
 		private int cost = Integer.MAX_VALUE;
 		
@@ -1138,10 +1186,8 @@ public class QueryGraphCPQ{
 		 * @see Row
 		 */
 		private OptionSet(Row row){
-			this.row = row;
 			for(QueryGraphComponent c : row.match){
-				min = Math.min(min, c.getID());
-				max = Math.max(max, c.getID());
+				base.set(c.id);
 			}
 		}
 		
@@ -1151,38 +1197,33 @@ public class QueryGraphCPQ{
 		 * for each unique combination of attribute mappings in the given list of option
 		 * sets, essentially computing a Cartesian product. The given prefix targets are
 		 * added to every candidate generated in this manner.
-		 * @param prefix The prefix mapping targets to add to every candidate.
+		 * @param prefix The prefix mapping targets to add to every candidate encoded as a bit set.
 		 * @param toAdd The option sets to compute combinations of.
 		 */
-		private void addAll(List<QueryGraphComponent> prefix, List<OptionSet> toAdd){
-			List<List<QueryGraphComponent>> work = new ArrayList<List<QueryGraphComponent>>(toAdd.size() + 1);
-			work.add(prefix);
-			addAll(toAdd, 0, work, prefix.size());
+		private void addAll(BitSet prefix, List<OptionSet> toAdd){
+			prefix.or(base);
+			addAll(toAdd, 0, prefix);
 		}
 		
 		/**
 		 * Adds new mappings to the option set as constructed from the given prefix
 		 * and list of option sets to join with. This will attempt to add a new entry
 		 * for each unique combination of attribute mappings in the given list of option
-		 * sets, essentially computing a Cartesian product. The work set contains the
-		 * picked sets so far and the offset indicates the next option set to pick from.
+		 * sets, essentially computing a Cartesian product. The work set indicates the
+		 * components picked so far and the offset indicates the next option set to pick from.
 		 * @param toAdd The option sets to compute combinations of.
 		 * @param offset The next option set to pick from.
-		 * @param workSet The current set of picked lists.
-		 * @param size The total number of component in the work set.
+		 * @param workSet The current set of picked components encoded as a bit set.
 		 */
-		private void addAll(List<OptionSet> toAdd, int offset, List<List<QueryGraphComponent>> workSet, int size){
+		private void addAll(List<OptionSet> toAdd, int offset, BitSet workSet){
 			if(offset >= toAdd.size()){
-				List<QueryGraphComponent> data = new ArrayList<QueryGraphComponent>(size);
-				for(List<QueryGraphComponent> set : workSet){
-					data.addAll(set);
-				}
-				add(data);
+				addDirect(workSet);
 			}else{
-				for(List<QueryGraphComponent> opt : toAdd.get(offset).options){
-					workSet.add(opt);
-					addAll(toAdd, offset + 1, workSet, size + opt.size());
-					workSet.remove(workSet.size() - 1);
+				for(BitSet opt : toAdd.get(offset).options){
+					BitSet data = new BitSet();
+					data.or(workSet);
+					data.or(opt);
+					addAll(toAdd, offset + 1, data);
 				}
 			}
 		}
@@ -1190,17 +1231,14 @@ public class QueryGraphCPQ{
 		/**
 		 * Adds a new attribute mapping to this option set. However, if this mapping
 		 * has a higher cost than the current options it is discarded. Conversely,
-		 * if it has a lower cost all current options are discarded instead.
-		 * @param maps The new mapping to add (only the mapping targets).
+		 * if it has a lower cost all current options are discarded instead. The cost
+		 * is computed as the number  of distinct mapping targets when combined with
+		 * the mappings at the the row for this option set.
+		 * @param maps The new mapping to add (complete with the row mapping targets).
 		 * @see #cost
 		 */
-		public void add(List<QueryGraphComponent> maps){
-			for(QueryGraphComponent m : maps){
-				min = Math.min(min, m.getID());
-				max = Math.max(max, m.getID());
-			}
-			
-			int cost = computeCost(maps);
+		private void addDirect(BitSet maps){
+			int cost = maps.cardinality();
 			if(cost <= this.cost){
 				if(cost < this.cost){
 					options.clear();
@@ -1212,32 +1250,16 @@ public class QueryGraphCPQ{
 		}
 		
 		/**
-		 * Computes the cost of the given candidate mapping. The cost is the number
-		 * of distinct mapping targets when combined with the mappings at the {@link #row}
-		 * for this option set. The final cost is then the total number of distinct targets
-		 * minutes the number of attributes in the row.
-		 * @param maps The mapping to compute the cost of.
-		 * @return The cost of the given mapping.
+		 * Adds a new attribute mapping to this option set. However, if this mapping
+		 * has a higher cost than the current options it is discarded. Conversely,
+		 * if it has a lower cost all current options are discarded instead. The cost
+		 * is computed as the number  of distinct mapping targets when combined with
+		 * the mappings at the the row for this option set.
+		 * @param maps The new mapping to add (without the row mapping targets).
 		 */
-		private int computeCost(List<QueryGraphComponent> maps){
-			boolean[] used = new boolean[max - min + 1];
-
-			for(QueryGraphComponent c : row.match){
-				used[c.getID() - min] = true;
-			}
-
-			for(QueryGraphComponent map : maps){
-				used[map.getID() - min] = true;
-			}
-			
-			int cost = 0;
-			for(boolean val : used){
-				if(val){
-					cost++;
-				}
-			}
-			
-			return cost - row.match.length;
+		private void add(BitSet maps){
+			maps.or(base);
+			addDirect(maps);
 		}
 		
 		@Override
@@ -1270,14 +1292,14 @@ public class QueryGraphCPQ{
 		 */
 		private int write = 0;
 		/**
-		 * The best (smallest) complete mapping as represented by this row. This array
+		 * The best (smallest) complete mapping as represented by this row. This bitset
 		 * can be seen as a map from {@link QueryGraphComponent#getID()} to a boolean,
 		 * where true means the component was used in the mapping. The cost of this mapping
 		 * is given by {@link #cost} and both are computed by {@link #computeBestUsage(int)}.
 		 * @see #computeBestUsage(int)
 		 * @see #cost
 		 */
-		private boolean[] best;
+		private BitSet best;
 		/**
 		 * The cost of the smallest complete mapping for this row. This value is computed
 		 * by {@link #computeBestUsage(int)} and is {@link Integer#MAX_VALUE} before that.
@@ -1304,7 +1326,12 @@ public class QueryGraphCPQ{
 		 *        count of vertices and edges.
 		 */
 		private void computeBestUsage(int size){
-			computeBestUsage(0, new ArrayList<List<QueryGraphComponent>>(other.size()), size);
+			BitSet base = new BitSet(size);
+			for(QueryGraphComponent c : match){
+				base.set(c.id);
+			}
+			
+			computeBestUsage(0, base, size);
 		}
 		
 		/**
@@ -1314,18 +1341,20 @@ public class QueryGraphCPQ{
 		 * this computation exactly one option from each option set has to be used.
 		 * The result of this computation is stored in #best and its cost in #cost.
 		 * @param offset The current option set to pick from.
-		 * @param workSet The set of picked mappings so far.
+		 * @param workSet The set of picked mappings so far encoded as a bit set
+		 *        with bits set based on component IDs.
 		 * @param size The size of the entire original query graph as the combined
 		 *        count of vertices and edges.
 		 */
-		private void computeBestUsage(int offset, List<List<QueryGraphComponent>> workSet, int size){
+		private void computeBestUsage(int offset, BitSet workSet, int size){
 			if(offset >= other.size()){
-				updateBest(workSet, size);
+				updateBest(workSet);
 			}else{
-				for(List<QueryGraphComponent> opt : other.get(offset).options){
-					workSet.add(opt);
-					computeBestUsage(offset + 1, workSet, size);
-					workSet.remove(workSet.size() - 1);
+				for(BitSet opt : other.get(offset).options){
+					BitSet data = new BitSet(size);
+					data.or(workSet);
+					data.or(opt);
+					computeBestUsage(offset + 1, data, size);
 				}
 			}
 		}
@@ -1334,48 +1363,17 @@ public class QueryGraphCPQ{
 		 * Updates best mapping candidate for this row with the given candidate if
 		 * this candidate has a lower cost than the current best candidate. The cost
 		 * is evaluated as the total number of distinct mapping targets.
-		 * @param workSet A set of picked mappings that together form the complete candidate.
-		 * @param size The size of the entire original query graph as the combined
-		 *        count of vertices and edges.
+		 * @param used A set of picked mappings that together form the complete candidate
+		 *        encoded as a bit set with bits set based on component IDs.
 		 */
-		private void updateBest(List<List<QueryGraphComponent>> workSet, int size){
-			boolean[] used = new boolean[size];
-			
-			for(QueryGraphComponent c : match){
-				used[c.getID()] = true;
-			}
-			
-			for(List<QueryGraphComponent> opt : workSet){
-				for(QueryGraphComponent m : opt){
-					used[m.getID()] = true;
-				}
-			}
-			
-			int cost = computeCost(used);
+		private void updateBest(BitSet used){
+			int cost = used.cardinality();
 			if(cost < this.cost){
 				best = used;
 				this.cost = cost;
 			}
 		}
 		
-		/**
-		 * Computes the cost of a mapping given an array containing a booleans
-		 * values indicating which components to use. The indices of the array
-		 * correspond to values for {@link QueryGraphComponent#getID()}. This
-		 * method essentially counts the number of true values.
-		 * @param use The mapping usage array.
-		 * @return The cost of the given mapping.
-		 */
-		private int computeCost(boolean[] use){
-			int cost = 0;
-			for(boolean val : use){
-				if(val){
-					cost++;
-				}
-			}
-			return cost;
-		}
-
 		/**
 		 * Gets the match component at the given index.
 		 * @param idx The index to get.

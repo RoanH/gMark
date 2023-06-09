@@ -354,6 +354,14 @@ public class QueryGraphCPQTest{
 	}
 	
 	@Test
+	public void homomorphism14(){
+		assertTrue(isHomomorphic(
+			CPQ.parse("(a◦b) ∩ (a◦b)"),
+			CPQ.parse("a◦b")
+		));
+	}
+	
+	@Test
 	public void core0(){
 		QueryGraphCPQ g = CPQ.intersect(CPQ.labels(l1, l2), CPQ.labels(l1, l2)).computeCore();
 		

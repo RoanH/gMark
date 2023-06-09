@@ -1154,7 +1154,9 @@ public class QueryGraphCPQ{
 	 * that are never seen again we are free to map them in any
 	 * way we like without affecting the correct of the of the
 	 * algorithm, so we will only keep those candidates that map
-	 * to the fewest distinct targets.
+	 * to the fewest distinct targets. The row essentially tracks
+	 * all the still relevant attributes, while past attributes
+	 * are tracked by this option set.
 	 * @author Roan
 	 */
 	private static final class OptionSet{
@@ -1167,9 +1169,9 @@ public class QueryGraphCPQ{
 		 */
 		private final List<BitSet> options = new ArrayList<BitSet>();
 		/**
-		 * The row this option set belongs to. The row essentially
-		 * tracks all the still relevant attributes, while past
-		 * attributes are tracked by this option set.
+		 * A bit set with the components in the match for the row
+		 * this option set belongs to set to true.
+		 * The row this option set belongs to.
 		 */
 		private final BitSet base = new BitSet();
 		/**

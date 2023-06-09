@@ -772,7 +772,13 @@ public class QueryGraphCPQ{
 	 * @author Roan
 	 */
 	public static final class Vertex extends QueryGraphComponent{
+		/**
+		 * Bit set of label IDs on edges to this vertex.
+		 */
 		private long[] in;
+		/**
+		 * Bit set of label IDs on edges from this vertex.
+		 */
 		private long[] out;
 		
 		@Override

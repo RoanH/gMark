@@ -331,21 +331,14 @@ public class QueryGraphCPQ{
 					continue;
 				}
 				
-				//note: it would be possible to force in/out edges here
-				//but for the small graphs we usually work with that is
-				//more intensive than it is worth (see thesis for more details).
-				
-				if(vertex.in.length > other.in.length || vertex.out.length > other.out.length){
-					//if we have labels that the other side doesn't have there is never a homomorphism
-					return null;
-				}
-				
+				//required labels on incoming edges
 				for(int i = 0; i < vertex.in.length; i++){
 					if((vertex.in[i] & other.in[i]) != vertex.in[i]){
 						continue check;
 					}
 				}
 				
+				//required labels on outgoing edges
 				for(int i = 0; i < vertex.out.length; i++){
 					if((vertex.out[i] & other.out[i]) != vertex.out[i]){
 						continue check;

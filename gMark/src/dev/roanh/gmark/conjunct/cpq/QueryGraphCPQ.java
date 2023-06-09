@@ -67,6 +67,11 @@ public class QueryGraphCPQ{
 	 * always null for a fully constructed query graph.
 	 */
 	private Set<Pair> fid;
+	/**
+	 * Bit set with true bits corresponding to edge labels
+	 * that appear somewhere in this graph.
+	 */
+	private long[] labelSet;
 	
 	/**
 	 * Constructs a new query graph containing only the
@@ -263,6 +268,17 @@ public class QueryGraphCPQ{
 	 */
 	public boolean isHomomorphicTo(QueryGraphCPQ graph){
 		merge();
+		
+		//check used labels, if we use labels the other graph does not have there is no homomorphism
+		if(labelSet.length > graph.labelSet.length){
+			return false;
+		}
+		
+		for(int i = 0; i < labelSet.length; i++){
+			if((labelSet[i] & graph.labelSet[i]) != labelSet[i]){
+				return false;
+			}
+		}
 
 		//compute base mappings
 		RangeList<List<QueryGraphComponent>> known = computeMappings(graph);
@@ -306,7 +322,7 @@ public class QueryGraphCPQ{
 		
 		for(Vertex vertex : vertices){
 			List<QueryGraphComponent> matches = new ArrayList<QueryGraphComponent>();
-			for(Vertex other : graph.vertices){
+			check: for(Vertex other : graph.vertices){
 				if(vertex == source && other != graph.source){
 					continue;
 				}
@@ -318,6 +334,23 @@ public class QueryGraphCPQ{
 				//note: it would be possible to force in/out edges here
 				//but for the small graphs we usually work with that is
 				//more intensive than it is worth (see thesis for more details).
+				
+				if(vertex.in.length > other.in.length || vertex.out.length > other.out.length){
+					//if we have labels that the other side doesn't have there is never a homomorphism
+					return null;
+				}
+				
+				for(int i = 0; i < vertex.in.length; i++){
+					if((vertex.in[i] & other.in[i]) != vertex.in[i]){
+						continue check;
+					}
+				}
+				
+				for(int i = 0; i < vertex.out.length; i++){
+					if((vertex.out[i] & other.out[i]) != vertex.out[i]){
+						continue check;
+					}
+				}
 				
 				matches.add(other);
 			}
@@ -534,14 +567,17 @@ public class QueryGraphCPQ{
 		//construct the core graph
 		QueryGraphCPQ core = new QueryGraphCPQ();
 		Vertex[] vMap = new Vertex[vertices.size()];
-		for(int i = 0; i < vertices.size(); i++){
-			if(bestUsage.get(i)){
+		for(Vertex vertex : vertices){
+			if(bestUsage.get(vertex.id)){
 				Vertex v = new Vertex();
-				vMap[i] = v;
+				v.in = vertex.in;
+				v.out = vertex.out;
+				vMap[vertex.id] = v;
 				core.vertices.add(v);
 			}
 		}
 		
+		core.labelSet = labelSet;
 		core.source = vMap[source.getID()];
 		core.target = vMap[target.getID()];
 		for(Edge edge : edges){
@@ -611,6 +647,25 @@ public class QueryGraphCPQ{
 		//assign numerical identifiers to all components
 		fid = null;
 		assignIdentifiers();
+		
+		//set in/out properties
+		int max = 0;
+		for(Edge e : edges){
+			max = Math.max(max, e.label.getID());
+		}
+		
+		labelSet = new long[max + 1];
+		for(Vertex v : vertices){
+			v.in = new long[max + 1];
+			v.out = new long[max + 1];
+		}
+		
+		for(Edge e : edges){
+			final int id = e.label.getID();
+			e.src.out[id >> 6] |= 1L << id;
+			e.trg.in[id >> 6] |= 1L << id;
+			labelSet[id >> 6] |= 1L << id;
+		}
 	}
 	
 	/**
@@ -724,6 +779,8 @@ public class QueryGraphCPQ{
 	 * @author Roan
 	 */
 	public static final class Vertex extends QueryGraphComponent{
+		private long[] in;
+		private long[] out;
 		
 		@Override
 		public String toString(){

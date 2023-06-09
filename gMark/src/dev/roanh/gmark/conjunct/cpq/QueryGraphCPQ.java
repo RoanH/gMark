@@ -1153,12 +1153,6 @@ public class QueryGraphCPQ{
 	 */
 	private static final class OptionSet{
 		/**
-		 * The row this option set belongs to. The row essentially
-		 * tracks all the still relevant attributes, while past
-		 * attributes are tracked by this option set.
-		 */
-//		private final Row row;
-		/**
 		 * All smallest past attribute mappings for this option set.
 		 * Note that while each candidate consists of only query graph
 		 * components, these are actually mapping from an attribute to
@@ -1166,11 +1160,15 @@ public class QueryGraphCPQ{
 		 * left hand side attribute of the map, so we do not store it.
 		 */
 		private final List<BitSet> options = new ArrayList<BitSet>();
-		private BitSet base = new BitSet();
 		/**
-		 * The current cost of the lowest cost attribute mappings in {@link #options}. This
-		 * cost is the number of distinct mapping targets minus the number of attributes in
-		 * the {@link #row} for this option set.
+		 * The row this option set belongs to. The row essentially
+		 * tracks all the still relevant attributes, while past
+		 * attributes are tracked by this option set.
+		 */
+		private final BitSet base = new BitSet();
+		/**
+		 * The current cost of the lowest cost attribute mappings in
+		 * {@link #options}. This cost is the number of distinct mapping targets.
 		 */
 		private int cost = Integer.MAX_VALUE;
 		
@@ -1180,7 +1178,6 @@ public class QueryGraphCPQ{
 		 * @see Row
 		 */
 		private OptionSet(Row row){
-//			this.row = row;
 			for(QueryGraphComponent c : row.match){
 				base.set(c.id);
 			}
@@ -1192,7 +1189,7 @@ public class QueryGraphCPQ{
 		 * for each unique combination of attribute mappings in the given list of option
 		 * sets, essentially computing a Cartesian product. The given prefix targets are
 		 * added to every candidate generated in this manner.
-		 * @param prefix The prefix mapping targets to add to every candidate.
+		 * @param prefix The prefix mapping targets to add to every candidate encoded as a bit set.
 		 * @param toAdd The option sets to compute combinations of.
 		 */
 		private void addAll(BitSet prefix, List<OptionSet> toAdd){
@@ -1204,12 +1201,11 @@ public class QueryGraphCPQ{
 		 * Adds new mappings to the option set as constructed from the given prefix
 		 * and list of option sets to join with. This will attempt to add a new entry
 		 * for each unique combination of attribute mappings in the given list of option
-		 * sets, essentially computing a Cartesian product. The work set contains the
-		 * picked sets so far and the offset indicates the next option set to pick from.
+		 * sets, essentially computing a Cartesian product. The work set indicates the
+		 * components picked so far and the offset indicates the next option set to pick from.
 		 * @param toAdd The option sets to compute combinations of.
 		 * @param offset The next option set to pick from.
-		 * @param workSet The current set of picked lists.
-		 * @param size The total number of component in the work set.
+		 * @param workSet The current set of picked components encoded as a bit set.
 		 */
 		private void addAll(List<OptionSet> toAdd, int offset, BitSet workSet){
 			if(offset >= toAdd.size()){
@@ -1227,8 +1223,10 @@ public class QueryGraphCPQ{
 		/**
 		 * Adds a new attribute mapping to this option set. However, if this mapping
 		 * has a higher cost than the current options it is discarded. Conversely,
-		 * if it has a lower cost all current options are discarded instead.
-		 * @param maps The new mapping to add (only the mapping targets).
+		 * if it has a lower cost all current options are discarded instead. The cost
+		 * is computed as the number  of distinct mapping targets when combined with
+		 * the mappings at the the row for this option set.
+		 * @param maps The new mapping to add (complete with the row mapping targets).
 		 * @see #cost
 		 */
 		private void addDirect(BitSet maps){
@@ -1243,39 +1241,18 @@ public class QueryGraphCPQ{
 			}
 		}
 		
+		/**
+		 * Adds a new attribute mapping to this option set. However, if this mapping
+		 * has a higher cost than the current options it is discarded. Conversely,
+		 * if it has a lower cost all current options are discarded instead. The cost
+		 * is computed as the number  of distinct mapping targets when combined with
+		 * the mappings at the the row for this option set.
+		 * @param maps The new mapping to add (without the row mapping targets).
+		 */
 		private void add(BitSet maps){
 			maps.or(base);
 			addDirect(maps);
 		}
-		
-//		/**
-//		 * Computes the cost of the given candidate mapping. The cost is the number
-//		 * of distinct mapping targets when combined with the mappings at the {@link #row}
-//		 * for this option set. The final cost is then the total number of distinct targets
-//		 * minutes the number of attributes in the row.
-//		 * @param maps The mapping to compute the cost of.
-//		 * @return The cost of the given mapping.
-//		 */
-//		private int computeCost(BitSet maps){
-//			boolean[] used = new boolean[max - min + 1];
-//
-//			for(QueryGraphComponent c : row.match){
-//				used[c.getID() - min] = true;
-//			}
-//
-//			for(QueryGraphComponent map : maps){
-//				used[map.getID() - min] = true;
-//			}
-//			
-//			int cost = 0;
-//			for(boolean val : used){
-//				if(val){
-//					cost++;
-//				}
-//			}
-//			
-//			return cost - row.match.length;
-//		}
 		
 		@Override
 		public String toString(){
@@ -1307,7 +1284,7 @@ public class QueryGraphCPQ{
 		 */
 		private int write = 0;
 		/**
-		 * The best (smallest) complete mapping as represented by this row. This array
+		 * The best (smallest) complete mapping as represented by this row. This bitset
 		 * can be seen as a map from {@link QueryGraphComponent#getID()} to a boolean,
 		 * where true means the component was used in the mapping. The cost of this mapping
 		 * is given by {@link #cost} and both are computed by {@link #computeBestUsage(int)}.
@@ -1356,7 +1333,8 @@ public class QueryGraphCPQ{
 		 * this computation exactly one option from each option set has to be used.
 		 * The result of this computation is stored in #best and its cost in #cost.
 		 * @param offset The current option set to pick from.
-		 * @param workSet The set of picked mappings so far.
+		 * @param workSet The set of picked mappings so far encoded as a bit set
+		 *        with bits set based on component IDs.
 		 * @param size The size of the entire original query graph as the combined
 		 *        count of vertices and edges.
 		 */
@@ -1377,9 +1355,8 @@ public class QueryGraphCPQ{
 		 * Updates best mapping candidate for this row with the given candidate if
 		 * this candidate has a lower cost than the current best candidate. The cost
 		 * is evaluated as the total number of distinct mapping targets.
-		 * @param workSet A set of picked mappings that together form the complete candidate.
-		 * @param size The size of the entire original query graph as the combined
-		 *        count of vertices and edges.
+		 * @param used A set of picked mappings that together form the complete candidate
+		 *        encoded as a bit set with bits set based on component IDs.
 		 */
 		private void updateBest(BitSet used){
 			int cost = used.cardinality();
@@ -1389,24 +1366,6 @@ public class QueryGraphCPQ{
 			}
 		}
 		
-//		/**
-//		 * Computes the cost of a mapping given an array containing a booleans
-//		 * values indicating which components to use. The indices of the array
-//		 * correspond to values for {@link QueryGraphComponent#getID()}. This
-//		 * method essentially counts the number of true values.
-//		 * @param use The mapping usage array.
-//		 * @return The cost of the given mapping.
-//		 */
-//		private int computeCost(boolean[] use){
-//			int cost = 0;
-//			for(boolean val : use){
-//				if(val){
-//					cost++;
-//				}
-//			}
-//			return cost;
-//		}
-
 		/**
 		 * Gets the match component at the given index.
 		 * @param idx The index to get.

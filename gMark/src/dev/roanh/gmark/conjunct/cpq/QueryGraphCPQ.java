@@ -20,6 +20,7 @@ package dev.roanh.gmark.conjunct.cpq;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -521,7 +522,7 @@ public class QueryGraphCPQ{
 		
 		//pick the best mapping
 		int bestCost = Integer.MAX_VALUE;
-		boolean[] bestUsage = null;
+		BitSet bestUsage = null;
 		for(Row row : maps.getData().matches){
 			row.computeBestUsage(vertices.size() + edges.size());
 			if(row.cost < bestCost){
@@ -534,7 +535,7 @@ public class QueryGraphCPQ{
 		QueryGraphCPQ core = new QueryGraphCPQ();
 		Vertex[] vMap = new Vertex[vertices.size()];
 		for(int i = 0; i < vertices.size(); i++){
-			if(bestUsage[i]){
+			if(bestUsage.get(i)){
 				Vertex v = new Vertex();
 				vMap[i] = v;
 				core.vertices.add(v);
@@ -544,7 +545,7 @@ public class QueryGraphCPQ{
 		core.source = vMap[source.getID()];
 		core.target = vMap[target.getID()];
 		for(Edge edge : edges){
-			if(bestUsage[edge.getID()]){
+			if(bestUsage.get(edge.id)){
 				core.edges.add(new Edge(vMap[edge.getSource().getID()], vMap[edge.getTarget().getID()], edge.getLabel()));
 			}
 		}
@@ -1028,7 +1029,7 @@ public class QueryGraphCPQ{
 				boolean hasMatch = false;
 				OptionSet options = new OptionSet(row);
 				filter: for(Row match : other.matches){
-					List<QueryGraphComponent> maps = new ArrayList<QueryGraphComponent>();
+					BitSet maps = new BitSet();
 					int ai = 0;
 					int bi = 0;
 					
@@ -1045,13 +1046,13 @@ public class QueryGraphCPQ{
 								ai++;
 								bi++;
 							}else if(first.getID() > second.getID()){
-								maps.add(match.get(bi));
+								maps.set(match.get(bi).id);
 								bi++;
 							}else{
 								ai++;
 							}
 						}else{
-							maps.add(match.get(bi));
+							maps.set(match.get(bi).id);
 							bi++;
 						}
 					}
@@ -1106,7 +1107,7 @@ public class QueryGraphCPQ{
 		 * tracks all the still relevant attributes, while past
 		 * attributes are tracked by this option set.
 		 */
-		private final Row row;
+//		private final Row row;
 		/**
 		 * All smallest past attribute mappings for this option set.
 		 * Note that while each candidate consists of only query graph
@@ -1114,17 +1115,8 @@ public class QueryGraphCPQ{
 		 * this component. However, we do not actually ever need to use
 		 * left hand side attribute of the map, so we do not store it.
 		 */
-		private final List<List<QueryGraphComponent>> options = new ArrayList<List<QueryGraphComponent>>();
-		/**
-		 * The largest ID of a graph component involved with this set or its {@link #row}.
-		 * @see QueryGraphComponent#getID()
-		 */
-		private int min = Integer.MAX_VALUE;
-		/**
-		 * The smallest ID of a graph component involved with this set or its {@link #row}.
-		 * @see QueryGraphComponent#getID()
-		 */
-		private int max = 0;
+		private final List<BitSet> options = new ArrayList<BitSet>();
+		private BitSet base = new BitSet();
 		/**
 		 * The current cost of the lowest cost attribute mappings in {@link #options}. This
 		 * cost is the number of distinct mapping targets minus the number of attributes in
@@ -1138,10 +1130,9 @@ public class QueryGraphCPQ{
 		 * @see Row
 		 */
 		private OptionSet(Row row){
-			this.row = row;
+//			this.row = row;
 			for(QueryGraphComponent c : row.match){
-				min = Math.min(min, c.getID());
-				max = Math.max(max, c.getID());
+				base.set(c.id);
 			}
 		}
 		
@@ -1154,10 +1145,9 @@ public class QueryGraphCPQ{
 		 * @param prefix The prefix mapping targets to add to every candidate.
 		 * @param toAdd The option sets to compute combinations of.
 		 */
-		private void addAll(List<QueryGraphComponent> prefix, List<OptionSet> toAdd){
-			List<List<QueryGraphComponent>> work = new ArrayList<List<QueryGraphComponent>>(toAdd.size() + 1);
-			work.add(prefix);
-			addAll(toAdd, 0, work, prefix.size());
+		private void addAll(BitSet prefix, List<OptionSet> toAdd){
+			prefix.or(base);
+			addAll(toAdd, 0, prefix);
 		}
 		
 		/**
@@ -1171,18 +1161,15 @@ public class QueryGraphCPQ{
 		 * @param workSet The current set of picked lists.
 		 * @param size The total number of component in the work set.
 		 */
-		private void addAll(List<OptionSet> toAdd, int offset, List<List<QueryGraphComponent>> workSet, int size){
+		private void addAll(List<OptionSet> toAdd, int offset, BitSet workSet){
 			if(offset >= toAdd.size()){
-				List<QueryGraphComponent> data = new ArrayList<QueryGraphComponent>(size);
-				for(List<QueryGraphComponent> set : workSet){
-					data.addAll(set);
-				}
-				add(data);
+				addDirect(workSet);
 			}else{
-				for(List<QueryGraphComponent> opt : toAdd.get(offset).options){
-					workSet.add(opt);
-					addAll(toAdd, offset + 1, workSet, size + opt.size());
-					workSet.remove(workSet.size() - 1);
+				for(BitSet opt : toAdd.get(offset).options){
+					BitSet data = new BitSet();
+					data.or(workSet);
+					data.or(opt);
+					addAll(toAdd, offset + 1, data);
 				}
 			}
 		}
@@ -1194,13 +1181,8 @@ public class QueryGraphCPQ{
 		 * @param maps The new mapping to add (only the mapping targets).
 		 * @see #cost
 		 */
-		public void add(List<QueryGraphComponent> maps){
-			for(QueryGraphComponent m : maps){
-				min = Math.min(min, m.getID());
-				max = Math.max(max, m.getID());
-			}
-			
-			int cost = computeCost(maps);
+		private void addDirect(BitSet maps){
+			int cost = maps.cardinality();
 			if(cost <= this.cost){
 				if(cost < this.cost){
 					options.clear();
@@ -1211,34 +1193,39 @@ public class QueryGraphCPQ{
 			}
 		}
 		
-		/**
-		 * Computes the cost of the given candidate mapping. The cost is the number
-		 * of distinct mapping targets when combined with the mappings at the {@link #row}
-		 * for this option set. The final cost is then the total number of distinct targets
-		 * minutes the number of attributes in the row.
-		 * @param maps The mapping to compute the cost of.
-		 * @return The cost of the given mapping.
-		 */
-		private int computeCost(List<QueryGraphComponent> maps){
-			boolean[] used = new boolean[max - min + 1];
-
-			for(QueryGraphComponent c : row.match){
-				used[c.getID() - min] = true;
-			}
-
-			for(QueryGraphComponent map : maps){
-				used[map.getID() - min] = true;
-			}
-			
-			int cost = 0;
-			for(boolean val : used){
-				if(val){
-					cost++;
-				}
-			}
-			
-			return cost - row.match.length;
+		private void add(BitSet maps){
+			maps.or(base);
+			addDirect(maps);
 		}
+		
+//		/**
+//		 * Computes the cost of the given candidate mapping. The cost is the number
+//		 * of distinct mapping targets when combined with the mappings at the {@link #row}
+//		 * for this option set. The final cost is then the total number of distinct targets
+//		 * minutes the number of attributes in the row.
+//		 * @param maps The mapping to compute the cost of.
+//		 * @return The cost of the given mapping.
+//		 */
+//		private int computeCost(BitSet maps){
+//			boolean[] used = new boolean[max - min + 1];
+//
+//			for(QueryGraphComponent c : row.match){
+//				used[c.getID() - min] = true;
+//			}
+//
+//			for(QueryGraphComponent map : maps){
+//				used[map.getID() - min] = true;
+//			}
+//			
+//			int cost = 0;
+//			for(boolean val : used){
+//				if(val){
+//					cost++;
+//				}
+//			}
+//			
+//			return cost - row.match.length;
+//		}
 		
 		@Override
 		public String toString(){
@@ -1277,7 +1264,7 @@ public class QueryGraphCPQ{
 		 * @see #computeBestUsage(int)
 		 * @see #cost
 		 */
-		private boolean[] best;
+		private BitSet best;
 		/**
 		 * The cost of the smallest complete mapping for this row. This value is computed
 		 * by {@link #computeBestUsage(int)} and is {@link Integer#MAX_VALUE} before that.
@@ -1304,7 +1291,12 @@ public class QueryGraphCPQ{
 		 *        count of vertices and edges.
 		 */
 		private void computeBestUsage(int size){
-			computeBestUsage(0, new ArrayList<List<QueryGraphComponent>>(other.size()), size);
+			BitSet base = new BitSet(size);
+			for(QueryGraphComponent c : match){
+				base.set(c.id);
+			}
+			
+			computeBestUsage(0, base, size);
 		}
 		
 		/**
@@ -1318,14 +1310,15 @@ public class QueryGraphCPQ{
 		 * @param size The size of the entire original query graph as the combined
 		 *        count of vertices and edges.
 		 */
-		private void computeBestUsage(int offset, List<List<QueryGraphComponent>> workSet, int size){
+		private void computeBestUsage(int offset, BitSet workSet, int size){
 			if(offset >= other.size()){
-				updateBest(workSet, size);
+				updateBest(workSet);
 			}else{
-				for(List<QueryGraphComponent> opt : other.get(offset).options){
-					workSet.add(opt);
-					computeBestUsage(offset + 1, workSet, size);
-					workSet.remove(workSet.size() - 1);
+				for(BitSet opt : other.get(offset).options){
+					BitSet data = new BitSet(size);
+					data.or(workSet);
+					data.or(opt);
+					computeBestUsage(offset + 1, data, size);
 				}
 			}
 		}
@@ -1338,43 +1331,31 @@ public class QueryGraphCPQ{
 		 * @param size The size of the entire original query graph as the combined
 		 *        count of vertices and edges.
 		 */
-		private void updateBest(List<List<QueryGraphComponent>> workSet, int size){
-			boolean[] used = new boolean[size];
-			
-			for(QueryGraphComponent c : match){
-				used[c.getID()] = true;
-			}
-			
-			for(List<QueryGraphComponent> opt : workSet){
-				for(QueryGraphComponent m : opt){
-					used[m.getID()] = true;
-				}
-			}
-			
-			int cost = computeCost(used);
+		private void updateBest(BitSet used){
+			int cost = used.cardinality();
 			if(cost < this.cost){
 				best = used;
 				this.cost = cost;
 			}
 		}
 		
-		/**
-		 * Computes the cost of a mapping given an array containing a booleans
-		 * values indicating which components to use. The indices of the array
-		 * correspond to values for {@link QueryGraphComponent#getID()}. This
-		 * method essentially counts the number of true values.
-		 * @param use The mapping usage array.
-		 * @return The cost of the given mapping.
-		 */
-		private int computeCost(boolean[] use){
-			int cost = 0;
-			for(boolean val : use){
-				if(val){
-					cost++;
-				}
-			}
-			return cost;
-		}
+//		/**
+//		 * Computes the cost of a mapping given an array containing a booleans
+//		 * values indicating which components to use. The indices of the array
+//		 * correspond to values for {@link QueryGraphComponent#getID()}. This
+//		 * method essentially counts the number of true values.
+//		 * @param use The mapping usage array.
+//		 * @return The cost of the given mapping.
+//		 */
+//		private int computeCost(boolean[] use){
+//			int cost = 0;
+//			for(boolean val : use){
+//				if(val){
+//					cost++;
+//				}
+//			}
+//			return cost;
+//		}
 
 		/**
 		 * Gets the match component at the given index.

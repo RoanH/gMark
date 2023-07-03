@@ -274,7 +274,7 @@ public class Util{
 	 * Computes the tree decomposition of the given input graph
 	 * assuming that the input graph has the following properties:
 	 * <ol>
-	 * <li>The input graph has  a tree width of at most 2.</li>
+	 * <li>The input graph has a tree width of at most 2.</li>
 	 * <li>The input graph is connected.</li>
 	 * <li>The input graph contains no self loops.</li>
 	 * <li>The input graph contains no parallel edges.</li>

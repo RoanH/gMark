@@ -158,11 +158,8 @@ public class QueryGraphCPQ{
 	 */
 	protected QueryGraphCPQ union(QueryGraphCPQ other){
 		vertices.addAll(other.vertices);
+		edges.addAll(other.edges);
 		fid.addAll(other.fid);
-		for(Edge e : other.edges){
-			edges.add(e);
-		}
-		
 		return this;
 	}
 	

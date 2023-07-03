@@ -190,7 +190,7 @@ public class Util{
 				out.print("(" + args[0] + ", " + args[1] + ", " + args[2] + ")");
 			}
 			out.println(";");
-		}catch(Exception e){
+		}catch(Throwable e){
 			throw new IOException(e);
 		}
 	}

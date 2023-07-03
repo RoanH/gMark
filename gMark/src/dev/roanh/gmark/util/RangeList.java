@@ -19,6 +19,7 @@
 package dev.roanh.gmark.util;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -143,7 +144,11 @@ public class RangeList<T> implements Iterable<T>{
 
 			@Override
 			public T next(){
-				return data[index++];
+				if(hasNext()){
+					return data[index++];
+				}else{
+					throw new NoSuchElementException();
+				}
 			}
 		};
 	}

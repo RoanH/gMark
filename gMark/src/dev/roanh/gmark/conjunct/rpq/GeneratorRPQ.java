@@ -33,7 +33,7 @@ public class GeneratorRPQ implements ConjunctGenerator{
 	/**
 	 * The workload specifying what RPQs to generate.
 	 */
-	@SuppressWarnings("unused")//TODO remove
+	@SuppressWarnings("unused")//TODO remove -- also in exclude
 	private WorkloadRPQ workload;
 	
 	/**

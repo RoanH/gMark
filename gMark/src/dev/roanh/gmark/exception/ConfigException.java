@@ -34,7 +34,7 @@ public class ConfigException extends Exception{
 	 * with the given root cause exception.
 	 * @param cause The original exception.
 	 */
-	public ConfigException(Exception cause){
+	public ConfigException(Throwable cause){
 		super(cause.getMessage(), cause);
 	}
 	

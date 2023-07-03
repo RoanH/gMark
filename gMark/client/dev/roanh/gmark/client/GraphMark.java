@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import dev.roanh.gmark.Main;
 import dev.roanh.util.ClickableLink;
@@ -82,6 +83,6 @@ public class GraphMark{
 		frame.setSize(1000, 800);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
+		SwingUtilities.invokeLater(()->frame.setVisible(true));
 	}
 }

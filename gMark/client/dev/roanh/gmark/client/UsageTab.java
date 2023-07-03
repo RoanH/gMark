@@ -20,9 +20,11 @@ package dev.roanh.gmark.client;
 
 import java.awt.BorderLayout;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -65,7 +67,11 @@ public class UsageTab extends JPanel{
 		//example gmark config
 		JPanel config = new JPanel(new BorderLayout());
 		JTextArea xml = new JTextArea();
-		xml.setText(new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("example.xml"))).lines().collect(Collectors.joining("\n")));
+		try(BufferedReader example = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("example.xml"), StandardCharsets.UTF_8))){
+			xml.setText(example.lines().collect(Collectors.joining("\n")));
+		}catch(IOException ignore){
+			xml.setText("Failed to load example.");
+		}
 		xml.setEditable(false);
 		config.add(new JScrollPane(xml), BorderLayout.CENTER);
 		

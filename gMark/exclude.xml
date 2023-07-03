@@ -8,7 +8,50 @@
       <Bug pattern="EI_EXPOSE_REP2"/>
       <Bug pattern="MS_CANNOT_BE_FINAL"/>
       <Bug pattern="MS_EXPOSE_REP"/>
+      <Bug pattern="MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
     </Or>
+  </Match>
+  
+  <Match>
+    <!-- The merge step is always required -->
+    <Or>
+      <Class name="dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ"/>
+      <Class name="dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ$Vertex"/>
+    </Or>
+    <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+   <Or>
+      <Field name="labelSet"/>
+      <Field name="in"/>
+      <Field name="out"/>
+   </Or>
+  </Match>
+  
+  <Match>
+    <!-- Contract isn't violated as IDs are unique -->
+    <Class name="dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ$QueryGraphComponent"/>
+    <Bug pattern="EQ_COMPARETO_USE_OBJECT_EQUALS"/>
+  </Match>
+  
+  <Match>
+    <!-- Unimplemented -->
+  	<Class name="dev.roanh.gmark.conjunct.rpq.GeneratorRPQ"/>
+  	<Bug pattern="URF_UNREAD_FIELD"/>
+  </Match>
+  
+  <Match>
+    <Class name="dev.roanh.gmark.util.GraphPanel"/>
+    <Bug pattern="SE_BAD_FIELD"/>
+  </Match>
+  
+  <Match>
+    <Class name="dev.roanh.gmark.util.GraphPanel"/>
+    <Method name="paintComponent"/>
+    <Bug pattern="BC_UNCONFIRMED_CAST"/>
+  </Match>
+  
+  <Match>
+    <Class name="dev.roanh.gmark.client.QueryTab"/>
+    <Bug pattern="SE_BAD_FIELD"/>
   </Match>
   
 </FindBugsFilter>

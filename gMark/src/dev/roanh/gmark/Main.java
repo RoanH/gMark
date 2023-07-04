@@ -54,7 +54,7 @@ public class Main{
 	/**
 	 * The current version of gMark.
 	 */
-	public static final String VERSION = "v1.1";//build.gradle
+	public static final String VERSION = "v1.2";//build.gradle
 	/**
 	 * The command line options.
 	 */

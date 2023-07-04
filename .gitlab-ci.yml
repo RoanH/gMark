@@ -1,7 +1,7 @@
 image: eclipse-temurin:17
 
 variables:
-  NAME: "${CI_PROJECT_NAME}-${CI_PIPELINE_ID}-${CI_BUILD_REF_NAME}"
+  NAME: "${CI_PROJECT_NAME}-${CI_PIPELINE_ID}-${CI_COMMIT_REF_NAME}"
   PROJECTNAME: gMark
 
 before_script:

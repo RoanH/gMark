@@ -19,6 +19,18 @@ abstract: "gMark is a domain- and query language-independent graph instance and 
 license: GPL-3.0-or-later
 year-original: 2021
 references:
+  - title: "Indexing Conjunctive Path Queries for Accelerated Query Evaluation"
+    authors:
+    - given-names: Roan
+      family-names: Hofland
+      affiliation: "Osaka University and Eindhoven University of Technology"
+      email: roan@roanh.dev
+    type: thesis
+    url: 'https://research.roanh.dev/Indexing%20Conjunctive%20Path%20Queries%20for%20Accelerated%20Query%20Evaluation.pdf'
+    date-published: 2023-08-02
+    department: "Graduate School of Information Science and Technology and Department of Mathematics and Computer Science"
+    institution:
+      name: "Osaka University and Eindhoven University of Technology"
   - title: "Conjunctive Path Query Generation for Benchmarking"
     authors:
     - given-names: Roan

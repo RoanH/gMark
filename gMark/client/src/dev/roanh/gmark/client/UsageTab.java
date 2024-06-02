@@ -36,7 +36,7 @@ import javax.swing.JTextArea;
 
 import org.apache.commons.cli.HelpFormatter;
 
-import dev.roanh.gmark.Main;
+import dev.roanh.gmark.cli.Main;
 
 /**
  * Tab showing command line usage and an example configuration.

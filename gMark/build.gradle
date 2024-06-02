@@ -58,13 +58,6 @@ sourceSets{
 	}
 }
 
-dependencies{
-	clientImplementation 'dev.roanh.util:util:2.2'
-	implementation 'commons-cli:commons-cli:1.5.0'
-	testImplementation(platform('org.junit:junit-bom:5.8.1'))
-	testImplementation('org.junit.jupiter:junit-jupiter')
-}
-
 group = 'dev.roanh.gmark'
 ext.artifact = 'gmark'
 
@@ -77,6 +70,17 @@ subprojects{
 project(':cli'){
 	sourceSets{
 		main.java.srcDirs = ['src']
+	}
+	
+	dependencies{
+		//gMark
+		implementation project(":")
+		
+		//Util
+		implementation 'dev.roanh.util:util:2.2'
+		
+		//Commons CLI
+		implementation 'commons-cli:commons-cli:1.5.0'
 	}
 
 	eclipse.project.name = 'gMark-CLI'
@@ -96,6 +100,11 @@ project(':client'){
 			java.srcDirs = ['src']
 			resources.srcDirs = ['resources']
 		}
+	}
+	
+	dependencies{
+		//gMark
+		implementation project(":cli")
 	}
 
 	eclipse.project.name = 'gMark-Client'

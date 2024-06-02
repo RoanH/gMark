@@ -28,7 +28,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import dev.roanh.gmark.Main;
+import dev.roanh.gmark.cli.Main;
 import dev.roanh.util.ClickableLink;
 import dev.roanh.util.Dialog;
 import dev.roanh.util.Util;

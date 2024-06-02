@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark;
+package dev.roanh.gmark.cli;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,6 +34,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import dev.roanh.gmark.ConfigParser;
+import dev.roanh.gmark.OutputWriter;
 import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.WorkloadType;

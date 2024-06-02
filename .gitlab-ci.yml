@@ -1,14 +1,14 @@
 image: eclipse-temurin:17
 
 variables:
-  NAME: "${CI_PROJECT_NAME}-${CI_PIPELINE_ID}-${CI_COMMIT_REF_NAME}"
+  SUFFIX: "${CI_PIPELINE_ID}-${CI_COMMIT_REF_NAME}"
   PROJECTNAME: gMark
 
 before_script:
   - java -version
-  - chmod -R 755 ./*
   - cd ${PROJECTNAME}
   - ls -l
+  - chmod -R 755 ./*
 
 stages:
   - check
@@ -17,23 +17,31 @@ stages:
   - status
   - javadoc
   - publishing
-  
+
 endings:
   allow_failure: true
   script: curl ${SERVER}ci/lf.sh | bash
   stage: check
 
+sonar:
+  script:
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} :sonar
+  allow_failure: true
+  stage: check
+  only:
+    - master
+
 spotbugs:
   allow_failure: true
   script:
-    - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} :spotbugsClient
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} :spotbugsAll
   stage: check
   artifacts:
-    name: "SpotBugs Report"
+    name: "SpotBugs-${SUFFIX}"
     expire_in: 1 week
     when: always
     paths:
-      - ${PROJECTNAME}/build/reports/spotbugs/main/spotbugs.html
+      - ./${PROJECTNAME}/build/reports/spotbugs/main/spotbugs.html
 
 pending:
   allow_failure: true
@@ -60,48 +68,54 @@ verify:
 
 javadoc:
   script:
-    - mkdir ../javadoc
-    - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} :javadoc
-    - mv ./build/docs/javadoc/* ../javadoc/
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} :javadocAll
+    - mv ./build/javadoc ../
   stage: javadoc
   artifacts:
-    name: "${NAME} [Javadoc]"
+    name: "Javadoc-${SUFFIX}"
     expire_in: 1 week
     paths:
       - javadoc/
 
-docker:
-  image: docker:latest
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
-  tags:
-    - docker
-  services:
-    - docker:dind
-  before_script: []
+cli:
   script:
-    - docker info
-    - docker build -t gmark .
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} cli:shadowJar
+    - mv ./cli/build/libs/*.jar ../gMark.jar
   stage: compile
+  artifacts:
+    name: gMark-CLI-${SUFFIX}
+    expire_in: 1 week
+    paths:
+      - gMark.jar
+
+client:
+  script:
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} client:shadowJar
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} client:createExe
+    - mv ./client/build/libs/* ..
+    - mv ./client/build/launch4j/*.exe ..
+  stage: compile
+  artifacts:
+    name: gMark-Client-${SUFFIX}
+    expire_in: 1 week
+    paths:
+      - gMark-*.jar
+      - gMark-*.exe
 
 compile:
   script:
-    - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} clientJar
-    - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} createExe
-    - mv ./build/libs/* ../
-    - mv ./build/launch4j/*.exe ../
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} :jar
+    - mv ./build/libs/*.jar ../gMark.jar
   stage: compile
   artifacts:
-    name: "${NAME}"
+    name: gMark-${SUFFIX}
     expire_in: 1 week
     paths:
-      - ${PROJECTNAME}-*.jar
-      - ${PROJECTNAME}-*.exe
+      - gMark.jar
 
 test:
   script:
-    - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} :test :jacocoTestReport
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} :test :jacocoTestReport
     - cat ./build/reports/jacoco/test/html/index.html
   stage: test
   coverage: '/Total.*?([0-9]{1,3})%/'
@@ -109,35 +123,10 @@ test:
     reports:
       junit: ./${PROJECTNAME}/build/test-results/test/TEST-*.xml
 
-maven:
-  script:
-    - ./gradlew publishAllPublicationsToMavenRepository
-  only: 
+publish:
+  script: ./gradlew -PrefName=${CI_COMMIT_REF_NAME} publishAllPublicationsToMavenRepository
+  only:
     - tags
   when: manual
   allow_failure: false
   stage: publishing
-
-hub:
-  image: docker:latest
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
-  tags:
-    - docker
-  services:
-    - docker:dind
-  before_script: []
-  needs: ["maven"]
-  script:
-    - docker info
-    - docker build -t gmark .
-    - docker tag gmark roanh/gmark:${CI_COMMIT_REF_NAME:1}
-    - docker tag gmark roanh/gmark:latest
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
-    - docker push roanh/gmark:${CI_COMMIT_REF_NAME:1}
-    - docker push roanh/gmark:latest
-  stage: publishing
-  allow_failure: false
-  only:
-    - tags

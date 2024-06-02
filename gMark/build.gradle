@@ -1,133 +1,61 @@
 plugins{
-	id 'java'
 	id 'java-library'
-	id 'application'
-	id 'eclipse'
-	id 'com.github.johnrengelman.shadow' version '7.1.2'
-	id 'jacoco'
 	id 'maven-publish'
 	id 'signing'
-	id 'edu.sc.seis.launch4j' version '2.5.1'
 	id 'com.github.spotbugs' version '5.0.14'
+	id 'org.sonarqube' version '4.4.1.3373'
+	id 'com.github.johnrengelman.shadow' version '7.1.2' apply false
+	id 'edu.sc.seis.launch4j' version '2.5.1' apply false
 }
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+allprojects{
+	apply plugin: 'eclipse'
+	apply plugin: 'com.github.spotbugs'
 
-group = 'dev.roanh.gmark'
-version = '1.2'//Main.java
+	version = findProperty("refName") ?: 'SNAPSHOT'
+	if(version.matches("v\\d+\\.\\d+")){
+		version = version.substring(1)
+	}
+
+	eclipse.classpath.downloadSources = true
+	eclipse.classpath.downloadJavadoc = true
+	compileJava.options.encoding = 'UTF-8'
+	sourceCompatibility = 1.17
+	javadoc.options.memberLevel = JavadocMemberLevel.PRIVATE
+
+	repositories{
+		//Local cache
+		if(project.hasProperty("nexusPublic")){
+			maven{
+				allowInsecureProtocol = true
+				url "$nexusPublic"
+			}
+		}
+		mavenCentral()
+	}
+
+	dependencies{
+		testImplementation(platform('org.junit:junit-bom:5.10.0'))
+		testImplementation('org.junit.jupiter:junit-jupiter')
+	}
+
+	test{
+		useJUnitPlatform()
+		dependsOn 'cleanTest'
+
+		testLogging{
+			events "passed", "skipped", "failed"
+		}
+	}
+}
 
 sourceSets{
-	main{
-		java{
-			srcDirs 'src'
-		}
-		resources{
-			srcDirs 'src'
-			exclude '**/*.java'
-		}
-	}
-	client{
-		java{
-			srcDirs = ['src', 'client']
-		}
-		resources{
-			srcDirs = ['src', 'client']
-		}
-	}
+	main.java.srcDirs = ['src']
+
 	test{
-		java{
-			srcDir 'test'
-		}
-		resources{
-			srcDir 'test'
-		}
+		java.srcDirs = ['test']
+		resources.srcDirs = ['test']
 	}
-}
-
-spotbugs{
-	showProgress = true
-	effort = 'max'
-	reportLevel = 'low'
-	excludeFilter = file("exclude.xml")
-}
-
-spotbugsMain{
-	reports{
-		html{
-			required = true
-			outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
-			stylesheet = 'fancy-hist.xsl'
-		}
-	}
-}
-
-spotbugsClient{
-	reports{
-		html{
-			required = true
-			outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
-			stylesheet = 'fancy-hist.xsl'
-		}
-	}
-}
-
-java{
-	withSourcesJar()
-	withJavadocJar()
-}
-
-test{
-	useJUnitPlatform()
-	dependsOn 'cleanTest'
-	
-	testLogging{
-		events "passed", "skipped", "failed"
-	}
-}
-
-task clientJar(type: ShadowJar, group: "build"){
-	from sourceSets.client.output
-	configurations = [project.configurations.clientImplementation]
-	archiveName = 'gMark-v' + project.version + '.jar'
-	manifest{
-		attributes 'Main-Class': 'dev.roanh.gmark.client.GraphMark'
-	}
-}
-
-task cliJar(type: ShadowJar, group: "build"){
-	from sourceSets.main.output
-	configurations = [project.configurations.implementation]
-	archiveName = 'gMark-cli.jar'
-	manifest{
-		attributes 'Main-Class': 'dev.roanh.gmark.Main'
-	}
-}
-
-//work around for: https://github.com/johnrengelman/shadow/issues/651
-components.java.withVariantsFromConfiguration(project.configurations.shadowRuntimeElements){
-	skip()
-}
-
-javadoc{
-	options.memberLevel = JavadocMemberLevel.PRIVATE
-	options.encoding = 'UTF-8'
-}
-
-eclipse.classpath.downloadJavadoc = true
-compileJava.options.encoding = 'UTF-8'
-compileClientJava.options.encoding = 'UTF-8'
-sourceCompatibility = 1.17
-shadowJar.archiveName = 'gMark-v' + project.version + '.jar'
-
-repositories{
-	//Local cache
-	if(project.hasProperty("nexusPublic")){
-		maven{
-			allowInsecureProtocol = true
-			url "$nexusPublic"
-		}
-	}
-	mavenCentral();
 }
 
 dependencies{
@@ -137,28 +65,80 @@ dependencies{
 	testImplementation('org.junit.jupiter:junit-jupiter')
 }
 
-configurations.clientImplementation.extendsFrom(configurations.implementation)
-configurations.implementation.setCanBeResolved(true)
-configurations.clientImplementation.setCanBeResolved(true)
+group = 'dev.roanh.gmark'
+ext.artifact = 'gmark'
 
-application{
-	mainClassName = 'dev.roanh.gmark.Main'
+subprojects{
+	apply plugin: 'java'
+	apply plugin: 'application'
+	apply plugin: 'com.github.johnrengelman.shadow'
+}
+
+project(':cli'){
+	sourceSets{
+		main.java.srcDirs = ['src']
+	}
+
+	eclipse.project.name = 'gMark-CLI'
+	shadowJar.archiveName = 'gMark-v' + version + '.jar'
+	application.mainClassName = 'dev.roanh.gmark.Main'
+
+	shadowJar{
+		mergeServiceFiles()
+	}
+}
+
+project(':client'){
+	apply plugin: 'edu.sc.seis.launch4j'
+
+	sourceSets{
+		main{
+			java.srcDirs = ['src']
+			resources.srcDirs = ['resources']
+		}
+	}
+
+	eclipse.project.name = 'gMark-Client'
+	shadowJar.archiveName = 'gMark-v' + version + '.jar'
+	application.mainClassName = 'dev.roanh.gmark.client.GraphMark'
+
+	shadowJar{
+		mergeServiceFiles()
+	}
+
+	launch4j{
+		jarTask = project.tasks.shadowJar
+		mainClassName = application.mainClassName
+		jreMinVersion = project.sourceCompatibility
+		bundledJrePath = "%JAVA_HOME%"
+		outfile = 'gMark-v' + project.version + '.exe'
+		fileDescription = "gMark-Client"
+		productName = rootProject.name
+		version = project.version
+		textVersion = project.version
+		copyright = "Roan Hofland"
+	}
+}
+
+java{
+	withSourcesJar()
+	withJavadocJar()
 }
 
 publishing{
 	publications{
 		mavenJava(MavenPublication){
-			artifactId = 'gmark'
 			from components.java
-		
+			artifactId = project.artifact
+
 			pom{
-				name = 'gMark'
+				name = project.eclipse.project.name
 				description = 'A domain- and query language-independent graph instance and query workload generator.'
 				url = 'https://github.com/RoanH/gMark'
 				licenses{
 					license{
 						name = 'GNU General Public License v3.0'
-						url = 'http://www.gnu.org/licenses/gpl-3.0.txt'
+						url = 'https://www.gnu.org/licenses/gpl-3.0.txt'
 					}
 				}
 				developers{
@@ -176,7 +156,7 @@ publishing{
 			}
 		}
 	}
-	
+
 	repositories{
 		maven{
 			url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
@@ -186,14 +166,14 @@ publishing{
 			}
 		}
 	}
-	
-	jar{
-		into("META-INF/maven/$project.group/$project.publishing.publications.mavenJava.artifactId"){
-			from{
-				generatePomFileForMavenJavaPublication
-			}
-			rename ".*", "pom.xml"
+}
+
+jar{
+	into("META-INF/maven/$project.group/$project.artifact"){
+		from{
+			generatePomFileForMavenJavaPublication
 		}
+		rename ".*", "pom.xml"
 	}
 }
 
@@ -202,17 +182,59 @@ signing{
 	sign publishing.publications.mavenJava
 }
 
-launch4j{
-	jarTask = project.tasks.clientJar
-	mainClassName = 'dev.roanh.gmark.client.GraphMark'
-	//icon = "${projectDir}/icon.ico"
-	jreMinVersion = project.sourceCompatibility
-	bundledJrePath = "%JAVA_HOME%"
-	outfile = project.name + '-v' + project.version + '.exe'
-	fileDescription = project.name
-	version = project.version
-	textVersion = project.version
-	copyright = "Roan Hofland"
-	headerType = "console"
-	stayAlive = true
+sonar{
+	properties{
+		property "sonar.projectKey", "roan_gmark_b2f3751b-4cd8-4394-831c-217ae555bac9"
+		property "sonar.projectName", "gMark"
+	}
+}
+
+task spotbugsAll(type: com.github.spotbugs.snom.SpotBugsTask, group: "verification"){
+	description = 'Generates the combined spotbugs report for all sub-projects.'
+
+	sourceDirs = files(allprojects.collect{
+		project->project.sourceSets.main.allSource.srcDirs
+	})
+
+	classDirs = files(allprojects.collect{
+		project->project.sourceSets.main.output
+	})
+
+	auxClassPaths = files(allprojects.collect{
+		project->project.sourceSets.main.compileClasspath
+	})
+}
+
+allprojects{
+	spotbugs{
+		showProgress = true
+		effort = 'max'
+		reportLevel = 'low'
+		excludeFilter = file("$rootDir/exclude.xml")
+	}
+
+	tasks.withType(com.github.spotbugs.snom.SpotBugsTask){
+		reports{
+			html{
+				required = true
+				outputLocation = file("$buildDir/reports/spotbugs/main/spotbugs.html")
+				stylesheet = 'fancy-hist.xsl'
+			}
+		}
+	}
+}
+
+task javadocAll(type: Javadoc, group: "documentation"){
+	description = 'Generates the combined javadoc for all sub-projects.'
+
+	source allprojects.collect{
+		project->project.sourceSets.main.allJava
+	}
+
+	classpath = files(allprojects.collect{
+		project->project.sourceSets.main.compileClasspath
+	})
+
+	options.memberLevel = JavadocMemberLevel.PRIVATE
+	destinationDir = new File(buildDir, 'javadoc')
 }

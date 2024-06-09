@@ -10,6 +10,7 @@ plugins{
 
 allprojects{
 	apply plugin: 'eclipse'
+	apply plugin: 'java'
 	apply plugin: 'com.github.spotbugs'
 
 	version = findProperty("refName") ?: 'SNAPSHOT'
@@ -62,7 +63,6 @@ group = 'dev.roanh.gmark'
 ext.artifact = 'gmark'
 
 subprojects{
-	apply plugin: 'java'
 	apply plugin: 'application'
 	apply plugin: 'com.github.johnrengelman.shadow'
 }
@@ -71,7 +71,7 @@ project(':cli'){
 	sourceSets{
 		main.java.srcDirs = ['src']
 	}
-	
+
 	dependencies{
 		//gMark
 		implementation project(":")
@@ -101,7 +101,7 @@ project(':client'){
 			resources.srcDirs = ['resources']
 		}
 	}
-	
+
 	dependencies{
 		//gMark
 		implementation project(":cli")

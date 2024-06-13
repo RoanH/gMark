@@ -75,6 +75,22 @@ javadoc:
     paths:
       - javadoc/
 
+hub:
+  image: docker:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  tags:
+    - docker
+  services:
+    - docker:dind
+  before_script: []
+  script:
+    - docker info
+    - docker build -t gmark .
+  stage: compile
+
+
 cli:
   script:
     - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} cli:shadowJar
@@ -89,7 +105,7 @@ cli:
 client:
   script:
     - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} client:shadowJar
-    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} clientclient:createExe
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} client:createExe
     - mv ./client/build/libs/* ..
     - mv ./client/build/launch4j/*.exe ..
   stage: compile
@@ -128,6 +144,7 @@ publish:
   stage: publishing
   only:
     - tags
+
 hub:
   image: docker:latest
   variables:

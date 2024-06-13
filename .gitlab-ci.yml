@@ -24,17 +24,15 @@ endings:
   stage: check
 
 sonar:
-  script:
-    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} :sonar
   allow_failure: true
+  script: ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} :sonar
   stage: check
   only:
     - master
 
 spotbugs:
   allow_failure: true
-  script:
-    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} :spotbugsAll
+  script: ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} :spotbugsAll
   stage: check
   artifacts:
     name: "SpotBugs-${SUFFIX}"
@@ -68,7 +66,7 @@ verify:
 
 javadoc:
   script:
-    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} :javadocAll
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} javadocAll
     - mv ./build/javadoc ../
   stage: javadoc
   artifacts:
@@ -83,7 +81,7 @@ cli:
     - mv ./cli/build/libs/*.jar ../gMark.jar
   stage: compile
   artifacts:
-    name: gMark-CLI-${SUFFIX}
+    name: "gMark-CLI-${SUFFIX}"
     expire_in: 1 week
     paths:
       - gMark.jar
@@ -91,12 +89,12 @@ cli:
 client:
   script:
     - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} client:shadowJar
-    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} client:createExe
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} clientclient:createExe
     - mv ./client/build/libs/* ..
     - mv ./client/build/launch4j/*.exe ..
   stage: compile
   artifacts:
-    name: gMark-Client-${SUFFIX}
+    name: "gMark-Client-${SUFFIX}"
     expire_in: 1 week
     paths:
       - gMark-*.jar
@@ -108,7 +106,7 @@ compile:
     - mv ./build/libs/*.jar ../gMark.jar
   stage: compile
   artifacts:
-    name: gMark-${SUFFIX}
+    name: "gMark-${SUFFIX}"
     expire_in: 1 week
     paths:
       - gMark.jar
@@ -124,9 +122,33 @@ test:
       junit: ./${PROJECTNAME}/build/test-results/test/TEST-*.xml
 
 publish:
+  allow_failure: false
   script: ./gradlew -PrefName=${CI_COMMIT_REF_NAME} publishAllPublicationsToMavenRepository
+  when: manual
+  stage: publishing
   only:
     - tags
-  when: manual
+hub:
+  image: docker:latest
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+  tags:
+    - docker
+  services:
+    - docker:dind
   allow_failure: false
+  before_script: []
+  script:
+    - docker info
+    - docker build -t gmark .
+    - docker tag gmark roanh/gmark:${CI_COMMIT_REF_NAME:1}
+    - docker tag gmark roanh/gmark:latest
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    - docker push roanh/gmark:${CI_COMMIT_REF_NAME:1}
+    - docker push roanh/gmark:latest
   stage: publishing
+  needs: ["publish"]
+  only:
+    - tags
+

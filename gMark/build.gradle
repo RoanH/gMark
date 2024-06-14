@@ -104,6 +104,7 @@ project(':client'){
 
 	dependencies{
 		//gMark
+		implementation project(":")
 		implementation project(":cli")
 	}
 

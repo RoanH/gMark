@@ -12,6 +12,7 @@ allprojects{
 	apply plugin: 'eclipse'
 	apply plugin: 'java'
 	apply plugin: 'com.github.spotbugs'
+	apply plugin: 'jacoco'
 
 	version = findProperty("refName") ?: 'SNAPSHOT'
 	if(version.matches("v\\d+\\.\\d+")){

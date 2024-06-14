@@ -1,7 +1,7 @@
 image: eclipse-temurin:17
 
 variables:
-  SUFFIX: "${CI_PIPELINE_ID}-${CI_COMMIT_REF_NAME}"
+  SUFFIX: ${CI_PIPELINE_ID}-${CI_COMMIT_REF_NAME}
   PROJECTNAME: gMark
 
 before_script:
@@ -25,17 +25,17 @@ endings:
 
 sonar:
   allow_failure: true
-  script: ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} :sonar
+  script: ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} sonar
   stage: check
   only:
     - master
 
 spotbugs:
   allow_failure: true
-  script: ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} :spotbugsAll
+  script: ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} spotbugsAll
   stage: check
   artifacts:
-    name: "SpotBugs-${SUFFIX}"
+    name: SpotBugs-${SUFFIX}
     expire_in: 1 week
     when: always
     paths:
@@ -70,12 +70,12 @@ javadoc:
     - mv ./build/javadoc ../
   stage: javadoc
   artifacts:
-    name: "Javadoc-${SUFFIX}"
+    name: Javadoc-${SUFFIX}
     expire_in: 1 week
     paths:
       - javadoc/
 
-hub:
+docker:
   image: docker:latest
   variables:
     DOCKER_DRIVER: overlay2
@@ -97,7 +97,7 @@ cli:
     - mv ./cli/build/libs/*.jar ../gMark.jar
   stage: compile
   artifacts:
-    name: "gMark-CLI-${SUFFIX}"
+    name: gMark-CLI-${SUFFIX}
     expire_in: 1 week
     paths:
       - gMark.jar
@@ -110,7 +110,7 @@ client:
     - mv ./client/build/launch4j/*.exe ..
   stage: compile
   artifacts:
-    name: "gMark-Client-${SUFFIX}"
+    name: gMark-Client-${SUFFIX}
     expire_in: 1 week
     paths:
       - gMark-*.jar
@@ -122,7 +122,7 @@ compile:
     - mv ./build/libs/*.jar ../gMark.jar
   stage: compile
   artifacts:
-    name: "gMark-${SUFFIX}"
+    name: gMark-${SUFFIX}
     expire_in: 1 week
     paths:
       - gMark.jar

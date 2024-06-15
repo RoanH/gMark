@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:1
+ARG ref=SNAPSHOT
+
 FROM eclipse-temurin:17 AS compile
 LABEL maintainer="roan@roanh.dev"
 WORKDIR /gMark
-ARG ref=unknown
 ADD gMark/gradle/wrapper/ /gMark/gradle/wrapper/
 ADD gMark/src/ /gMark/src/
 ADD gMark/build.gradle /gMark/
@@ -15,5 +16,5 @@ RUN ./gradlew -PrefName=$ref cli:shadowJar
 FROM eclipse-temurin:17
 LABEL maintainer="roan@roanh.dev"
 WORKDIR /gMark
-COPY --from=compile /gMark/cli/build/libs/gMark.jar ./gMark.jar
+COPY --from=compile /gMark/cli/build/libs/gMark-v$ref.jar ./gMark.jar
 ENTRYPOINT ["java", "-jar", "gMark.jar"]

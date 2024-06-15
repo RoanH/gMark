@@ -2,16 +2,18 @@
 FROM eclipse-temurin:17 AS compile
 LABEL maintainer="roan@roanh.dev"
 WORKDIR /gMark
+ARG ref=unknown
 ADD gMark/gradle/wrapper/ /gMark/gradle/wrapper/
 ADD gMark/src/ /gMark/src/
 ADD gMark/build.gradle /gMark/
 ADD gMark/gradlew /gMark/
 ADD gMark/settings.gradle /gMark/
+ADD gMark/cli/src/ gMark/cli/src/
 RUN chmod -R 755 ./
-RUN ./gradlew :cliJar
+RUN ./gradlew -PrefName=$ref cli:shadowJar
 
 FROM eclipse-temurin:17
 LABEL maintainer="roan@roanh.dev"
 WORKDIR /gMark
-COPY --from=compile /gMark/build/libs/gMark-cli.jar ./gMark.jar
+COPY --from=compile /gMark/cli/build/libs/gMark.jar ./gMark.jar
 ENTRYPOINT ["java", "-jar", "gMark.jar"]

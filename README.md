@@ -98,7 +98,7 @@ dependencies{
 This repository contain an [Eclipse](https://www.eclipse.org/) & [Gradle](https://gradle.org/) project with [Util](https://github.com/RoanH/Util) and [Apache Commons CLI](https://commons.apache.org/proper/commons-cli/introduction.html) as the only dependencies. Development work can be done using the Eclipse IDE or using any other Gradle compatible IDE. Continuous integration will check that all source files use Unix style line endings (LF) and that all functions and fields have valid documentation. Unit testing is employed to test core functionality, CI will also check for regressions using these tests. A hosted version of the javadoc for gMark can be found at [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/). Compiling the runnable Java archive (JAR) release of gMark using Gradle can be done using the following command in the `gMark` directory:
 
 ```sh
-./gradlew clientJar
+./gradlew client:shadowJar
 ```
 
 After which the generated JAR can be found in the `build/libs` directory. On windows `./gradlew.bat` should be used instead of `./gradlew`.

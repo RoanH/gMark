@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter xmlns="" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
+  <!-- https://spotbugs.readthedocs.io/en/stable/filter.html -->
+
+  <Match>
+    <Or>
+      <Bug pattern="EI_EXPOSE_REP"/>
+      <Bug pattern="EI_EXPOSE_REP2"/>
+      <Bug pattern="EI_EXPOSE_STATIC_REP2"/>
+      <Bug pattern="MS_CANNOT_BE_FINAL"/>
+      <Bug pattern="MS_EXPOSE_REP"/>
+      <Bug pattern="MS_PKGPROTECT"/>
+      <Bug pattern="REC_CATCH_EXCEPTION"/>
+      <Bug pattern="CI_CONFUSED_INHERITANCE"/>
+    </Or>
+  </Match>
+  
+  <Match>
+    <!-- The merge step is always required -->
+    <Or>
+      <Class name="dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ"/>
+      <Class name="dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ$Vertex"/>
+    </Or>
+    <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    <Or>
+      <Field name="labelSet"/>
+      <Field name="in"/>
+      <Field name="out"/>
+   </Or>
+  </Match>
+  
+  <Match>
+    <!-- Contract isn't violated as IDs are unique -->
+    <Class name="dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ$QueryGraphComponent"/>
+    <Bug pattern="EQ_COMPARETO_USE_OBJECT_EQUALS"/>
+  </Match>
+  
+  <Match>
+    <!-- Unimplemented -->
+    <Class name="dev.roanh.gmark.conjunct.rpq.GeneratorRPQ"/>
+    <Bug pattern="URF_UNREAD_FIELD"/>
+  </Match>
+  
+  <Match>
+    <Class name="dev.roanh.gmark.util.GraphPanel"/>
+    <Bug pattern="SE_BAD_FIELD"/>
+  </Match>
+  
+  <Match>
+    <Class name="dev.roanh.gmark.util.GraphPanel"/>
+    <Method name="paintComponent"/>
+    <Bug pattern="BC_UNCONFIRMED_CAST"/>
+  </Match>
+  
+  <Match>
+    <Class name="dev.roanh.gmark.client.QueryTab"/>
+    <Bug pattern="SE_BAD_FIELD"/>
+  </Match>
+  
+  <Match>
+    <Or>
+      <Class name="dev.roanh.gmark.client.QueryTab"/>
+      <Class name="dev.roanh.gmark.util.EdgeGraph"/>
+      <Class name="dev.roanh.gmark.util.GraphPanel"/>
+    </Or>
+    <Bug pattern="MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
+  </Match>
+  
+</FindBugsFilter>

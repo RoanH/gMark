@@ -1,6 +1,26 @@
+/*
+ * gMark: A domain- and query language-independent graph instance and query workload generator.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev).  All rights reserved.
+ * GitHub Repository: https://github.com/RoanH/gMark
+ *
+ * gMark is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * gMark is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dev.roanh.gmark.util;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -49,7 +69,7 @@ public class RangeList<T> implements Iterable<T>{
 	 * @see IDable
 	 */
 	public T get(IDable index){
-		return get(index.getID());
+		return data[index.getID()];
 	}
 
 	/**
@@ -93,6 +113,21 @@ public class RangeList<T> implements Iterable<T>{
 	public int size(){
 		return data.length;
 	}
+	
+	/**
+	 * Similar to {@link #forEach(Consumer)} this method
+	 * will iterate over all elements in this list and
+	 * pass them to the given consumer. However, null
+	 * elements will be skipped instead of forwarded.
+	 * @param fun The consumer to pass elements to.
+	 */
+	public void forEachNonNull(Consumer<T> fun){
+		for(T val : data){
+			if(val != null){
+				fun.accept(val);
+			}
+		}
+	}
 
 	@Override
 	public Iterator<T> iterator(){
@@ -109,7 +144,11 @@ public class RangeList<T> implements Iterable<T>{
 
 			@Override
 			public T next(){
-				return data[index++];
+				if(hasNext()){
+					return data[index++];
+				}else{
+					throw new NoSuchElementException();
+				}
 			}
 		};
 	}

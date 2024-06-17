@@ -1,0 +1,94 @@
+cff-version: 1.2.0
+title: gMark
+version: 1.2
+date-released: 2023-07-05
+message: "If you use this software, please cite it using the metadata from this file."
+type: software
+authors:
+  - given-names: Roan
+    family-names: Hofland
+    email: roan@roanh.dev
+contact:
+  - given-names: Roan
+    family-names: Hofland
+    email: roan@roanh.dev
+    website: 'https://roanh.dev'
+repository-code: 'https://github.com/RoanH/gMark'
+repository-artifact: 'https://mvnrepository.com/artifact/dev.roanh.gmark/gmark'
+abstract: "gMark is a domain- and query language-independent graph instance and query workload generator"
+license: GPL-3.0-or-later
+year-original: 2021
+references:
+  - title: "Indexing Conjunctive Path Queries for Accelerated Query Evaluation"
+    authors:
+    - given-names: Roan
+      family-names: Hofland
+      affiliation: "Osaka University and Eindhoven University of Technology"
+      email: roan@roanh.dev
+    type: thesis
+    url: 'https://research.roanh.dev/Indexing%20Conjunctive%20Path%20Queries%20for%20Accelerated%20Query%20Evaluation.pdf'
+    date-published: 2023-08-02
+    department: "Graduate School of Information Science and Technology and Department of Mathematics and Computer Science"
+    institution:
+      name: "Osaka University and Eindhoven University of Technology"
+  - title: "Conjunctive Path Query Generation for Benchmarking"
+    authors:
+    - given-names: Roan
+      family-names: Hofland
+      affiliation: "Eindhoven University of Technology"
+      email: r.w.p.hofland@student.tue.nl
+    type: report
+    url: 'https://research.roanh.dev/Conjunctive%20Path%20Query%20Generation%20for%20Benchmarking%20v2.8.pdf'
+    date-published: 2022-03-21
+    department: "Department of Mathematics and Computer Science"
+    institution:
+      name: "Eindhoven University of Technology"
+  - title: "CPQ Keys: a survey of graph canonization algorithms"
+    authors:
+    - given-names: Roan
+      family-names: Hofland
+      affiliation: "Eindhoven University of Technology"
+      email: r.w.p.hofland@student.tue.nl
+    type: report
+    url: 'https://research.roanh.dev/cpqkeys/CPQ%20Keys%20v1.1.pdf'
+    date-published: 2022-07-17
+    department: "Department of Mathematics and Computer Science"
+    institution:
+      name: "Eindhoven University of Technology"
+  - title: "Language-aware Indexing for Conjunctive Path Queries"
+    authors:
+    - family-names: Sasaki
+      given-names: Yuya
+      affiliation: "Osaka University"
+    - family-names: H. L. Fletcher
+      given-names: George
+      affiliation: "Eindhoven University of Technology"
+    - family-names: Onizuka
+      given-names: Makoto
+      affiliation: "Osaka University"
+    type: article
+    url: 'https://arxiv.org/abs/2003.03079'
+    year: 2022
+  - title: "gMark: Schema-Driven Generation of Graphs and Queries"
+    authors:
+    - family-names: Guillaume
+      given-names: Bagan
+      affiliation: "University Lyon 1"
+    - family-names: Bonifati
+      given-names: Angela
+      affiliation: "University Lyon 1"
+    - family-names: Ciucanu
+      given-names: Radu
+      affiliation: "Blaise Pascal University"
+    - family-names: H. L. Fletcher
+      given-names: George
+      affiliation: "Eindhoven University of Technology"
+    - family-names: Lemay
+      given-names: Aurélien
+      affiliation: "University of Lille"
+    - family-names: Advokaat
+      given-names: Nicky
+      affiliation: "Eindhoven University of Technology"
+    type: article
+    url: 'https://arxiv.org/abs/1511.08386'
+    year: 2017

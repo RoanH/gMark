@@ -1,4 +1,6 @@
 /bin/
+/cli/bin
+/client/bin
 
 # Ignore Gradle project-specific cache directory
 .gradle

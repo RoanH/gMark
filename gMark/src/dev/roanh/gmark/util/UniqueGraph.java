@@ -1,3 +1,21 @@
+/*
+ * gMark: A domain- and query language-independent graph instance and query workload generator.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev).  All rights reserved.
+ * GitHub Repository: https://github.com/RoanH/gMark
+ *
+ * gMark is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * gMark is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dev.roanh.gmark.util;
 
 import java.util.ArrayList;
@@ -24,7 +42,7 @@ import java.util.stream.Collectors;
  * @param <V> Type of the data stored at vertices.
  * @param <E> Type of the data stored at edges.
  */
-public class Graph<V, E>{
+public class UniqueGraph<V, E>{
 	/**
 	 * Map for efficient graph node lookup from
 	 * the data stored a specific node. Note that
@@ -40,6 +58,10 @@ public class Graph<V, E>{
 	 * List of all edges in this graph.
 	 */
 	private List<GraphEdge<V, E>> edges = new ArrayList<GraphEdge<V, E>>();
+	/**
+	 * The ID to assign to the next node added to the graph.
+	 */
+	private int nextNodeID = 0;
 	
 	/**
 	 * Removes all nodes from the graph that match the given predicate. The returned
@@ -100,7 +122,7 @@ public class Graph<V, E>{
 		if(existing != null){
 			return existing;
 		}else{
-			GraphNode<V, E> node = new GraphNode<V, E>(this, data);
+			GraphNode<V, E> node = new GraphNode<V, E>(nextNodeID++, this, data);
 			nodeMap.put(data, node);
 			nodes.add(node);
 			return node;
@@ -234,13 +256,46 @@ public class Graph<V, E>{
 	 * @param data The edge label data.
 	 */
 	public void addUniqueEdge(GraphNode<V, E> source, GraphNode<V, E> target, E data){
-		//TODO this duplicate check is fairly expensive as is
-		for(GraphEdge<V, E> edge : source.out){
-			if(edge.target.equals(target) && Objects.equals(edge.data, data)){
-				return;
-			}
+		GraphEdge<V, E> edge = new GraphEdge<V, E>(source, target, data);
+		if(source.out.add(edge) && target.in.add(edge)){
+			edges.add(edge);
 		}
-		edges.add(new GraphEdge<V, E>(source, target, data));
+	}
+	
+	/**
+	 * Computes the adjacency list representation of this graph. For this the
+	 * unique ID of every graph node is used (see {@link GraphNode#getID()}.
+	 * The adjacency list is returned as a 2-dimensional array, the first dimension
+	 * has as many indices as there were nodes added to the graph. Each of these indices
+	 * corresponds to the unique ID of one of the nodes in the graph. Indices for
+	 * nodes no longer in the graph will have a value of <code>null</code>. All other
+	 * indices have an array with the IDs of all the nodes the node has an edge to.
+	 * @return The adjacency list representation of this graph.
+	 */
+	public int[][] toAdjacencyList(){
+		int[][] adj = new int[nextNodeID][];
+		for(GraphNode<V, E> node : getNodes()){
+			adj[node.getID()] = node.getOutEdges().stream().map(GraphEdge::getTargetNode).mapToInt(GraphNode::getID).toArray();
+		}
+		return adj;
+	}
+	
+	/**
+	 * Makes a deep copy of this graph.
+	 * @return The copy of this graph.
+	 */
+	public UniqueGraph<V, E> copy(){
+		UniqueGraph<V, E> copy = new UniqueGraph<V, E>();
+		
+		for(GraphNode<V, E> node : nodes){
+			copy.addUniqueNode(node.getData());
+		}
+		
+		for(GraphEdge<V, E> edge : edges){
+			copy.addUniqueEdge(edge.getSource(), edge.getTarget(), edge.getData());
+		}
+		
+		return copy;
 	}
 	
 	/**
@@ -250,11 +305,16 @@ public class Graph<V, E>{
 	 * @param <V> The type of data stored at the graph nodes.
 	 * @param <E> The type of data stored at the graph edges.
 	 */
-	public static class GraphNode<V, E>{
+	public static class GraphNode<V, E> implements IDable{
+		/**
+		 * The unique ID of this node.
+		 * @see #getID()
+		 */
+		private final int id;
 		/**
 		 * The graph this node is in.
 		 */
-		private Graph<V, E> graph;
+		private UniqueGraph<V, E> graph;
 		/**
 		 * The edges departing from this node.
 		 */
@@ -273,13 +333,56 @@ public class Graph<V, E>{
 		 * Constructs a new graph node for the given graph
 		 * and with the given data that uniquely identifies
 		 * this node in the entire graph.
+		 * @param id The ID of this graph node.
 		 * @param graph The graph this node belongs to.
 		 * @param data The data associated with this
 		 *        node that uniquely identifies it in the graph.
 		 */
-		private GraphNode(Graph<V, E> graph, V data){
+		private GraphNode(int id, UniqueGraph<V, E> graph, V data){
+			this.id = id;
 			this.graph = graph;
 			this.data = data;
+		}
+		
+		/**
+		 * Renames this node to the given replacement node.
+		 * This procedure will remove this node from the graph
+		 * and move all edges originally attached to this node
+		 * to the given replacement node.
+		 * @param replacement The replacement node.
+		 */
+		public void rename(GraphNode<V, E> replacement){
+			for(GraphEdge<V, E> edge : new ArrayList<GraphEdge<V, E>>(out)){
+				edge.source = replacement;
+				replacement.out.add(edge);
+			}
+			
+			for(GraphEdge<V, E> edge : new ArrayList<GraphEdge<V, E>>(in)){
+				edge.target = replacement;
+				replacement.in.add(edge);
+			}
+			
+			graph.nodes.remove(this);
+			graph.nodeMap.remove(data);
+		}
+		
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that the uniqueness of a graph node is still dependent on the
+		 * data stored at this node and that therefore two nodes with the same
+		 * data but different IDs are in fact still equal. However, this ID
+		 * can be useful for other applications where an ordering on
+		 * the graph nodes is required. In addition, if no nodes are
+		 * ever removed from the graph then the ordered IDs of all nodes
+		 * in the graph form an unbroken sequence from 0 to
+		 * {@link UniqueGraph#getNodeCount()} - 1.
+		 * @return The ID of this node.
+		 * @see #getData()
+		 */
+		@Override
+		public int getID(){
+			return id;
 		}
 		
 		/**
@@ -288,8 +391,8 @@ public class Graph<V, E>{
 		 * Note: calling this function while iterating over the
 		 * nodes or edges in the graph will cause a co-modification
 		 * exception. For mass removal of nodes use
-		 * {@link Graph#removeNodeIf(Predicate)} instead.
-		 * @see Graph#removeNodeIf(Predicate)
+		 * {@link UniqueGraph#removeNodeIf(Predicate)} instead.
+		 * @see UniqueGraph#removeNodeIf(Predicate)
 		 */
 		public void remove(){
 			//manual edge removal to prevent co-modification
@@ -466,12 +569,14 @@ public class Graph<V, E>{
 		
 		@Override
 		public boolean equals(Object other){
-			return other instanceof GraphNode ? ((GraphNode<?, ?>)other).data.equals(data) : false;
+			//nodes are uniquely tied to data
+			//so there can never be two distinct equal node objects
+			return super.equals(other);
 		}
 		
 		@Override
 		public int hashCode(){
-			return Objects.hash(data);
+			return super.hashCode();
 		}
 	}
 	
@@ -508,8 +613,6 @@ public class Graph<V, E>{
 			this.source = source;
 			this.target = target;
 			this.data = data;
-			source.out.add(this);
-			target.in.add(this);
 		}
 		
 		/**
@@ -520,6 +623,24 @@ public class Graph<V, E>{
 			source.out.remove(this);
 			target.in.remove(this);
 			source.graph.edges.remove(this);
+		}
+		
+		/**
+		 * If this edge was previously removed from the 
+		 * graph using {@link #remove()} this method can
+		 * be used to add the edge back to the graph. If
+		 * an equivalent edge was added in the mean time
+		 * then the edge is not restored.
+		 * @return True if the edge was restored, false
+		 *         if an equivalent edge was already present.
+		 */
+		public boolean restore(){
+			if(source.out.add(this) && target.in.add(this)){
+				source.graph.edges.add(this);
+				return true;
+			}else{
+				return false;
+			}
 		}
 		
 		/**
@@ -576,7 +697,7 @@ public class Graph<V, E>{
 		public boolean equals(Object other){
 			if(other instanceof GraphEdge){
 				GraphEdge<?, ?> edge = (GraphEdge<?, ?>)other;
-				return edge.source.equals(source) && edge.target.equals(target) && edge.data.equals(data);
+				return edge.source.equals(source) && edge.target.equals(target) && Objects.equals(edge.data, data);
 			}else{
 				return false;
 			}

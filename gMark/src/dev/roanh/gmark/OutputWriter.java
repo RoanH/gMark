@@ -1,10 +1,27 @@
+/*
+ * gMark: A domain- and query language-independent graph instance and query workload generator.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev).  All rights reserved.
+ * GitHub Repository: https://github.com/RoanH/gMark
+ *
+ * gMark is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * gMark is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dev.roanh.gmark;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 import dev.roanh.gmark.output.ConcreteSyntax;
@@ -38,15 +55,6 @@ public class OutputWriter{
 	}
 	
 	/**
-	 * Writes generated graphs to a folder.
-	 * @throws IOException When an IOException occurs.
-	 */
-	public static void writeGeneratedGraphs() throws IOException{
-		//TODO
-		throw new IllegalStateException("Not yet implemented.");
-	}
-	
-	/**
 	 * Writes the given string to the given file.
 	 * @param file The file to write to.
 	 * @param content The string to write to the file.
@@ -57,17 +65,13 @@ public class OutputWriter{
 	 *         overwriting is not enabled.
 	 */
 	private static void write(Path file, String content, boolean overwrite) throws IOException{
-		BufferedWriter writer = null;
-		if(overwrite){
-			writer = Files.newBufferedWriter(file, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
-		}else if(!Files.exists(file)){
-			writer = Files.newBufferedWriter(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-		}else{
+		if(!overwrite && Files.exists(file)){
 			throw new IOException("File already exists and overwriting is disabled.");
 		}
 		
-		writer.append(content);
-		writer.flush();
-		writer.close();
+		try(BufferedWriter writer = Files.newBufferedWriter(file)){
+			writer.append(content);
+			writer.flush();
+		}
 	}
 }

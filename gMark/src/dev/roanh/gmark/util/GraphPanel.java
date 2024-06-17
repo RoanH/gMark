@@ -1,4 +1,22 @@
-package dev.roanh.gmark.client.component;
+/*
+ * gMark: A domain- and query language-independent graph instance and query workload generator.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev).  All rights reserved.
+ * GitHub Repository: https://github.com/RoanH/gMark
+ *
+ * gMark is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * gMark is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package dev.roanh.gmark.util;
 
 import java.awt.Color;
 import java.awt.FontMetrics;
@@ -19,15 +37,18 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import dev.roanh.gmark.util.Graph;
-import dev.roanh.gmark.util.Graph.GraphEdge;
-import dev.roanh.gmark.util.Graph.GraphNode;
+import dev.roanh.gmark.conjunct.cpq.CPQ;
+import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ;
+import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
+import dev.roanh.gmark.util.UniqueGraph.GraphNode;
 
 /**
  * Simple component that visualises the nodes and
- * edges in a {@link Graph}. The user able to move
+ * edges in a {@link UniqueGraph}. The user able to move
  * the graph nodes around by dragging. In addition
  * attached edges will be highlighted when a node is
  * selected. Nodes are initially placed randomly at
@@ -69,16 +90,20 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 * to show to the user.
 	 */
 	private Function<E, String> edgeLabel;
+	/**
+	 * True if the graph should be drawn as a directed graph.
+	 */
+	private boolean directed = true;
 	
 	/**
 	 * Constructs a new graph panel for the given graph.
 	 * Data is converted to string form for display purposes
 	 * using a call to the standard {@link Object#toString()} method.
 	 * @param graph The graph to visualise.
-	 * @see Graph
-	 * @see #GraphPanel(Graph, Function, Function)
+	 * @see UniqueGraph
+	 * @see #GraphPanel(UniqueGraph, Function, Function)
 	 */
-	public GraphPanel(Graph<V, E> graph){
+	public GraphPanel(UniqueGraph<V, E> graph){
 		this(graph, V::toString, E::toString);
 	}
 	
@@ -91,13 +116,39 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 *        graph node data to a string to display to the user.
 	 * @param edgeLabel The function to use to convert
 	 *        graph edge data to a string to display to the user.
-	 * @see Graph
+	 * @see UniqueGraph
 	 */
-	public GraphPanel(Graph<V, E> graph, Function<V, String> nodeLabel, Function<E, String> edgeLabel){
+	public GraphPanel(UniqueGraph<V, E> graph, Function<V, String> nodeLabel, Function<E, String> edgeLabel){
 		this.nodeLabel = nodeLabel;
 		this.edgeLabel = edgeLabel;
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
+		
+		setGraph(graph);
+	}
+	
+	/**
+	 * Sets whether the graph is directed. Although by definition
+	 * the input {@link UniqueGraph} is directed, setting this to
+	 * <code>false</code> will make it so arrow heads are not drawn
+	 * and that a directed edge in both directions between two nodes
+	 * is not drawn as a curved arc.
+	 * @param directed True to draw the directed properties of the
+	 *        graph, false to not draw these features.
+	 */
+	public void setDirected(boolean directed){
+		this.directed = directed;
+	}
+	
+	/**
+	 * Sets the graph to display. This will replace the
+	 * previous graph if any.
+	 * @param graph The new graph to display.
+	 */
+	public void setGraph(UniqueGraph<V, E> graph){
+		nodes.clear();
+		edges.clear();
+		activeNode = null;
 		
 		Map<GraphNode<V, E>, Node> nodeMap = new HashMap<GraphNode<V, E>, Node>();
 		graph.getNodes().forEach(n->{
@@ -183,12 +234,54 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	}
 	
 	/**
+	 * Utility subroutine to show the given graph in a JFrame.
+	 * @param <V> The vertex data type.
+	 * @param <E> The edge data type.
+	 * @param graph The graph to display.
+	 * @param nodeLabel The function to use to determine node labels.
+	 * @param edgeLabel The function to use to determine edge labels.
+	 */
+	public static <V, E> void show(UniqueGraph<V, E> graph, Function<V, String> nodeLabel, Function<E, String> edgeLabel){
+		JFrame frame = new JFrame("GraphPanel v:" + graph.getNodeCount() + " e:" + graph.getEdgeCount());
+		frame.add(new GraphPanel<V, E>(graph, nodeLabel, edgeLabel));
+		frame.setSize(600, 400);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+	}
+	
+	/**
+	 * Utility subroutine to show the given graph in a JFrame.
+	 * @param <V> The vertex data type.
+	 * @param <E> The edge data type.
+	 * @param graph The graph to display.
+	 */
+	public static <V, E> void show(UniqueGraph<V, E> graph){
+		show(graph, Object::toString, Object::toString);
+	}
+	
+	/**
+	 * Utility subroutine to show the query graph of the given CPQ in a JFrame.
+	 * @param q The CPQ to display.
+	 */
+	public static void show(CPQ q){
+		show(q.toQueryGraph());
+	}
+	
+	/**
+	 * Utility subroutine to show the given CPQ query graph in a JFrame.
+	 * @param cpq The CPQ query graph to display.
+	 */
+	public static void show(QueryGraphCPQ cpq){
+		show(cpq.toUniqueGraph(), cpq::getVertexLabel, Predicate::getAlias);
+	}
+	
+	/**
 	 * Object that holds both data on the actual
 	 * graph node and data required to properly
 	 * visualise the node.
 	 * @author Roan
 	 * @see Edge
-	 * @see Graph
+	 * @see UniqueGraph
 	 * @see GraphNode
 	 */
 	private class Node{
@@ -261,12 +354,14 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 			g.setColor(Color.BLACK);
 			g.draw(shape);
 			String str = nodeLabel.apply(data.getData());
-			int sw = g.getFontMetrics().stringWidth(str);
-			g.setColor(Color.WHITE);
-			g.fillRect(-sw / 2 - 1, y - fm.getHeight() + fm.getDescent(), sw + 2, fm.getHeight() + 1);
-			g.setColor(Color.BLACK);
-			g.drawRect(-sw / 2 - 1, y - fm.getHeight() + fm.getDescent(), sw + 2, fm.getHeight() + 1);
-			g.drawString(str, -sw / 2, y);
+			if(str != null && !str.isEmpty()){
+				int sw = g.getFontMetrics().stringWidth(str);
+				g.setColor(Color.WHITE);
+				g.fillRect(-sw / 2 - 1, y - fm.getHeight() + fm.getDescent(), sw + 2, fm.getHeight() + 1);
+				g.setColor(Color.BLACK);
+				g.drawRect(-sw / 2 - 1, y - fm.getHeight() + fm.getDescent(), sw + 2, fm.getHeight() + 1);
+				g.drawString(str, -sw / 2, y);
+			}
 			g.translate(-location.x, -location.y);
 		}
 	}
@@ -277,7 +372,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 * visualise the edge.
 	 * @author Roan
 	 * @see Node
-	 * @see Graph
+	 * @see UniqueGraph
 	 * @see GraphEdge
 	 */
 	private class Edge{
@@ -332,7 +427,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 				}
 			}else{
 				g.setColor((source == activeNode || target == activeNode) ? Color.RED : Color.BLACK);
-				if(twin != null){
+				if(twin != null && directed){
 					if(source.hashCode() > target.hashCode()){
 						AffineTransform transform = g.getTransform();
 						
@@ -390,6 +485,10 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		 *        the arrow head belongs to.
 		 */
 		private void drawArrowHead(Graphics2D g, double x1, double y1, double x2, double y2){
+			if(!directed){
+				return;
+			}
+			
 			//Mathematical details: https://www.desmos.com/calculator/4wofflsoqx
 			double offset = Node.RADIUS;
 			

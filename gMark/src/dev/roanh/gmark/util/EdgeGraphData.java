@@ -1,3 +1,21 @@
+/*
+ * gMark: A domain- and query language-independent graph instance and query workload generator.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev).  All rights reserved.
+ * GitHub Repository: https://github.com/RoanH/gMark
+ *
+ * gMark is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * gMark is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dev.roanh.gmark.util;
 
 import java.util.ArrayDeque;
@@ -8,11 +26,10 @@ import java.util.stream.Collectors;
 import dev.roanh.gmark.conjunct.cpq.CPQ;
 import dev.roanh.gmark.conjunct.cpq.ConcatCPQ;
 import dev.roanh.gmark.conjunct.cpq.EdgeCPQ;
-import dev.roanh.gmark.conjunct.cpq.IntersectionCPQ;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Type;
-import dev.roanh.gmark.util.Graph.GraphEdge;
+import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
 
 /**
  * Class to represent data stored in the edge graph.
@@ -301,7 +318,7 @@ public abstract class EdgeGraphData{
 
 		@Override
 		public CPQ toCPQ(){
-			return new IntersectionCPQ(
+			return CPQ.intersect(
 				first.size() == 1 ? first.getFirst().toCPQ() : new ConcatCPQ(first.stream().map(EdgeGraphData::toCPQ).collect(Collectors.toList())),
 				second.size() == 1 ? second.getFirst().toCPQ() : new ConcatCPQ(second.stream().map(EdgeGraphData::toCPQ).collect(Collectors.toList()))
 			);
@@ -375,6 +392,11 @@ public abstract class EdgeGraphData{
 		public CPQ toCPQ(){
 			//always an empty start or end of a path
 			return CPQ.IDENTITY;
+		}
+
+		@Override
+		public int hashCode(){
+			return Objects.hashCode(name);
 		}
 	}
 	

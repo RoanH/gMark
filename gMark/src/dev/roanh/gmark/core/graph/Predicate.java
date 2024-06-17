@@ -1,9 +1,28 @@
+/*
+ * gMark: A domain- and query language-independent graph instance and query workload generator.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev).  All rights reserved.
+ * GitHub Repository: https://github.com/RoanH/gMark
+ *
+ * gMark is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * gMark is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dev.roanh.gmark.core.graph;
 
 import java.util.Objects;
 
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
+import dev.roanh.gmark.util.IDable;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
@@ -13,7 +32,11 @@ import dev.roanh.gmark.util.IndentWriter;
  * inverse direction from target to source.
  * @author Roan
  */
-public class Predicate implements OutputXML, OutputSQL{
+public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>, IDable{
+	/**
+	 * The character used to denote negated predicates.
+	 */
+	public static final char CHAR_INVERSE = '⁻';
 	/**
 	 * The unique ID of this predicate. This ID uniquely
 	 * identifies this predicate among all predicates.
@@ -41,6 +64,15 @@ public class Predicate implements OutputXML, OutputSQL{
 	 * The inverse predicate object or <code>null</code>.
 	 */
 	private Predicate inverse = null;
+	
+	/**
+	 * Constructs a new predicate with the given ID and alias.
+	 * @param id The ID of this predicate.
+	 * @param alias The alias of this predicate.
+	 */
+	public Predicate(int id, String alias){
+		this(id, alias, null);
+	}
 	
 	/**
 	 * Constructs a new predicate with the given ID
@@ -85,7 +117,7 @@ public class Predicate implements OutputXML, OutputSQL{
 	 * @return The predicate alias.
 	 */
 	public String getAlias(){
-		return isInverse ? (alias + "\u207B") : alias;
+		return isInverse ? (alias + CHAR_INVERSE) : alias;
 	}
 	
 	/**
@@ -101,11 +133,13 @@ public class Predicate implements OutputXML, OutputSQL{
 	}
 	
 	/**
-	 * Gets the unique ID of this predicate. Uniquely identifies
-	 * this predicate among all predicates. Note that the
-	 * inverse predicate has the same ID.
+	 * {@inheritDoc}
+	 * <p>
+	 * Uniquely identifies this predicate among all predicates.
+	 * Note that the inverse predicate has the same ID.
 	 * @return The unique ID of this predicate.
 	 */
+	@Override
 	public int getID(){
 		return id;
 	}
@@ -131,7 +165,7 @@ public class Predicate implements OutputXML, OutputSQL{
 	
 	@Override
 	public String toString(){
-		return "Predicate[symbolID=" + id + ",alias=\"" + alias + "\",proportion=" + proportion + "]";
+		return "Predicate[id=" + id + ",alias=\"" + getAlias() + "\"]";
 	}
 	
 	@Override
@@ -154,5 +188,15 @@ public class Predicate implements OutputXML, OutputSQL{
 		writer.print(isInverse() ? "<symbol inverse=\"true\">" : "<symbol>");
 		writer.print(id);
 		writer.println("</symbol>");
+	}
+
+	@Override
+	public int compareTo(Predicate o){
+		int c = Integer.compare(id, o.id);
+		if(c == 0){
+			c = Boolean.compare(isInverse, o.isInverse);
+		}
+		
+		return c;
 	}
 }

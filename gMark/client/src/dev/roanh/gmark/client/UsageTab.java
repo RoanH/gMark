@@ -1,10 +1,30 @@
+/*
+ * gMark: A domain- and query language-independent graph instance and query workload generator.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev).  All rights reserved.
+ * GitHub Repository: https://github.com/RoanH/gMark
+ *
+ * gMark is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * gMark is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dev.roanh.gmark.client;
 
 import java.awt.BorderLayout;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -16,7 +36,7 @@ import javax.swing.JTextArea;
 
 import org.apache.commons.cli.HelpFormatter;
 
-import dev.roanh.gmark.Main;
+import dev.roanh.gmark.cli.Main;
 
 /**
  * Tab showing command line usage and an example configuration.
@@ -47,7 +67,11 @@ public class UsageTab extends JPanel{
 		//example gmark config
 		JPanel config = new JPanel(new BorderLayout());
 		JTextArea xml = new JTextArea();
-		xml.setText(new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("example.xml"))).lines().collect(Collectors.joining("\n")));
+		try(BufferedReader example = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("example.xml"), StandardCharsets.UTF_8))){
+			xml.setText(example.lines().collect(Collectors.joining("\n")));
+		}catch(IOException ignore){
+			xml.setText("Failed to load example.");
+		}
 		xml.setEditable(false);
 		config.add(new JScrollPane(xml), BorderLayout.CENTER);
 		

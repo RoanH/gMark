@@ -1,4 +1,22 @@
-package dev.roanh.gmark;
+/*
+ * gMark: A domain- and query language-independent graph instance and query workload generator.
+ * Copyright (C) 2021  Roan Hofland (roan@roanh.dev).  All rights reserved.
+ * GitHub Repository: https://github.com/RoanH/gMark
+ *
+ * gMark is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * gMark is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package dev.roanh.gmark.cli;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,6 +34,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import dev.roanh.gmark.ConfigParser;
+import dev.roanh.gmark.OutputWriter;
 import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.WorkloadType;
@@ -36,7 +56,7 @@ public class Main{
 	/**
 	 * The current version of gMark.
 	 */
-	public static final String VERSION = "v1.0";//build.gradle
+	public static final String VERSION = "v1.2";//build.gradle
 	/**
 	 * The command line options.
 	 */

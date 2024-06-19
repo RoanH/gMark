@@ -34,5 +34,9 @@ public abstract interface OutputSQL{
 	 * Converts this object to an SQL query.
 	 * @return An SQL query representing this object.
 	 */
-	public default String toSQLi(){return null;}//TODO keep with name but just call the indent writer
+	public default String toSQL(){
+		IndentWriter writer = new IndentWriter();
+		writeSQL(writer);
+		return writer.toString();
+	}//TODO keep with name but just call the indent writer
 }

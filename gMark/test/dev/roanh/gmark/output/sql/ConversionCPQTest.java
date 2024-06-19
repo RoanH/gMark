@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.sql;
+package dev.roanh.gmark.output.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -33,7 +33,7 @@ import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.exception.ConfigException;
 
-public class ConversionTest{
+public class ConversionCPQTest{
 	private static Configuration config;
 	private static CPQ label0;
 	private static CPQ label1;
@@ -58,33 +58,51 @@ public class ConversionTest{
 	@Test
 	public void concatToSQL(){
 		assertEquals(
-			"(SELECT s0.src AS src, s3.trg AS trg FROM"
-			+ " (SELECT src, trg FROM edge WHERE label = 0) AS s0,"
-			+ " (SELECT src, trg FROM edge WHERE label = 1) AS s1,"
-			+ " (SELECT src, trg FROM edge WHERE label = 1) AS s2,"
-			+ " (SELECT trg AS src, src AS trg FROM edge WHERE label = 1) AS s3"
-			+ " WHERE s0.trg = s1.src AND s1.trg = s2.src AND s2.trg = s3.src)", concat0.toSQL()
+			"""
+			SELECT s0.src AS src, s3.trg AS trg
+			FROM
+			  (SELECT src, trg FROM edge WHERE label = 0) AS s0,
+			  (SELECT src, trg FROM edge WHERE label = 1) AS s1,
+			  (SELECT src, trg FROM edge WHERE label = 1) AS s2,
+			  (SELECT trg AS src, src AS trg FROM edge WHERE label = 1) AS s3
+			WHERE s0.trg = s1.src AND s1.trg = s2.src AND s2.trg = s3.src
+			""".trim(),
+			concat0.toSQL()
 		);
-		assertEquals("(SELECT src, trg FROM edge WHERE label = 1)", concat1.toSQL());
+	}
+	
+	@Test
+	public void monoConcatToSQL(){
+		assertEquals("SELECT src, trg FROM edge WHERE label = 1", concat1.toSQL());
 	}
 	
 	@Test
 	public void predicateToSQL(){
-		Predicate p = config.getPredicates().get(1);
-		
-		assertEquals("(SELECT src, trg FROM edge WHERE label = 1)", p.toSQL());
-		assertEquals("(SELECT trg AS src, src AS trg FROM edge WHERE label = 1)", p.getInverse().toSQL());
+		assertEquals("SELECT src, trg FROM edge WHERE label = 1", config.getPredicates().get(1).toSQL());
 	}
 	
 	@Test
-	public void labelToSQL(){
-		assertEquals("(SELECT src, trg FROM edge WHERE label = 0)", label0.toSQL());
-		assertEquals("(SELECT src, trg FROM edge WHERE label = 1)", label1.toSQL());
-		assertEquals("(SELECT trg AS src, src AS trg FROM edge WHERE label = 1)", label1i.toSQL());
+	public void inversePredicateToSQL(){
+		assertEquals("SELECT trg AS src, src AS trg FROM edge WHERE label = 1", config.getPredicates().get(1).getInverse().toSQL());
+	}
+	
+	@Test
+	public void labelToSQL0(){
+		assertEquals("SELECT src, trg FROM edge WHERE label = 0", label0.toSQL());
+	}
+	
+	@Test
+	public void labelToSQL1(){
+		assertEquals("SELECT src, trg FROM edge WHERE label = 1", label1.toSQL());
+	}
+	
+	@Test
+	public void inverseLabelToSQL(){
+		assertEquals("SELECT trg AS src, src AS trg FROM edge WHERE label = 1", label1i.toSQL());
 	}
 	
 	@Test
 	public void identityToSQL(){
-		assertEquals("((SELECT src, src AS trg FROM edge) UNION (SELECT trg AS src, trg FROM edge))", CPQ.IDENTITY.toSQL());
+		assertEquals("(SELECT src, src AS trg FROM edge) UNION (SELECT trg AS src, trg FROM edge)", CPQ.IDENTITY.toSQL());
 	}
 }

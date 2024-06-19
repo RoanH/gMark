@@ -107,6 +107,7 @@ public enum ConcreteSyntax{
 				return syntax;
 			}
 		}
+		
 		return null;
 	}
 }

@@ -64,7 +64,8 @@ public class ConjunctCPQ extends Conjunct{
 
 	@Override
 	protected String toPartialSQL(){
-		return cpq.toSQL();
+		//TODO return cpq.toSQL();
+		return null;
 	}
 
 	@Override

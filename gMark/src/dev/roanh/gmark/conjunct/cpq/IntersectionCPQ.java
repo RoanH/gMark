@@ -56,13 +56,19 @@ public class IntersectionCPQ implements CPQ{
 		}
 		return builder.toString();
 	}
-
+	
 	@Override
-	public String toSQL(){
-		StringJoiner joiner = new StringJoiner(" INTERSECT ", "(", ")");
-		cpq.forEach(q->joiner.add(q.toSQL()));
-		return joiner.toString();
+	public void writeSQL(IndentWriter writer){
+		// TODO Auto-generated method stub
+		
 	}
+
+//	@Override
+//	public String toSQL(){
+//		StringJoiner joiner = new StringJoiner(" INTERSECT ", "(", ")");
+//		cpq.forEach(q->joiner.add(q.toSQL()));
+//		return joiner.toString();
+//	}
 
 	@Override
 	public void writeXML(IndentWriter writer){

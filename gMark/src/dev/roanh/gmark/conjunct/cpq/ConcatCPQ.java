@@ -60,7 +60,31 @@ public class ConcatCPQ implements CPQ{
 	
 	@Override
 	public void writeSQL(IndentWriter writer){
-		// TODO Auto-generated method stub
+		if(cpq.size() == 1){
+			cpq.get(0).writeSQL(writer);
+			return;
+		}
+		
+		int n = cpq.size();
+		writer.print("SELECT s0.src AS src, s");
+		writer.print(n - 1);
+		writer.println(".trg AS trg");
+		
+		writer.println("FROM");
+		writer.increaseIndent(2);
+		
+		for(int i = 0; i < n; i++){
+			writer.print("(");
+			cpq.get(i).writeSQL(writer);
+			writer.print(" AS s");
+			writer.print(i);
+			if(i < n - 1){
+				writer.print(", ");
+			}
+			
+			writer.println();//TODO
+		}
+		
 		
 	}
 

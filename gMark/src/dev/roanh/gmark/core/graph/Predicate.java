@@ -129,7 +129,11 @@ public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>, I
 	 * @return The inverse of this predicate.
 	 */
 	public Predicate getInverse(){
-		return inverse == null ? (inverse = new Predicate(this)) : inverse;
+		if(inverse == null){
+			inverse = new Predicate(this);
+		}
+		
+		return inverse;
 	}
 	
 	/**
@@ -146,20 +150,10 @@ public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>, I
 	
 	@Override
 	public void writeSQL(IndentWriter writer){
-		// TODO Auto-generated method stub
 		if(isInverse()){
-			return "(SELECT trg AS src, src AS trg FROM edge WHERE label = " + id + ")";
+			writer.print("SELECT trg AS src, src AS trg FROM edge WHERE label = " + id);
 		}else{
-			return "(SELECT src, trg FROM edge WHERE label = " + id + ")";
-		}
-	}
-	
-	@Override
-	public String toSQL(){
-		if(isInverse()){
-			return "(SELECT trg AS src, src AS trg FROM edge WHERE label = " + id + ")";
-		}else{
-			return "(SELECT src, trg FROM edge WHERE label = " + id + ")";
+			writer.print("SELECT src, trg FROM edge WHERE label = " + id);
 		}
 	}
 	
@@ -170,8 +164,7 @@ public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>, I
 	
 	@Override
 	public boolean equals(Object other){
-		if(other instanceof Predicate){
-			Predicate p = (Predicate)other;
+		if(other instanceof Predicate p){
 			return p.id == id && p.isInverse == isInverse;
 		}else{
 			return false;

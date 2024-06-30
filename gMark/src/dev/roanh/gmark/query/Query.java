@@ -187,9 +187,9 @@ public class Query implements OutputSQL, OutputXML{
 		writer.println("<query>", 2);		
 		
 		writer.println("<head>", 2);
-		variables.forEach(var->{
+		variables.forEach(v->{
 			writer.print("<var>");
-			writer.print(var.toString());
+			writer.print(v.toString());
 			writer.println("</var>");
 		});
 		writer.println(2, "</head>");

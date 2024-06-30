@@ -73,7 +73,7 @@ public class ConversionCPQTest{
 	public void intersectToSQL1(){
 		assertEquals(
 			"""
-		    SELECT src, trg FROM (
+			  SELECT src, trg FROM (
 			  SELECT src, trg FROM edge WHERE label = 0
 			)
 			INTERSECT

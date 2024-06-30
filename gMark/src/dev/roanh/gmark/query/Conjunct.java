@@ -100,7 +100,11 @@ public abstract class Conjunct implements OutputXML, OutputSQL{
 	
 	@Override
 	public String toString(){
-		return "(" + source + "," + getInnerString() + "," + target + ")";
+		if(star){
+			return "(" + source + "," + getInnerString() + "*," + target + ")";
+		}else{
+			return "(" + source + "," + getInnerString() + "," + target + ")";
+		}
 	}
 
 	@Override
@@ -112,8 +116,15 @@ public abstract class Conjunct implements OutputXML, OutputSQL{
 		writer.print("\" type=\"");
 		writer.print(getType().getID());
 		writer.println("\">", 2);
+		if(star){
+			writer.println("<star>", 2);
+		}
 		
 		writePartialXML(writer);
+		if(star){
+			writer.println("</star>", 2);
+		}
+		
 		writer.println(2, "</conjunct>");
 	}
 }

@@ -41,7 +41,12 @@ public final class IdentityCPQ implements CPQ{
 	
 	@Override
 	public void writeSQL(IndentWriter writer){
-		writer.print("(SELECT src, src AS trg FROM edge) UNION (SELECT trg AS src, trg FROM edge)");
+		writer.println("SELECT src, trg FROM (", 2);
+		writer.println("SELECT src, src AS trg FROM edge");
+		writer.println("UNION");
+		writer.println("SELECT trg AS src, trg FROM edge");
+		writer.decreaseIndent(2);
+		writer.print(")");
 	}
 
 	@Override

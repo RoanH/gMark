@@ -44,7 +44,7 @@ public class Query implements OutputSQL, OutputXML{
 	 * All the bodies for this query. Note that currently
 	 * only queries with a single body are ever generated.
 	 */
-	private List<QueryBody> bodies;
+	private List<QueryBody> bodies;//TODO then lets actually rewrite that...
 	
 	/**
 	 * Constructs a new query with a single body made up of the given
@@ -155,11 +155,11 @@ public class Query implements OutputSQL, OutputXML{
 	@Override
 	public String toString(){
 		StringJoiner lhs = new StringJoiner(",", "(", ")");
-		for(Variable var : variables){
-			lhs.add(var.toString());
+		for(Variable v : variables){
+			lhs.add(v.toString());
 		}
 		
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for(int i = 0; i < bodies.size(); i++){
 			buffer.append(lhs.toString());
 			buffer.append(" ← ");
@@ -168,6 +168,7 @@ public class Query implements OutputSQL, OutputXML{
 				buffer.append("\n");
 			}
 		}
+		
 		return buffer.toString();
 	}
 	

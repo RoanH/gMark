@@ -110,11 +110,11 @@ public class QueryBody implements OutputXML{
 		return joiner.toString();
 	}
 
-	/**
-	 * Converts this query body to SQL.
-	 * @param lhs The projected head variables.
-	 * @return The SQL form of this query body.
-	 */
+//	/**
+//	 * Converts this query body to SQL.
+//	 * @param lhs The projected head variables.
+//	 * @return The SQL form of this query body.
+//	 */
 	protected void writeSQL(IndentWriter writer, List<Variable> lhs){
 		StringBuilder buffer = new StringBuilder();
 		int n = conjuncts.size();
@@ -149,7 +149,7 @@ public class QueryBody implements OutputXML{
 				
 //				buffer.append("(SELECT edge.src, edge.src FROM edge UNION SELECT edge.trg, edge.trg FROM edge UNION ");
 			}
-			buffer.append(conj.toPartialSQL());//TODO
+//			buffer.append(conj.toPartialSQL());//TODO
 			writer.decreaseIndent(3);
 			if(conj.hasStar()){
 				buffer.append("), c");

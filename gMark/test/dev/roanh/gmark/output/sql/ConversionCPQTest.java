@@ -29,30 +29,110 @@ import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.conjunct.cpq.CPQ;
 import dev.roanh.gmark.conjunct.cpq.ConcatCPQ;
 import dev.roanh.gmark.conjunct.cpq.EdgeCPQ;
+import dev.roanh.gmark.conjunct.cpq.IntersectionCPQ;
 import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.exception.ConfigException;
 
 public class ConversionCPQTest{
-	private static Configuration config;
-	private static CPQ label0;
-	private static CPQ label1;
-	private static CPQ label1i;
-	private static CPQ concat0;
-	private static CPQ concat1;
+	private static Predicate pred0 = new Predicate(0, "0");
+	private static Predicate pred1 = new Predicate(1, "1");
+	private static CPQ label0 = CPQ.label(pred0);
+	private static CPQ label1 = CPQ.label(pred1);
+	private static CPQ label1i = CPQ.label(pred1.getInverse());
+	private static CPQ concat0 = CPQ.concat(label0, label1, label1, label1i);
+	private static CPQ concat1 = CPQ.concat(label1);
+	private static CPQ concat2 = CPQ.concat(label0, label1);
+	private static CPQ intersect0 = CPQ.intersect(label0, label1);
+	private static CPQ intersect1 = CPQ.intersect(label0, label1, label1i);
+	private static CPQ intersect2 = CPQ.intersect(intersect0, label1);
+	private static CPQ intersect3 = CPQ.intersect(concat2, label1);
 	
-	@BeforeAll
-	public static void parseConfig(){
-		try{
-			config = ConfigParser.parse(ClassLoader.getSystemResourceAsStream("test.xml"));
-			label0 = new EdgeCPQ(config.getPredicates().get(0));
-			label1 = new EdgeCPQ(config.getPredicates().get(1));
-			label1i = new EdgeCPQ(config.getPredicates().get(1).getInverse());
-			concat0 = new ConcatCPQ(Arrays.asList(label0, label1, label1, label1i));
-			concat1 = new ConcatCPQ(Arrays.asList(label1));
-		}catch(ConfigException e){
-			e.printStackTrace();
-		}
+	@Test
+	public void body0(){
+		
+	}
+	
+	@Test
+	public void intersectToSQL0(){
+		assertEquals(
+			"""
+			SELECT src, trg FROM (
+			  SELECT src, trg FROM edge WHERE label = 0
+			)
+			INTERSECT
+			SELECT src, trg FROM (
+			  SELECT src, trg FROM edge WHERE label = 1
+			)
+			""".trim(),
+			intersect0.toSQL()
+		);
+	}
+	
+	@Test
+	public void intersectToSQL1(){
+		assertEquals(
+			"""
+		    SELECT src, trg FROM (
+			  SELECT src, trg FROM edge WHERE label = 0
+			)
+			INTERSECT
+			SELECT src, trg FROM (
+			  SELECT src, trg FROM edge WHERE label = 1
+			)
+			INTERSECT
+			SELECT src, trg FROM (
+			  SELECT trg AS src, src AS trg FROM edge WHERE label = 1
+			)
+			""".trim(),
+			intersect1.toSQL()
+		);
+	}
+	
+	@Test
+	public void intersectToSQL2(){
+		assertEquals(
+			"""
+			SELECT src, trg FROM (
+			  SELECT src, trg FROM (
+			    SELECT src, trg FROM edge WHERE label = 0
+			  )
+			  INTERSECT
+			  SELECT src, trg FROM (
+			    SELECT src, trg FROM edge WHERE label = 1
+			  )
+			)
+			INTERSECT
+			SELECT src, trg FROM (
+			  SELECT src, trg FROM edge WHERE label = 1
+			)
+			""".trim(),
+			intersect2.toSQL()
+		);
+	}
+	
+	@Test
+	public void intersectToSQL3(){
+		assertEquals(
+			"""
+			SELECT src, trg FROM (
+			  SELECT s0.src AS src, s1.trg AS trg
+			  FROM
+			    (
+			      SELECT src, trg FROM edge WHERE label = 0
+			    ) AS s0,
+			    (
+			      SELECT src, trg FROM edge WHERE label = 1
+			    ) AS s1
+			  WHERE s0.trg = s1.src
+			)
+			INTERSECT
+			SELECT src, trg FROM (
+			  SELECT src, trg FROM edge WHERE label = 1
+			)
+			""".trim(),
+			intersect3.toSQL()
+		);
 	}
 	
 	@Test
@@ -61,10 +141,18 @@ public class ConversionCPQTest{
 			"""
 			SELECT s0.src AS src, s3.trg AS trg
 			FROM
-			  (SELECT src, trg FROM edge WHERE label = 0) AS s0,
-			  (SELECT src, trg FROM edge WHERE label = 1) AS s1,
-			  (SELECT src, trg FROM edge WHERE label = 1) AS s2,
-			  (SELECT trg AS src, src AS trg FROM edge WHERE label = 1) AS s3
+			  (
+			    SELECT src, trg FROM edge WHERE label = 0
+			  ) AS s0,
+			  (
+			    SELECT src, trg FROM edge WHERE label = 1
+			  ) AS s1,
+			  (
+			    SELECT src, trg FROM edge WHERE label = 1
+			  ) AS s2,
+			  (
+			    SELECT trg AS src, src AS trg FROM edge WHERE label = 1
+			  ) AS s3
 			WHERE s0.trg = s1.src AND s1.trg = s2.src AND s2.trg = s3.src
 			""".trim(),
 			concat0.toSQL()
@@ -78,12 +166,12 @@ public class ConversionCPQTest{
 	
 	@Test
 	public void predicateToSQL(){
-		assertEquals("SELECT src, trg FROM edge WHERE label = 1", config.getPredicates().get(1).toSQL());
+		assertEquals("SELECT src, trg FROM edge WHERE label = 1", pred1.toSQL());
 	}
 	
 	@Test
 	public void inversePredicateToSQL(){
-		assertEquals("SELECT trg AS src, src AS trg FROM edge WHERE label = 1", config.getPredicates().get(1).getInverse().toSQL());
+		assertEquals("SELECT trg AS src, src AS trg FROM edge WHERE label = 1", pred1.getInverse().toSQL());
 	}
 	
 	@Test
@@ -103,6 +191,15 @@ public class ConversionCPQTest{
 	
 	@Test
 	public void identityToSQL(){
-		assertEquals("(SELECT src, src AS trg FROM edge) UNION (SELECT trg AS src, trg FROM edge)", CPQ.IDENTITY.toSQL());
+		assertEquals(
+			"""
+			SELECT src, trg FROM (
+			  SELECT src, src AS trg FROM edge
+			  UNION
+			  SELECT trg AS src, trg FROM edge
+			)
+			""".trim(),
+			CPQ.IDENTITY.toSQL()
+		);
 	}
 }

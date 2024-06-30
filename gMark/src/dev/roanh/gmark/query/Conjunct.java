@@ -19,6 +19,7 @@
 package dev.roanh.gmark.query;
 
 import dev.roanh.gmark.core.WorkloadType;
+import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -26,7 +27,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * Abstract base class for query conjuncts.
  * @author Roan
  */
-public abstract class Conjunct implements OutputXML{
+public abstract class Conjunct implements OutputXML, OutputSQL{
 	/**
 	 * The source variable for this conjunct.
 	 */
@@ -83,13 +84,6 @@ public abstract class Conjunct implements OutputXML{
 	 * @return The inner string for this conjunct.
 	 */
 	protected abstract String getInnerString();
-	
-	/**
-	 * Gets the SQL representation of the inner part
-	 * of this conjunct.
-	 * @return The SQL for the inner part of this conjunct.
-	 */
-	protected abstract String toPartialSQL();
 	
 	/**
 	 * Writes the XML representation of the inner part

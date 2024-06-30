@@ -74,8 +74,10 @@ public class ConcatCPQ implements CPQ{
 		writer.increaseIndent(2);
 		
 		for(int i = 0; i < n; i++){
-			writer.print("(");
+			writer.println("(", 2);
 			cpq.get(i).writeSQL(writer);
+			writer.println();
+			writer.decreaseIndent(2);
 			writer.print(") AS s");
 			writer.print(i);
 			if(i < n - 1){

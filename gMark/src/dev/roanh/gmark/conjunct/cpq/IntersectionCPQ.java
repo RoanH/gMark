@@ -49,6 +49,21 @@ public class IntersectionCPQ implements CPQ{
 	}
 	
 	@Override
+	public void writeSQL(IndentWriter writer){
+		for(int i = 0; i < cpq.size(); i++){
+			writer.println("SELECT src, trg FROM (", 2);
+			cpq.get(i).writeSQL(writer);
+			writer.println();
+			writer.decreaseIndent(2);
+			writer.print(")");
+			if(i < cpq.size() - 1){
+				writer.println();
+				writer.println("INTERSECT");
+			}
+		}
+	}
+	
+	@Override
 	public String toString(){
 		StringJoiner builder = new StringJoiner(" " + CPQ.CHAR_CAP + " ", "(", ")");
 		for(CPQ item : cpq){
@@ -57,19 +72,6 @@ public class IntersectionCPQ implements CPQ{
 		return builder.toString();
 	}
 	
-	@Override
-	public void writeSQL(IndentWriter writer){
-		// TODO Auto-generated method stub
-		
-	}
-
-//	@Override
-//	public String toSQL(){
-//		StringJoiner joiner = new StringJoiner(" INTERSECT ", "(", ")");
-//		cpq.forEach(q->joiner.add(q.toSQL()));
-//		return joiner.toString();
-//	}
-
 	@Override
 	public void writeXML(IndentWriter writer){
 		writer.println("<cpq type=\"intersect\">", 2);

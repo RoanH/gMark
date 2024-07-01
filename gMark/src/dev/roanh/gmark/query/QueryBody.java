@@ -21,6 +21,7 @@ package dev.roanh.gmark.query;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -117,9 +118,8 @@ public class QueryBody implements OutputXML{
 //	 * @return The SQL form of this query body.
 //	 */
 	protected void writeSQL(IndentWriter writer, List<Variable> lhs){
-		StringBuilder buffer = new StringBuilder();
 		int n = conjuncts.size();
-		Map<Variable, List<Conjunct>> varMap = new HashMap<Variable, List<Conjunct>>();
+		Map<Variable, List<Conjunct>> varMap = new LinkedHashMap<Variable, List<Conjunct>>();
 		Map<Conjunct, Integer> idMap = new HashMap<Conjunct, Integer>();
 		
 		writer.println("WITH RECURSIVE");
@@ -135,6 +135,7 @@ public class QueryBody implements OutputXML{
 			}
 		}
 		
+		writer.println();
 		if(lhs.isEmpty()){
 			writer.println("SELECT \"true\"");
 			writer.println("FROM edge");
@@ -144,22 +145,24 @@ public class QueryBody implements OutputXML{
 			//just need one occurrence
 			writer.println("SELECT DISTINCT", 2);
 			for(int i = 0; i < lhs.size(); i++){
-				Variable var = lhs.get(i);
-				writer.print(conjunctVarToSQL(var, varMap.get(var).get(0), idMap));
+				Variable v = lhs.get(i);
+				writer.print(conjunctVarToSQL(v, varMap.get(v).get(0), idMap));
 				if(i < lhs.size() - 1){
 					writer.println(",");
 				}
 			}
+			
+			writer.println();
+			writer.decreaseIndent(2);
 		}
 		
-		writer.println();
-		writer.println(2, "FROM");
+		writer.println("FROM");
 		writer.increaseIndent(2);
 		for(int i = 0; i < n; i++){
 			writer.print("c");
 			writer.print(i);
 			
-			if(conjuncts.get(0).hasStar()){
+			if(conjuncts.get(i).hasStar()){
 				writer.println(",");
 				writer.print("c");
 				writer.print(i);
@@ -188,19 +191,22 @@ public class QueryBody implements OutputXML{
 				//compare the first with all others
 				for(int i = 1; i < conjuncts.size(); i++){
 					if(!first){
+						writer.println();
 						writer.println("AND");
 					}
 					
 					writer.print(conjunctVarToSQL(var, conjuncts.get(0), idMap));
 					writer.print(" = ");
-					writer.println(conjunctVarToSQL(var, conjuncts.get(i), idMap));
+					writer.print(conjunctVarToSQL(var, conjuncts.get(i), idMap));
 					first = false;
 				}
 			}
 		}
 		
 		if(lhs.isEmpty()){
-			writer.println(2, ")");
+			writer.println();
+			writer.decreaseIndent(4);
+			writer.print(")");
 		}
 	}
 	
@@ -232,7 +238,8 @@ public class QueryBody implements OutputXML{
 			writer.println("SELECT head.src, tail.trg");
 			writer.println("FROM c" + id + " AS head, c" + id + "tc AS tail");
 			writer.println("WHERE head.trg = tail.src");
-			writer.println(2, ")");
+			writer.decreaseIndent(2);
+			writer.print(")");
 		}
 	}
 	

@@ -20,23 +20,16 @@ package dev.roanh.gmark.output.sql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.conjunct.cpq.CPQ;
-import dev.roanh.gmark.conjunct.cpq.ConcatCPQ;
 import dev.roanh.gmark.conjunct.cpq.ConjunctCPQ;
-import dev.roanh.gmark.conjunct.cpq.EdgeCPQ;
-import dev.roanh.gmark.conjunct.cpq.IntersectionCPQ;
-import dev.roanh.gmark.core.Configuration;
+import dev.roanh.gmark.core.QueryShape;
+import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.exception.ConfigException;
 import dev.roanh.gmark.query.Query;
-import dev.roanh.gmark.query.QueryBody;
 import dev.roanh.gmark.query.Variable;
 
 public class ConversionCPQTest{
@@ -52,48 +45,99 @@ public class ConversionCPQTest{
 	private static CPQ intersect1 = CPQ.intersect(label0, label1, label1i);
 	private static CPQ intersect2 = CPQ.intersect(intersect0, label1);
 	private static CPQ intersect3 = CPQ.intersect(concat2, label1);
-	
-	
-	public static void main(String[] args){
-		Variable v0= new Variable(0);Variable v1= new Variable(1);
-		Variable v2= new Variable(2);
-		QueryBody qb = new QueryBody(List.of(new ConjunctCPQ(
-			
-			
-			
-			label0, v1, v0, true
-			
-			
-			),
-			new ConjunctCPQ(
-				
-				
-				
-				label1, v0, v1, true
-				
-				
-				)
-			
-			), null, null);
-		
-		Query q = new Query(qb, List.of(v1, v0));
-		
-		System.out.println(qb);
-		
-		System.out.println(q.toSQL());
-	}
-	
+	private static Variable v0 = new Variable(0);
+	private static Variable v1 = new Variable(1);
 	
 	@Test
 	public void body0(){
-		
+		assertEquals(
+			"""
+			WITH RECURSIVE
+			c0(src, trg) AS (
+			  SELECT edge.src, edge.src
+			  FROM edge
+			  UNION
+			  SELECT edge.trg, edge.trg
+			  FROM edge
+			  UNION
+			  SELECT src, trg FROM edge WHERE label = 0
+			),
+			c0tc(src, trg) AS (
+			  SELECT src, trg
+			  FROM c0
+			  UNION
+			  SELECT head.src, tail.trg
+			  FROM c0 AS head, c0tc AS tail
+			  WHERE head.trg = tail.src
+			),
+			c1(src, trg) AS (
+			  SELECT src, trg FROM edge WHERE label = 1
+			)
+			SELECT DISTINCT
+			  c0.src,
+			  c0.trg
+			FROM
+			  c0,
+			  c0tc,
+			  c1
+			WHERE
+			  c0.src = c1.src
+			  AND
+			  c0.trg = c1.trg
+			""".trim(),
+			new Query(
+				List.of(
+					new ConjunctCPQ(label0, v0, v1, true),
+					new ConjunctCPQ(label1, v0, v1, false)
+				),
+				List.of(v0, v1),
+				Selectivity.LINEAR,
+				QueryShape.CYCLE
+			).toSQL()
+		);
+	}
+	
+	@Test
+	public void body1(){
+		assertEquals(
+			"""
+			WITH RECURSIVE
+			c0(src, trg) AS (
+			  SELECT src, trg FROM edge WHERE label = 0
+			),
+			c1(src, trg) AS (
+			  SELECT src, trg FROM edge WHERE label = 1
+			)
+			SELECT "true"
+			FROM edge
+			WHERE EXISTS (
+			  SELECT *
+			  FROM
+			    c0,
+			    c1
+			  WHERE
+			    c0.src = c1.src
+			    AND
+			    c0.trg = c1.trg
+			)
+			""".trim(),
+			new Query(
+				List.of(
+					new ConjunctCPQ(label0, v0, v1, false),
+					new ConjunctCPQ(label1, v0, v1, false)
+				),
+				List.of(),
+				Selectivity.LINEAR,
+				QueryShape.CYCLE
+			).toSQL()
+		);
 	}
 	
 	@Test
 	public void intersectToSQL0(){
 		assertEquals(
 			"""
-		    SELECT src, trg FROM (
+			SELECT src, trg FROM (
 			  SELECT src, trg FROM (
 			    SELECT src, trg FROM edge WHERE label = 0
 			  )
@@ -111,7 +155,7 @@ public class ConversionCPQTest{
 	public void intersectToSQL1(){
 		assertEquals(
 			"""
-		    SELECT src, trg FROM (
+			SELECT src, trg FROM (
 			  SELECT src, trg FROM (
 			    SELECT src, trg FROM edge WHERE label = 0
 			  )
@@ -133,7 +177,7 @@ public class ConversionCPQTest{
 	public void intersectToSQL2(){
 		assertEquals(
 			"""
-		    SELECT src, trg FROM (
+			SELECT src, trg FROM (
 			  SELECT src, trg FROM (
 			    SELECT src, trg FROM (
 			      SELECT src, trg FROM (
@@ -159,7 +203,7 @@ public class ConversionCPQTest{
 	public void intersectToSQL3(){
 		assertEquals(
 			"""
-		    SELECT src, trg FROM (
+			SELECT src, trg FROM (
 			  SELECT src, trg FROM (
 			    SELECT s0.src AS src, s1.trg AS trg
 			    FROM

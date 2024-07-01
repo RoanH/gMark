@@ -50,17 +50,18 @@ public class IntersectionCPQ implements CPQ{
 	
 	@Override
 	public void writeSQL(IndentWriter writer){
+		writer.println("SELECT src, trg FROM (", 2);
 		for(int i = 0; i < cpq.size(); i++){
 			writer.println("SELECT src, trg FROM (", 2);
 			cpq.get(i).writeSQL(writer);
 			writer.println();
-			writer.decreaseIndent(2);
-			writer.print(")");
+			writer.println(2, ")");
 			if(i < cpq.size() - 1){
-				writer.println();
 				writer.println("INTERSECT");
 			}
 		}
+		writer.decreaseIndent(2);
+		writer.print(")");
 	}
 	
 	@Override

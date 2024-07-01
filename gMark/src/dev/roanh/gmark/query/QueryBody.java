@@ -109,7 +109,8 @@ public class QueryBody implements OutputXML{
 		}
 		return joiner.toString();
 	}
-
+	
+	
 //	/**
 //	 * Converts this query body to SQL.
 //	 * @param lhs The projected head variables.
@@ -121,83 +122,63 @@ public class QueryBody implements OutputXML{
 		Map<Variable, List<Conjunct>> varMap = new HashMap<Variable, List<Conjunct>>();
 		Map<Conjunct, Integer> idMap = new HashMap<Conjunct, Integer>();
 		
-		writer.print("(WITH RECURSIVE");
-//		buffer.append("(WITH RECURSIVE ");
-		int extra = 0;
+		writer.println("WITH RECURSIVE");
 		for(int i = 0; i < n; i++){
 			Conjunct conj = conjuncts.get(i);
 			varMap.computeIfAbsent(conj.getSource(), v->new ArrayList<Conjunct>()).add(conj);
 			varMap.computeIfAbsent(conj.getTarget(), v->new ArrayList<Conjunct>()).add(conj);
 			idMap.put(conj, i);
 			
-			writer.increaseIndent(1);
-			writer.print("c");
-			writer.print(i);
-			writer.print("(src, trg) AS ");
-			writer.increaseIndent(3);
-//			buffer.append('c');
-//			buffer.append(i);
-//			buffer.append("(src, trg) AS ");
-			if(conj.hasStar()){
-				writer.println("(");
-				writer.println("SELECT edge.src, edge.src");
-				writer.println("FROM edge");
-				writer.println("UNION");
-				writer.println("SELECT edge.trg, edge.trg");
-				writer.println("FROM edge");
-				writer.println("UNION");
-				
-//				buffer.append("(SELECT edge.src, edge.src FROM edge UNION SELECT edge.trg, edge.trg FROM edge UNION ");
-			}
-//			buffer.append(conj.toPartialSQL());//TODO
-			writer.decreaseIndent(3);
-			if(conj.hasStar()){
-				buffer.append("), c");
-				buffer.append(n + extra);
-				buffer.append("(src, trg) AS (SELECT src, trg FROM c");
-				buffer.append(i);
-				buffer.append("UNION SELECT head.src, tail.trg FROM c");
-				buffer.append(i);
-				buffer.append(" AS head, c");
-				buffer.append(n + extra);
-				buffer.append(" AS tail WHERE head.trg = tail.src)");
-				extra++;
-			}
-			
+			writeConjunct(writer, i, conj);
 			if(i < n - 1){
-				buffer.append(", ");
+				writer.println(",");
 			}
-			
-			//TODO move
-			writer.decreaseIndent(4);
 		}
 		
 		if(lhs.isEmpty()){
-			buffer.append(" SELECT \"true\" FROM edge WHERE EXISTS (SELECT *");
+			writer.println("SELECT \"true\"");
+			writer.println("FROM edge");
+			writer.println("WHERE EXISTS (", 2);
+			writer.println("SELECT *");
 		}else{
 			//just need one occurrence
-			buffer.append(" SELECT DISTINCT ");
+			writer.println("SELECT DISTINCT", 2);
 			for(int i = 0; i < lhs.size(); i++){
 				Variable var = lhs.get(i);
-				buffer.append(conjunctVarToSQL(var, varMap.get(var).get(0), idMap));
+				writer.print(conjunctVarToSQL(var, varMap.get(var).get(0), idMap));
 				if(i < lhs.size() - 1){
-					buffer.append(", ");
+					writer.println(",");
 				}
 			}
 		}
 		
-		buffer.append(" FROM ");
-		for(int i = 0; i < n + extra; i++){
-			buffer.append('c');
-			buffer.append(i);
-			if(i < n + extra - 1){
-				buffer.append(", ");
+		writer.println();
+		writer.println(2, "FROM");
+		writer.increaseIndent(2);
+		for(int i = 0; i < n; i++){
+			writer.print("c");
+			writer.print(i);
+			
+			if(conjuncts.get(0).hasStar()){
+				writer.println(",");
+				writer.print("c");
+				writer.print(i);
+				writer.print("tc");
+			}
+			
+			if(i < n - 1){
+				writer.println(",");
+			}else{
+				writer.println();
 			}
 		}
 		
 		//a single conjunct shares no variables with other conjuncts or itself
 		if(conjuncts.size() > 1){
-			buffer.append(" WHERE ");
+			writer.println(2, "WHERE");
+			writer.increaseIndent(2);
+			
+			boolean first = true;
 			Iterator<Entry<Variable, List<Conjunct>>> iter = varMap.entrySet().iterator();
 			while(iter.hasNext()){
 				Entry<Variable, List<Conjunct>> data = iter.next();
@@ -206,23 +187,53 @@ public class QueryBody implements OutputXML{
 				
 				//compare the first with all others
 				for(int i = 1; i < conjuncts.size(); i++){
-					buffer.append(conjunctVarToSQL(var, conjuncts.get(0), idMap));
-					buffer.append(" = ");
-					buffer.append(conjunctVarToSQL(var, conjuncts.get(i), idMap));
-					buffer.append(" AND ");
+					if(!first){
+						writer.println("AND");
+					}
+					
+					writer.print(conjunctVarToSQL(var, conjuncts.get(0), idMap));
+					writer.print(" = ");
+					writer.println(conjunctVarToSQL(var, conjuncts.get(i), idMap));
+					first = false;
 				}
 			}
-			
-			//remove trailing AND
-			buffer.delete(buffer.length() - 5, buffer.length());
 		}
 		
 		if(lhs.isEmpty()){
-			buffer.append(")");
+			writer.println(2, ")");
 		}
+	}
+	
+	private static void writeConjunct(IndentWriter writer, int id, Conjunct conjunct){
+		writer.print("c");
+		writer.print(id);
+		writer.println("(src, trg) AS (", 2);
+		if(conjunct.hasStar()){
+			writer.println("SELECT edge.src, edge.src");
+			writer.println("FROM edge");
+			writer.println("UNION");
+			writer.println("SELECT edge.trg, edge.trg");
+			writer.println("FROM edge");
+			writer.println("UNION");
+		}
+		conjunct.writePartialSQL(writer);
+		writer.println();
+		writer.decreaseIndent(2);
+		writer.print(")");
 		
-		buffer.append(")");
-		//TODO return buffer.toString();
+		if(conjunct.hasStar()){
+			writer.println(",");
+			writer.print("c");
+			writer.print(id);
+			writer.println("tc(src, trg) AS (", 2);
+			writer.println("SELECT src, trg");
+			writer.println("FROM c" + id);
+			writer.println("UNION");
+			writer.println("SELECT head.src, tail.trg");
+			writer.println("FROM c" + id + " AS head, c" + id + "tc AS tail");
+			writer.println("WHERE head.trg = tail.src");
+			writer.println(2, ")");
+		}
 	}
 	
 	/**

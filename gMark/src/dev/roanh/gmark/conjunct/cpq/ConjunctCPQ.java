@@ -62,7 +62,7 @@ public class ConjunctCPQ extends Conjunct{
 	}
 
 	@Override
-	public void writeSQL(IndentWriter writer){
+	protected void writePartialSQL(IndentWriter writer){
 		cpq.writeSQL(writer);
 	}
 

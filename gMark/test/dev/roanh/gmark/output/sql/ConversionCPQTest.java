@@ -21,6 +21,7 @@ package dev.roanh.gmark.output.sql;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -28,11 +29,15 @@ import org.junit.jupiter.api.Test;
 import dev.roanh.gmark.ConfigParser;
 import dev.roanh.gmark.conjunct.cpq.CPQ;
 import dev.roanh.gmark.conjunct.cpq.ConcatCPQ;
+import dev.roanh.gmark.conjunct.cpq.ConjunctCPQ;
 import dev.roanh.gmark.conjunct.cpq.EdgeCPQ;
 import dev.roanh.gmark.conjunct.cpq.IntersectionCPQ;
 import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.exception.ConfigException;
+import dev.roanh.gmark.query.Query;
+import dev.roanh.gmark.query.QueryBody;
+import dev.roanh.gmark.query.Variable;
 
 public class ConversionCPQTest{
 	private static Predicate pred0 = new Predicate(0, "0");
@@ -48,6 +53,37 @@ public class ConversionCPQTest{
 	private static CPQ intersect2 = CPQ.intersect(intersect0, label1);
 	private static CPQ intersect3 = CPQ.intersect(concat2, label1);
 	
+	
+	public static void main(String[] args){
+		Variable v0= new Variable(0);Variable v1= new Variable(1);
+		Variable v2= new Variable(2);
+		QueryBody qb = new QueryBody(List.of(new ConjunctCPQ(
+			
+			
+			
+			label0, v1, v0, true
+			
+			
+			),
+			new ConjunctCPQ(
+				
+				
+				
+				label1, v0, v1, true
+				
+				
+				)
+			
+			), null, null);
+		
+		Query q = new Query(qb, List.of(v1, v0));
+		
+		System.out.println(qb);
+		
+		System.out.println(q.toSQL());
+	}
+	
+	
 	@Test
 	public void body0(){
 		
@@ -57,12 +93,14 @@ public class ConversionCPQTest{
 	public void intersectToSQL0(){
 		assertEquals(
 			"""
-			SELECT src, trg FROM (
-			  SELECT src, trg FROM edge WHERE label = 0
-			)
-			INTERSECT
-			SELECT src, trg FROM (
-			  SELECT src, trg FROM edge WHERE label = 1
+		    SELECT src, trg FROM (
+			  SELECT src, trg FROM (
+			    SELECT src, trg FROM edge WHERE label = 0
+			  )
+			  INTERSECT
+			  SELECT src, trg FROM (
+			    SELECT src, trg FROM edge WHERE label = 1
+			  )
 			)
 			""".trim(),
 			intersect0.toSQL()
@@ -73,16 +111,18 @@ public class ConversionCPQTest{
 	public void intersectToSQL1(){
 		assertEquals(
 			"""
+		    SELECT src, trg FROM (
 			  SELECT src, trg FROM (
-			  SELECT src, trg FROM edge WHERE label = 0
-			)
-			INTERSECT
-			SELECT src, trg FROM (
-			  SELECT src, trg FROM edge WHERE label = 1
-			)
-			INTERSECT
-			SELECT src, trg FROM (
-			  SELECT trg AS src, src AS trg FROM edge WHERE label = 1
+			    SELECT src, trg FROM edge WHERE label = 0
+			  )
+			  INTERSECT
+			  SELECT src, trg FROM (
+			    SELECT src, trg FROM edge WHERE label = 1
+			  )
+			  INTERSECT
+			  SELECT src, trg FROM (
+			    SELECT trg AS src, src AS trg FROM edge WHERE label = 1
+			  )
 			)
 			""".trim(),
 			intersect1.toSQL()
@@ -93,18 +133,22 @@ public class ConversionCPQTest{
 	public void intersectToSQL2(){
 		assertEquals(
 			"""
-			SELECT src, trg FROM (
+		    SELECT src, trg FROM (
 			  SELECT src, trg FROM (
-			    SELECT src, trg FROM edge WHERE label = 0
+			    SELECT src, trg FROM (
+			      SELECT src, trg FROM (
+			        SELECT src, trg FROM edge WHERE label = 0
+			      )
+			      INTERSECT
+			      SELECT src, trg FROM (
+			        SELECT src, trg FROM edge WHERE label = 1
+			      )
+			    )
 			  )
 			  INTERSECT
 			  SELECT src, trg FROM (
 			    SELECT src, trg FROM edge WHERE label = 1
 			  )
-			)
-			INTERSECT
-			SELECT src, trg FROM (
-			  SELECT src, trg FROM edge WHERE label = 1
 			)
 			""".trim(),
 			intersect2.toSQL()
@@ -115,20 +159,22 @@ public class ConversionCPQTest{
 	public void intersectToSQL3(){
 		assertEquals(
 			"""
-			SELECT src, trg FROM (
-			  SELECT s0.src AS src, s1.trg AS trg
-			  FROM
-			    (
-			      SELECT src, trg FROM edge WHERE label = 0
-			    ) AS s0,
-			    (
-			      SELECT src, trg FROM edge WHERE label = 1
-			    ) AS s1
-			  WHERE s0.trg = s1.src
-			)
-			INTERSECT
-			SELECT src, trg FROM (
-			  SELECT src, trg FROM edge WHERE label = 1
+		    SELECT src, trg FROM (
+			  SELECT src, trg FROM (
+			    SELECT s0.src AS src, s1.trg AS trg
+			    FROM
+			      (
+			        SELECT src, trg FROM edge WHERE label = 0
+			      ) AS s0,
+			      (
+			        SELECT src, trg FROM edge WHERE label = 1
+			      ) AS s1
+			    WHERE s0.trg = s1.src
+			  )
+			  INTERSECT
+			  SELECT src, trg FROM (
+			    SELECT src, trg FROM edge WHERE label = 1
+			  )
 			)
 			""".trim(),
 			intersect3.toSQL()

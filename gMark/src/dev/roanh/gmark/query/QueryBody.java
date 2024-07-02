@@ -129,7 +129,7 @@ public class QueryBody implements OutputXML{
 			varMap.computeIfAbsent(conj.getTarget(), v->new ArrayList<Conjunct>()).add(conj);
 			idMap.put(conj, i);
 			
-			conj.writeSQL(writer, String.valueOf(i));
+			conj.writeSQL(writer, "c" + i);
 			if(i < n - 1){
 				writer.println(",");
 			}

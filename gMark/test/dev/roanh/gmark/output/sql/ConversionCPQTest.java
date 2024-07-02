@@ -33,20 +33,20 @@ import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.Variable;
 
 public class ConversionCPQTest{
-	private static Predicate pred0 = new Predicate(0, "0");
-	private static Predicate pred1 = new Predicate(1, "1");
-	private static CPQ label0 = CPQ.label(pred0);
-	private static CPQ label1 = CPQ.label(pred1);
-	private static CPQ label1i = CPQ.label(pred1.getInverse());
-	private static CPQ concat0 = CPQ.concat(label0, label1, label1, label1i);
-	private static CPQ concat1 = CPQ.concat(label1);
-	private static CPQ concat2 = CPQ.concat(label0, label1);
-	private static CPQ intersect0 = CPQ.intersect(label0, label1);
-	private static CPQ intersect1 = CPQ.intersect(label0, label1, label1i);
-	private static CPQ intersect2 = CPQ.intersect(intersect0, label1);
-	private static CPQ intersect3 = CPQ.intersect(concat2, label1);
-	private static Variable v0 = new Variable(0);
-	private static Variable v1 = new Variable(1);
+	private static final Predicate pred0 = new Predicate(0, "0");
+	private static final Predicate pred1 = new Predicate(1, "1");
+	private static final CPQ label0 = CPQ.label(pred0);
+	private static final CPQ label1 = CPQ.label(pred1);
+	private static final CPQ label1i = CPQ.label(pred1.getInverse());
+	private static final CPQ concat0 = CPQ.concat(label0, label1, label1, label1i);
+	private static final CPQ concat1 = CPQ.concat(label1);
+	private static final CPQ concat2 = CPQ.concat(label0, label1);
+	private static final CPQ intersect0 = CPQ.intersect(label0, label1);
+	private static final CPQ intersect1 = CPQ.intersect(label0, label1, label1i);
+	private static final CPQ intersect2 = CPQ.intersect(intersect0, label1);
+	private static final CPQ intersect3 = CPQ.intersect(concat2, label1);
+	private static final Variable v0 = new Variable(0);
+	private static final Variable v1 = new Variable(1);
 	
 	@Test
 	public void body0(){

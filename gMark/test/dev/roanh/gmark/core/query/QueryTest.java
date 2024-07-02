@@ -14,10 +14,8 @@ import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.Variable;
 
 public class QueryTest{
-	private static CPQ cpq0 = CPQ.parse("a◦a◦a");
-	private static CPQ cpq1 = CPQ.parse("b");
-	private static Variable v0 = new Variable(0);
-	private static Variable v1 = new Variable(1);
+	private static final Variable v0 = new Variable(0);
+	private static final Variable v1 = new Variable(1);
 
 	@Test
 	public void string0(){
@@ -25,8 +23,8 @@ public class QueryTest{
 			"(?x0,?x1) ← (?x0,(a◦a◦a)*,?x1),(?x0,b,?x1)",
 			new Query(
 				List.of(
-					new ConjunctCPQ(cpq0, v0, v1, true),
-					new ConjunctCPQ(cpq1, v0, v1, false)
+					new ConjunctCPQ(CPQ.parse("a◦a◦a"), v0, v1, true),
+					new ConjunctCPQ(CPQ.parse("b"), v0, v1, false)
 				),
 				List.of(v0, v1),
 				Selectivity.LINEAR,

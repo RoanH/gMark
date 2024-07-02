@@ -18,11 +18,8 @@
  */
 package dev.roanh.gmark.query;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
@@ -41,10 +38,9 @@ public class Query implements OutputSQL, OutputXML{
 	 */
 	private List<Variable> variables;
 	/**
-	 * All the bodies for this query. Note that currently
-	 * only queries with a single body are ever generated.
+	 * The body for this query.
 	 */
-	private List<QueryBody> bodies;//TODO then lets actually rewrite that...
+	private QueryBody body;
 	
 	/**
 	 * Constructs a new query with a single body made up of the given
@@ -65,58 +61,32 @@ public class Query implements OutputSQL, OutputXML{
 	 * @param variables The projected query variables.
 	 */
 	public Query(QueryBody body, List<Variable> variables){
-		this.bodies = Collections.singletonList(body);
+		this.body = body;
 		this.variables = variables;
 	}
 	
 	/**
-	 * Tests if any query body in this query has the given shape.
-	 * @param shape The shape to check for.
-	 * @return True if this query contains a body with the given shape.
+	 * Gets the shape of this query.
+	 * @return The query shape.
 	 */
-	public boolean hasShape(QueryShape shape){
-		return bodies.stream().anyMatch(body->body.getShape().equals(shape));
+	public QueryShape getShapes(){
+		return body.getShape();
 	}
 	
 	/**
-	 * Gets all shapes used by the bodies in this query.
-	 * @return All query body shapes.
+	 * Gets the selectivity of this query.
+	 * @return The selectivity of this query.
 	 */
-	public Set<QueryShape> getShapes(){
-		return bodies.stream().map(QueryBody::getShape).collect(Collectors.toSet());
-	}
-	
-	/**
-	 * Checks if this query contains a query body with the given selectivity.
-	 * @param selectivity The selectivity to check for.
-	 * @return True if this query contains a query body with the given selectivity.
-	 */
-	public boolean hasSelectivity(Selectivity selectivity){
-		return bodies.stream().anyMatch(body->body.getSelectivity().equals(selectivity));
-	}
-	
-	/**
-	 * Gets all selectivities used by the bodies in this query.
-	 * @return All query body selectivities.
-	 */
-	public Set<Selectivity> getSelectivities(){
-		return bodies.stream().map(QueryBody::getSelectivity).collect(Collectors.toSet());
-	}
-	
-	/**
-	 * Gets the number of conjuncts in the query body with the least conjuncts.
-	 * @return The minimum query body conjunct count.
-	 */
-	public int getMinConjuncts(){
-		return bodies.stream().mapToInt(QueryBody::getConjunctCount).min().orElse(0);
+	public Selectivity getSelectivity(){
+		return body.getSelectivity();
 	}
 	
 	/**
 	 * Gets the number of conjuncts in the query body with the most conjuncts.
 	 * @return The maximum query body conjunct count.
 	 */
-	public int getMaxConjuncts(){
-		return bodies.stream().mapToInt(QueryBody::getConjunctCount).max().orElse(0);
+	public int getConjunctCount(){
+		return body.getConjunctCount();
 	}
 	
 	/**
@@ -137,19 +107,16 @@ public class Query implements OutputSQL, OutputXML{
 	}
 	
 	/**
-	 * Gets all the query bodies for this query.
-	 * @return All query bodies.
+	 * Gets the query body for this query.
+	 * @return The query body.
 	 */
-	public List<QueryBody> getBodies(){
-		return bodies;
+	public QueryBody getBody(){
+		return body;
 	}
 	
-	/**
-	 * Gets the number of bodies that make up this query.
-	 * @return The number of bodies in this query.
-	 */
-	public int getBodyCount(){
-		return bodies.size();
+	@Override
+	public void writeSQL(IndentWriter writer){
+		body.writeSQL(writer, variables);
 	}
 	
 	@Override
@@ -160,28 +127,12 @@ public class Query implements OutputSQL, OutputXML{
 		}
 		
 		StringBuilder buffer = new StringBuilder();
-		for(int i = 0; i < bodies.size(); i++){
-			buffer.append(lhs.toString());
-			buffer.append(" ← ");
-			buffer.append(bodies.get(i).toString());
-			if(i < bodies.size() - 1){
-				buffer.append("\n");
-			}
-		}
-		
+		buffer.append(lhs.toString());
+		buffer.append(" ← ");
+		buffer.append(body.toString());
 		return buffer.toString();
 	}
 	
-	@Override
-	public void writeSQL(IndentWriter writer){
-		for(int i = 0; i < bodies.size(); i++){
-			bodies.get(i).writeSQL(writer, variables);
-			if(i < bodies.size() - 1){
-				writer.println("UNION");
-			}
-		}
-	}
-
 	@Override
 	public void writeXML(IndentWriter writer){
 		writer.println("<query>", 2);		
@@ -195,7 +146,7 @@ public class Query implements OutputSQL, OutputXML{
 		writer.println(2, "</head>");
 		
 		writer.println("<bodies>", 2);
-		bodies.forEach(body->body.writeXML(writer));
+		body.writeXML(writer);
 		writer.println(2, "</bodies>");
 		
 		writer.println(2, "</query>");

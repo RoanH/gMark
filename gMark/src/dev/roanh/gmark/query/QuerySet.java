@@ -108,7 +108,7 @@ public class QuerySet implements OutputXML{
 	 * @return The number of conjuncts in the query with the least conjuncts.
 	 */
 	public int getMinConjuncts(){
-		return queries.stream().mapToInt(Query::getMinConjuncts).min().orElse(0);
+		return queries.stream().mapToInt(Query::getConjunctCount).min().orElse(0);
 	}
 	
 	/**
@@ -116,7 +116,7 @@ public class QuerySet implements OutputXML{
 	 * @return The number of conjuncts in the query with the most conjuncts.
 	 */
 	public int getMaxConjuncts(){
-		return queries.stream().mapToInt(Query::getMaxConjuncts).max().orElse(0);
+		return queries.stream().mapToInt(Query::getConjunctCount).max().orElse(0);
 	}
 	
 	/**
@@ -144,7 +144,7 @@ public class QuerySet implements OutputXML{
 	 * @see QueryShape
 	 */
 	public int getShapeTotal(QueryShape shape){
-		return (int)queries.stream().filter(q->q.hasShape(shape)).count();
+		return (int)queries.stream().map(Query::getShapes).filter(shape::equals).count();
 	}
 	
 	/**
@@ -154,7 +154,7 @@ public class QuerySet implements OutputXML{
 	 * @see Selectivity
 	 */
 	public int getSelectivityTotal(Selectivity selectivity){
-		return (int)queries.stream().filter(q->q.hasSelectivity(selectivity)).count();
+		return (int)queries.stream().map(Query::getSelectivity).filter(selectivity::equals).count();
 	}
 	
 	/**

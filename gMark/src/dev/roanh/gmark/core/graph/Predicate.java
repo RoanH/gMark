@@ -20,7 +20,6 @@ package dev.roanh.gmark.core.graph;
 
 import java.util.Objects;
 
-import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IDable;
 import dev.roanh.gmark.util.IndentWriter;
@@ -32,7 +31,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * inverse direction from target to source.
  * @author Roan
  */
-public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>, IDable{
+public class Predicate implements OutputXML, Comparable<Predicate>, IDable{
 	/**
 	 * The character used to denote negated predicates.
 	 */
@@ -129,7 +128,11 @@ public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>, I
 	 * @return The inverse of this predicate.
 	 */
 	public Predicate getInverse(){
-		return inverse == null ? (inverse = new Predicate(this)) : inverse;
+		if(inverse == null){
+			inverse = new Predicate(this);
+		}
+		
+		return inverse;
 	}
 	
 	/**
@@ -145,23 +148,13 @@ public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>, I
 	}
 	
 	@Override
-	public String toSQL(){
-		if(isInverse()){
-			return "(SELECT trg AS src, src AS trg FROM edge WHERE label = " + id + ")";
-		}else{
-			return "(SELECT src, trg FROM edge WHERE label = " + id + ")";
-		}
-	}
-	
-	@Override
 	public String toString(){
 		return "Predicate[id=" + id + ",alias=\"" + getAlias() + "\"]";
 	}
 	
 	@Override
 	public boolean equals(Object other){
-		if(other instanceof Predicate){
-			Predicate p = (Predicate)other;
+		if(other instanceof Predicate p){
 			return p.id == id && p.isInverse == isInverse;
 		}else{
 			return false;

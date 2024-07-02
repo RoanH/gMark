@@ -57,42 +57,48 @@ public class ConcatCPQ implements CPQ{
 		}
 		return builder.toString();
 	}
-
+	
 	@Override
-	public String toSQL(){
+	public void writeSQL(IndentWriter writer){
 		if(cpq.size() == 1){
-			return cpq.get(0).toSQL();
+			cpq.get(0).writeSQL(writer);
+			return;
 		}
 		
-		StringBuilder buffer = new StringBuilder();
 		int n = cpq.size();
+		writer.print("SELECT s0.src AS src, s");
+		writer.print(n - 1);
+		writer.println(".trg AS trg");
 		
-		buffer.append("(SELECT s0.src AS src, s");
-		buffer.append(n - 1);
-		buffer.append(".trg AS trg FROM ");
+		writer.println("FROM");
+		writer.increaseIndent(2);
+		
 		for(int i = 0; i < n; i++){
-			buffer.append(cpq.get(i).toSQL());
-			buffer.append(" AS s");
-			buffer.append(i);
+			writer.println("(", 2);
+			cpq.get(i).writeSQL(writer);
+			writer.println();
+			writer.decreaseIndent(2);
+			writer.print(") AS s");
+			writer.print(i);
 			if(i < n - 1){
-				buffer.append(", ");
+				writer.print(",");
 			}
+			
+			writer.println();
 		}
 		
-		buffer.append(" WHERE ");
+		writer.decreaseIndent(2);
+		writer.print("WHERE ");
 		for(int i = 0; i < n - 1; i++){
-			buffer.append("s");
-			buffer.append(i);
-			buffer.append(".trg = s");
-			buffer.append(i + 1);
-			buffer.append(".src");
+			writer.print("s");
+			writer.print(i);
+			writer.print(".trg = s");
+			writer.print(i + 1);
+			writer.print(".src");
 			if(i < n - 2){
-				buffer.append(" AND ");
+				writer.print(" AND ");
 			}
 		}
-		
-		buffer.append(")");
-		return buffer.toString();
 	}
 
 	@Override

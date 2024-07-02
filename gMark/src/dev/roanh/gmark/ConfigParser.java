@@ -106,7 +106,7 @@ public class ConfigParser{
 			}
 			
 			return new Configuration(sizes, schema, workloads);
-		}catch(Throwable e){
+		}catch(Exception e){
 			throw new ConfigException(e);
 		}
 	}

@@ -24,8 +24,7 @@ import dev.roanh.gmark.query.Variable;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
- * Defines a conjunct that has a CPQ as
- * its inner query.
+ * Defines a conjunct that has a CPQ as its inner query.
  * @author Roan
  * @see Conjunct
  * @see CPQ
@@ -63,8 +62,8 @@ public class ConjunctCPQ extends Conjunct{
 	}
 
 	@Override
-	protected String toPartialSQL(){
-		return cpq.toSQL();
+	protected void writePartialSQL(IndentWriter writer){
+		cpq.writeSQL(writer);
 	}
 
 	@Override

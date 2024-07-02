@@ -53,7 +53,7 @@ public class Variable implements IDable{
 	
 	@Override
 	public boolean equals(Object other){
-		return other instanceof Variable ? ((Variable)other).id == id : false;
+		return other instanceof Variable v && v.id == id;
 	}
 
 	@Override

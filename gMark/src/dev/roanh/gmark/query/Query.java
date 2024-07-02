@@ -18,11 +18,14 @@
  */
 package dev.roanh.gmark.query;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
+import java.util.Map.Entry;
 
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
@@ -41,10 +44,9 @@ public class Query implements OutputSQL, OutputXML{
 	 */
 	private List<Variable> variables;
 	/**
-	 * All the bodies for this query. Note that currently
-	 * only queries with a single body are ever generated.
+	 * The body for this query.
 	 */
-	private List<QueryBody> bodies;
+	private QueryBody body;
 	
 	/**
 	 * Constructs a new query with a single body made up of the given
@@ -65,58 +67,32 @@ public class Query implements OutputSQL, OutputXML{
 	 * @param variables The projected query variables.
 	 */
 	public Query(QueryBody body, List<Variable> variables){
-		this.bodies = Collections.singletonList(body);
+		this.body = body;
 		this.variables = variables;
 	}
 	
 	/**
-	 * Tests if any query body in this query has the given shape.
-	 * @param shape The shape to check for.
-	 * @return True if this query contains a body with the given shape.
+	 * Gets the shape of this query.
+	 * @return The query shape.
 	 */
-	public boolean hasShape(QueryShape shape){
-		return bodies.stream().anyMatch(body->body.getShape().equals(shape));
+	public QueryShape getShape(){
+		return body.getShape();
 	}
 	
 	/**
-	 * Gets all shapes used by the bodies in this query.
-	 * @return All query body shapes.
+	 * Gets the selectivity of this query.
+	 * @return The selectivity of this query.
 	 */
-	public Set<QueryShape> getShapes(){
-		return bodies.stream().map(QueryBody::getShape).collect(Collectors.toSet());
-	}
-	
-	/**
-	 * Checks if this query contains a query body with the given selectivity.
-	 * @param selectivity The selectivity to check for.
-	 * @return True if this query contains a query body with the given selectivity.
-	 */
-	public boolean hasSelectivity(Selectivity selectivity){
-		return bodies.stream().anyMatch(body->body.getSelectivity().equals(selectivity));
-	}
-	
-	/**
-	 * Gets all selectivities used by the bodies in this query.
-	 * @return All query body selectivities.
-	 */
-	public Set<Selectivity> getSelectivities(){
-		return bodies.stream().map(QueryBody::getSelectivity).collect(Collectors.toSet());
-	}
-	
-	/**
-	 * Gets the number of conjuncts in the query body with the least conjuncts.
-	 * @return The minimum query body conjunct count.
-	 */
-	public int getMinConjuncts(){
-		return bodies.stream().mapToInt(QueryBody::getConjunctCount).min().orElse(0);
+	public Selectivity getSelectivity(){
+		return body.getSelectivity();
 	}
 	
 	/**
 	 * Gets the number of conjuncts in the query body with the most conjuncts.
 	 * @return The maximum query body conjunct count.
 	 */
-	public int getMaxConjuncts(){
-		return bodies.stream().mapToInt(QueryBody::getConjunctCount).max().orElse(0);
+	public int getConjunctCount(){
+		return body.getConjunctCount();
 	}
 	
 	/**
@@ -137,69 +113,152 @@ public class Query implements OutputSQL, OutputXML{
 	}
 	
 	/**
-	 * Gets all the query bodies for this query.
-	 * @return All query bodies.
+	 * Gets the query body for this query.
+	 * @return The query body.
 	 */
-	public List<QueryBody> getBodies(){
-		return bodies;
-	}
-	
-	/**
-	 * Gets the number of bodies that make up this query.
-	 * @return The number of bodies in this query.
-	 */
-	public int getBodyCount(){
-		return bodies.size();
+	public QueryBody getBody(){
+		return body;
 	}
 	
 	@Override
 	public String toString(){
 		StringJoiner lhs = new StringJoiner(",", "(", ")");
-		for(Variable var : variables){
-			lhs.add(var.toString());
+		for(Variable v : variables){
+			lhs.add(v.toString());
 		}
 		
-		StringBuffer buffer = new StringBuffer();
-		for(int i = 0; i < bodies.size(); i++){
-			buffer.append(lhs.toString());
-			buffer.append(" ← ");
-			buffer.append(bodies.get(i).toString());
-			if(i < bodies.size() - 1){
-				buffer.append("\n");
-			}
-		}
+		StringBuilder buffer = new StringBuilder();
+		buffer.append(lhs.toString());
+		buffer.append(" ← ");
+		buffer.append(body.toString());
 		return buffer.toString();
 	}
-
-	@Override
-	public String toSQL(){
-		StringBuffer buffer = new StringBuffer();
-		for(int i = 0; i < bodies.size(); i++){
-			buffer.append(bodies.get(i).toSQL(variables));
-			if(i < bodies.size() - 1){
-				buffer.append(" UNION ");
-			}
-		}
-		buffer.append(";");
-		return buffer.toString();
-	}
-
+	
 	@Override
 	public void writeXML(IndentWriter writer){
 		writer.println("<query>", 2);		
 		
 		writer.println("<head>", 2);
-		variables.forEach(var->{
+		variables.forEach(v->{
 			writer.print("<var>");
-			writer.print(var.toString());
+			writer.print(v.toString());
 			writer.println("</var>");
 		});
 		writer.println(2, "</head>");
 		
 		writer.println("<bodies>", 2);
-		bodies.forEach(body->body.writeXML(writer));
+		body.writeXML(writer);
 		writer.println(2, "</bodies>");
 		
 		writer.println(2, "</query>");
+	}
+	
+	@Override
+	public void writeSQL(IndentWriter writer){
+		body.writeSQL(writer);
+		
+		//compile which variables are in which conjuncts
+		int n = body.getConjunctCount();
+		Map<Variable, List<Conjunct>> varMap = new LinkedHashMap<Variable, List<Conjunct>>();
+		Map<Conjunct, Integer> idMap = new HashMap<Conjunct, Integer>();
+		for(int i = 0; i < n; i++){
+			Conjunct conj = body.getConjuncts().get(i);
+			varMap.computeIfAbsent(conj.getSource(), v->new ArrayList<Conjunct>()).add(conj);
+			varMap.computeIfAbsent(conj.getTarget(), v->new ArrayList<Conjunct>()).add(conj);
+			idMap.put(conj, i);
+		}
+		
+		//write the select clause selecting representatives of the projected query head variables
+		writer.println();
+		if(variables.isEmpty()){
+			writer.println("SELECT \"true\"");
+			writer.println("FROM edge");
+			writer.println("WHERE EXISTS (", 2);
+			writer.println("SELECT *");
+		}else{
+			//just need one occurrence
+			writer.println("SELECT DISTINCT", 2);
+			for(int i = 0; i < variables.size(); i++){
+				Variable v = variables.get(i);
+				writer.print(conjunctVarToSQL(v, varMap.get(v).get(0), idMap));
+				if(i < variables.size() - 1){
+					writer.println(",");
+				}
+			}
+			
+			writer.println();
+			writer.decreaseIndent(2);
+		}
+		
+		//the from clause just list all regular and star clauses in the body
+		writer.println("FROM");
+		writer.increaseIndent(2);
+		for(int i = 0; i < n; i++){
+			writer.print("c");
+			writer.print(i);
+			
+			if(body.getConjuncts().get(i).hasStar()){
+				writer.println(",");
+				writer.print("c");
+				writer.print(i);
+				writer.print("tc");
+			}
+			
+			if(i < n - 1){
+				writer.println(",");
+			}else{
+				writer.println();
+			}
+		}
+		
+		//a single conjunct shares no variables with other conjuncts or itself (at least right now)
+		if(body.getConjunctCount() > 1){
+			writer.println(2, "WHERE");
+			writer.increaseIndent(2);
+			
+			boolean first = true;
+			Iterator<Entry<Variable, List<Conjunct>>> iter = varMap.entrySet().iterator();
+			while(iter.hasNext()){
+				Entry<Variable, List<Conjunct>> data = iter.next();
+				List<Conjunct> conjuncts = data.getValue();
+				Variable v = data.getKey();
+				
+				//compare the first with all others
+				for(int i = 1; i < conjuncts.size(); i++){
+					if(!first){
+						writer.println();
+						writer.println("AND");
+					}
+					
+					writer.print(conjunctVarToSQL(v, conjuncts.get(0), idMap));
+					writer.print(" = ");
+					writer.print(conjunctVarToSQL(v, conjuncts.get(i), idMap));
+					first = false;
+				}
+			}
+		}
+		
+		if(variables.isEmpty()){
+			writer.println();
+			writer.decreaseIndent(4);
+			writer.print(")");
+		}
+	}
+	
+	/**
+	 * Converts a conjunct variable to SQL.
+	 * @param v The variable to convert.
+	 * @param conj The conjunct this variable is a part of.
+	 * @param idMap A map storing the ID of each conjunct.
+	 * @return The SQL version of this conjunct variable.
+	 */
+	private static String conjunctVarToSQL(Variable v, Conjunct conj, Map<Conjunct, Integer> idMap){
+		if(v.equals(conj.getSource())){
+			return "c" + idMap.get(conj) + ".src";
+		}else if(v.equals(conj.getTarget())){
+			return "c" + idMap.get(conj) + ".trg";
+		}else{
+			return null;
+		}
 	}
 }

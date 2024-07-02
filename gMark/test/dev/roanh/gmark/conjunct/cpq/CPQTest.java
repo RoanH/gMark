@@ -53,8 +53,4 @@ public class CPQTest{
 	public void dia5(){
 		assertEquals(0, CPQ.parse("id").getDiameter());
 	}
-	
-	public static void main(String[] args){
-		CPQ.parse("(a◦a◦a) ∩ (a◦a)");
-	}
 }

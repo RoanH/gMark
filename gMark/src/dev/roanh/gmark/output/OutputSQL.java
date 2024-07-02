@@ -18,17 +18,28 @@
  */
 package dev.roanh.gmark.output;
 
+import dev.roanh.gmark.util.IndentWriter;
+
 /**
  * Interface for components that can be converted
  * to an SQL query representing them.
  * @author Roan
  */
 public abstract interface OutputSQL{
+	
+	/**
+	 * Writes the SQL representation of this object to the given writer.
+	 * @param writer The writer to write to.
+	 */
+	public abstract void writeSQL(IndentWriter writer);
 
-	//TODO indent writer
 	/**
 	 * Converts this object to an SQL query.
 	 * @return An SQL query representing this object.
 	 */
-	public abstract String toSQL();
+	public default String toSQL(){
+		IndentWriter writer = new IndentWriter();
+		writeSQL(writer);
+		return writer.toString();
+	}
 }

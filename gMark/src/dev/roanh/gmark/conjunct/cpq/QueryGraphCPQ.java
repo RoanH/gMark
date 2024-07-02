@@ -856,8 +856,7 @@ public class QueryGraphCPQ{
 		
 		@Override
 		public boolean equals(Object obj){
-			if(obj instanceof Edge){
-				Edge edge = (Edge)obj;
+			if(obj instanceof Edge edge){
 				return src == edge.src && trg == edge.trg && label.equals(edge.label);
 			}else{
 				return false;
@@ -911,8 +910,7 @@ public class QueryGraphCPQ{
 		
 		@Override
 		public boolean equals(Object obj){
-			if(obj instanceof Pair){
-				Pair other = (Pair)obj;
+			if(obj instanceof Pair other){
 				return (other.first == first && other.second == second) || (other.first == second && other.second == first);
 			}else{
 				return false;

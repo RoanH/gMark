@@ -33,7 +33,7 @@ public class IndentWriter{
 	/**
 	 * The context of this writer (all written lines).
 	 */
-	private StringBuffer content;
+	private StringBuilder content;
 	/**
 	 * The current indent (in spaces).
 	 */
@@ -60,7 +60,7 @@ public class IndentWriter{
 	 * @param indent The writer indent.
 	 */
 	public IndentWriter(int indent){
-		content = new StringBuffer();
+		content = new StringBuilder();
 		this.indent = indent;
 	}
 	
@@ -93,6 +93,13 @@ public class IndentWriter{
 	 */
 	public void println(String str){
 		print(str);
+		println();
+	}
+	
+	/**
+	 * Writes a line break.
+	 */
+	public void println(){
 		content.append('\n');
 		newLine = true;
 	}

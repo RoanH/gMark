@@ -38,10 +38,15 @@ public final class IdentityCPQ implements CPQ{
 	public String toString(){
 		return "id";
 	}
-
+	
 	@Override
-	public String toSQL(){
-		return "((SELECT src, src AS trg FROM edge) UNION (SELECT trg AS src, trg FROM edge))";
+	public void writeSQL(IndentWriter writer){
+		writer.println("SELECT src, trg FROM (", 2);
+		writer.println("SELECT src, src AS trg FROM edge");
+		writer.println("UNION");
+		writer.println("SELECT trg AS src, trg FROM edge");
+		writer.decreaseIndent(2);
+		writer.print(")");
 	}
 
 	@Override

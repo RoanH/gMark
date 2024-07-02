@@ -18,13 +18,7 @@
  */
 package dev.roanh.gmark.query;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.StringJoiner;
 
 import dev.roanh.gmark.core.QueryShape;
@@ -60,12 +54,20 @@ public class QueryBody implements OutputXML{
 	 * @throws IllegalArgumentException When the list of conjuncts is empty.
 	 */
 	public QueryBody(List<Conjunct> conjuncts, Selectivity selectivity, QueryShape shape) throws IllegalArgumentException{
+		this.selectivity = selectivity;
+		this.shape = shape;
 		this.conjuncts = conjuncts;
 		if(conjuncts.isEmpty()){
 			throw new IllegalArgumentException("Query body cannot have no conjuncts.");
 		}
-		this.selectivity = selectivity;
-		this.shape = shape;
+	}
+	
+	/**
+	 * Gets the conjuncts for this query body.
+	 * @return The conjuncts for this query body.
+	 */
+	public List<Conjunct> getConjuncts(){
+		return conjuncts;
 	}
 	
 	/**
@@ -111,122 +113,21 @@ public class QueryBody implements OutputXML{
 		return joiner.toString();
 	}
 	
-	
 //	/**
 //	 * Converts this query body to SQL.
-//	 * @param lhs The projected head variables.
 //	 * @return The SQL form of this query body.
 //	 */
-	protected void writeSQL(IndentWriter writer, List<Variable> lhs){
-		int n = conjuncts.size();
-		Map<Variable, List<Conjunct>> varMap = new LinkedHashMap<Variable, List<Conjunct>>();
-		Map<Conjunct, Integer> idMap = new HashMap<Conjunct, Integer>();
-		
+	protected void writeSQL(IndentWriter writer){
 		writer.println("WITH RECURSIVE");
-		for(int i = 0; i < n; i++){
+		for(int i = 0; i < conjuncts.size(); i++){
 			Conjunct conj = conjuncts.get(i);
-			varMap.computeIfAbsent(conj.getSource(), v->new ArrayList<Conjunct>()).add(conj);
-			varMap.computeIfAbsent(conj.getTarget(), v->new ArrayList<Conjunct>()).add(conj);
-			idMap.put(conj, i);
-			
 			conj.writeSQL(writer, "c" + i);
-			if(i < n - 1){
+			if(i < conjuncts.size() - 1){
 				writer.println(",");
 			}
-		}
-		
-		writer.println();
-		if(lhs.isEmpty()){
-			writer.println("SELECT \"true\"");
-			writer.println("FROM edge");
-			writer.println("WHERE EXISTS (", 2);
-			writer.println("SELECT *");
-		}else{
-			//just need one occurrence
-			writer.println("SELECT DISTINCT", 2);
-			for(int i = 0; i < lhs.size(); i++){
-				Variable v = lhs.get(i);
-				writer.print(conjunctVarToSQL(v, varMap.get(v).get(0), idMap));
-				if(i < lhs.size() - 1){
-					writer.println(",");
-				}
-			}
-			
-			writer.println();
-			writer.decreaseIndent(2);
-		}
-		
-		writer.println("FROM");
-		writer.increaseIndent(2);
-		for(int i = 0; i < n; i++){
-			writer.print("c");
-			writer.print(i);
-			
-			if(conjuncts.get(i).hasStar()){
-				writer.println(",");
-				writer.print("c");
-				writer.print(i);
-				writer.print("tc");
-			}
-			
-			if(i < n - 1){
-				writer.println(",");
-			}else{
-				writer.println();
-			}
-		}
-		
-		//a single conjunct shares no variables with other conjuncts or itself
-		if(conjuncts.size() > 1){
-			writer.println(2, "WHERE");
-			writer.increaseIndent(2);
-			
-			boolean first = true;
-			Iterator<Entry<Variable, List<Conjunct>>> iter = varMap.entrySet().iterator();
-			while(iter.hasNext()){
-				Entry<Variable, List<Conjunct>> data = iter.next();
-				List<Conjunct> conjuncts = data.getValue();
-				Variable var = data.getKey();
-				
-				//compare the first with all others
-				for(int i = 1; i < conjuncts.size(); i++){
-					if(!first){
-						writer.println();
-						writer.println("AND");
-					}
-					
-					writer.print(conjunctVarToSQL(var, conjuncts.get(0), idMap));
-					writer.print(" = ");
-					writer.print(conjunctVarToSQL(var, conjuncts.get(i), idMap));
-					first = false;
-				}
-			}
-		}
-		
-		if(lhs.isEmpty()){
-			writer.println();
-			writer.decreaseIndent(4);
-			writer.print(")");
 		}
 	}
 	
-	/**
-	 * Converts a conjunct variable to SQL.
-	 * @param var The variable to convert.
-	 * @param conj The conjunct this variable is a part of.
-	 * @param idMap A map storing the ID of each conjunct.
-	 * @return The SQL version of this conjunct variable.
-	 */
-	private static String conjunctVarToSQL(Variable var, Conjunct conj, Map<Conjunct, Integer> idMap){
-		if(var.equals(conj.getSource())){
-			return "c" + idMap.get(conj) + ".src";
-		}else if(var.equals(conj.getTarget())){
-			return "c" + idMap.get(conj) + ".trg";
-		}else{
-			return null;
-		}
-	}
-
 	@Override
 	public void writeXML(IndentWriter writer){
 		writer.println("<body>", 2);

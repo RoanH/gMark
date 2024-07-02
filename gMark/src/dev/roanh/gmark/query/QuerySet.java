@@ -144,7 +144,7 @@ public class QuerySet implements OutputXML{
 	 * @see QueryShape
 	 */
 	public int getShapeTotal(QueryShape shape){
-		return (int)queries.stream().map(Query::getShapes).filter(shape::equals).count();
+		return (int)queries.stream().map(Query::getShape).filter(shape::equals).count();
 	}
 	
 	/**

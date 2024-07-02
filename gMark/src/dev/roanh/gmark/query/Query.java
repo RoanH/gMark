@@ -18,8 +18,14 @@
  */
 package dev.roanh.gmark.query;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
+import java.util.Map.Entry;
 
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
@@ -69,7 +75,7 @@ public class Query implements OutputSQL, OutputXML{
 	 * Gets the shape of this query.
 	 * @return The query shape.
 	 */
-	public QueryShape getShapes(){
+	public QueryShape getShape(){
 		return body.getShape();
 	}
 	
@@ -115,11 +121,6 @@ public class Query implements OutputSQL, OutputXML{
 	}
 	
 	@Override
-	public void writeSQL(IndentWriter writer){
-		body.writeSQL(writer, variables);
-	}
-	
-	@Override
 	public String toString(){
 		StringJoiner lhs = new StringJoiner(",", "(", ")");
 		for(Variable v : variables){
@@ -150,5 +151,114 @@ public class Query implements OutputSQL, OutputXML{
 		writer.println(2, "</bodies>");
 		
 		writer.println(2, "</query>");
+	}
+	
+	@Override
+	public void writeSQL(IndentWriter writer){
+		body.writeSQL(writer);
+		
+		//compile which variables are in which conjuncts
+		int n = body.getConjunctCount();
+		Map<Variable, List<Conjunct>> varMap = new LinkedHashMap<Variable, List<Conjunct>>();
+		Map<Conjunct, Integer> idMap = new HashMap<Conjunct, Integer>();
+		for(int i = 0; i < n; i++){
+			Conjunct conj = body.getConjuncts().get(i);
+			varMap.computeIfAbsent(conj.getSource(), v->new ArrayList<Conjunct>()).add(conj);
+			varMap.computeIfAbsent(conj.getTarget(), v->new ArrayList<Conjunct>()).add(conj);
+			idMap.put(conj, i);
+		}
+		
+		//write the select clause selecting representatives of the projected query head variables
+		writer.println();
+		if(variables.isEmpty()){
+			writer.println("SELECT \"true\"");
+			writer.println("FROM edge");
+			writer.println("WHERE EXISTS (", 2);
+			writer.println("SELECT *");
+		}else{
+			//just need one occurrence
+			writer.println("SELECT DISTINCT", 2);
+			for(int i = 0; i < variables.size(); i++){
+				Variable v = variables.get(i);
+				writer.print(conjunctVarToSQL(v, varMap.get(v).get(0), idMap));
+				if(i < variables.size() - 1){
+					writer.println(",");
+				}
+			}
+			
+			writer.println();
+			writer.decreaseIndent(2);
+		}
+		
+		//the from clause just list all regular and star clauses in the body
+		writer.println("FROM");
+		writer.increaseIndent(2);
+		for(int i = 0; i < n; i++){
+			writer.print("c");
+			writer.print(i);
+			
+			if(body.getConjuncts().get(i).hasStar()){
+				writer.println(",");
+				writer.print("c");
+				writer.print(i);
+				writer.print("tc");
+			}
+			
+			if(i < n - 1){
+				writer.println(",");
+			}else{
+				writer.println();
+			}
+		}
+		
+		//a single conjunct shares no variables with other conjuncts or itself (at least right now)
+		if(body.getConjunctCount() > 1){
+			writer.println(2, "WHERE");
+			writer.increaseIndent(2);
+			
+			boolean first = true;
+			Iterator<Entry<Variable, List<Conjunct>>> iter = varMap.entrySet().iterator();
+			while(iter.hasNext()){
+				Entry<Variable, List<Conjunct>> data = iter.next();
+				List<Conjunct> conjuncts = data.getValue();
+				Variable v = data.getKey();
+				
+				//compare the first with all others
+				for(int i = 1; i < conjuncts.size(); i++){
+					if(!first){
+						writer.println();
+						writer.println("AND");
+					}
+					
+					writer.print(conjunctVarToSQL(v, conjuncts.get(0), idMap));
+					writer.print(" = ");
+					writer.print(conjunctVarToSQL(v, conjuncts.get(i), idMap));
+					first = false;
+				}
+			}
+		}
+		
+		if(variables.isEmpty()){
+			writer.println();
+			writer.decreaseIndent(4);
+			writer.print(")");
+		}
+	}
+	
+	/**
+	 * Converts a conjunct variable to SQL.
+	 * @param v The variable to convert.
+	 * @param conj The conjunct this variable is a part of.
+	 * @param idMap A map storing the ID of each conjunct.
+	 * @return The SQL version of this conjunct variable.
+	 */
+	private static String conjunctVarToSQL(Variable v, Conjunct conj, Map<Conjunct, Integer> idMap){
+		if(v.equals(conj.getSource())){
+			return "c" + idMap.get(conj) + ".src";
+		}else if(v.equals(conj.getTarget())){
+			return "c" + idMap.get(conj) + ".trg";
+		}else{
+			return null;
+		}
 	}
 }

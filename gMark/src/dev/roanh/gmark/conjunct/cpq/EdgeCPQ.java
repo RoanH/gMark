@@ -56,9 +56,13 @@ public class EdgeCPQ implements CPQ{
 	
 	@Override
 	public void writeSQL(IndentWriter writer){
-		symbol.writeSQL(writer);
+		if(symbol.isInverse()){
+			writer.print("SELECT trg AS src, src AS trg FROM edge WHERE label = " + symbol.getID());
+		}else{
+			writer.print("SELECT src, trg FROM edge WHERE label = " + symbol.getID());
+		}
 	}
-
+	
 	@Override
 	public void writeXML(IndentWriter writer){
 		symbol.writeXML(writer);

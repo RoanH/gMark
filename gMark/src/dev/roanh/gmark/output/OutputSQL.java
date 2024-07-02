@@ -27,9 +27,12 @@ import dev.roanh.gmark.util.IndentWriter;
  */
 public abstract interface OutputSQL{
 	
+	/**
+	 * Writes the SQL representation of this object to the given writer.
+	 * @param writer The writer to write to.
+	 */
 	public abstract void writeSQL(IndentWriter writer);
 
-	//TODO indent writer
 	/**
 	 * Converts this object to an SQL query.
 	 * @return An SQL query representing this object.
@@ -38,5 +41,5 @@ public abstract interface OutputSQL{
 		IndentWriter writer = new IndentWriter();
 		writeSQL(writer);
 		return writer.toString();
-	}//TODO keep with name but just call the indent writer
+	}
 }

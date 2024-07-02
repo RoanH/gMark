@@ -255,16 +255,6 @@ public class ConversionCPQTest{
 	}
 	
 	@Test
-	public void predicateToSQL(){
-		assertEquals("SELECT src, trg FROM edge WHERE label = 1", pred1.toSQL());
-	}
-	
-	@Test
-	public void inversePredicateToSQL(){
-		assertEquals("SELECT trg AS src, src AS trg FROM edge WHERE label = 1", pred1.getInverse().toSQL());
-	}
-	
-	@Test
 	public void labelToSQL0(){
 		assertEquals("SELECT src, trg FROM edge WHERE label = 0", label0.toSQL());
 	}

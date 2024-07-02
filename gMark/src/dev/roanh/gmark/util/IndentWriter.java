@@ -96,6 +96,9 @@ public class IndentWriter{
 		println();
 	}
 	
+	/**
+	 * Writes a line break.
+	 */
 	public void println(){
 		content.append('\n');
 		newLine = true;

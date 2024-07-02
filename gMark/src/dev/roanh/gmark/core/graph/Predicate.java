@@ -20,7 +20,6 @@ package dev.roanh.gmark.core.graph;
 
 import java.util.Objects;
 
-import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IDable;
 import dev.roanh.gmark.util.IndentWriter;
@@ -32,7 +31,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * inverse direction from target to source.
  * @author Roan
  */
-public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>, IDable{
+public class Predicate implements OutputXML, Comparable<Predicate>, IDable{
 	/**
 	 * The character used to denote negated predicates.
 	 */
@@ -146,15 +145,6 @@ public class Predicate implements OutputXML, OutputSQL, Comparable<Predicate>, I
 	@Override
 	public int getID(){
 		return id;
-	}
-	
-	@Override
-	public void writeSQL(IndentWriter writer){
-		if(isInverse()){
-			writer.print("SELECT trg AS src, src AS trg FROM edge WHERE label = " + id);
-		}else{
-			writer.print("SELECT src, trg FROM edge WHERE label = " + id);
-		}
 	}
 	
 	@Override

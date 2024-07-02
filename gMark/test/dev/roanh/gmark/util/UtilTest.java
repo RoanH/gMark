@@ -25,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -446,6 +448,16 @@ public class UtilTest{
 		assertEquals(1, found.size());
 		assertEquals(1, found.get(0).size());
 		assertEquals("a", found.get(0).get(0));
+	}
+	
+	@Test
+	public void isEmpty0() throws IOException{
+		assertTrue(Util.isEmpty(Files.createTempDirectory(null)));
+	}
+	
+	@Test
+	public void isEmpty1() throws IOException{
+		assertFalse(Util.isEmpty(Files.createTempFile(null, null).getParent()));
 	}
 	
 	public static <T extends IDable, M> void assertValidTreeDecomposition(Tree<List<T>> decomp, List<T> vertices, List<SimpleEdge<T, M>> edges){

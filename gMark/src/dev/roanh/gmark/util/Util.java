@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Predicate;
@@ -52,11 +53,17 @@ import dev.roanh.gmark.util.UniqueGraph.GraphNode;
  * as thread bound random operations.
  * @author Roan
  */
-public class Util{
+public final class Util{
 	/**
 	 * Random instances for each thread.
 	 */
 	private static final ThreadLocal<Random> random = ThreadLocal.withInitial(Random::new);
+
+	/**
+	 * Prevent instantiation.
+	 */
+	private Util(){
+	}
 	
 	/**
 	 * Gets a random instance bound to the current thread.
@@ -154,7 +161,9 @@ public class Util{
 	 * @throws IOException When an IOException occurs.
 	 */
 	public static boolean isEmpty(Path folder) throws IOException{
-		return !Files.walk(folder).filter(path->!path.equals(folder)).findFirst().isPresent();
+		try(Stream<Path> paths = Files.walk(folder)){
+			return paths.noneMatch(path->!path.equals(folder));
+		}
 	}
 	
 	/**
@@ -190,7 +199,7 @@ public class Util{
 				out.print("(" + args[0] + ", " + args[1] + ", " + args[2] + ")");
 			}
 			out.println(";");
-		}catch(Throwable e){
+		}catch(Exception e){
 			throw new IOException(e);
 		}
 	}

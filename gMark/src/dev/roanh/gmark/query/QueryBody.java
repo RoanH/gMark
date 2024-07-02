@@ -113,10 +113,10 @@ public class QueryBody implements OutputXML{
 		return joiner.toString();
 	}
 	
-//	/**
-//	 * Converts this query body to SQL.
-//	 * @return The SQL form of this query body.
-//	 */
+	/**
+	 * Writes the SQL form of this query body to the given writer.
+	 * @param writer The writer to write to.
+	 */
 	protected void writeSQL(IndentWriter writer){
 		writer.println("WITH RECURSIVE");
 		for(int i = 0; i < conjuncts.size(); i++){

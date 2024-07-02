@@ -104,6 +104,47 @@ public abstract class Conjunct implements OutputXML{
 	 */
 	public abstract WorkloadType getType();
 	
+	/**
+	 * Writes the SQL form of this conjunct clause to the given writer.
+	 * @param writer The writer to write to.
+	 * @param conjunctBaseName The base name of the conjunct clause, this
+	 *        name will be prefixed with 'c' and optionally a second clause
+	 *        will be written that is prefixed with 'c' and suffixed with 'tc'
+	 *        if this conjunct has a Kleene star.
+	 * @see #hasStar()
+	 */
+	protected void writeSQL(IndentWriter writer, String conjunctBaseName){
+		writer.print(conjunctBaseName);
+		writer.println("(src, trg) AS (", 2);
+		if(hasStar()){
+			writer.println("SELECT edge.src, edge.src");
+			writer.println("FROM edge");
+			writer.println("UNION");
+			writer.println("SELECT edge.trg, edge.trg");
+			writer.println("FROM edge");
+			writer.println("UNION");
+		}
+		
+		writePartialSQL(writer);
+		writer.println();
+		writer.decreaseIndent(2);
+		writer.print(")");
+		
+		if(hasStar()){
+			writer.println(",");
+			writer.print(conjunctBaseName);
+			writer.println("tc(src, trg) AS (", 2);
+			writer.println("SELECT src, trg");
+			writer.println("FROM c" + conjunctBaseName);
+			writer.println("UNION");
+			writer.println("SELECT head.src, tail.trg");
+			writer.println("FROM c" + conjunctBaseName + " AS head, c" + conjunctBaseName + "tc AS tail");
+			writer.println("WHERE head.trg = tail.src");
+			writer.decreaseIndent(2);
+			writer.print(")");
+		}
+	}
+	
 	@Override
 	public String toString(){
 		if(star){
@@ -112,7 +153,7 @@ public abstract class Conjunct implements OutputXML{
 			return "(" + source + "," + getInnerString() + "," + target + ")";
 		}
 	}
-
+	
 	@Override
 	public void writeXML(IndentWriter writer){
 		writer.print("<conjunct src=\"");

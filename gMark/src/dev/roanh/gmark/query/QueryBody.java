@@ -129,7 +129,7 @@ public class QueryBody implements OutputXML{
 			varMap.computeIfAbsent(conj.getTarget(), v->new ArrayList<Conjunct>()).add(conj);
 			idMap.put(conj, i);
 			
-			writeConjunct(writer, i, conj);
+			conj.writeSQL(writer, String.valueOf(i));
 			if(i < n - 1){
 				writer.println(",");
 			}
@@ -206,39 +206,6 @@ public class QueryBody implements OutputXML{
 		if(lhs.isEmpty()){
 			writer.println();
 			writer.decreaseIndent(4);
-			writer.print(")");
-		}
-	}
-	
-	private static void writeConjunct(IndentWriter writer, int id, Conjunct conjunct){
-		writer.print("c");
-		writer.print(id);
-		writer.println("(src, trg) AS (", 2);
-		if(conjunct.hasStar()){
-			writer.println("SELECT edge.src, edge.src");
-			writer.println("FROM edge");
-			writer.println("UNION");
-			writer.println("SELECT edge.trg, edge.trg");
-			writer.println("FROM edge");
-			writer.println("UNION");
-		}
-		conjunct.writePartialSQL(writer);
-		writer.println();
-		writer.decreaseIndent(2);
-		writer.print(")");
-		
-		if(conjunct.hasStar()){
-			writer.println(",");
-			writer.print("c");
-			writer.print(id);
-			writer.println("tc(src, trg) AS (", 2);
-			writer.println("SELECT src, trg");
-			writer.println("FROM c" + id);
-			writer.println("UNION");
-			writer.println("SELECT head.src, tail.trg");
-			writer.println("FROM c" + id + " AS head, c" + id + "tc AS tail");
-			writer.println("WHERE head.trg = tail.src");
-			writer.decreaseIndent(2);
 			writer.print(")");
 		}
 	}

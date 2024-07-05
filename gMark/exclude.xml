@@ -37,7 +37,7 @@
   
   <Match>
     <!-- Unimplemented -->
-    <Class name="dev.roanh.gmark.conjunct.rpq.ConjunctGeneratorRPQ"/>
+    <Class name="dev.roanh.gmark.query.conjunct.rpq.ConjunctGeneratorRPQ"/>
     <Bug pattern="URF_UNREAD_FIELD"/>
   </Match>
   

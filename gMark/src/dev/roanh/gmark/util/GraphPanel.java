@@ -40,9 +40,9 @@ import java.util.function.Function;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import dev.roanh.gmark.conjunct.cpq.CPQ;
-import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.lang.cpq.CPQ;
+import dev.roanh.gmark.lang.cpq.QueryGraphCPQ;
 import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.UniqueGraph.GraphNode;
 

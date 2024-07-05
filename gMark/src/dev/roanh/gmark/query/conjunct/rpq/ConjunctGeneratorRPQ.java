@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.conjunct.rpq;
+package dev.roanh.gmark.query.conjunct.rpq;
 
 import dev.roanh.gmark.core.ConjunctGenerator;
 import dev.roanh.gmark.exception.GenerationException;
@@ -26,10 +26,10 @@ import dev.roanh.gmark.util.SelectivityGraph;
 import dev.roanh.gmark.util.SelectivityType;
 
 /**
- * Generator for RPQs (Regular Path Queries).
+ * Conjunct generator for RPQs (Regular Path Queries).
  * @author Roan
  */
-public class GeneratorRPQ implements ConjunctGenerator{
+public class ConjunctGeneratorRPQ implements ConjunctGenerator{
 	/**
 	 * The workload specifying what RPQs to generate.
 	 */
@@ -41,7 +41,7 @@ public class GeneratorRPQ implements ConjunctGenerator{
 	 * @param wl The workload specification.
 	 * @see WorkloadRPQ
 	 */
-	public GeneratorRPQ(WorkloadRPQ wl){
+	public ConjunctGeneratorRPQ(WorkloadRPQ wl){
 		workload = wl;
 	}
 	

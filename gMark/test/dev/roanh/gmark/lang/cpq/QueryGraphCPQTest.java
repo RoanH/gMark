@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.conjunct.cpq;
+package dev.roanh.gmark.lang.cpq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -36,10 +36,10 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
-import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Edge;
-import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.QueryGraphComponent;
-import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Edge;
+import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.QueryGraphComponent;
+import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.util.SimpleGraph;
 import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
@@ -168,7 +168,7 @@ public class QueryGraphCPQTest{
 		
 		GraphEdge<Vertex, Predicate> edge = g.getEdges().get(0);
 		assertEquals("a", edge.getData().getAlias());
-		assertFalse(edge.getSourceNode().equals(edge.getTargetNode()));
+		assertNotEquals(edge.getSourceNode(), edge.getTargetNode());
 	}
 	
 	@Test

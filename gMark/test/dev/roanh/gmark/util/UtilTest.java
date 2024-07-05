@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.conjunct.cpq.CPQ;
-import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.QueryGraphComponent;
+import dev.roanh.gmark.lang.cpq.CPQ;
+import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.QueryGraphComponent;
 import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 

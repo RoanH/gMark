@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.conjunct.rpq;
+package dev.roanh.gmark.lang.rpq;
 
 /**
  * Interface for regular path queries (RPQs).

@@ -27,6 +27,7 @@ import dev.roanh.gmark.util.Util;
  * Simple generator for CPQs (Conjunctive Path Queries).
  * @author Roan
  * @see CPQ
+ * @see <a href="https://research.roanh.dev/cpqkeys/CPQ%20Keys%20v1.1.pdf#subsubsection.2.5.1">CPQ Keys: Plain CPQ Generation</a>
  */
 public final class GeneratorCPQ{
 

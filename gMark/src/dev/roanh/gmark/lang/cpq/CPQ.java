@@ -31,6 +31,8 @@ import dev.roanh.gmark.output.OutputXML;
 /**
  * Interface for conjunctive path queries (CPQs).
  * @author Roan
+ * @see <a href="https://research.roanh.dev/Indexing%20Conjunctive%20Path%20Queries%20for%20Accelerated%20Query%20Evaluation.pdf#subsection.2.2.2">
+ *      Indexing Conjunctive Path Queries for Accelerated Query Evaluation, Section 2.2.2: Conjunctive Path Queries</a>
  * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
  */
 public abstract interface CPQ extends OutputSQL, OutputXML{

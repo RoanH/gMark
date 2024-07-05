@@ -23,9 +23,9 @@ import java.util.function.BiFunction;
 
 import org.w3c.dom.Element;
 
-import dev.roanh.gmark.conjunct.cpq.WorkloadCPQ;
-import dev.roanh.gmark.conjunct.rpq.WorkloadRPQ;
 import dev.roanh.gmark.core.graph.Schema;
+import dev.roanh.gmark.query.conjunct.cpq.WorkloadCPQ;
+import dev.roanh.gmark.query.conjunct.rpq.WorkloadRPQ;
 
 /**
  * Enum specifying all the different concrete workload types.

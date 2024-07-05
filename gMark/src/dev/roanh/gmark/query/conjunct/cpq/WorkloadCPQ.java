@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.conjunct.cpq;
+package dev.roanh.gmark.query.conjunct.cpq;
 
 import org.w3c.dom.Element;
 
@@ -25,6 +25,7 @@ import dev.roanh.gmark.core.ConjunctGenerator;
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.WorkloadType;
 import dev.roanh.gmark.core.graph.Schema;
+import dev.roanh.gmark.lang.cpq.CPQ;
 
 /**
  * Describes a workload of CPQ queries to generate.
@@ -92,7 +93,7 @@ public class WorkloadCPQ extends Workload{
 		super.validate();
 		
 		if(maxDiameter < 1){
-			throw new IllegalStateException("Maximum diamter cannot be less than 1.");
+			throw new IllegalStateException("Maximum diameter cannot be less than 1.");
 		}else if(maxRecursion < 0){
 			throw new IllegalStateException("Maximum recursion cannot be negative.");
 		}
@@ -110,6 +111,6 @@ public class WorkloadCPQ extends Workload{
 
 	@Override
 	public ConjunctGenerator getConjunctGenerator(){
-		return new GeneratorCPQ(this);
+		return new ConjunctGeneratorCPQ(this);
 	}
 }

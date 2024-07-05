@@ -16,21 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.conjunct.cpq;
+package dev.roanh.gmark.lang.cpq;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
 
 /**
  * Interface for conjunctive path queries (CPQs).
  * @author Roan
+ * @see <a href="https://research.roanh.dev/Indexing%20Conjunctive%20Path%20Queries%20for%20Accelerated%20Query%20Evaluation.pdf#subsection.2.2.2">
+ *      Indexing Conjunctive Path Queries for Accelerated Query Evaluation, Section 2.2.2: Conjunctive Path Queries</a>
  * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
  */
 public abstract interface CPQ extends OutputSQL, OutputXML{
@@ -244,9 +246,9 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	 * @param query The CPQ to parse.
 	 * @return The parsed CPQ.
 	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
-	 * @see GeneratorCPQ#parse(String, char, char, char)
+	 * @see ParserCPQ#parse(String, char, char, char)
 	 */
 	public static CPQ parse(String query) throws IllegalArgumentException{
-		return GeneratorCPQ.parse(query);
+		return ParserCPQ.parse(query);
 	}
 }

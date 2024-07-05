@@ -6,12 +6,12 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import dev.roanh.gmark.conjunct.cpq.CPQ;
-import dev.roanh.gmark.conjunct.cpq.ConjunctCPQ;
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
+import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.Variable;
+import dev.roanh.gmark.query.conjunct.cpq.ConjunctCPQ;
 
 public class QueryTest{
 	private static final Variable v0 = new Variable(0);

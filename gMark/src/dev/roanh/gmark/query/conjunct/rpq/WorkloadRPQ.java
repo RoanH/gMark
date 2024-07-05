@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.conjunct.rpq;
+package dev.roanh.gmark.query.conjunct.rpq;
 
 import org.w3c.dom.Element;
 
@@ -158,6 +158,6 @@ public class WorkloadRPQ extends Workload{
 
 	@Override
 	public ConjunctGenerator getConjunctGenerator(){
-		return new GeneratorRPQ(this);
+		return new ConjunctGeneratorRPQ(this);
 	}
 }

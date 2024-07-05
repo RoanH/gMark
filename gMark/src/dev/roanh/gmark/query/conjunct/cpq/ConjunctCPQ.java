@@ -16,9 +16,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.conjunct.cpq;
+package dev.roanh.gmark.query.conjunct.cpq;
 
 import dev.roanh.gmark.core.WorkloadType;
+import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.query.Conjunct;
 import dev.roanh.gmark.query.Variable;
 import dev.roanh.gmark.util.IndentWriter;

@@ -27,8 +27,6 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import dev.roanh.gmark.conjunct.cpq.WorkloadCPQ;
-import dev.roanh.gmark.conjunct.rpq.WorkloadRPQ;
 import dev.roanh.gmark.core.Configuration;
 import dev.roanh.gmark.core.DistributionType;
 import dev.roanh.gmark.core.QueryShape;
@@ -37,6 +35,8 @@ import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.core.WorkloadType;
 import dev.roanh.gmark.core.graph.Edge;
 import dev.roanh.gmark.exception.ConfigException;
+import dev.roanh.gmark.query.conjunct.cpq.WorkloadCPQ;
+import dev.roanh.gmark.query.conjunct.rpq.WorkloadRPQ;
 
 public class ConfigParserTest{
 	private static Configuration config;

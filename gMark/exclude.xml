@@ -18,8 +18,8 @@
   <Match>
     <!-- The merge step is always required -->
     <Or>
-      <Class name="dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ"/>
-      <Class name="dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ$Vertex"/>
+      <Class name="dev.roanh.gmark.lang.cpq.QueryGraphCPQ"/>
+      <Class name="dev.roanh.gmark.lang.cpq.QueryGraphCPQ$Vertex"/>
     </Or>
     <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     <Or>
@@ -31,13 +31,13 @@
   
   <Match>
     <!-- Contract isn't violated as IDs are unique -->
-    <Class name="dev.roanh.gmark.conjunct.cpq.QueryGraphCPQ$QueryGraphComponent"/>
+    <Class name="dev.roanh.gmark.lang.cpq.QueryGraphCPQ$QueryGraphComponent"/>
     <Bug pattern="EQ_COMPARETO_USE_OBJECT_EQUALS"/>
   </Match>
   
   <Match>
     <!-- Unimplemented -->
-    <Class name="dev.roanh.gmark.conjunct.rpq.GeneratorRPQ"/>
+    <Class name="dev.roanh.gmark.query.conjunct.rpq.ConjunctGeneratorRPQ"/>
     <Bug pattern="URF_UNREAD_FIELD"/>
   </Match>
   

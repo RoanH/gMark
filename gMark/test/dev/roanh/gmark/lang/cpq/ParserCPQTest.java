@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.conjunct.cpq;
+package dev.roanh.gmark.lang.cpq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
@@ -26,56 +26,56 @@ import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
-public class GeneratorCPQTest{
+public class ParserCPQTest{
 
 	@Test
 	public void split0(){
-		assertIterableEquals(Arrays.asList("abc"), GeneratorCPQ.split("abc", '.'));
+		assertIterableEquals(Arrays.asList("abc"), ParserCPQ.split("abc", '.'));
 	}
 	
 	@Test
 	public void split1(){
-		assertIterableEquals(Arrays.asList("abc", "def"), GeneratorCPQ.split("abc.def", '.'));
+		assertIterableEquals(Arrays.asList("abc", "def"), ParserCPQ.split("abc.def", '.'));
 	}
 	
 	@Test
 	public void split2(){
-		assertIterableEquals(Arrays.asList("abc", "(def.123)"), GeneratorCPQ.split("abc.(def.123)", '.'));
+		assertIterableEquals(Arrays.asList("abc", "(def.123)"), ParserCPQ.split("abc.(def.123)", '.'));
 	}
 	
 	@Test
 	public void split3(){
-		assertIterableEquals(Arrays.asList("7", "abc", "(def.(123.0))"), GeneratorCPQ.split("7.abc.(def.(123.0))", '.'));
+		assertIterableEquals(Arrays.asList("7", "abc", "(def.(123.0))"), ParserCPQ.split("7.abc.(def.(123.0))", '.'));
 	}
 	
 	@Test
 	public void split4(){
-		assertIterableEquals(Arrays.asList("(7.6)", "abc", "(def.(123.0))"), GeneratorCPQ.split("(7.6).abc.(def.(123.0))", '.'));
+		assertIterableEquals(Arrays.asList("(7.6)", "abc", "(def.(123.0))"), ParserCPQ.split("(7.6).abc.(def.(123.0))", '.'));
 	}
 	
 	@Test
 	public void split5(){
-		assertThrows(IllegalArgumentException.class, ()->GeneratorCPQ.split("7.(234.5", '.'));
+		assertThrows(IllegalArgumentException.class, ()->ParserCPQ.split("7.(234.5", '.'));
 	}
 	
 	@Test
 	public void split6(){
-		assertIterableEquals(Arrays.asList("abc", ""), GeneratorCPQ.split("abc.", '.'));
+		assertIterableEquals(Arrays.asList("abc", ""), ParserCPQ.split("abc.", '.'));
 	}
 	
 	@Test
 	public void split7(){
-		assertIterableEquals(Arrays.asList("abc"), GeneratorCPQ.split("abc ", '.'));
+		assertIterableEquals(Arrays.asList("abc"), ParserCPQ.split("abc ", '.'));
 	}
 	
 	@Test
 	public void split8(){
-		assertIterableEquals(Arrays.asList("abc", "def"), GeneratorCPQ.split("abc .def ", '.'));
+		assertIterableEquals(Arrays.asList("abc", "def"), ParserCPQ.split("abc .def ", '.'));
 	}
 	
 	@Test
 	public void split9(){
-		assertIterableEquals(Arrays.asList("(abc)"), GeneratorCPQ.split("(abc)", '.'));
+		assertIterableEquals(Arrays.asList("(abc)"), ParserCPQ.split("(abc)", '.'));
 	}
 	
 	@Test

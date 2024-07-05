@@ -23,12 +23,12 @@ import java.util.Deque;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import dev.roanh.gmark.conjunct.cpq.CPQ;
-import dev.roanh.gmark.conjunct.cpq.ConcatCPQ;
-import dev.roanh.gmark.conjunct.cpq.EdgeCPQ;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.core.graph.Type;
+import dev.roanh.gmark.lang.cpq.CPQ;
+import dev.roanh.gmark.lang.cpq.ConcatCPQ;
+import dev.roanh.gmark.lang.cpq.EdgeCPQ;
 import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
 
 /**

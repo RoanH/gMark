@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.conjunct.cpq;
+package dev.roanh.gmark.lang.cpq;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,12 +38,16 @@ import dev.roanh.gmark.util.UniqueGraph;
 import dev.roanh.gmark.util.Util;
 
 /**
- * Object representing the query graph of a CPQ. This
- * is effectively a visual representation of the CPQ
- * as a graph. The implementation for query graph
- * construction is loosely based on an algorithm
- * proposed by Seiji Maekawa.
+ * Object representing the query graph of a CPQ. This is effectively a visual representation
+ * of the CPQ as a graph. The implementation for query graph construction is loosely based
+ * on an algorithm proposed by Seiji Maekawa. The algorithm for query graph core computation
+ * and query homomorphism testing are from my Master's thesis.
  * @author Roan
+ * @see CPQ
+ * @see <a href="https://research.roanh.dev/Indexing%20Conjunctive%20Path%20Queries%20for%20Accelerated%20Query%20Evaluation.pdf#subsection.2.2.3">
+ *      Indexing Conjunctive Path Queries for Accelerated Query Evaluation, Section 2.2.3: CPQ Query Graphs</a>
+ * @see <a href="https://research.roanh.dev/Indexing%20Conjunctive%20Path%20Queries%20for%20Accelerated%20Query%20Evaluation.pdf#chapter.3">
+ *      Indexing Conjunctive Path Queries for Accelerated Query Evaluation, Section 3: The Core of a CPQ</a>
  */
 public class QueryGraphCPQ{
 	/**

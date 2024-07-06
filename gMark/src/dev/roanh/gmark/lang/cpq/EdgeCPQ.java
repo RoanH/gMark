@@ -20,17 +20,13 @@ package dev.roanh.gmark.lang.cpq;
 
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
-import dev.roanh.gmark.util.IndentWriter;
+import dev.roanh.gmark.lang.generic.GenericEdge;
 
 /**
  * CPQ modelling a single label traversal.
  * @author Roan
  */
-public class EdgeCPQ implements CPQ{
-	/**
-	 * The label traversed by this CPQ.
-	 */
-	private Predicate symbol;
+public class EdgeCPQ extends GenericEdge implements CPQ{
 	
 	/**
 	 * Constructs a new edge CPQ with the
@@ -38,36 +34,9 @@ public class EdgeCPQ implements CPQ{
 	 * @param symbol The label to traverse.
 	 */
 	public EdgeCPQ(Predicate symbol){
-		this.symbol = symbol;
+		super(symbol);
 	}
 	
-	/**
-	 * Gets the label (symbol) for this edge.
-	 * @return The label for this edge.
-	 */
-	public Predicate getLabel(){
-		return symbol;
-	}
-	
-	@Override
-	public String toString(){
-		return symbol.getAlias();
-	}
-	
-	@Override
-	public void writeSQL(IndentWriter writer){
-		if(symbol.isInverse()){
-			writer.print("SELECT trg AS src, src AS trg FROM edge WHERE label = " + symbol.getID());
-		}else{
-			writer.print("SELECT src, trg FROM edge WHERE label = " + symbol.getID());
-		}
-	}
-	
-	@Override
-	public void writeXML(IndentWriter writer){
-		symbol.writeXML(writer);
-	}
-
 	@Override
 	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
 		return new QueryGraphCPQ(symbol, source, target);

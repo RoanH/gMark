@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
@@ -35,7 +36,7 @@ import dev.roanh.gmark.output.OutputXML;
  *      Indexing Conjunctive Path Queries for Accelerated Query Evaluation, Section 2.2.2: Conjunctive Path Queries</a>
  * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
  */
-public abstract interface CPQ extends OutputSQL, OutputXML{
+public abstract interface CPQ extends QueryLanguage, OutputSQL, OutputXML{
 	/**
 	 * The character used to denote the intersection/conjunction operator.
 	 */

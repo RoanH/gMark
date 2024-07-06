@@ -18,10 +18,77 @@
  */
 package dev.roanh.gmark.lang.rpq;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.lang.QueryLanguage;
+import dev.roanh.gmark.lang.cpq.CPQ;
+import dev.roanh.gmark.lang.cpq.ConcatCPQ;
+import dev.roanh.gmark.lang.cpq.EdgeCPQ;
+
 /**
  * Interface for regular path queries (RPQs).
  * @author Roan
  */
-public class RPQ{
-	//TODO
+public abstract interface RPQ extends QueryLanguage{//TODO outputs?
+	
+
+	
+	
+	
+	
+	public static RPQ kleene(RPQ rpq){
+		
+	}
+	
+	public static RPQ concat(RPQ... rpqs){
+		
+	}
+	
+	public static RPQ concat(List<RPQ> rpqs){
+		
+	}
+	
+	public static RPQ disjunction(RPQ first, RPQ second){//TODO vararg?
+		
+	}
+	
+	
+	
+	
+	
+	
+	/**
+	 * Returns an RPQ representing a single labelled edge traversal.
+	 * @param label The label of the traversed edge.
+	 * @return The label traversal RPQ.
+	 */
+	public static RPQ label(Predicate label){
+		return new EdgeRPQ(label);
+	}
+	
+	/**
+	 * Returns an RPQ representing a chain of labelled edge traversals.
+	 * @param labels The labels of the traversed edges.
+	 * @return The label traversal RPQ.
+	 */
+	public static CPQ labels(Predicate... labels){
+		return new ConcatRPQ(Arrays.stream(labels).map(EdgeRPQ::new).collect(Collectors.toList()));
+	}
+	
+	/**
+	 * Returns an RPQ representing a chain of labelled edge traversals.
+	 * @param labels The labels of the traversed edges.
+	 * @return The label traversal RPQ.
+	 */
+	public static CPQ labels(List<Predicate> labels){
+		return new ConcatRPQ(labels.stream().map(EdgeRPQ::new).collect(Collectors.toList()));
+	}
+	
+	
+	
+	
+	
 }

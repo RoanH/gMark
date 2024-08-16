@@ -26,8 +26,6 @@ import java.util.stream.Collectors;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
-import dev.roanh.gmark.output.OutputSQL;
-import dev.roanh.gmark.output.OutputXML;
 
 /**
  * Interface for conjunctive path queries (CPQs).
@@ -36,15 +34,7 @@ import dev.roanh.gmark.output.OutputXML;
  *      Indexing Conjunctive Path Queries for Accelerated Query Evaluation, Section 2.2.2: Conjunctive Path Queries</a>
  * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
  */
-public abstract interface CPQ extends QueryLanguage, OutputSQL, OutputXML{
-	/**
-	 * The character used to denote the intersection/conjunction operator.
-	 */
-	public static final char CHAR_CAP = '∩';
-	/**
-	 * The character used to denote the join/concatenation operator.
-	 */
-	public static final char CHAR_JOIN = '◦';
+public abstract interface CPQ extends QueryLanguage{
 	/**
 	 * Constant for the special identity CPQ.
 	 */
@@ -231,7 +221,7 @@ public abstract interface CPQ extends QueryLanguage, OutputSQL, OutputXML{
 	 *        concatenation steps are allowed to be applied.
 	 * @param labels The number of distinct labels to use (upper limit).
 	 * @return The randomly generated CPQ.
-	 * @throws IllegalArgumentException When the list of labels is empty.
+	 * @throws IllegalArgumentException When the given number of labels is 0 or less.
 	 * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
 	 * @see GeneratorCPQ#generatePlainCPQ(int, java.util.List)
 	 */

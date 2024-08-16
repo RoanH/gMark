@@ -19,9 +19,9 @@
 package dev.roanh.gmark.lang.cpq;
 
 import java.util.List;
-import java.util.StringJoiner;
 
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
+import dev.roanh.gmark.lang.generic.GenericConcatenation;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
@@ -29,96 +29,37 @@ import dev.roanh.gmark.util.IndentWriter;
  * (also known as the join operation).
  * @author Roan
  */
-public class ConcatCPQ implements CPQ{
-	/**
-	 * In order the concatenated CPQs.
-	 */
-	private List<CPQ> cpq;
+public class ConcatCPQ extends GenericConcatenation<CPQ> implements CPQ{
 	
 	/**
 	 * Constructs a new concat CPQ with the
 	 * given list of CPQs to concatenate.
-	 * @param cpq The CPQs to concatenate.
+	 * @param cpqs The CPQs to concatenate.
 	 * @throws IllegalArgumentException When the
 	 *         list of CPQs is empty.
 	 */
-	public ConcatCPQ(List<CPQ> cpq){
-		this.cpq = cpq;
-		if(cpq.isEmpty()){
-			throw new IllegalArgumentException("List of CPQs to concatenate cannot be empty.");
-		}
+	public ConcatCPQ(List<CPQ> cpqs) throws IllegalArgumentException{
+		super(cpqs);
 	}
 	
-	@Override
-	public String toString(){
-		StringJoiner builder = new StringJoiner(String.valueOf(CPQ.CHAR_JOIN), "(", ")");
-		for(CPQ item : cpq){
-			builder.add(item.toString());
-		}
-		return builder.toString();
-	}
-	
-	@Override
-	public void writeSQL(IndentWriter writer){
-		if(cpq.size() == 1){
-			cpq.get(0).writeSQL(writer);
-			return;
-		}
-		
-		int n = cpq.size();
-		writer.print("SELECT s0.src AS src, s");
-		writer.print(n - 1);
-		writer.println(".trg AS trg");
-		
-		writer.println("FROM");
-		writer.increaseIndent(2);
-		
-		for(int i = 0; i < n; i++){
-			writer.println("(", 2);
-			cpq.get(i).writeSQL(writer);
-			writer.println();
-			writer.decreaseIndent(2);
-			writer.print(") AS s");
-			writer.print(i);
-			if(i < n - 1){
-				writer.print(",");
-			}
-			
-			writer.println();
-		}
-		
-		writer.decreaseIndent(2);
-		writer.print("WHERE ");
-		for(int i = 0; i < n - 1; i++){
-			writer.print("s");
-			writer.print(i);
-			writer.print(".trg = s");
-			writer.print(i + 1);
-			writer.print(".src");
-			if(i < n - 2){
-				writer.print(" AND ");
-			}
-		}
-	}
-
 	@Override
 	public void writeXML(IndentWriter writer){
 		writer.println("<cpq type=\"concat\">", 2);
-		cpq.forEach(c->c.writeXML(writer));
+		elements.forEach(c->c.writeXML(writer));
 		writer.println(2, "</cpq>");
 	}
 
 	@Override
 	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-		if(cpq.size() == 1){
-			return cpq.get(0).toQueryGraph(source, target);
+		if(elements.size() == 1){
+			return elements.get(0).toQueryGraph(source, target);
 		}
 		
 		Vertex mid = new Vertex();
-		QueryGraphCPQ chain = cpq.get(0).toQueryGraph(source, mid);
-		for(int i = 1; i < cpq.size(); i++){
-			Vertex to = i == cpq.size() - 1 ? target : new Vertex();
-			chain.union(cpq.get(i).toQueryGraph(mid, to));
+		QueryGraphCPQ chain = elements.get(0).toQueryGraph(source, mid);
+		for(int i = 1; i < elements.size(); i++){
+			Vertex to = i == elements.size() - 1 ? target : new Vertex();
+			chain.union(elements.get(i).toQueryGraph(mid, to));
 			mid = to;
 		}
 		
@@ -128,7 +69,7 @@ public class ConcatCPQ implements CPQ{
 
 	@Override
 	public int getDiameter(){
-		return cpq.stream().mapToInt(CPQ::getDiameter).sum();
+		return elements.stream().mapToInt(CPQ::getDiameter).sum();
 	}
 
 	@Override

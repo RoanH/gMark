@@ -26,11 +26,11 @@ import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.cpq.ConcatCPQ;
-import dev.roanh.gmark.lang.cpq.EdgeCPQ;
 
 /**
  * Interface for regular path queries (RPQs).
  * @author Roan
+ * @see <a href="https://en.wikipedia.org/wiki/Regular_path_query/">Regular Path Query</a>
  */
 public abstract interface RPQ extends QueryLanguage{//TODO outputs?
 	
@@ -39,26 +39,40 @@ public abstract interface RPQ extends QueryLanguage{//TODO outputs?
 	
 	
 	
-	public static RPQ kleene(RPQ rpq){
-		
+//	public static RPQ kleene(RPQ rpq){
+//		
+//	}
+//	
+//	public static RPQ disjunction(RPQ first, RPQ second){//TODO vararg?
+//		
+//	}
+	
+	
+	
+	
+	/**
+	 * Returns an RPQ representing the concatenation in order
+	 * of the given RPQs.
+	 * @param rpqs The RPQs to concatenate (in order).
+	 * @return The concatenation of the given RPQs.
+	 * @throws IllegalArgumentException When the given list
+	 *         of RPQs is empty.
+	 */
+	public static RPQ concat(RPQ... rpqs) throws IllegalArgumentException{
+		return new ConcatRPQ(Arrays.asList(rpqs));
 	}
 	
-	public static RPQ concat(RPQ... rpqs){
-		
+	/**
+	 * Returns an RPQ representing the concatenation in order
+	 * of the given RPQs. Note that the given list is not copied.
+	 * @param rpqs The RPQs to concatenate (in order).
+	 * @return The concatenation of the given RPQs.
+	 * @throws IllegalArgumentException When the given list
+	 *         of RPQs is empty.
+	 */
+	public static RPQ concat(List<RPQ> rpqs) throws IllegalArgumentException{
+		return new ConcatRPQ(rpqs);
 	}
-	
-	public static RPQ concat(List<RPQ> rpqs){
-		
-	}
-	
-	public static RPQ disjunction(RPQ first, RPQ second){//TODO vararg?
-		
-	}
-	
-	
-	
-	
-	
 	
 	/**
 	 * Returns an RPQ representing a single labelled edge traversal.
@@ -74,7 +88,7 @@ public abstract interface RPQ extends QueryLanguage{//TODO outputs?
 	 * @param labels The labels of the traversed edges.
 	 * @return The label traversal RPQ.
 	 */
-	public static CPQ labels(Predicate... labels){
+	public static RPQ labels(Predicate... labels){
 		return new ConcatRPQ(Arrays.stream(labels).map(EdgeRPQ::new).collect(Collectors.toList()));
 	}
 	
@@ -83,12 +97,15 @@ public abstract interface RPQ extends QueryLanguage{//TODO outputs?
 	 * @param labels The labels of the traversed edges.
 	 * @return The label traversal RPQ.
 	 */
-	public static CPQ labels(List<Predicate> labels){
+	public static RPQ labels(List<Predicate> labels){
 		return new ConcatRPQ(labels.stream().map(EdgeRPQ::new).collect(Collectors.toList()));
 	}
 	
-	
-	
-	
-	
+//	public static RPQ generateRandomRPQ(int ruleApplications, int labels) throws IllegalArgumentException{
+//		
+//	}
+//	
+//	public static RPQ parse(String query) throws IllegalArgumentException{
+//		
+//	}
 }

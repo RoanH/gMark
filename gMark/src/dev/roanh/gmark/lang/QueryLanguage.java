@@ -12,6 +12,7 @@ public abstract interface QueryLanguage extends OutputSQL, OutputXML{
 	 * The character used to denote the join/concatenation operator.
 	 */
 	public static final char CHAR_JOIN = '◦';
-	
+	public static final char CHAR_CUP = '∪';
+
 	//TODO to abstract syntax tree
 }

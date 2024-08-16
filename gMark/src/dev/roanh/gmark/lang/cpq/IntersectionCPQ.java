@@ -21,6 +21,7 @@ package dev.roanh.gmark.lang.cpq;
 import java.util.List;
 import java.util.StringJoiner;
 
+import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -33,7 +34,7 @@ public class IntersectionCPQ implements CPQ{
 	/**
 	 * The CPQs of the intersection.
 	 */
-	private List<CPQ> cpq;
+	private final List<CPQ> cpq;
 	
 	/**
 	 * Constructs a new intersection CPQ with
@@ -41,7 +42,7 @@ public class IntersectionCPQ implements CPQ{
 	 * @param cpq The CPQs to intersect.
 	 * @throws IllegalArgumentException When less than two CPQs are provided.
 	 */
-	public IntersectionCPQ(List<CPQ> cpq){
+	public IntersectionCPQ(List<CPQ> cpq) throws IllegalArgumentException{
 		this.cpq = cpq;
 		if(cpq.size() < 2){
 			throw new IllegalArgumentException("Not enough CPQs given (need at least 2)");
@@ -66,10 +67,12 @@ public class IntersectionCPQ implements CPQ{
 	
 	@Override
 	public String toString(){
-		StringJoiner builder = new StringJoiner(" " + CPQ.CHAR_CAP + " ", "(", ")");
+		StringJoiner builder = new StringJoiner(" " + QueryLanguage.CHAR_CAP + " ", "(", ")");
+		
 		for(CPQ item : cpq){
 			builder.add(item.toString());
 		}
+		
 		return builder.toString();
 	}
 	

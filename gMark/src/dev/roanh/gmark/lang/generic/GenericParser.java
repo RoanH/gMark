@@ -16,23 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.lang.rpq;
+package dev.roanh.gmark.lang.generic;
 
-import java.util.List;
+public class GenericParser{
 
-import dev.roanh.gmark.lang.generic.GenericConcatenation;
-import dev.roanh.gmark.util.IndentWriter;
-
-public class ConcatRPQ extends GenericConcatenation<RPQ> implements RPQ{
-
-	public ConcatRPQ(List<RPQ> elements) throws IllegalArgumentException{
-		super(elements);
-	}
-	
-	@Override
-	public void writeXML(IndentWriter writer){
-		writer.println("<rpq type=\"concat\">", 2);
-		elements.forEach(c->c.writeXML(writer));
-		writer.println(2, "</rpq>");
-	}
 }

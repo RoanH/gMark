@@ -19,20 +19,52 @@
 package dev.roanh.gmark.lang.rpq;
 
 import java.util.List;
+import java.util.StringJoiner;
 
-import dev.roanh.gmark.lang.generic.GenericConcatenation;
+import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.util.IndentWriter;
 
-public class ConcatRPQ extends GenericConcatenation<RPQ> implements RPQ{
+public class DisjunctionRPQ implements RPQ{
+	private final List<RPQ> rpq;
+	
+	public DisjunctionRPQ(List<RPQ> rpq) throws IllegalArgumentException{
+		this.rpq = rpq;
+		if(rpq.size() < 2){
+			throw new IllegalArgumentException("Not enough RPQs given (need at least 2)");
+		}
+	}
 
-	public ConcatRPQ(List<RPQ> elements) throws IllegalArgumentException{
-		super(elements);
+	@Override
+	public String toString(){
+		StringJoiner builder = new StringJoiner(" " + QueryLanguage.CHAR_CUP + " ", "(", ")");
+		
+		for(RPQ item : rpq){
+			builder.add(item.toString());
+		}
+		
+		return builder.toString();
 	}
 	
 	@Override
+	public void writeSQL(IndentWriter writer){
+		writer.println("SELECT src, trg FROM (", 2);
+		for(int i = 0; i < rpq.size(); i++){
+			writer.println("SELECT src, trg FROM (", 2);
+			rpq.get(i).writeSQL(writer);
+			writer.println();
+			writer.println(2, ")");
+			if(i < rpq.size() - 1){
+				writer.println("UNION");
+			}
+		}
+		writer.decreaseIndent(2);
+		writer.print(")");
+	}
+
+	@Override
 	public void writeXML(IndentWriter writer){
-		writer.println("<rpq type=\"concat\">", 2);
-		elements.forEach(c->c.writeXML(writer));
+		writer.println("<rpq type=\"disj\">", 2);
+		rpq.forEach(c->c.writeXML(writer));
 		writer.println(2, "</rpq>");
 	}
 }

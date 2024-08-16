@@ -24,31 +24,25 @@ import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.QueryLanguage;
-import dev.roanh.gmark.lang.cpq.CPQ;
-import dev.roanh.gmark.lang.cpq.ConcatCPQ;
 
 /**
  * Interface for regular path queries (RPQs).
  * @author Roan
  * @see <a href="https://en.wikipedia.org/wiki/Regular_path_query/">Regular Path Query</a>
  */
-public abstract interface RPQ extends QueryLanguage{//TODO outputs?
+public abstract interface RPQ extends QueryLanguage{
 	
-
+	public static RPQ kleene(RPQ rpq){
+		return new KleeneRPQ(rpq);
+	}
 	
+	public static RPQ disjunct(RPQ... rpqs){
+		return disjunct(Arrays.asList(rpqs));
+	}
 	
-	
-	
-//	public static RPQ kleene(RPQ rpq){
-//		
-//	}
-//	
-//	public static RPQ disjunction(RPQ first, RPQ second){//TODO vararg?
-//		
-//	}
-	
-	
-	
+	public static RPQ disjunct(List<RPQ> rpqs){
+		return new DisjunctionRPQ(rpqs);
+	}
 	
 	/**
 	 * Returns an RPQ representing the concatenation in order

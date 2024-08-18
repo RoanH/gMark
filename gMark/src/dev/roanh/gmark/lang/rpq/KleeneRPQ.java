@@ -41,7 +41,8 @@ public class KleeneRPQ implements RPQ{
 
 	@Override
 	public void writeXML(IndentWriter writer){
-		// TODO Auto-generated method stub
-		
+		writer.println("<rpq type=\"kleene\">", 2);
+		rpq.writeXML(writer);
+		writer.println(2, "</rpq>");
 	}
 }

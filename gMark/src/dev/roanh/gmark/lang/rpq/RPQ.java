@@ -98,8 +98,8 @@ public abstract interface RPQ extends QueryLanguage{
 //	public static RPQ generateRandomRPQ(int ruleApplications, int labels) throws IllegalArgumentException{
 //		
 //	}
-//	
-//	public static RPQ parse(String query) throws IllegalArgumentException{
-//		
-//	}
+	
+	public static RPQ parse(String query) throws IllegalArgumentException{
+		return ParserRPQ.parse(query);
+	}
 }

@@ -13,6 +13,11 @@ public abstract interface QueryLanguage extends OutputSQL, OutputXML{
 	 */
 	public static final char CHAR_JOIN = '◦';
 	public static final char CHAR_CUP = '∪';
+	public static final char CHAR_KLEENE = '*';
+	/**
+	 * The character used to denote negated predicates/labels.
+	 */
+	public static final char CHAR_INVERSE = '⁻';
 
 	//TODO to abstract syntax tree
 }

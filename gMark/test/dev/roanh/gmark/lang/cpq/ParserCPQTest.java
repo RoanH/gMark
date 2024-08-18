@@ -19,65 +19,12 @@
 package dev.roanh.gmark.lang.cpq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
 
 public class ParserCPQTest{
 
-	@Test
-	public void split0(){
-		assertIterableEquals(Arrays.asList("abc"), ParserCPQ.split("abc", '.'));
-	}
-	
-	@Test
-	public void split1(){
-		assertIterableEquals(Arrays.asList("abc", "def"), ParserCPQ.split("abc.def", '.'));
-	}
-	
-	@Test
-	public void split2(){
-		assertIterableEquals(Arrays.asList("abc", "(def.123)"), ParserCPQ.split("abc.(def.123)", '.'));
-	}
-	
-	@Test
-	public void split3(){
-		assertIterableEquals(Arrays.asList("7", "abc", "(def.(123.0))"), ParserCPQ.split("7.abc.(def.(123.0))", '.'));
-	}
-	
-	@Test
-	public void split4(){
-		assertIterableEquals(Arrays.asList("(7.6)", "abc", "(def.(123.0))"), ParserCPQ.split("(7.6).abc.(def.(123.0))", '.'));
-	}
-	
-	@Test
-	public void split5(){
-		assertThrows(IllegalArgumentException.class, ()->ParserCPQ.split("7.(234.5", '.'));
-	}
-	
-	@Test
-	public void split6(){
-		assertIterableEquals(Arrays.asList("abc", ""), ParserCPQ.split("abc.", '.'));
-	}
-	
-	@Test
-	public void split7(){
-		assertIterableEquals(Arrays.asList("abc"), ParserCPQ.split("abc ", '.'));
-	}
-	
-	@Test
-	public void split8(){
-		assertIterableEquals(Arrays.asList("abc", "def"), ParserCPQ.split("abc .def ", '.'));
-	}
-	
-	@Test
-	public void split9(){
-		assertIterableEquals(Arrays.asList("(abc)"), ParserCPQ.split("(abc)", '.'));
-	}
-	
 	@Test
 	public void parse0(){
 		assertEquals("(0◦(((1◦0) ∩ (1◦1))◦1⁻))", CPQ.parse("(0◦(((1◦0) ∩ (1◦1))◦1⁻))").toString());

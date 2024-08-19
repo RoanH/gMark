@@ -21,9 +21,20 @@ package dev.roanh.gmark.lang.rpq;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.util.IndentWriter;
 
+/**
+ * RPQ representing the transitive closure of another RPQ.
+ * @author Roan
+ */
 public class KleeneRPQ implements RPQ{
+	/**
+	 * The RPQ under transitive closure.
+	 */
 	private final RPQ rpq;
 	
+	/**
+	 * Constructs a new RPQ representing the transitive closure of the given RPQ.
+	 * @param rpq The RPQ to take the transitive closure of.
+	 */
 	public KleeneRPQ(RPQ rpq){
 		this.rpq = rpq;
 	}
@@ -35,8 +46,7 @@ public class KleeneRPQ implements RPQ{
 
 	@Override
 	public void writeSQL(IndentWriter writer){
-		// TODO Auto-generated method stub
-		
+		throw new UnsupportedOperationException("Not yet implemented, see issue #18.");
 	}
 
 	@Override

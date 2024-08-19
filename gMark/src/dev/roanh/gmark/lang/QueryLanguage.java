@@ -3,6 +3,10 @@ package dev.roanh.gmark.lang;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
 
+/**
+ * Base interface for query language specifications.
+ * @author Roan
+ */
 public abstract interface QueryLanguage extends OutputSQL, OutputXML{
 	/**
 	 * The character used to denote the intersection/conjunction operator.
@@ -24,8 +28,4 @@ public abstract interface QueryLanguage extends OutputSQL, OutputXML{
 	 * The character used to denote negated predicates/labels.
 	 */
 	public static final char CHAR_INVERSE = '⁻';
-
-	//TODO to abstract syntax tree
-	
-	//TODO get type? name? maybe rename this interface so the name can reused for an enum?
 }

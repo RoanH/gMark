@@ -24,7 +24,6 @@ import java.util.Map;
 
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.QueryLanguage;
-import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.generic.GenericParser;
 
 /**
@@ -43,7 +42,7 @@ public final class ParserRPQ extends GenericParser{
 	/**
 	 * Parses the given RPQ in string form to an RPQ instance. The input is assumed
 	 * to use brackets where possible and to use the '{@value QueryLanguage#CHAR_CUP}',
-	 * '{@value QueryLanguage#CHAR_JOIN}', '{@value CPQ#CHAR_KLEENE}' and
+	 * '{@value QueryLanguage#CHAR_JOIN}', '{@value QueryLanguage#CHAR_KLEENE}' and
 	 * '{@value QueryLanguage#CHAR_INVERSE}' symbols to denote operations.
 	 * Example input: {@code (0◦(((1◦0) ∪ (1◦1))◦1⁻))}.
 	 * @param query The RPQ to parse.

@@ -25,7 +25,7 @@ import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
-* RPQ modelling the disjunction between RPQs.
+ * RPQ modelling the disjunction between RPQs.
  * @author Roan
  */
 public class DisjunctionRPQ implements RPQ{

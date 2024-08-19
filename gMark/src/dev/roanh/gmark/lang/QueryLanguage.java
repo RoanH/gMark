@@ -12,7 +12,13 @@ public abstract interface QueryLanguage extends OutputSQL, OutputXML{
 	 * The character used to denote the join/concatenation operator.
 	 */
 	public static final char CHAR_JOIN = '◦';
+	/**
+	 * The character used to denote the disjunction operator.
+	 */
 	public static final char CHAR_CUP = '∪';
+	/**
+	 * The character used to denote the kleene/transitive closure operator.
+	 */
 	public static final char CHAR_KLEENE = '*';
 	/**
 	 * The character used to denote negated predicates/labels.

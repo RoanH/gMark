@@ -25,12 +25,23 @@ import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.util.IndentWriter;
 
+/**
+ * Generic definition of a number of query language fragments.
+ * (also known as the join operation).
+ * @author Roan
+ * @param <T> The concrete query language fragment syntax.
+ */
 public class GenericConcatenation<T extends QueryLanguage> implements OutputSQL{
 	/**
 	 * The sub queries to concatenate in order from first to last.
 	 */
 	protected final List<T> elements;
 
+	/**
+	 * Constructs a new concatenation with the given list of fragments.
+	 * @param elements The query language fragments to concatenate.
+	 * @throws IllegalArgumentException When the given list of fragments is empty.
+	 */
 	protected GenericConcatenation(List<T> elements) throws IllegalArgumentException{
 		this.elements = elements;
 		if(elements.isEmpty()){

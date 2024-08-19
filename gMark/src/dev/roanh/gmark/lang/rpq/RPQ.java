@@ -95,10 +95,17 @@ public abstract interface RPQ extends QueryLanguage{
 		return new ConcatRPQ(labels.stream().map(EdgeRPQ::new).collect(Collectors.toList()));
 	}
 	
-//	public static RPQ generateRandomRPQ(int ruleApplications, int labels) throws IllegalArgumentException{
-//		
-//	}
-	
+	/**
+	 * Parses the given RPQ in string form to an RPQ instance. The input is assumed
+	 * to use brackets where possible and to use the '{@value QueryLanguage#CHAR_CUP}',
+	 * '{@value QueryLanguage#CHAR_JOIN}', '{@value CPQ#CHAR_KLEENE}' and
+	 * '{@value QueryLanguage#CHAR_INVERSE}' symbols to denote operations.
+	 * Example input: {@code (0◦(((1◦0) ∪ (1◦1))◦1⁻))}.
+	 * @param query The RPQ to parse.
+	 * @return The parsed RPQ.
+	 * @throws IllegalArgumentException When the given string is not a valid RPQ.
+	 * @see ParserRPQ#parse(String, char, char, char, char)
+	 */
 	public static RPQ parse(String query) throws IllegalArgumentException{
 		return ParserRPQ.parse(query);
 	}

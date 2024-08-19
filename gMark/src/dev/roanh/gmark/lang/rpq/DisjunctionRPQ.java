@@ -24,9 +24,22 @@ import java.util.StringJoiner;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.util.IndentWriter;
 
+/**
+* RPQ modelling the disjunction between RPQs.
+ * @author Roan
+ */
 public class DisjunctionRPQ implements RPQ{
+	/**
+	 * The RPQs of the disjunction.
+	 */
 	private final List<RPQ> rpq;
 	
+	/**
+	 * Constructs a new disjunction RPQ with the
+	 * given RPQs as the components.
+	 * @param rpq The RPQs for the disjunction.
+	 * @throws IllegalArgumentException When less than two RPQs are provided.
+	 */
 	public DisjunctionRPQ(List<RPQ> rpq) throws IllegalArgumentException{
 		this.rpq = rpq;
 		if(rpq.size() < 2){

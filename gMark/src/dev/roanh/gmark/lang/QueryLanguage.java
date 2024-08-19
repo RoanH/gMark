@@ -20,4 +20,6 @@ public abstract interface QueryLanguage extends OutputSQL, OutputXML{
 	public static final char CHAR_INVERSE = '⁻';
 
 	//TODO to abstract syntax tree
+	
+	//TODO get type? name? maybe rename this interface so the name can reused for an enum?
 }

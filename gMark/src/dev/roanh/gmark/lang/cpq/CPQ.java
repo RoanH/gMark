@@ -232,7 +232,7 @@ public abstract interface CPQ extends QueryLanguage{
 	/**
 	 * Parses the given CPQ in string form to a CPQ instance. The input is assumed
 	 * to use brackets where possible and to use the '{@code id}', '{@value CPQ#CHAR_JOIN}',
-	 * '{@value CPQ#CHAR_CAP}' and '{@value Predicate#CHAR_INVERSE}' symbols to denote
+	 * '{@value CPQ#CHAR_CAP}' and '{@value QueryLanguage#CHAR_INVERSE}' symbols to denote
 	 * operations. Example input: {@code (0◦(((1◦0) ∩ (1◦1))◦1⁻))}.
 	 * @param query The CPQ to parse.
 	 * @return The parsed CPQ.

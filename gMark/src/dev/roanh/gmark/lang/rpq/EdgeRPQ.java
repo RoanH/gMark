@@ -21,8 +21,17 @@ package dev.roanh.gmark.lang.rpq;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.generic.GenericEdge;
 
+/**
+ * RPQ modelling a single label traversal.
+ * @author Roan
+ */
 public class EdgeRPQ extends GenericEdge implements RPQ{
 
+	/**
+	 * Constructs a new edge RPQ with the
+	 * given label to traverse.
+	 * @param symbol The label to traverse.
+	 */
 	protected EdgeRPQ(Predicate symbol){
 		super(symbol);
 	}

@@ -23,10 +23,22 @@ import java.util.List;
 import dev.roanh.gmark.lang.generic.GenericConcatenation;
 import dev.roanh.gmark.util.IndentWriter;
 
+/**
+ * RPQ modelling the concatenation of a number of RPQs
+ * (also known as the join operation).
+ * @author Roan
+ */
 public class ConcatRPQ extends GenericConcatenation<RPQ> implements RPQ{
 
-	public ConcatRPQ(List<RPQ> elements) throws IllegalArgumentException{
-		super(elements);
+	/**
+	 * Constructs a new concat RPQ with the
+	 * given list of RPQs to concatenate.
+	 * @param rpqs The RPQs to concatenate.
+	 * @throws IllegalArgumentException When the
+	 *         list of RPQs is empty.
+	 */
+	public ConcatRPQ(List<RPQ> rpqs) throws IllegalArgumentException{
+		super(rpqs);
 	}
 	
 	@Override

@@ -23,10 +23,16 @@ import java.util.List;
 import java.util.Map;
 
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.lang.rpq.RPQ;
 
+/**
+ * Class with generic query language parsing utilities.
+ * @author Roan
+ */
 public abstract class GenericParser{
 	
+	/**
+	 * Hide constructor.
+	 */
 	protected GenericParser(){
 	}
 
@@ -76,6 +82,15 @@ public abstract class GenericParser{
 		return parts;
 	}
 	
+	/**
+	 * Attempts to parse an (inverse) predicate/label from the given query string.
+	 * @param query The query string to parse.
+	 * @param labels The set of predicates encountered so far. Used to reuse existing
+	 *        labels and to register newly detected predicates.
+	 * @param inverse The symbol used to denote inverse labels.
+	 * @return The predicate that was parsed.
+	 * @throws IllegalArgumentException When the given query string does not represent a valid predicate.
+	 */
 	protected static Predicate parsePredicate(String query, Map<String, Predicate> labels, char inverse) throws IllegalArgumentException{
 		boolean inv = false;
 		if(query.charAt(query.length() - 1) == inverse){

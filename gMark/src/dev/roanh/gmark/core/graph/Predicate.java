@@ -20,6 +20,7 @@ package dev.roanh.gmark.core.graph;
 
 import java.util.Objects;
 
+import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IDable;
 import dev.roanh.gmark.util.IndentWriter;
@@ -32,10 +33,6 @@ import dev.roanh.gmark.util.IndentWriter;
  * @author Roan
  */
 public class Predicate implements OutputXML, Comparable<Predicate>, IDable{
-	/**
-	 * The character used to denote negated predicates.
-	 */
-	public static final char CHAR_INVERSE = '⁻';
 	/**
 	 * The unique ID of this predicate. This ID uniquely
 	 * identifies this predicate among all predicates.
@@ -116,7 +113,7 @@ public class Predicate implements OutputXML, Comparable<Predicate>, IDable{
 	 * @return The predicate alias.
 	 */
 	public String getAlias(){
-		return isInverse ? (alias + CHAR_INVERSE) : alias;
+		return isInverse ? (alias + QueryLanguage.CHAR_INVERSE) : alias;
 	}
 	
 	/**

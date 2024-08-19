@@ -16,47 +16,52 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.lang.cpq;
+package dev.roanh.gmark.lang.rpq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-public class ParserCPQTest{
+public class ParserRPQTest{
 
 	@Test
 	public void parse0(){
-		assertEquals("(0◦(((1◦0) ∩ (1◦1))◦1⁻))", CPQ.parse("(0◦(((1◦0) ∩ (1◦1))◦1⁻))").toString());
+		assertEquals("(0◦(((1◦0) ∪ (1◦1))◦1⁻))", RPQ.parse("(0◦(((1◦0) ∪ (1◦1))◦1⁻))").toString());
 	}
 	
 	@Test
 	public void parse1(){
-		assertEquals("(0◦(((1◦0) ∩ (1◦1))◦1⁻))", CPQ.parse("0◦(((1◦0) ∩ (1◦1))◦1⁻)").toString());
+		assertEquals("(0◦(((1◦0) ∪ (1◦1))◦1⁻))", RPQ.parse("0◦(((1◦0) ∪ (1◦1))◦1⁻)").toString());
 	}
 	
 	@Test
 	public void parse2(){
-		assertEquals("(a ∩ b ∩ c)", CPQ.parse("a ∩ b ∩ c").toString());
+		assertEquals("(a ∪ b ∪ c)", RPQ.parse("a ∪ b ∪ c").toString());
 	}
 	
 	@Test
 	public void parse3(){
-		assertThrows(IllegalArgumentException.class, ()->CPQ.parse("(a ∩ b ∩ c"));
+		assertThrows(IllegalArgumentException.class, ()->RPQ.parse("(a ∪ b ∪ c"));
 	}
 	
 	@Test
 	public void parse4(){
-		assertThrows(IllegalArgumentException.class, ()->CPQ.parse("a ∩ b ∩ c)"));
+		assertThrows(IllegalArgumentException.class, ()->RPQ.parse("a ∪ b ∪ c)"));
 	}
 	
 	@Test
 	public void parse5(){
-		assertEquals(CPQ.IDENTITY, CPQ.parse("id"));
+		assertEquals("(a ∪ b⁻ ∪ c)", RPQ.parse("a ∪ b⁻ ∪ c").toString());
 	}
 	
 	@Test
 	public void parse6(){
-		assertEquals("(b◦(a ∩ id))", CPQ.parse("b ◦ (a ∩ id)").toString());
+		assertEquals("(a ∪ b⁻* ∪ c)", RPQ.parse("a ∪ b⁻* ∪ c").toString());
+	}
+	
+	@Test
+	public void parse7(){
+		assertEquals("(a ∪ (a◦b⁻)* ∪ c)", RPQ.parse("a ∪ (a ◦ b⁻)* ∪ c").toString());
 	}
 }

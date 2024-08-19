@@ -16,39 +16,43 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.lang.cpq;
+package dev.roanh.gmark.lang.rpq;
 
-import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
-import dev.roanh.gmark.lang.generic.GenericEdge;
+import dev.roanh.gmark.lang.QueryLanguage;
+import dev.roanh.gmark.util.IndentWriter;
 
 /**
- * CPQ modelling a single label traversal.
+ * RPQ representing the transitive closure of another RPQ.
  * @author Roan
  */
-public class EdgeCPQ extends GenericEdge implements CPQ{
+public class KleeneRPQ implements RPQ{
+	/**
+	 * The RPQ under transitive closure.
+	 */
+	private final RPQ rpq;
 	
 	/**
-	 * Constructs a new edge CPQ with the
-	 * given label to traverse.
-	 * @param symbol The label to traverse.
+	 * Constructs a new RPQ representing the transitive closure of the given RPQ.
+	 * @param rpq The RPQ to take the transitive closure of.
 	 */
-	public EdgeCPQ(Predicate symbol){
-		super(symbol);
+	public KleeneRPQ(RPQ rpq){
+		this.rpq = rpq;
 	}
 	
 	@Override
-	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-		return new QueryGraphCPQ(symbol, source, target);
+	public String toString(){
+		return rpq.toString() + String.valueOf(QueryLanguage.CHAR_KLEENE);
 	}
 
 	@Override
-	public int getDiameter(){
-		return 1;
+	public void writeSQL(IndentWriter writer){
+		throw new UnsupportedOperationException("Not yet implemented, see issue #18.");
 	}
 
 	@Override
-	public boolean isLoop(){
-		return false;
+	public void writeXML(IndentWriter writer){
+		writer.println("<rpq type=\"kleene\">", 2);
+		rpq.writeXML(writer);
+		writer.println(2, "</rpq>");
 	}
 }

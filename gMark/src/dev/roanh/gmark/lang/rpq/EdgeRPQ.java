@@ -16,39 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.lang.cpq;
+package dev.roanh.gmark.lang.rpq;
 
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.lang.generic.GenericEdge;
 
 /**
- * CPQ modelling a single label traversal.
+ * RPQ modelling a single label traversal.
  * @author Roan
  */
-public class EdgeCPQ extends GenericEdge implements CPQ{
-	
+public class EdgeRPQ extends GenericEdge implements RPQ{
+
 	/**
-	 * Constructs a new edge CPQ with the
+	 * Constructs a new edge RPQ with the
 	 * given label to traverse.
 	 * @param symbol The label to traverse.
 	 */
-	public EdgeCPQ(Predicate symbol){
+	protected EdgeRPQ(Predicate symbol){
 		super(symbol);
-	}
-	
-	@Override
-	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-		return new QueryGraphCPQ(symbol, source, target);
-	}
-
-	@Override
-	public int getDiameter(){
-		return 1;
-	}
-
-	@Override
-	public boolean isLoop(){
-		return false;
 	}
 }

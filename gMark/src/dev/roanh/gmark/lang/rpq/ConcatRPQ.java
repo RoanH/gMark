@@ -16,64 +16,35 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.lang.cpq;
+package dev.roanh.gmark.lang.rpq;
 
 import java.util.List;
 
-import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.lang.generic.GenericConcatenation;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
- * CPQ modelling the concatenation of a number of CPQs
+ * RPQ modelling the concatenation of a number of RPQs
  * (also known as the join operation).
  * @author Roan
  */
-public class ConcatCPQ extends GenericConcatenation<CPQ> implements CPQ{
-	
+public class ConcatRPQ extends GenericConcatenation<RPQ> implements RPQ{
+
 	/**
-	 * Constructs a new concat CPQ with the
-	 * given list of CPQs to concatenate.
-	 * @param cpqs The CPQs to concatenate.
+	 * Constructs a new concat RPQ with the
+	 * given list of RPQs to concatenate.
+	 * @param rpqs The RPQs to concatenate.
 	 * @throws IllegalArgumentException When the
-	 *         list of CPQs is empty.
+	 *         list of RPQs is empty.
 	 */
-	public ConcatCPQ(List<CPQ> cpqs) throws IllegalArgumentException{
-		super(cpqs);
+	public ConcatRPQ(List<RPQ> rpqs) throws IllegalArgumentException{
+		super(rpqs);
 	}
 	
 	@Override
 	public void writeXML(IndentWriter writer){
-		writer.println("<cpq type=\"concat\">", 2);
+		writer.println("<rpq type=\"concat\">", 2);
 		elements.forEach(c->c.writeXML(writer));
-		writer.println(2, "</cpq>");
-	}
-
-	@Override
-	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-		if(elements.size() == 1){
-			return elements.get(0).toQueryGraph(source, target);
-		}
-		
-		Vertex mid = new Vertex();
-		QueryGraphCPQ chain = elements.get(0).toQueryGraph(source, mid);
-		for(int i = 1; i < elements.size(); i++){
-			Vertex to = i == elements.size() - 1 ? target : new Vertex();
-			chain.union(elements.get(i).toQueryGraph(mid, to));
-			mid = to;
-		}
-		
-		chain.setTarget(target);
-		return chain;
-	}
-
-	@Override
-	public int getDiameter(){
-		return elements.stream().mapToInt(CPQ::getDiameter).sum();
-	}
-
-	@Override
-	public boolean isLoop(){
-		return false;
+		writer.println(2, "</rpq>");
 	}
 }

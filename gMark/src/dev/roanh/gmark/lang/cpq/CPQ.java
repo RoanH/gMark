@@ -24,9 +24,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
-import dev.roanh.gmark.output.OutputSQL;
-import dev.roanh.gmark.output.OutputXML;
 
 /**
  * Interface for conjunctive path queries (CPQs).
@@ -35,15 +34,7 @@ import dev.roanh.gmark.output.OutputXML;
  *      Indexing Conjunctive Path Queries for Accelerated Query Evaluation, Section 2.2.2: Conjunctive Path Queries</a>
  * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
  */
-public abstract interface CPQ extends OutputSQL, OutputXML{
-	/**
-	 * The character used to denote the intersection/conjunction operator.
-	 */
-	public static final char CHAR_CAP = '∩';
-	/**
-	 * The character used to denote the join/concatenation operator.
-	 */
-	public static final char CHAR_JOIN = '◦';
+public abstract interface CPQ extends QueryLanguage{
 	/**
 	 * Constant for the special identity CPQ.
 	 */
@@ -230,7 +221,7 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	 *        concatenation steps are allowed to be applied.
 	 * @param labels The number of distinct labels to use (upper limit).
 	 * @return The randomly generated CPQ.
-	 * @throws IllegalArgumentException When the list of labels is empty.
+	 * @throws IllegalArgumentException When the given number of labels is 0 or less.
 	 * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
 	 * @see GeneratorCPQ#generatePlainCPQ(int, java.util.List)
 	 */
@@ -240,8 +231,8 @@ public abstract interface CPQ extends OutputSQL, OutputXML{
 	
 	/**
 	 * Parses the given CPQ in string form to a CPQ instance. The input is assumed
-	 * to use brackets where possible and to use the '{@code id}', '{@value CPQ#CHAR_JOIN}',
-	 * '{@value CPQ#CHAR_CAP}' and '{@value Predicate#CHAR_INVERSE}' symbols to denote
+	 * to use brackets where possible and to use the '{@code id}', '{@value QueryLanguage#CHAR_JOIN}',
+	 * '{@value QueryLanguage#CHAR_CAP}' and '{@value QueryLanguage#CHAR_INVERSE}' symbols to denote
 	 * operations. Example input: {@code (0◦(((1◦0) ∩ (1◦1))◦1⁻))}.
 	 * @param query The CPQ to parse.
 	 * @return The parsed CPQ.

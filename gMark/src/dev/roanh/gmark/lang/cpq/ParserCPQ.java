@@ -18,19 +18,20 @@
  */
 package dev.roanh.gmark.lang.cpq;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.lang.QueryLanguage;
+import dev.roanh.gmark.lang.generic.GenericParser;
 
 /**
  * Parser for CPQs (Conjunctive Path Queries).
  * @author Roan
  * @see CPQ
  */
-public final class ParserCPQ{
+public final class ParserCPQ extends GenericParser{
 	
 	/**
 	 * Prevent instantiation.
@@ -40,8 +41,8 @@ public final class ParserCPQ{
 	
 	/**
 	 * Parses the given CPQ in string form to a CPQ instance. The input is assumed
-	 * to use brackets where possible and to use the '{@code id}', '{@value CPQ#CHAR_JOIN}',
-	 * '{@value CPQ#CHAR_CAP}' and '{@value Predicate#CHAR_INVERSE}' symbols to denote
+	 * to use brackets where possible and to use the '{@code id}', '{@value QueryLanguage#CHAR_JOIN}',
+	 * '{@value QueryLanguage#CHAR_CAP}' and '{@value QueryLanguage#CHAR_INVERSE}' symbols to denote
 	 * operations. Example input: {@code (0◦(((1◦0) ∩ (1◦1))◦1⁻))}.
 	 * @param query The CPQ to parse.
 	 * @return The parsed CPQ.
@@ -49,7 +50,7 @@ public final class ParserCPQ{
 	 * @see #parse(String, char, char, char)
 	 */
 	public static CPQ parse(String query) throws IllegalArgumentException{
-		return parse(query, CPQ.CHAR_JOIN, CPQ.CHAR_CAP, Predicate.CHAR_INVERSE);
+		return parse(query, QueryLanguage.CHAR_JOIN, QueryLanguage.CHAR_CAP, QueryLanguage.CHAR_INVERSE);
 	}
 	
 	/**
@@ -104,64 +105,9 @@ public final class ParserCPQ{
 		}
 		
 		if(query.indexOf('(') == -1 && query.indexOf(')') == -1 && query.indexOf(join) == -1 && query.indexOf(intersect) == -1){
-			boolean inv = false;
-			if(query.charAt(query.length() - 1) == inverse){
-				inv = true;
-				query = query.substring(0, query.length() - 1);
-			}
-			
-			if(query.indexOf(inverse) == -1){
-				Predicate label = labels.computeIfAbsent(query, k->new Predicate(labels.size(), k));
-				return CPQ.label(inv ? label.getInverse() : label);
-			}
+			return CPQ.label(parsePredicate(query, labels, inverse));
 		}
 
 		throw new IllegalArgumentException("Invalid CPQ.");
-	}
-	
-	/**
-	 * Splits the given string into parts on the given character.
-	 * The given character will not be returned in any parts and
-	 * the found parts will be trimmed of leading and trailing
-	 * whitespace. This method will ignore any regions of the
-	 * input string that are enclosed in (nested) round brackets.
-	 * @param str The string to split.
-	 * @param symbol The character to split on.
-	 * @return The input string split on the given character.
-	 * @throws IllegalArgumentException When brackets are present
-	 *         in the given string, but not balanced properly.
-	 */
-	protected static List<String> split(String str, char symbol) throws IllegalArgumentException{
-		List<String> parts = new ArrayList<String>();
-		
-		int start = 0;
-		for(int i = 0; i < str.length(); i++){
-			if(str.charAt(i) == '('){
-				i++;
-				int open = 1;
-				while(true){
-					if(str.charAt(i) == '('){
-						open++;
-					}else if(str.charAt(i) == ')'){
-						open--;
-						if(open == 0){
-							break;
-						}
-					}
-					
-					i++;
-					if(i >= str.length()){
-						throw new IllegalArgumentException("Unbalanced brackets.");
-					}
-				}
-			}else if(str.charAt(i) == symbol){
-				parts.add(str.substring(start, i).trim());
-				start = i + 1;
-			}
-		}
-		
-		parts.add(str.substring(start, str.length()).trim());
-
-		return parts;
 	}
 }

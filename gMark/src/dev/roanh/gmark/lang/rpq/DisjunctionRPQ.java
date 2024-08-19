@@ -21,7 +21,7 @@ package dev.roanh.gmark.lang.rpq;
 import java.util.List;
 import java.util.StringJoiner;
 
-import dev.roanh.gmark.lang.QueryLanguage;
+import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
@@ -49,7 +49,7 @@ public class DisjunctionRPQ implements RPQ{
 
 	@Override
 	public String toString(){
-		StringJoiner builder = new StringJoiner(" " + QueryLanguage.CHAR_CUP + " ", "(", ")");
+		StringJoiner builder = new StringJoiner(" " + QueryLanguageSyntax.CHAR_CUP + " ", "(", ")");
 		
 		for(RPQ item : rpq){
 			builder.add(item.toString());

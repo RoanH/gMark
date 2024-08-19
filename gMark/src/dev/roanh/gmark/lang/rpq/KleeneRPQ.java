@@ -18,7 +18,7 @@
  */
 package dev.roanh.gmark.lang.rpq;
 
-import dev.roanh.gmark.lang.QueryLanguage;
+import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
@@ -41,7 +41,7 @@ public class KleeneRPQ implements RPQ{
 	
 	@Override
 	public String toString(){
-		return rpq.toString() + String.valueOf(QueryLanguage.CHAR_KLEENE);
+		return rpq.toString() + String.valueOf(QueryLanguageSyntax.CHAR_KLEENE);
 	}
 
 	@Override

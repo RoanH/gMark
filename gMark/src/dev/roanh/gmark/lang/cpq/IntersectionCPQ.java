@@ -21,7 +21,7 @@ package dev.roanh.gmark.lang.cpq;
 import java.util.List;
 import java.util.StringJoiner;
 
-import dev.roanh.gmark.lang.QueryLanguage;
+import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -67,7 +67,7 @@ public class IntersectionCPQ implements CPQ{
 	
 	@Override
 	public String toString(){
-		StringJoiner builder = new StringJoiner(" " + QueryLanguage.CHAR_CAP + " ", "(", ")");
+		StringJoiner builder = new StringJoiner(" " + QueryLanguageSyntax.CHAR_CAP + " ", "(", ")");
 		
 		for(CPQ item : cpq){
 			builder.add(item.toString());

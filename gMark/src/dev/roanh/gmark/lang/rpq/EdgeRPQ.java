@@ -25,7 +25,7 @@ import dev.roanh.gmark.lang.generic.GenericEdge;
  * RPQ modelling a single label traversal.
  * @author Roan
  */
-public class EdgeRPQ extends GenericEdge implements RPQ{
+public class EdgeRPQ extends GenericEdge<RPQ> implements RPQ{
 
 	/**
 	 * Constructs a new edge RPQ with the
@@ -34,5 +34,10 @@ public class EdgeRPQ extends GenericEdge implements RPQ{
 	 */
 	protected EdgeRPQ(Predicate symbol){
 		super(symbol);
+	}
+	
+	@Override
+	protected RPQ getSelf(){
+		return this;
 	}
 }

@@ -31,7 +31,7 @@ import dev.roanh.gmark.lang.QueryLanguageSyntax;
  * @author Roan
  * @see <a href="https://en.wikipedia.org/wiki/Regular_path_query/">Regular Path Query</a>
  */
-public abstract interface RPQ extends QueryLanguageSyntax{
+public abstract interface RPQ extends QueryLanguageSyntax<RPQ>{
 
 	@Override
 	public default QueryLanguage getQueryLanguage(){

@@ -21,6 +21,8 @@ package dev.roanh.gmark.lang.cpq;
 import java.util.List;
 import java.util.StringJoiner;
 
+import dev.roanh.gmark.ast.OperationType;
+import dev.roanh.gmark.ast.PathTree;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.util.IndentWriter;
@@ -109,5 +111,20 @@ public class IntersectionCPQ implements CPQ{
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public OperationType getOperationType(){
+		return OperationType.INTERSECTION;
+	}
+
+	@Override
+	public PathTree<CPQ> toAbstractSyntaxTree(){
+		PathTree<CPQ> right = cpq.get(cpq.size() - 1).toAbstractSyntaxTree();
+		for(int i = cpq.size() - 2; i >= 0; i--){
+			right = PathTree.ofBinary(cpq.get(i).toAbstractSyntaxTree(), right, this);
+		}
+		
+		return right;
 	}
 }

@@ -19,13 +19,30 @@
 package dev.roanh.gmark.ast;
 
 public enum OperationType{
-	CONCATENATION,//join
-	INTERSECTION,//conjunction
-	EDGE,//predicate, label
-	IDENTITY,
-	KLEENE,
-	DISJUNCTION
+	CONCATENATION(2),//join
+	INTERSECTION(2),//conjunction
+	EDGE(0),//predicate, label
+	IDENTITY(0),
+	KLEENE(1),
+	DISJUNCTION(2);
 	
+	private final int operands;
+
+	private OperationType(int operands){
+		this.operands = operands;
+	}
+	
+	public boolean isAtom(){
+		return operands == 0;
+	}
+	
+	public boolean isUnary(){
+		return operands == 1;
+	}
+	
+	public boolean isBinary(){
+		return operands == 2;
+	}
 	
 
 

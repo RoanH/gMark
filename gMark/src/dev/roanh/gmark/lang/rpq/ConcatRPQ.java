@@ -42,6 +42,11 @@ public class ConcatRPQ extends GenericConcatenation<RPQ> implements RPQ{
 	}
 	
 	@Override
+	protected RPQ getSelf(){
+		return this;
+	}
+	
+	@Override
 	public void writeXML(IndentWriter writer){
 		writer.println("<rpq type=\"concat\">", 2);
 		elements.forEach(c->c.writeXML(writer));

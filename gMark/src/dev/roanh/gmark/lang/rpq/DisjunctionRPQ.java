@@ -21,6 +21,8 @@ package dev.roanh.gmark.lang.rpq;
 import java.util.List;
 import java.util.StringJoiner;
 
+import dev.roanh.gmark.ast.OperationType;
+import dev.roanh.gmark.ast.PathTree;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -79,5 +81,20 @@ public class DisjunctionRPQ implements RPQ{
 		writer.println("<rpq type=\"disj\">", 2);
 		rpq.forEach(c->c.writeXML(writer));
 		writer.println(2, "</rpq>");
+	}
+
+	@Override
+	public OperationType getOperationType(){
+		return OperationType.DISJUNCTION;
+	}
+
+	@Override
+	public PathTree<RPQ> toAbstractSyntaxTree(){
+		PathTree<RPQ> right = rpq.get(rpq.size() - 1).toAbstractSyntaxTree();
+		for(int i = rpq.size() - 2; i >= 0; i--){
+			right = PathTree.ofBinary(rpq.get(i).toAbstractSyntaxTree(), right, this);
+		}
+		
+		return right;
 	}
 }

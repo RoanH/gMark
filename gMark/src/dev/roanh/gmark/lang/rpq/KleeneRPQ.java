@@ -18,6 +18,8 @@
  */
 package dev.roanh.gmark.lang.rpq;
 
+import dev.roanh.gmark.ast.OperationType;
+import dev.roanh.gmark.ast.PathTree;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -54,5 +56,15 @@ public class KleeneRPQ implements RPQ{
 		writer.println("<rpq type=\"kleene\">", 2);
 		rpq.writeXML(writer);
 		writer.println(2, "</rpq>");
+	}
+
+	@Override
+	public OperationType getOperationType(){
+		return OperationType.KLEENE;
+	}
+
+	@Override
+	public PathTree<RPQ> toAbstractSyntaxTree(){
+		return PathTree.ofUnary(rpq.toAbstractSyntaxTree(), this);
 	}
 }

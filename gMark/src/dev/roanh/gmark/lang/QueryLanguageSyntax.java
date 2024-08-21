@@ -1,14 +1,15 @@
 package dev.roanh.gmark.lang;
 
-import dev.roanh.gmark.ast.PathTree;
+import dev.roanh.gmark.ast.QueryFragment;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
 
 /**
  * Base interface for query language specifications.
  * @author Roan
+ * @param <SELF> The concrete query language specification.
  */
-public abstract interface QueryLanguageSyntax extends OutputSQL, OutputXML{
+public abstract interface QueryLanguageSyntax<SELF extends QueryLanguageSyntax<SELF>> extends OutputSQL, OutputXML, QueryFragment<SELF>{
 	/**
 	 * The character used to denote the intersection/conjunction operator.
 	 */
@@ -31,6 +32,4 @@ public abstract interface QueryLanguageSyntax extends OutputSQL, OutputXML{
 	public static final char CHAR_INVERSE = '⁻';
 	
 	public abstract QueryLanguage getQueryLanguage();
-	
-//	public abstract PathTree toAbstractSyntaxTree();
 }

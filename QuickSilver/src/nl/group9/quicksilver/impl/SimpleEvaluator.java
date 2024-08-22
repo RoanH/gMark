@@ -42,7 +42,6 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph>{
 	private SimpleGraph evaluate(QueryTree path){
 		switch(path.getOperation()){
 		case CONCATENATION:
-			System.out.println("concat: " + path.getLeft().getQueryFragment() + " / " + path.getRight().getQueryFragment());
 			return join(evaluate(path.getLeft()), evaluate(path.getRight()));
 		case DISJUNCTION:
 			SimpleGraph left = evaluate(path.getLeft());

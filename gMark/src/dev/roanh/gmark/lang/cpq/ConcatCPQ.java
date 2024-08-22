@@ -43,11 +43,6 @@ public class ConcatCPQ extends GenericConcatenation<CPQ> implements CPQ{
 	}
 	
 	@Override
-	protected CPQ getSelf(){
-		return this;
-	}
-	
-	@Override
 	public void writeXML(IndentWriter writer){
 		writer.println("<cpq type=\"concat\">", 2);
 		elements.forEach(c->c.writeXML(writer));

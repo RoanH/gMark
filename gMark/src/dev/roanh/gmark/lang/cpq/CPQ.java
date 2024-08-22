@@ -35,7 +35,7 @@ import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
  *      Indexing Conjunctive Path Queries for Accelerated Query Evaluation, Section 2.2.2: Conjunctive Path Queries</a>
  * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
  */
-public abstract interface CPQ extends QueryLanguageSyntax<CPQ>{
+public abstract interface CPQ extends QueryLanguageSyntax{
 	/**
 	 * Constant for the special identity CPQ.
 	 */

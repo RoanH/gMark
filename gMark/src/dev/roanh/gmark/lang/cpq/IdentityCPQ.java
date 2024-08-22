@@ -19,7 +19,7 @@
 package dev.roanh.gmark.lang.cpq;
 
 import dev.roanh.gmark.ast.OperationType;
-import dev.roanh.gmark.ast.PathTree;
+import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -77,7 +77,7 @@ public final class IdentityCPQ implements CPQ{
 	}
 
 	@Override
-	public PathTree<CPQ> toAbstractSyntaxTree(){
-		return PathTree.ofAtom(this);
+	public QueryTree toAbstractSyntaxTree(){
+		return QueryTree.ofAtom(this);
 	}
 }

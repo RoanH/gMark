@@ -26,7 +26,7 @@ import dev.roanh.gmark.lang.generic.GenericEdge;
  * CPQ modelling a single label traversal.
  * @author Roan
  */
-public class EdgeCPQ extends GenericEdge<CPQ> implements CPQ{
+public class EdgeCPQ extends GenericEdge implements CPQ{
 	
 	/**
 	 * Constructs a new edge CPQ with the
@@ -35,11 +35,6 @@ public class EdgeCPQ extends GenericEdge<CPQ> implements CPQ{
 	 */
 	public EdgeCPQ(Predicate symbol){
 		super(symbol);
-	}
-	
-	@Override
-	protected CPQ getSelf(){
-		return this;
 	}
 	
 	@Override

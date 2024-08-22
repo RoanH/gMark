@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import dev.roanh.gmark.ast.OperationType;
-import dev.roanh.gmark.ast.PathTree;
+import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.ast.QueryFragment;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.output.OutputSQL;
@@ -34,7 +34,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * @author Roan
  * @param <T> The concrete query language fragment syntax.
  */
-public abstract class GenericConcatenation<T extends QueryLanguageSyntax<T>> implements OutputSQL, QueryFragment<T>{
+public abstract class GenericConcatenation<T extends QueryLanguageSyntax> implements OutputSQL, QueryFragment{
 	/**
 	 * The sub queries to concatenate in order from first to last.
 	 */
@@ -51,8 +51,6 @@ public abstract class GenericConcatenation<T extends QueryLanguageSyntax<T>> imp
 			throw new IllegalArgumentException("List of queries to concatenate cannot be empty.");
 		}
 	}
-	
-	protected abstract T getSelf();
 	
 	@Override
 	public String toString(){
@@ -114,14 +112,14 @@ public abstract class GenericConcatenation<T extends QueryLanguageSyntax<T>> imp
 	}
 
 	@Override
-	public PathTree<T> toAbstractSyntaxTree(){
-		PathTree<T> right = elements.get(0).toAbstractSyntaxTree();
+	public QueryTree toAbstractSyntaxTree(){
+		QueryTree right = elements.get(elements.size() - 1).toAbstractSyntaxTree();
 		if(elements.size() == 1){
 			return right;
 		}
 		
 		for(int i = elements.size() - 2; i >= 0; i--){
-			right = PathTree.ofBinary(elements.get(i).toAbstractSyntaxTree(), right, getSelf());
+			right = QueryTree.ofBinary(elements.get(i).toAbstractSyntaxTree(), right, this);
 		}
 		
 		return right;

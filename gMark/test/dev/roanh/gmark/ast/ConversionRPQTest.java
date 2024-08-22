@@ -16,23 +16,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.lang.rpq;
+package dev.roanh.gmark.ast;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.lang.generic.GenericEdge;
+import dev.roanh.gmark.lang.rpq.RPQ;
 
-/**
- * RPQ modelling a single label traversal.
- * @author Roan
- */
-public class EdgeRPQ extends GenericEdge implements RPQ{
+public class ConversionRPQTest{
+	private static final Predicate a = new Predicate(0, "a");
+	private static final Predicate b = new Predicate(1, "b");
 
-	/**
-	 * Constructs a new edge RPQ with the
-	 * given label to traverse.
-	 * @param symbol The label to traverse.
-	 */
-	protected EdgeRPQ(Predicate symbol){
-		super(symbol);
+	@Test
+	public void ast0(){
+		RPQ query = RPQ.labels(a, b);
+		
+		QueryTree ast = query.toAbstractSyntaxTree();
+		assertEquals(OperationType.CONCATENATION, ast.getOperation());
+		assertEquals(OperationType.EDGE, ast.getLeft().getOperation());
+		assertEquals(a, ast.getLeft().getPredicate());
+		assertEquals(OperationType.EDGE, ast.getRight().getOperation());
+		assertEquals(b, ast.getRight().getPredicate());
 	}
 }

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import dev.roanh.gmark.ast.OperationType;
-import dev.roanh.gmark.ast.PathTree;
+import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -89,10 +89,10 @@ public class DisjunctionRPQ implements RPQ{
 	}
 
 	@Override
-	public PathTree<RPQ> toAbstractSyntaxTree(){
-		PathTree<RPQ> right = rpq.get(rpq.size() - 1).toAbstractSyntaxTree();
+	public QueryTree toAbstractSyntaxTree(){
+		QueryTree right = rpq.get(rpq.size() - 1).toAbstractSyntaxTree();
 		for(int i = rpq.size() - 2; i >= 0; i--){
-			right = PathTree.ofBinary(rpq.get(i).toAbstractSyntaxTree(), right, this);
+			right = QueryTree.ofBinary(rpq.get(i).toAbstractSyntaxTree(), right, this);
 		}
 		
 		return right;

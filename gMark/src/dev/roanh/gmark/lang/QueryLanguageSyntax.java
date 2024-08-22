@@ -7,9 +7,8 @@ import dev.roanh.gmark.output.OutputXML;
 /**
  * Base interface for query language specifications.
  * @author Roan
- * @param <SELF> The concrete query language specification.
  */
-public abstract interface QueryLanguageSyntax<SELF extends QueryLanguageSyntax<SELF>> extends OutputSQL, OutputXML, QueryFragment<SELF>{
+public abstract interface QueryLanguageSyntax extends OutputSQL, OutputXML, QueryFragment{
 	/**
 	 * The character used to denote the intersection/conjunction operator.
 	 */

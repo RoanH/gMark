@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import dev.roanh.gmark.ast.OperationType;
-import dev.roanh.gmark.ast.PathTree;
+import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.util.IndentWriter;
@@ -119,10 +119,10 @@ public class IntersectionCPQ implements CPQ{
 	}
 
 	@Override
-	public PathTree<CPQ> toAbstractSyntaxTree(){
-		PathTree<CPQ> right = cpq.get(cpq.size() - 1).toAbstractSyntaxTree();
+	public QueryTree toAbstractSyntaxTree(){
+		QueryTree right = cpq.get(cpq.size() - 1).toAbstractSyntaxTree();
 		for(int i = cpq.size() - 2; i >= 0; i--){
-			right = PathTree.ofBinary(cpq.get(i).toAbstractSyntaxTree(), right, this);
+			right = QueryTree.ofBinary(cpq.get(i).toAbstractSyntaxTree(), right, this);
 		}
 		
 		return right;

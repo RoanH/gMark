@@ -36,7 +36,7 @@ spotbugs:
   stage: check
   artifacts:
     name: SpotBugs-${SUFFIX}
-    expire_in: 1 week
+    expire_in: 1 day
     when: always
     paths:
       - ./${PROJECTNAME}/build/reports/spotbugs/main/spotbugs.html
@@ -71,7 +71,7 @@ javadoc:
   stage: javadoc
   artifacts:
     name: Javadoc-${SUFFIX}
-    expire_in: 1 week
+    expire_in: 1 day
     paths:
       - javadoc/
 
@@ -97,7 +97,7 @@ cli:
   stage: compile
   artifacts:
     name: gMark-CLI-${SUFFIX}
-    expire_in: 1 week
+    expire_in: 1 day
     paths:
       - gMark.jar
 
@@ -110,7 +110,7 @@ client:
   stage: compile
   artifacts:
     name: gMark-Client-${SUFFIX}
-    expire_in: 1 week
+    expire_in: 1 day
     paths:
       - gMark-*.jar
       - gMark-*.exe
@@ -122,7 +122,7 @@ compile:
   stage: compile
   artifacts:
     name: gMark-${SUFFIX}
-    expire_in: 1 week
+    expire_in: 1 day
     paths:
       - gMark.jar
 
@@ -167,4 +167,3 @@ hub:
   needs: ["publish"]
   only:
     - tags
-

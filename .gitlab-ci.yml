@@ -90,7 +90,6 @@ docker:
     - docker build -t gmark .
   stage: compile
 
-
 cli:
   script:
     - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} cli:shadowJar
@@ -158,7 +157,7 @@ hub:
   before_script: []
   script:
     - docker info
-    - docker build -t gmark .
+    - docker build --build-arg ref=${CI_COMMIT_REF_NAME} -t gmark .
     - docker tag gmark roanh/gmark:${CI_COMMIT_REF_NAME:1}
     - docker tag gmark roanh/gmark:latest
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
@@ -168,4 +167,3 @@ hub:
   needs: ["publish"]
   only:
     - tags
-

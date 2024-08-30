@@ -1,6 +1,6 @@
 package nl.group9.quicksilver.impl;
 
-import java.util.List;
+import java.util.Optional;
 
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.core.graph.Predicate;
@@ -11,29 +11,37 @@ import nl.group9.quicksilver.core.spec.Evaluator;
 import nl.group9.quicksilver.impl.data.SourceLabelPair;
 import nl.group9.quicksilver.impl.data.TargetLabelPair;
 
-public class SimpleEvaluator implements Evaluator<SimpleGraph>{
+public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleEstimator>{
 	private SimpleGraph graph;
 
 	@Override
-	public SimpleGraph createGraph(int vertexCount, int edgeCount, int labelCount){//TODO used?
+	public SimpleGraph createGraph(int vertexCount, int edgeCount, int labelCount){
 		return new SimpleGraph(vertexCount, labelCount);
 	}
 
 	@Override
-	public void prepare(SimpleGraph graph){//TODO no cast
+	public void prepare(SimpleGraph graph, SimpleEstimator estimator){
 		this.graph = graph;
 	}
+	
+	//TODO inefficiencies (not meant to be solved)
+	//- almost all operations produce a new graph, a lot can be significantly faster if they modify the input graph
+	//- prevent duplicate edges from ending up in output graphs as much as possible
+	//- some operations are just more efficient when considered in more context, e.g., intersection with identity
+	//- labels are only used for projection, after that they are only a huge inefficiency
 
 	@Override
 	public SimpleGraph evaluate(PathQuery query){
 		SimpleGraph result = evaluate(query.ast());
 		
-		if(query.source().isPresent()){
-			result = selectSource(query.source().get(), result);
+		Optional<Integer> boundSource = query.source();
+		if(boundSource.isPresent()){
+			result = selectSource(boundSource.get(), result);
 		}
 		
-		if(query.target().isPresent()){
-			result = selectedTarget(query.target().get(), result);
+		Optional<Integer> boundTarget = query.target();
+		if(boundTarget.isPresent()){
+			result = selectedTarget(boundTarget.get(), result);
 		}
 		
 		return result;
@@ -44,21 +52,16 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph>{
 		case CONCATENATION:
 			return join(evaluate(path.getLeft()), evaluate(path.getRight()));
 		case DISJUNCTION:
-			SimpleGraph left = evaluate(path.getLeft());
-			unionDistinct(left, evaluate(path.getRight()));
-			return left;
+			return union(evaluate(path.getLeft()), evaluate(path.getRight()));
 		case EDGE:
 			Predicate predicate = path.getPredicate();
-			return selectLabel(predicate.getID(), predicate.getID(), predicate.isInverse(), graph);
+			return selectLabel(predicate.getID(), predicate.isInverse(), graph);
 		case IDENTITY:
-			//TODO
-			break;
+			return selectIdentity(graph);
 		case INTERSECTION:
-			//TODO
-			break;
+			return intersection(evaluate(path.getLeft()), evaluate(path.getRight()));
 		case KLEENE:
-			//TODO tc in QuickSilver is simplified to a disjunction of labels, may need to reconsider that
-			break;
+			return transitiveClosure(evaluate(path.getLeft()));
 		}
 		
 		throw new IllegalArgumentException("Unsupported database operation.");
@@ -87,9 +90,19 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph>{
 		);
 	}
 	
-	//TODO intersection and identity?
+	private static SimpleGraph selectIdentity(SimpleGraph in){
+		SimpleGraph out = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
+
+		for(int label = 0; label < in.getNoLabels(); label++){
+			for(int vertex = 0; vertex < in.getNoVertices(); vertex++){
+				out.addEdge(vertex, vertex, label);
+			}
+		}
+		
+		return out;
+	}
 	
-	private static SimpleGraph selectLabel(int projectLabel, int outLabel, boolean inverse, SimpleGraph in){
+	private static SimpleGraph selectLabel(int projectLabel, boolean inverse, SimpleGraph in){
 		SimpleGraph out = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
 		
 		if(!inverse){
@@ -97,7 +110,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph>{
 			for(int source = 0; source < in.getNoVertices(); source++){
 				for(TargetLabelPair edge : in.getOutgoingEdges(source)){
 					if(edge.label() == projectLabel){
-						out.addEdge(source, edge.target(), outLabel);
+						out.addEdge(source, edge.target(), edge.label());
 					}
 				}
 			}
@@ -106,7 +119,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph>{
 			for(int source = 0; source < in.getNoVertices(); source++){
 				for(SourceLabelPair edge : in.getIncomingEdges(source)){
 					if(edge.label() == projectLabel){
-						out.addEdge(source, edge.source(), outLabel);
+						out.addEdge(source, edge.source(), edge.label());
 					}
 				}
 			}
@@ -115,20 +128,16 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph>{
 		return out;
 	}
 	
-	private static SimpleGraph transitiveClosure(List<Integer> labels, SimpleGraph in){
-		SimpleGraph base = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
-		
-		//construct the base graph containing only the edges with the labels we are interested in
-		for(int label : labels){
-			unionDistinct(base, selectLabel(label, 0, false, in));
-		}
-		
+	private static SimpleGraph transitiveClosure(SimpleGraph in){
 		SimpleGraph transitiveClosure = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
-		unionDistinct(transitiveClosure, base);
+
+		in = relabel(0, in);
+		
+		unionDistinct(transitiveClosure, in);
 		
 		int edgesAdded = 1;
 		while(edgesAdded > 0){
-			edgesAdded = unionDistinct(transitiveClosure, join(transitiveClosure, base));
+			edgesAdded = unionDistinct(transitiveClosure, join(transitiveClosure, in));
 		}
 		
 		return transitiveClosure;
@@ -140,13 +149,59 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph>{
 		for(int source = 0; source < right.getNoVertices(); source++){
 			for(TargetLabelPair edge : right.getOutgoingEdges(source)){
 				if(!left.hasEdge(source, edge.target(), edge.label())){
-					left.addEdge(source, edge.target(), source);
+					left.addEdge(source, edge.target(), edge.label());
 					edgesAdded++;
 				}
 			}
 		}
 		
 		return edgesAdded;
+	}
+	
+	private static SimpleGraph relabel(int outLabel, SimpleGraph in){
+		SimpleGraph out = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
+		
+		for(int source = 0; source < in.getNoVertices(); source++){
+			for(TargetLabelPair edge : in.getOutgoingEdges(source)){
+				out.addEdge(source, edge.target(), outLabel);
+			}
+		}
+		
+		return out;
+	}
+	
+	private static SimpleGraph union(SimpleGraph left, SimpleGraph right){
+		SimpleGraph out = new SimpleGraph(left.getNoVertices(), 1);
+		
+		//copy all edges in the left graph
+		for(int source = 0; source < left.getNoVertices(); source++){
+			for(TargetLabelPair edge : left.getOutgoingEdges(source)){
+				out.addEdge(source, edge.target(), edge.label());
+			}
+		}
+		
+		//copy all edges in the right graph
+		for(int source = 0; source < right.getNoVertices(); source++){
+			for(TargetLabelPair edge : right.getOutgoingEdges(source)){
+				out.addEdge(source, edge.target(), edge.label());
+			}
+		}
+		
+		return out;
+	}
+	
+	private static SimpleGraph intersection(SimpleGraph left, SimpleGraph right){
+		SimpleGraph out = new SimpleGraph(left.getNoVertices(), left.getNoLabels());
+		
+		for(int source = 0; source < left.getNoVertices(); source++){
+			for(TargetLabelPair edge : left.getOutgoingEdges(source)){
+				if(right.hasEdge(source, edge.target(), edge.label())){
+					out.addEdge(source, edge.target(), edge.label());
+				}
+			}
+		}
+		
+		return out;
 	}
 	
 	private static SimpleGraph join(SimpleGraph left, SimpleGraph right){

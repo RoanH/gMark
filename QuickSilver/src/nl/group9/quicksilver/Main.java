@@ -4,6 +4,7 @@ import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.rpq.RPQ;
 
 import nl.group9.quicksilver.core.data.PathQuery;
+import nl.group9.quicksilver.impl.SimpleEstimator;
 import nl.group9.quicksilver.impl.SimpleEvaluator;
 import nl.group9.quicksilver.impl.SimpleGraph;
 
@@ -40,7 +41,7 @@ public class Main{
 		graph.addEdge(11, 2, 1);
 		graph.addEdge(12, 11, 0);
 		graph.addEdge(12, 13, 1);
-		evaluator.prepare(graph);
+		evaluator.prepare(graph, new SimpleEstimator());
 		
 		Predicate a = new Predicate(0, "a");
 		Predicate b = new Predicate(1, "b");

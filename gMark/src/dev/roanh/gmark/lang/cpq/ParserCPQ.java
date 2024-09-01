@@ -42,7 +42,7 @@ public final class ParserCPQ extends GenericParser{
 	/**
 	 * Parses the given CPQ in string form to a CPQ instance. The input is assumed
 	 * to use brackets where possible and to use the '{@code id}', '{@value QueryLanguageSyntax#CHAR_JOIN}',
-	 * '{@value QueryLanguageSyntax#CHAR_CAP}' and '{@value QueryLanguageSyntax#CHAR_INVERSE}' symbols to denote
+	 * '{@value QueryLanguageSyntax#CHAR_INTERSECTION}' and '{@value QueryLanguageSyntax#CHAR_INVERSE}' symbols to denote
 	 * operations. Example input: {@code (0◦(((1◦0) ∩ (1◦1))◦1⁻))}.
 	 * @param query The CPQ to parse.
 	 * @return The parsed CPQ.
@@ -50,7 +50,7 @@ public final class ParserCPQ extends GenericParser{
 	 * @see #parse(String, char, char, char)
 	 */
 	public static CPQ parse(String query) throws IllegalArgumentException{
-		return parse(query, QueryLanguageSyntax.CHAR_JOIN, QueryLanguageSyntax.CHAR_CAP, QueryLanguageSyntax.CHAR_INVERSE);
+		return parse(query, QueryLanguageSyntax.CHAR_JOIN, QueryLanguageSyntax.CHAR_INTERSECTION, QueryLanguageSyntax.CHAR_INVERSE);
 	}
 	
 	/**

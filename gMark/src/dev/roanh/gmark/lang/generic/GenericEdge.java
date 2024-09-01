@@ -80,6 +80,6 @@ public abstract class GenericEdge implements OutputSQL, OutputXML, QueryFragment
 	
 	@Override
 	public QueryTree toAbstractSyntaxTree(){
-		return QueryTree.ofAtom(this);//TODO getSelf
+		return QueryTree.ofAtom(this);
 	}
 }

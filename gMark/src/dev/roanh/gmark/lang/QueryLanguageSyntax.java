@@ -12,7 +12,7 @@ public abstract interface QueryLanguageSyntax extends OutputSQL, OutputXML, Quer
 	/**
 	 * The character used to denote the intersection/conjunction operator.
 	 */
-	public static final char CHAR_CAP = '∩';
+	public static final char CHAR_INTERSECTION = '∩';
 	/**
 	 * The character used to denote the join/concatenation operator.
 	 */
@@ -20,7 +20,7 @@ public abstract interface QueryLanguageSyntax extends OutputSQL, OutputXML, Quer
 	/**
 	 * The character used to denote the disjunction operator.
 	 */
-	public static final char CHAR_CUP = '∪';
+	public static final char CHAR_DISJUNCTION = '∪';
 	/**
 	 * The character used to denote the kleene/transitive closure operator.
 	 */
@@ -30,5 +30,9 @@ public abstract interface QueryLanguageSyntax extends OutputSQL, OutputXML, Quer
 	 */
 	public static final char CHAR_INVERSE = '⁻';
 	
+	/**
+	 * Gets the concrete query language used to defined this query.
+	 * @return The query language for this query.
+	 */
 	public abstract QueryLanguage getQueryLanguage();
 }

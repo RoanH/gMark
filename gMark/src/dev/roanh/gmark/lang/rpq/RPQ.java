@@ -123,7 +123,7 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 	
 	/**
 	 * Parses the given RPQ in string form to an RPQ instance. The input is assumed
-	 * to use brackets where possible and to use the '{@value QueryLanguageSyntax#CHAR_CUP}',
+	 * to use brackets where possible and to use the '{@value QueryLanguageSyntax#CHAR_DISJUNCTION}',
 	 * '{@value QueryLanguageSyntax#CHAR_JOIN}', '{@value QueryLanguageSyntax#CHAR_KLEENE}' and
 	 * '{@value QueryLanguageSyntax#CHAR_INVERSE}' symbols to denote operations.
 	 * Example input: {@code (0◦(((1◦0) ∪ (1◦1))◦1⁻))}.

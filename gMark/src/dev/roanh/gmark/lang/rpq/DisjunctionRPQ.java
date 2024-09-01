@@ -51,7 +51,7 @@ public class DisjunctionRPQ implements RPQ{
 
 	@Override
 	public String toString(){
-		StringJoiner builder = new StringJoiner(" " + QueryLanguageSyntax.CHAR_CUP + " ", "(", ")");
+		StringJoiner builder = new StringJoiner(" " + QueryLanguageSyntax.CHAR_DISJUNCTION + " ", "(", ")");
 		
 		for(RPQ item : rpq){
 			builder.add(item.toString());

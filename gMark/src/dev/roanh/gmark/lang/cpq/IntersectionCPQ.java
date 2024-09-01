@@ -69,7 +69,7 @@ public class IntersectionCPQ implements CPQ{
 	
 	@Override
 	public String toString(){
-		StringJoiner builder = new StringJoiner(" " + QueryLanguageSyntax.CHAR_CAP + " ", "(", ")");
+		StringJoiner builder = new StringJoiner(" " + QueryLanguageSyntax.CHAR_INTERSECTION + " ", "(", ")");
 		
 		for(CPQ item : cpq){
 			builder.add(item.toString());

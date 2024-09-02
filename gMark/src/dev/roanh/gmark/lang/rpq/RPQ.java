@@ -39,7 +39,7 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 	}
 	
 	/**
-	 * returns a RPQ representing the transitive closure of the given RPQ.
+	 * Returns an RPQ representing the transitive closure of the given RPQ.
 	 * @param rpq The RPQ for the transitive closure.
 	 * @return The transitive closure of the given RPQ.
 	 */
@@ -48,7 +48,7 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 	}
 
 	/**
-	 * Returns a RPQ representing the disjunction of the given RPQs
+	 * Returns an RPQ representing the disjunction of the given RPQs
 	 * from left to right. For example {@code ((q1 ∪ q2) ∪ q3)}.
 	 * @param rpqs The RPQs for the disjunction.
 	 * @return The disjunction of the given RPQs.
@@ -59,7 +59,7 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 	}
 	
 	/**
-	 * Returns a RPQ representing the disjunction of the given RPQs
+	 * Returns an RPQ representing the disjunction of the given RPQs
 	 * from left to right. For example {@code ((q1 ∪ q2) ∪ q3)}.
 	 * Note that the given list is not copied.
 	 * @param rpqs The RPQs for the disjunction.

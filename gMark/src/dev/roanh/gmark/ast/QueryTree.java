@@ -21,7 +21,6 @@ package dev.roanh.gmark.ast;
 import java.util.stream.Stream;
 
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.generic.GenericEdge;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -82,20 +81,14 @@ public class QueryTree{
 		return arity > 1 ? Stream.concat(stream, right.stream()) : stream;
 	}
 	
-	@Deprecated
-	public QueryFragment getQueryFragment(){
-		return fragment;
-	}
-	
-	private void writeAST(IndentWriter writer){//TODO level 0 indent broken
+	private void writeAST(IndentWriter writer){
 		if(isLeaf()){
+			writer.print("- ");
 			writer.println(fragment.toString());
 		}else{
-			writer.println(getOperation().toString(), 2);
-			writer.print("- ");
+			writer.println("- " + getOperation(), 2);
 			left.writeAST(writer);
 			if(right != null){
-				writer.print("- ");
 				right.writeAST(writer);
 			}
 			
@@ -103,14 +96,10 @@ public class QueryTree{
 		}
 	}
 	
-	public static void main(String[] args){
-		System.out.println(CPQ.generateRandomCPQ(10, 3).toAbstractSyntaxTree());
-	}
-	
 	@Override
 	public String toString(){
 		IndentWriter writer = new IndentWriter();
-		writer.decreaseIndent(2);//TODO hacky
+		writer.println("AST for " + fragment.toString());
 		writeAST(writer);
 		return writer.toString();
 	}

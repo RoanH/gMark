@@ -28,7 +28,15 @@ package dev.roanh.gmark.ast;
  */
 public abstract interface QueryFragment{
 	
+	/**
+	 * The top level operation represented by this query fragment.
+	 * @return The top level operation for this query fragment.
+	 */
 	public abstract OperationType getOperationType();
 	
+	/**
+	 * Converts this query fragment to an equivalent abstract syntax tree.
+	 * @return The constructed Abstract Syntax Tree (AST).
+	 */
 	public abstract QueryTree toAbstractSyntaxTree();
 }

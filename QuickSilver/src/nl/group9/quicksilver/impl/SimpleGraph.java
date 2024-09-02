@@ -6,9 +6,9 @@ import java.util.List;
 
 import dev.roanh.gmark.util.RangeList;
 
+import nl.group9.quicksilver.core.data.SourceTargetPair;
 import nl.group9.quicksilver.core.spec.Graph;
 import nl.group9.quicksilver.impl.data.SourceLabelPair;
-import nl.group9.quicksilver.impl.data.SourceTargetPair;
 import nl.group9.quicksilver.impl.data.TargetLabelPair;
 
 public class SimpleGraph implements Graph{

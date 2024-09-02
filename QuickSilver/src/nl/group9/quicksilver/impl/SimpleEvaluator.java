@@ -11,7 +11,12 @@ import nl.group9.quicksilver.core.spec.Evaluator;
 import nl.group9.quicksilver.impl.data.SourceLabelPair;
 import nl.group9.quicksilver.impl.data.TargetLabelPair;
 
-public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleEstimator>{
+public class SimpleEvaluator implements Evaluator<SimpleGraph>{
+	/**
+	 * After projection labels are no longer useful and generally make database
+	 * operation hard or ambiguous to implement, so they are typically erased as soon as possible.
+	 */
+	private static final int NO_LABEL = 0;//TODO I did not erase them entirely
 	private SimpleGraph graph;
 
 	@Override
@@ -20,8 +25,9 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleEstimator>{
 	}
 
 	@Override
-	public void prepare(SimpleGraph graph, SimpleEstimator estimator){
+	public void prepare(SimpleGraph graph){
 		this.graph = graph;
+		//TODO prepare estimator
 	}
 	
 	//TODO inefficiencies (not meant to be solved)
@@ -93,10 +99,8 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleEstimator>{
 	private static SimpleGraph selectIdentity(SimpleGraph in){
 		SimpleGraph out = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
 
-		for(int label = 0; label < in.getNoLabels(); label++){
-			for(int vertex = 0; vertex < in.getNoVertices(); vertex++){
-				out.addEdge(vertex, vertex, label);
-			}
+		for(int vertex = 0; vertex < in.getNoVertices(); vertex++){
+			out.addEdge(vertex, vertex, NO_LABEL);
 		}
 		
 		return out;
@@ -110,7 +114,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleEstimator>{
 			for(int source = 0; source < in.getNoVertices(); source++){
 				for(TargetLabelPair edge : in.getOutgoingEdges(source)){
 					if(edge.label() == projectLabel){
-						out.addEdge(source, edge.target(), edge.label());
+						out.addEdge(source, edge.target(), NO_LABEL);
 					}
 				}
 			}
@@ -119,7 +123,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleEstimator>{
 			for(int source = 0; source < in.getNoVertices(); source++){
 				for(SourceLabelPair edge : in.getIncomingEdges(source)){
 					if(edge.label() == projectLabel){
-						out.addEdge(source, edge.source(), edge.label());
+						out.addEdge(source, edge.source(), NO_LABEL);
 					}
 				}
 			}
@@ -130,9 +134,6 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleEstimator>{
 	
 	private static SimpleGraph transitiveClosure(SimpleGraph in){
 		SimpleGraph transitiveClosure = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
-
-		in = relabel(0, in);
-		
 		unionDistinct(transitiveClosure, in);
 		
 		int edgesAdded = 1;
@@ -156,18 +157,6 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleEstimator>{
 		}
 		
 		return edgesAdded;
-	}
-	
-	private static SimpleGraph relabel(int outLabel, SimpleGraph in){
-		SimpleGraph out = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
-		
-		for(int source = 0; source < in.getNoVertices(); source++){
-			for(TargetLabelPair edge : in.getOutgoingEdges(source)){
-				out.addEdge(source, edge.target(), outLabel);
-			}
-		}
-		
-		return out;
 	}
 	
 	private static SimpleGraph union(SimpleGraph left, SimpleGraph right){
@@ -211,7 +200,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleEstimator>{
 			for(TargetLabelPair firstEdge : left.getOutgoingEdges(leftSource)){
 				//attempt to join this edge with all source vertices in the right graph
 				for(TargetLabelPair secondEdge : right.getOutgoingEdges(firstEdge.target())){
-					out.addEdge(leftSource, secondEdge.target(), 0);
+					out.addEdge(leftSource, secondEdge.target(), NO_LABEL);
 				}
 			}
 		}

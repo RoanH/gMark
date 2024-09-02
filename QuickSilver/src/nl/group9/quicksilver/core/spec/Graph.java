@@ -2,7 +2,7 @@ package nl.group9.quicksilver.core.spec;
 
 import java.util.List;
 
-import nl.group9.quicksilver.impl.data.SourceTargetPair;
+import nl.group9.quicksilver.core.data.SourceTargetPair;
 
 public abstract interface Graph{
 

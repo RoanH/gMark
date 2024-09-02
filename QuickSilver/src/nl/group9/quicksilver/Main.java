@@ -41,7 +41,7 @@ public class Main{
 		graph.addEdge(11, 2, 1);
 		graph.addEdge(12, 11, 0);
 		graph.addEdge(12, 13, 1);
-		evaluator.prepare(graph, new SimpleEstimator());
+		evaluator.prepare(graph);
 		
 		Predicate a = new Predicate(0, "a");
 		Predicate b = new Predicate(1, "b");

@@ -102,4 +102,12 @@ public enum OperationType{
 	public boolean isBinary(){
 		return operands == 2;
 	}
+	
+	/**
+	 * Gets the arity of this operator, that is, the number of arguments or operands it takes.
+	 * @return The arity of this operator.
+	 */
+	public int getArity(){
+		return operands;
+	}
 }

@@ -18,10 +18,14 @@
  */
 package dev.roanh.gmark.lang.cpq;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+
+import dev.roanh.gmark.ast.QueryTree;
+import dev.roanh.gmark.core.graph.Predicate;
 
 public class ParserCPQTest{
 
@@ -58,5 +62,10 @@ public class ParserCPQTest{
 	@Test
 	public void parse6(){
 		assertEquals("(b◦(a ∩ id))", CPQ.parse("b ◦ (a ∩ id)").toString());
+	}
+	
+	@Test
+	public void predicates(){
+		assertArrayEquals(new int[]{0, 1, 2}, CPQ.parse("a ∩ b ∩ c").toAbstractSyntaxTree().stream().filter(QueryTree::isLeaf).map(QueryTree::getPredicate).mapToInt(Predicate::getID).distinct().sorted().toArray());
 	}
 }

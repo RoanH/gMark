@@ -18,6 +18,8 @@
  */
 package dev.roanh.gmark.ast;
 
+import java.util.stream.Stream;
+
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.generic.GenericEdge;
@@ -66,6 +68,18 @@ public class QueryTree{
 	
 	public QueryTree getRight(){
 		return right;
+	}
+	
+	//top down / left right
+	public Stream<QueryTree> stream(){
+		Stream<QueryTree> stream = Stream.of(this);
+		
+		int arity = getOperation().getArity();
+		if(arity > 0){
+			stream = Stream.concat(stream, left.stream());
+		}
+		
+		return arity > 1 ? Stream.concat(stream, right.stream()) : stream;
 	}
 	
 	@Deprecated

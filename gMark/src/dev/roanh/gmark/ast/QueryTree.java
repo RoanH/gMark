@@ -32,7 +32,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * @see QueryLanguage
  * @see QueryFragment
  * @see QueryLanguageSyntax
- * @see <a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree"/>Abstract syntax tree on wikipedia</a>
+ * @see <a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">Abstract syntax tree on wikipedia</a>
  */
 public class QueryTree{
 	/**

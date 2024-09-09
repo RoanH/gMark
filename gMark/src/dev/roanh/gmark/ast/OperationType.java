@@ -34,7 +34,10 @@ package dev.roanh.gmark.ast;
  * <li><b>Binary</b>: These are operations that take exactly two inputs, thus
  * the AST nodes for these operations have exactly two child nodes in the query
  * AST that produce their input.</li>
- * </ul>
+ * </ul><p>
+ * It is worth noting that the result of each operation is a set of paths that
+ * are represented by their source and target vertices in the format <code>
+ * (source, target)</code>.
  * @author Roan
  * @see QueryTree QueryTree (AST)
  */
@@ -52,10 +55,58 @@ public enum OperationType{
 	 * path from vertex <code>v</code> to vertex <code>u</code>.
 	 */
 	CONCATENATION(2),
-	INTERSECTION(2),//conjunction
-	EDGE(0),//predicate, label
+	/**
+	 * The <i>intersection</i> or <i>conjunction</i> operation is a binary operation
+	 * that intersects its two input graphs such that paths from the left input graph
+	 * are only included in the output if they are also present in the right input graph.
+	 * <p>
+	 * For example, if the left input graph contains the paths <code>(a, b)</code> and
+	 * <code>(c, d)</code> and the right input graph contains the paths <code>(b, c)</code>
+	 * and <code>(a, b)</code>, then the only path in the output is <code>(a, b)</code>.
+	 */
+	INTERSECTION(2),
+	/**
+	 * The <i>edge</i>, <i>predicate</i>, or <i>label</i> operation is an atom that executes
+	 * directly on the database graph to select all the edges with a specific edge label.
+	 * Optionally edges can be selected in inverse direction, meaning the source and target
+	 * vertices in the output paths are reversed.
+	 * <p>
+	 * For example, if the database graph contains the path from vertex <code>1</code> to
+	 * vertex <code>2</code> with label <code>a</code> and we select all edges with label
+	 * <code>a</code>, then the output contains the path <code>(1, 2)</code>. Similarly, if
+	 * we select all edges with label <code>a</code> in inverse direction, then the output
+	 * contains the path <code>(2, 1)</code>.
+	 */
+	EDGE(0),
+	/**
+	 * The <i>identity</i> operation is an atom that executes directly on the database
+	 * graph to select all the vertices in the graph. Alternatively, one can think of this
+	 * operation as selecting all length 0 paths from the database.
+	 * <p>
+	 * For example, if the database graphs contains the nodes <code>1</code>, <code>2</code>,
+	 * and <code>3</code>, then the output graph will contain <code>(1, 1)</code>, <code>(2, 2)</code>,
+	 * and <code>(3, 3)</code>.
+	 */
 	IDENTITY(0),
+	/**
+	 * The <i>Kleene</i> or <i>transitive closure</i> operation is a unary operation that
+	 * computes the transitive closure of its input graph. Note that the transitive closure
+	 * of a relation <i>R</i> is the smallest binary relation of set the set of all distinct
+	 * source and target vertices in <i>R</i> that both contains <i>R</i> and is transitive.
+	 * <p>
+	 * For example, if the input graph contains the paths <code>(1, 2)</code> and <code>(2, 3)</code>,
+	 * then the output graph contains <code>(1, 2)</code>, <code>(2, 3)</code> and <code>(1, 3)</code>
+	 */
 	KLEENE(1),
+	/**
+	 * The <i>disjunction</i> operation is a binary operation that computes the disjunction
+	 * for its two input graphs such that paths are present in the output graph when that
+	 * are present in either the left input graph or the right input graph.
+	 * <p>
+	 * For example, if the left input graph contains the path <code>(a, b)</code> and
+	 * and the right input graph contains the path <code>(b, c)</code>, then the output
+	 * contains both <code>(a, b)</code> and <code>(b, c)</code>.
+	 */
 	DISJUNCTION(2);
 	
 	/**

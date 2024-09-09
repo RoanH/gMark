@@ -18,6 +18,9 @@
  */
 package dev.roanh.gmark.lang.generic;
 
+import dev.roanh.gmark.ast.OperationType;
+import dev.roanh.gmark.ast.QueryTree;
+import dev.roanh.gmark.ast.QueryFragment;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
@@ -29,7 +32,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * in inverse direction from target to source.
  * @author Roan
  */
-public class GenericEdge implements OutputSQL, OutputXML{
+public abstract class GenericEdge implements OutputSQL, OutputXML, QueryFragment{
 	/**
 	 * The label traversed by this query.
 	 */
@@ -68,5 +71,15 @@ public class GenericEdge implements OutputSQL, OutputXML{
 	@Override
 	public void writeXML(IndentWriter writer){
 		symbol.writeXML(writer);
+	}
+	
+	@Override
+	public OperationType getOperationType(){
+		return OperationType.EDGE;
+	}
+	
+	@Override
+	public QueryTree toAbstractSyntaxTree(){
+		return QueryTree.ofAtom(this);
 	}
 }

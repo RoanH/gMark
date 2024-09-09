@@ -31,7 +31,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.lang.QueryLanguage;
+import dev.roanh.gmark.lang.QueryLanguageSyntax;
 
 public class GenericParserTest{
 
@@ -87,13 +87,13 @@ public class GenericParserTest{
 	
 	@Test
 	public void predicate0(){
-		assertThrows(IllegalArgumentException.class, ()->GenericParser.parsePredicate("1⁻⁻", new HashMap<String, Predicate>(), QueryLanguage.CHAR_INVERSE));
+		assertThrows(IllegalArgumentException.class, ()->GenericParser.parsePredicate("1⁻⁻", new HashMap<String, Predicate>(), QueryLanguageSyntax.CHAR_INVERSE));
 	}
 	
 	@Test
 	public void predicate1(){
 		Map<String, Predicate> labels = new HashMap<String, Predicate>();
-		Predicate p =  GenericParser.parsePredicate("1⁻", labels, QueryLanguage.CHAR_INVERSE);
+		Predicate p =  GenericParser.parsePredicate("1⁻", labels, QueryLanguageSyntax.CHAR_INVERSE);
 		assertEquals("1⁻", p.getAlias());
 		assertTrue(p.isInverse());
 		assertEquals(p, labels.get("1").getInverse());
@@ -102,7 +102,7 @@ public class GenericParserTest{
 	@Test
 	public void predicate2(){
 		Map<String, Predicate> labels = new HashMap<String, Predicate>();
-		Predicate p =  GenericParser.parsePredicate("1", labels, QueryLanguage.CHAR_INVERSE);
+		Predicate p =  GenericParser.parsePredicate("1", labels, QueryLanguageSyntax.CHAR_INVERSE);
 		assertEquals("1", p.getAlias());
 		assertFalse(p.isInverse());
 		assertEquals(p, labels.get("1"));

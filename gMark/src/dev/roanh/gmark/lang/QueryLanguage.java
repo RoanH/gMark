@@ -1,31 +1,25 @@
 package dev.roanh.gmark.lang;
 
-import dev.roanh.gmark.output.OutputSQL;
-import dev.roanh.gmark.output.OutputXML;
+import dev.roanh.gmark.ast.OperationType;
+import dev.roanh.gmark.lang.cpq.CPQ;
+import dev.roanh.gmark.lang.rpq.RPQ;
 
 /**
- * Base interface for query language specifications.
+ * Enum of implemented concrete query languages. A query language
+ * is a formal syntax that can be used to query a database that is
+ * build using a subset of database operations.
  * @author Roan
+ * @see OperationType
  */
-public abstract interface QueryLanguage extends OutputSQL, OutputXML{
+public enum QueryLanguage{
 	/**
-	 * The character used to denote the intersection/conjunction operator.
+	 * The language of Conjunctive Path Queries.
+	 * @see CPQ
 	 */
-	public static final char CHAR_CAP = '∩';
+	CPQ,
 	/**
-	 * The character used to denote the join/concatenation operator.
+	 * The language of Regular Path Queries.
+	 * @see RPQ
 	 */
-	public static final char CHAR_JOIN = '◦';
-	/**
-	 * The character used to denote the disjunction operator.
-	 */
-	public static final char CHAR_CUP = '∪';
-	/**
-	 * The character used to denote the kleene/transitive closure operator.
-	 */
-	public static final char CHAR_KLEENE = '*';
-	/**
-	 * The character used to denote negated predicates/labels.
-	 */
-	public static final char CHAR_INVERSE = '⁻';
+	RPQ
 }

@@ -20,7 +20,7 @@ package dev.roanh.gmark.core.graph;
 
 import java.util.Objects;
 
-import dev.roanh.gmark.lang.QueryLanguage;
+import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IDable;
 import dev.roanh.gmark.util.IndentWriter;
@@ -113,7 +113,7 @@ public class Predicate implements OutputXML, Comparable<Predicate>, IDable{
 	 * @return The predicate alias.
 	 */
 	public String getAlias(){
-		return isInverse ? (alias + QueryLanguage.CHAR_INVERSE) : alias;
+		return isInverse ? (alias + QueryLanguageSyntax.CHAR_INVERSE) : alias;
 	}
 	
 	/**

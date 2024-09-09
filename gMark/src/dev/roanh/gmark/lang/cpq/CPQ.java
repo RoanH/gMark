@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.QueryLanguage;
+import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 
 /**
@@ -34,7 +35,7 @@ import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
  *      Indexing Conjunctive Path Queries for Accelerated Query Evaluation, Section 2.2.2: Conjunctive Path Queries</a>
  * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
  */
-public abstract interface CPQ extends QueryLanguage{
+public abstract interface CPQ extends QueryLanguageSyntax{
 	/**
 	 * Constant for the special identity CPQ.
 	 */
@@ -71,6 +72,11 @@ public abstract interface CPQ extends QueryLanguage{
 	 */
 	public default boolean isHomomorphicTo(CPQ other){
 		return toQueryGraph().isHomomorphicTo(other.toQueryGraph());
+	}
+
+	@Override
+	public default QueryLanguage getQueryLanguage(){
+		return QueryLanguage.CPQ;
 	}
 	
 	/**
@@ -231,8 +237,8 @@ public abstract interface CPQ extends QueryLanguage{
 	
 	/**
 	 * Parses the given CPQ in string form to a CPQ instance. The input is assumed
-	 * to use brackets where possible and to use the '{@code id}', '{@value QueryLanguage#CHAR_JOIN}',
-	 * '{@value QueryLanguage#CHAR_CAP}' and '{@value QueryLanguage#CHAR_INVERSE}' symbols to denote
+	 * to use brackets where possible and to use the '{@code id}', '{@value QueryLanguageSyntax#CHAR_JOIN}',
+	 * '{@value QueryLanguageSyntax#CHAR_INTERSECTION}' and '{@value QueryLanguageSyntax#CHAR_INVERSE}' symbols to denote
 	 * operations. Example input: {@code (0◦(((1◦0) ∩ (1◦1))◦1⁻))}.
 	 * @param query The CPQ to parse.
 	 * @return The parsed CPQ.

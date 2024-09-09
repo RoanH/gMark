@@ -446,7 +446,7 @@ public final class Util{
 	}
 	
 	/**
-	 * Computes the cartesian product of the given input sets. For example, for
+	 * Computes the Cartesian product of the given input sets. For example, for
 	 * the following input sets:
 	 * <pre>
 	 * {
@@ -466,8 +466,8 @@ public final class Util{
 	 * </pre>
 	 * 
 	 * @param <T> The type of the data in the lists.
-	 * @param sets The sets to compute the cartesian product of.
-	 * @return The computed cartesian product of the input sets.
+	 * @param sets The sets to compute the Cartesian product of.
+	 * @return The computed Cartesian product of the input sets.
 	 * @throws ArithmeticException When the size of the output list with
 	 *         sets would be more than {@link Integer#MAX_VALUE}.
 	 */

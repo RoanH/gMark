@@ -127,7 +127,7 @@ public enum OperationType{
 	 * it cannot be decomposed any further and has no AST child nodes. This in turn
 	 * implies that the number of operands for the operation is 0 and that the operation
 	 * executes directly on the database graph.
-	 * @return True if this operation is an atom.
+	 * @return True if this operation is atomic.
 	 * @see QueryTree QueryTree (AST)
 	 */
 	public boolean isAtom(){

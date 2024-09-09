@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.util.IDable;
@@ -605,7 +604,7 @@ public class QueryGraphCPQ{
 			vertices.remove(elem.first);
 			
 			//replace edge source/target vertex with the new vertex
-			for(Edge edge : edges.stream().collect(Collectors.toList())){
+			for(Edge edge : edges.stream().toList()){
 				if(edge.src == elem.first && edge.trg == elem.first){
 					edges.add(new Edge(elem.second, elem.second, edge.label));
 					continue;
@@ -626,7 +625,7 @@ public class QueryGraphCPQ{
 			target = target == elem.first ? elem.second : target;
 			
 			//replace old vertex with the new vertex in all remaining id pairs
-			for(Pair pair : fid.stream().collect(Collectors.toList())){
+			for(Pair pair : fid.stream().toList()){
 				if(pair.second == elem.first){
 					fid.add(new Pair(pair.first, elem.second));
 				}

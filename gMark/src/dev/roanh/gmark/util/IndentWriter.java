@@ -33,7 +33,7 @@ public class IndentWriter{
 	/**
 	 * The context of this writer (all written lines).
 	 */
-	private StringBuilder content;
+	private final StringBuilder content;
 	/**
 	 * The current indent (in spaces).
 	 */

@@ -144,6 +144,9 @@ public class WorkloadRPQ extends Workload{
 		}else if(minLength > maxLength){
 			throw new IllegalStateException("Minimum length cannot be greater than the maximum length.");
 		}
+		
+		//TODO remove after implementation
+		throw new IllegalStateException("RPQ workload generation is not yet supported.");
 	}
 
 	@Override

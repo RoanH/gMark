@@ -119,7 +119,7 @@ public class QueryTab extends JPanel{
 	}
 	
 	/**
-	 * Saves the most recently generated workoad by prompting
+	 * Saves the most recently generated workload by prompting
 	 * the user for a folder to save to.
 	 */
 	private void saveWorkload(){
@@ -127,10 +127,8 @@ public class QueryTab extends JPanel{
 			Path folder = Dialog.showFolderOpenDialog();
 			
 			try{
-				if(!Util.isEmpty(folder)){
-					if(!Dialog.showConfirmDialog("The selected folder is not empty, some files\nmay be overwritten, do you want to continue?")){
-						return;
-					}
+				if(!Util.isEmpty(folder) && !Dialog.showConfirmDialog("The selected folder is not empty, some files\nmay be overwritten, do you want to continue?")){
+					return;
 				}
 				
 				OutputWriter.writeGeneratedQueries(data, folder, Arrays.asList(ConcreteSyntax.values()), true);

@@ -120,12 +120,6 @@ public class QuerySet implements OutputXML{
 	}
 	
 	/**
-	 * Gets the multiplicity of this query body. This is computed
-	 * as the fraction of all conjuncts that have a Kleene star above it.
-	 * @return The multiplicity of this query body.
-	 */
-	
-	/**
 	 * Gets the fraction of all the conjuncts across all the queries in
 	 * this query set that have a Kleene star above them.
 	 * @return The multiplicity across all the conjuncts in this query set.

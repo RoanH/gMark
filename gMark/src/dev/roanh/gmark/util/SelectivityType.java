@@ -93,12 +93,7 @@ public class SelectivityType{
 	
 	@Override
 	public boolean equals(Object other){
-		if(other instanceof SelectivityType){
-			SelectivityType selType = (SelectivityType)other;
-			return selType.selectivity == selectivity && selType.type.equals(type);
-		}else{
-			return false;
-		}
+		return other instanceof SelectivityType selType && selType.selectivity == selectivity && selType.type.equals(type);
 	}
 	
 	@Override

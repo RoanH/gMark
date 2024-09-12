@@ -32,8 +32,14 @@ import dev.roanh.gmark.query.QuerySet;
  * and queries to files.
  * @author Roan
  */
-public class OutputWriter{
+public final class OutputWriter{
 
+	/**
+	 * Prevent instantiation.
+	 */
+	private OutputWriter(){
+	}
+	
 	/**
 	 * Writes the given set of queries to the given folder.
 	 * @param queries The queries to write.

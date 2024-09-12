@@ -22,7 +22,7 @@ package dev.roanh.gmark.util;
  * Class that can be used as a wrapper around some
  * other object. DataProxy instances are never equal
  * to other DataProxy instances unless they are exactly
- * the same object.  This class is intended for use with
+ * the same object. This class is intended for use with
  * the {@link UniqueGraph} class so that multiple nodes can
  * be added with the same data. 
  * @author Roan

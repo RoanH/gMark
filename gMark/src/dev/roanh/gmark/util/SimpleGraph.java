@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of a simple graph that only supports unlabelled undirected edges.
@@ -160,9 +159,9 @@ public class SimpleGraph<T extends IDable, M>{
 	 * @return All the vertices in this graph.
 	 */
 	public List<SimpleVertex<T, M>> getVertices(){
-		List<SimpleVertex<T, M>> vertices = new ArrayList<SimpleVertex<T, M>>(vertexMap.size());
-		vertexMap.forEachNonNull(vertices::add);
-		return vertices;
+		List<SimpleVertex<T, M>> vertexSet = new ArrayList<SimpleVertex<T, M>>(vertexMap.size());
+		vertexMap.forEachNonNull(vertexSet::add);
+		return vertexSet;
 	}
 	
 	/**
@@ -272,8 +271,7 @@ public class SimpleGraph<T extends IDable, M>{
 		
 		@Override
 		public boolean equals(Object obj){
-			if(obj instanceof SimpleEdge<?, ?>){
-				SimpleEdge<?, ?> edge = (SimpleEdge<?, ?>)obj;
+			if(obj instanceof SimpleEdge<?, ?> edge){
 				return (v1.equals(edge.v1) && v2.equals(edge.v2)) || (v1.equals(edge.v2) && v2.equals(edge.v1));
 			}else{
 				return false;
@@ -385,7 +383,7 @@ public class SimpleGraph<T extends IDable, M>{
 		 * @return All neighbours of this vertex.
 		 */
 		public List<SimpleVertex<T, M>> getNeighbours(){
-			return edges.stream().map(e->e.getTarget(this)).collect(Collectors.toList());
+			return edges.stream().map(e->e.getTarget(this)).toList();
 		}
 		
 		/**

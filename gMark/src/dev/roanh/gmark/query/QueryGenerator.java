@@ -20,7 +20,6 @@ package dev.roanh.gmark.query;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.Workload;
 import dev.roanh.gmark.exception.GenerationException;
@@ -32,13 +31,19 @@ import dev.roanh.gmark.util.Util;
  * @author Roan
  * @see Workload
  */
-public class QueryGenerator{
+public final class QueryGenerator{
 	/**
 	 * Maximum number of times to try to generate a query
 	 * before giving up and throwing a generation exception.
 	 */
 	private static final int ERROR_BOUND = 100;
 
+	/**
+	 * Prevent instantiation.
+	 */
+	private QueryGenerator(){
+	}
+	
 	/**
 	 * Generates a single query according to
 	 * the given workload specification.
@@ -114,7 +119,7 @@ public class QueryGenerator{
 		GenerationException.rethrow(workload::validate);
 		
 		long start = System.currentTimeMillis();
-		List<ShapeGenerator> generators = workload.getShapes().stream().map(s->s.getQueryGenerator(workload)).collect(Collectors.toList());
+		List<ShapeGenerator> generators = workload.getShapes().stream().map(s->s.getQueryGenerator(workload)).toList();
 		List<Query> queries = new ArrayList<Query>(n);
 		
 		int fails = 0;

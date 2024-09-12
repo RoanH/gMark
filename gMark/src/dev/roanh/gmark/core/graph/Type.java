@@ -156,7 +156,7 @@ public class Type implements IDable{
 	
 	@Override
 	public boolean equals(Object other){
-		return other instanceof Type ? ((Type)other).id == id : false;
+		return other instanceof Type type && type.id == id;
 	}
 	
 	@Override

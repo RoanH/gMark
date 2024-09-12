@@ -21,7 +21,6 @@ package dev.roanh.gmark.util;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.graph.Predicate;
@@ -282,13 +281,11 @@ public abstract class EdgeGraphData{
 		
 		@Override
 		public boolean equals(Object other){
-			if(other instanceof IntersectionData){
-				IntersectionData data = (IntersectionData)other;
-				if(data.source.equals(source) && data.target.equals(target)){
-					return (data.first.equals(first) && data.second.equals(second)) || (data.second.equals(first) && data.first.equals(second));
-				}
+			if(other instanceof IntersectionData data && data.source.equals(source) && data.target.equals(target)){
+				return (data.first.equals(first) && data.second.equals(second)) || (data.second.equals(first) && data.first.equals(second));
+			}else{
+				return false;
 			}
-			return false;
 		}
 
 		@Override
@@ -319,8 +316,8 @@ public abstract class EdgeGraphData{
 		@Override
 		public CPQ toCPQ(){
 			return CPQ.intersect(
-				first.size() == 1 ? first.getFirst().toCPQ() : new ConcatCPQ(first.stream().map(EdgeGraphData::toCPQ).collect(Collectors.toList())),
-				second.size() == 1 ? second.getFirst().toCPQ() : new ConcatCPQ(second.stream().map(EdgeGraphData::toCPQ).collect(Collectors.toList()))
+				first.size() == 1 ? first.getFirst().toCPQ() : new ConcatCPQ(first.stream().map(EdgeGraphData::toCPQ).toList()),
+				second.size() == 1 ? second.getFirst().toCPQ() : new ConcatCPQ(second.stream().map(EdgeGraphData::toCPQ).toList())
 			);
 		}
 	}
@@ -433,7 +430,7 @@ public abstract class EdgeGraphData{
 		
 		@Override
 		public boolean equals(Object other){
-			return other instanceof PredicateData ? ((PredicateData)other).edge == edge : false;
+			return other instanceof PredicateData predicate && predicate.edge == edge;
 		}
 
 		@Override

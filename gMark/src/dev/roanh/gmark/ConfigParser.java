@@ -57,12 +57,18 @@ import dev.roanh.gmark.exception.ConfigException;
  * Parser to read complete gMark task configurations.
  * @author Roan
  */
-public class ConfigParser{
+public final class ConfigParser{
 	//TODO better validation
 	/**
 	 * Function to cast nodes to elements.
 	 */
 	private static final Function<Node, Element> TO_ELEMENT = n->(Element)n;
+
+	/**
+	 * Prevent instantiation.
+	 */
+	private ConfigParser(){
+	}
 	
 	/**
 	 * Parses a gMark XML configuration from the given file.
@@ -100,7 +106,7 @@ public class ConfigParser{
 			List<Type> types = parseTypes(getElement(root, "types"));
 			Schema schema = parseSchema(getElement(root, "schema"), types, predicates);
 			
-			List<Workload> workloads = stream(root, "workload").map(data->WorkloadType.parse(data, schema)).collect(Collectors.toList());
+			List<Workload> workloads = stream(root, "workload").map(data->WorkloadType.parse(data, schema)).toList();
 			if(workloads.size() != workloads.stream().mapToInt(Workload::getID).distinct().count()){
 				throw new ConfigException("Not all workloads have a distinct ID.");
 			}

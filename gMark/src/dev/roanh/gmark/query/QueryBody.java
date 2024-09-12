@@ -80,7 +80,7 @@ public class QueryBody implements OutputXML{
 	
 	/**
 	 * Gets the multiplicity of this query body. This is computed
-	 * as the fraction of all conjuncts that has a Kleene star above it.
+	 * as the fraction of all conjuncts that have a Kleene star above it.
 	 * @return The multiplicity of this query body.
 	 */
 	public double getMultiplicity(){

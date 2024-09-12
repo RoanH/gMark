@@ -39,6 +39,7 @@ import java.util.function.Function;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.cpq.CPQ;
@@ -245,7 +246,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		JFrame frame = new JFrame("GraphPanel v:" + graph.getNodeCount() + " e:" + graph.getEdgeCount());
 		frame.add(new GraphPanel<V, E>(graph, nodeLabel, edgeLabel));
 		frame.setSize(600, 400);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
 	
@@ -314,7 +315,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		private Node(GraphNode<V, E> data){
 			this.data = data;
 			location.move(ThreadLocalRandom.current().nextInt(800), ThreadLocalRandom.current().nextInt(600));
-			shape = new Ellipse2D.Double(-RADIUS, -RADIUS, 2 * RADIUS, 2 * RADIUS);
+			shape = new Ellipse2D.Double(-RADIUS, -RADIUS, 2.0D * RADIUS, 2.0D * RADIUS);
 		}
 		
 		/**

@@ -120,13 +120,19 @@ public class QuerySet implements OutputXML{
 	}
 	
 	/**
-	 * @deprecated Not yet implemented.
-	 * @return Always 0.
+	 * Gets the multiplicity of this query body. This is computed
+	 * as the fraction of all conjuncts that have a Kleene star above it.
+	 * @return The multiplicity of this query body.
 	 */
-	@Deprecated
+	
+	/**
+	 * Gets the fraction of all the conjuncts across all the queries in
+	 * this query set that have a Kleene star above them.
+	 * @return The multiplicity across all the conjuncts in this query set.
+	 */
 	public double getStarFraction(){
-		//TODO implement
-		return 0.0D;
+		List<Conjunct> conjuncts = queries.stream().map(Query::getBody).map(QueryBody::getConjuncts).flatMap(List::stream).toList();
+		return ((double)conjuncts.stream().filter(Conjunct::hasStar).count()) / conjuncts.size();
 	}
 	
 	/**

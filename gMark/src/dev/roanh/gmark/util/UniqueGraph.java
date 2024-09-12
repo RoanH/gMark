@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Utility class to model a graph with directed
@@ -71,7 +70,7 @@ public class UniqueGraph<V, E>{
 	 * @return A list of removed graph nodes.
 	 */
 	public List<GraphNode<V, E>> removeNodeIf(Predicate<GraphNode<V, E>> predicate){
-		List<GraphNode<V, E>> toRemove = nodes.stream().filter(predicate).collect(Collectors.toList());
+		List<GraphNode<V, E>> toRemove = nodes.stream().filter(predicate).toList();
 		toRemove.forEach(GraphNode::remove);
 		return toRemove;
 	}

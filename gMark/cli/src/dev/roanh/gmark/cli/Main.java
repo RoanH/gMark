@@ -119,12 +119,6 @@ public class Main{
 			
 			System.out.println("Parsed a configuration with " + config.getWorkloads().size() + " workload(s).");
 			
-			//generate graphs
-			if(cli.hasOption('g')){
-				System.out.println("Generating graphs is not implemented yet!");
-				//TODO generate graphs
-			}
-			
 			//generate workloads
 			if(cli.hasOption('w')){
 				List<ConcreteSyntax> syntaxes = new ArrayList<ConcreteSyntax>();
@@ -181,10 +175,8 @@ public class Main{
 		options.addOption(Option.builder("c").longOpt("config").hasArg().argName("file").desc("The workload and graph configuration file").build());
 		options.addOption(Option.builder("s").longOpt("syntax").hasArgs().argName("syntax").desc("The concrete syntax(es) to output").build());
 		options.addOption(Option.builder("w").longOpt("workload").hasArg().optionalArg(true).argName("file").desc("Triggers workload generation, a previously generated input workload can optionally be provided to generate concrete syntaxes for instead").build());
-		options.addOption(Option.builder("g").longOpt("graph").hasArgs().optionalArg(true).argName("size").desc("Triggers graph generation, a graph size can be provided (overrides the ones set in the configuration file)").build());
 		options.addOption(Option.builder("o").longOpt("output").hasArg().argName("folder").desc("The folder to write the generated output to").build());
 		options.addOption(Option.builder("f").longOpt("force").desc("Overwrite existing files if present").build());
-		//TODO tripples to sql conversion?
 	}
 	
 	/**

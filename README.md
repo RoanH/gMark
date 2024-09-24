@@ -17,8 +17,6 @@ When using gMark on the command line the following arguments are supported:
 usage: gmark [-c <file>] [-f] [-g <size>] [-h] [-o <folder>] [-s <syntax>] [-w <file>]
  -c,--config <file>     The workload and graph configuration file
  -f,--force             Overwrite existing files if present
- -g,--graph <size>      Triggers graph generation, a graph size can be provided (overrides the ones
-                        set in the configuration file)
  -h,--help              Prints this help text
  -o,--output <folder>   The folder to write the generated output to
  -s,--syntax <syntax>   The concrete syntax(es) to output

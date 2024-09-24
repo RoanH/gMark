@@ -1,5 +1,14 @@
 # gMark [![](https://img.shields.io/github/release/RoanH/gMark.svg)](https://github.com/RoanH/gMark/releases)
-gMark is a domain- and query language-independent graph instance and query workload generator. The original version of gMark is available on GitHub at [gbagan/gmark](https://github.com/gbagan/gmark). The version of gMark in this repository has as goal to rewrite gMark such that it is easier to extend and has better documented code. Currently the focus of the rewrite is on query generation, but the end goal is full feature parity with the original version of gMark. The rewrite has not reached that point yet and is notably still missing graph generation, RPQ (regular path query) based queries and several output formats. However, the current version does also offer some features not present in the original version of gMark, such as the ability to generate CPQ (conjunctive path query) based queries, various utilities for working with CPQs, and a graphical user interface for the program.
+gMark is a domain- and query language-independent query workload generator, as well as a general utility library for working with the CPQ (conjunctive path query) and RPQ (regular path query) query languages. This project was originally started as a rewrite of the original version of gMark available on GitHub at [gbagan/gmark](https://github.com/gbagan/gmark), with as goal to rewrite gMark such that it is easier to extend and has better documented code. However, presently the focus of the project has shifted primarily towards query languages, notably CPQ. Graph generation is currently out of scope for this project, though full feature parity for query generation is still planned.
+
+
+
+
+
+
+ The rewrite has not reached that point yet and is notably still missing graph generation, RPQ (regular path query) based queries and several output formats. However, the current version does also offer some features not present in the original version of gMark, such as the ability to generate CPQ (conjunctive path query) based queries, various utilities for working with CPQs, and a graphical user interface for the program.
+
+- term doc - thesis - cpq keys | also update citation file
 
 Documentation (javadoc) can be found at: [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/) more details on gMark itself can be found in the technical report [arxiv.org/abs/1511.08386](https://arxiv.org/abs/1511.08386). Details regarding the aforementioned queries containing CPQs can be found in my report titled [Conjunctive Path Query Generation for Benchmarking](https://research.roanh.dev/Conjunctive%20Path%20Query%20Generation%20for%20Benchmarking%20v2.8.pdf).
 
@@ -91,6 +100,9 @@ dependencies{
 	<version>1.2</version>
 </dependency>
 ```
+
+## Query Language API
+
 
 ## Development of gMark
 This repository contain an [Eclipse](https://www.eclipse.org/) & [Gradle](https://gradle.org/) project with [Util](https://github.com/RoanH/Util) and [Apache Commons CLI](https://commons.apache.org/proper/commons-cli/introduction.html) as the only dependencies. Development work can be done using the Eclipse IDE or using any other Gradle compatible IDE. Continuous integration will check that all source files use Unix style line endings (LF) and that all functions and fields have valid documentation. Unit testing is employed to test core functionality, CI will also check for regressions using these tests. A hosted version of the javadoc for gMark can be found at [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/). Compiling the runnable Java archive (JAR) release of gMark using Gradle can be done using the following command in the `gMark` directory:

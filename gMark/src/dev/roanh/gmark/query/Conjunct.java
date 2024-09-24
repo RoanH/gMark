@@ -168,7 +168,7 @@ public abstract class Conjunct implements OutputXML{
 		
 		writePartialXML(writer);
 		if(star){
-			writer.println("</star>", 2);
+			writer.println(2, "</star>");
 		}
 		
 		writer.println(2, "</conjunct>");

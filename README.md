@@ -1,15 +1,15 @@
 # gMark [![](https://img.shields.io/github/release/RoanH/gMark.svg)](https://github.com/RoanH/gMark/releases)
 gMark is a domain- and query language-independent query workload generator, as well as a general utility library for working with the CPQ (conjunctive path query) and RPQ (regular path query) query languages. This project was originally started as a rewrite of the original version of gMark available on GitHub at [gbagan/gmark](https://github.com/gbagan/gmark), with as goal to make gMark easier to extend and better documented. However, presently the focus of the project has shifted primarily towards query languages, notably CPQ. Graph generation is currently out of scope for this project, though full feature parity for query generation is still planned. Presently, most of the features available for RPQs in the original version of gMark are available for CPQs in this version, with the exception of some output formats. However, the utilities available within gMark for working with query languages in general are much more extensive than those available in the original version of gMark.
 
-## Documentation
+## Documentation & Research
 The current state of the repository is the result of several research projects, each of these research items can be consulted for more information on a specific component in gMark:
 
-- thesis
-- db term
-- keys
-- bench
-- gmark
-- lang index for cpq
+- [Indexing Conjunctive Path Queries for Accelerated Query Evaluation](https://thesis.roanh.dev/), this is my master's thesis on constructing a CPQ-native Graph Database Index. This document currently contains the most extensive and detailed write-up of how CPQs are structured, and contains the specification for the algorithms in gMark for CPQ Query Graph Computation, Query Homomorphism testing, CPQ Core Computation, and [various other utility algorithms](https://github.com/RoanH/gMark/releases/tag/v1.2). The reference implementation for the CPQ-native Index itself can be found at [RoanH/CPQ-native-index](https://github.com/RoanH/CPQ-native-index).
+- [Graph Database & Query Evaluation Terminology](https://research.roanh.dev/Graph%20Database%20&%20Query%20Evaluation%20Terminology%20v1.3.pdf), this report focuses on bridging the gap between query languages and query evaluation. All of the database operations implemented in gMark are described in detail in this report, as well as the construction of RPQ and CPQ queries, and AST creation.
+- [CPQ Keys: a survey of graph canonization algorithms](https://research.roanh.dev/cpqkeys/CPQ%20Keys%20v1.1.pdf), the main purpose of this literature survey was to find suitable algorithms to use for CPQ core canonization. Within gMark the CPQ API was implemented for this purpose, including CPQ parsing, the initial Query Graph construction, and random CPQ generation. More details about the project can be found on its [site](https://cpqkeys.roanh.dev/) and in its repository at [RoanH/CPQKeys](https://github.com/RoanH/CPQKeys).
+- [Conjunctive Path Query Generation for Benchmarking](https://research.roanh.dev/Conjunctive%20Path%20Query%20Generation%20for%20Benchmarking%20v2.8.pdf)
+- [gMark: Schema-Driven Generation of Graphs and Queries](https://arxiv.org/abs/1511.08386)
+- [Language-aware Indexing for Conjunctive Path Queries](https://arxiv.org/abs/2003.03079)
 
 
 

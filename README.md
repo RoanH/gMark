@@ -1,5 +1,16 @@
 # gMark [![](https://img.shields.io/github/release/RoanH/gMark.svg)](https://github.com/RoanH/gMark/releases)
-gMark is a domain- and query language-independent query workload generator, as well as a general utility library for working with the CPQ (conjunctive path query) and RPQ (regular path query) query languages. This project was originally started as a rewrite of the original version of gMark available on GitHub at [gbagan/gmark](https://github.com/gbagan/gmark), with as goal to rewrite gMark such that it is easier to extend and has better documented code. However, presently the focus of the project has shifted primarily towards query languages, notably CPQ. Graph generation is currently out of scope for this project, though full feature parity for query generation is still planned.
+gMark is a domain- and query language-independent query workload generator, as well as a general utility library for working with the CPQ (conjunctive path query) and RPQ (regular path query) query languages. This project was originally started as a rewrite of the original version of gMark available on GitHub at [gbagan/gmark](https://github.com/gbagan/gmark), with as goal to make gMark easier to extend and better documented. However, presently the focus of the project has shifted primarily towards query languages, notably CPQ. Graph generation is currently out of scope for this project, though full feature parity for query generation is still planned. Presently, most of the features available for RPQs in the original version of gMark are available for CPQs in this version, with the exception of some output formats. However, the utilities available within gMark for working with query languages in general are much more extensive than those available in the original version of gMark.
+
+## Documentation
+The current state of the repository is the result of several research projects, each of these research items can be consulted for more information on a specific component in gMark:
+
+- thesis
+- db term
+- keys
+- bench
+- gmark
+- lang index for cpq
+
 
 
 

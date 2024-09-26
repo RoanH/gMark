@@ -40,6 +40,8 @@ package dev.roanh.gmark.ast;
  * (source, target)</code>.
  * @author Roan
  * @see QueryTree QueryTree (AST)
+ * @see <a href="https://research.roanh.dev/Graph%20Database%20&%20Query%20Evaluation%20Terminology%20v1.3.pdf">
+ *      Graph Database & Query Evaluation Terminology</a>
  */
 public enum OperationType{
 	/**

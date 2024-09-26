@@ -1,8 +1,13 @@
 package nl.group9.quicksilver;
 
+import java.io.IOException;
+import java.nio.file.Paths;
+
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.rpq.RPQ;
 
+import nl.group9.quicksilver.core.Benchmark;
+import nl.group9.quicksilver.core.data.BenchmarkResult;
 import nl.group9.quicksilver.core.data.PathQuery;
 import nl.group9.quicksilver.core.spec.Evaluator;
 import nl.group9.quicksilver.impl.Provider;
@@ -10,7 +15,7 @@ import nl.group9.quicksilver.impl.SimpleGraph;
 
 public class Main{
 
-	public static void main(String[] args){
+	public static void mainFixed(String[] args){
 		Provider provider = new Provider();
 		Evaluator<SimpleGraph, SimpleGraph> evaluator = provider.createEvaluator();
 		
@@ -53,6 +58,14 @@ public class Main{
 		result.getSourceTargetPairs().forEach(System.out::println);
 		System.out.println(evaluator.computeCardinality(result));
 	}
-	
-	
+
+	public static void main(String[] args) throws IOException{
+		BenchmarkResult result = Benchmark.runEvaluatorBenchmark(
+			new Provider(), 
+			Paths.get("workload/syn/mini/graph.edge"),
+			Paths.get("workload/syn/mini/cpq.query")
+		);
+		
+		System.out.println(result);
+	}
 }

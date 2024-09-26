@@ -24,6 +24,6 @@ public record PathQuery(Optional<Integer> source, QueryLanguageSyntax query, Opt
 
 	@Override
 	public String toString(){
-		return source + ", " + query + ", " + target;
+		return source.map(String::valueOf).orElse("*") + ", " + query + ", " + target.map(String::valueOf).orElse("*");
 	}
 }

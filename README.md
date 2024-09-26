@@ -103,7 +103,40 @@ dependencies{
 ```
 
 ## Query Language API
+Most of the query language API is accessible directly via the CPQ and RPQ classes. For example, queries can be constructed using:
 
+```java
+Predicate a = new Predicate(0, "a");
+
+CPQ query = CPQ.parse("a ∩ a");
+CPQ query = CPQ.intersect(a, a);
+CPQ query = CPQ.generateRandomCPQ(4, 1);
+
+RPQ query = RPQ.parse("a ◦ a");
+RPQ query = RPQ.disjunct(RPQ.concat(a, a), a);
+```
+
+For CPQs query graphs and cores can be constructed using:
+
+```java
+CPQ query = ...;
+
+QueryGraphCPQ graph = query.toQueryGraph();
+QueryGraphCPQ core = query.toQueryGraph().computeCore();
+QueryGraphCPQ core = query.computeCore();
+```
+
+Other notable utilities for CPQ and RPQ are:
+
+```java
+CPQ query = ...;
+
+String sql = query.toSQL();
+String formal = query.toString();
+QueryTree = query.toAbstractSyntaxTree();
+```
+
+All more general utilities can be found in the `dev.roanh.gmark.util` package.
 
 ## Development of gMark
 This repository contain an [Eclipse](https://www.eclipse.org/) & [Gradle](https://gradle.org/) project with [Util](https://github.com/RoanH/Util) and [Apache Commons CLI](https://commons.apache.org/proper/commons-cli/introduction.html) as the only dependencies. Development work can be done using the Eclipse IDE or using any other Gradle compatible IDE. Continuous integration will check that all source files use Unix style line endings (LF) and that all functions and fields have valid documentation. Unit testing is employed to test core functionality, CI will also check for regressions using these tests. A hosted version of the javadoc for gMark can be found at [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/). Compiling the runnable Java archive (JAR) release of gMark using Gradle can be done using the following command in the `gMark` directory:

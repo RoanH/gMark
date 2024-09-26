@@ -4,16 +4,17 @@ import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.rpq.RPQ;
 
 import nl.group9.quicksilver.core.data.PathQuery;
-import nl.group9.quicksilver.impl.SimpleEstimator;
-import nl.group9.quicksilver.impl.SimpleEvaluator;
+import nl.group9.quicksilver.core.spec.Evaluator;
+import nl.group9.quicksilver.impl.Provider;
 import nl.group9.quicksilver.impl.SimpleGraph;
 
 public class Main{
 
 	public static void main(String[] args){
-		SimpleEvaluator evaluator = new SimpleEvaluator();
+		Provider provider = new Provider();
+		Evaluator<SimpleGraph, SimpleGraph> evaluator = provider.createEvaluator();
 		
-		SimpleGraph graph = evaluator.createGraph(14, 27, 2);
+		SimpleGraph graph = provider.createGraph(14, 27, 2);
 		graph.addEdge(0, 2, 1);
 		graph.addEdge(1, 0, 0);
 		graph.addEdge(1, 2, 1);
@@ -48,8 +49,10 @@ public class Main{
 		RPQ query = RPQ.labels(a, b);
 		System.out.println("Query: " + query);
 		
-		SimpleGraph result = evaluator.evaluate(PathQuery.of(query.toAbstractSyntaxTree()));
+		SimpleGraph result = evaluator.evaluate(PathQuery.of(query));
 		result.getSourceTargetPairs().forEach(System.out::println);
 		System.out.println(evaluator.computeCardinality(result));
 	}
+	
+	
 }

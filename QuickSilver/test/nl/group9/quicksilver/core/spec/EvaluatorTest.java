@@ -16,11 +16,11 @@ import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.PathQuery;
 import nl.group9.quicksilver.core.data.SourceTargetPair;
 
-public abstract class EvaluatorTest<G extends Graph>{
+public abstract class EvaluatorTest<G extends Graph, R extends Graph>{
 	private static final Predicate a = new Predicate(0, "a");
 	private static final Predicate b = new Predicate(1, "b");
 	
-	public abstract Evaluator<G> getEvaluator();
+	public abstract EvaluatorProvider<G, R> getProvider();
 
 	@Test
 	public void query0(){
@@ -62,31 +62,31 @@ public abstract class EvaluatorTest<G extends Graph>{
 	}
 	
 	private EvalResult evaluate(QueryLanguageSyntax query){
-		return evaluate(PathQuery.of(query.toAbstractSyntaxTree()));
+		return evaluate(PathQuery.of(query));
 	}
 
 	private EvalResult evaluate(QueryLanguageSyntax query, int target){
-		return evaluate(PathQuery.of(query.toAbstractSyntaxTree(), target));
+		return evaluate(PathQuery.of(query, target));
 	}
 
 	private EvalResult evaluate(int source, QueryLanguageSyntax query){
-		return evaluate(PathQuery.of(source, query.toAbstractSyntaxTree()));
+		return evaluate(PathQuery.of(source, query));
 	}
 
 	private EvalResult evaluate(int source, QueryLanguageSyntax query, int target){
-		return evaluate(PathQuery.of(source, query.toAbstractSyntaxTree(), target));
+		return evaluate(PathQuery.of(source, query, target));
 	}
 	
 	private EvalResult evaluate(PathQuery query){
-		Evaluator<G> evaluator = getEvaluator();
-		evaluator.prepare(getGraph(evaluator));
-		G result = evaluator.evaluate(query);
+		Evaluator<G, R> evaluator = getProvider().createEvaluator();
+		evaluator.prepare(getGraph());
+		R result = evaluator.evaluate(query);
 		return new EvalResult(result, evaluator.computeCardinality(result));
 	}
 	
 	//see: https://research.roanh.dev/Indexing%20Conjunctive%20Path%20Queries%20for%20Accelerated%20Query%20Evaluation.pdf#subsubsection.5.2.1.1
-	private G getGraph(Evaluator<G> evaluator){
-		G graph = evaluator.createGraph(14, 27, 2);
+	private G getGraph(){
+		G graph = getProvider().createGraph(14, 27, 2);
 		graph.addEdge(0, 2, 1);
 		graph.addEdge(1, 0, 0);
 		graph.addEdge(1, 2, 1);

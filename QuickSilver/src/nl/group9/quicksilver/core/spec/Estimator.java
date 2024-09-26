@@ -3,6 +3,7 @@ package nl.group9.quicksilver.core.spec;
 import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.PathQuery;
 
+@Deprecated
 public abstract interface Estimator{
 
 	public abstract void prepare();//TODO pass graph?

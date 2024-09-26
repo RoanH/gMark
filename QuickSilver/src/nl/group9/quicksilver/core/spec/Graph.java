@@ -19,6 +19,4 @@ public abstract interface Graph{
 	public abstract boolean hasEdge(int source, int target, int label);
 	
 	public abstract List<SourceTargetPair> getSourceTargetPairs();
-	
-	//TODO read?
 }

@@ -11,18 +11,13 @@ import nl.group9.quicksilver.core.spec.Evaluator;
 import nl.group9.quicksilver.impl.data.SourceLabelPair;
 import nl.group9.quicksilver.impl.data.TargetLabelPair;
 
-public class SimpleEvaluator implements Evaluator<SimpleGraph>{
+public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	/**
-	 * After projection labels are no longer useful and generally make database
-	 * operation hard or ambiguous to implement, so they are typically erased as soon as possible.
+	 * After projection labels are no longer useful and generally make database operations
+	 * hard or ambiguous to implement, so they are typically erased as soon as possible.
 	 */
 	private static final int NO_LABEL = 0;//TODO I did not erase them entirely
 	private SimpleGraph graph;
-
-	@Override
-	public SimpleGraph createGraph(int vertexCount, int edgeCount, int labelCount){
-		return new SimpleGraph(vertexCount, labelCount);
-	}
 
 	@Override
 	public void prepare(SimpleGraph graph){
@@ -38,7 +33,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph>{
 
 	@Override
 	public SimpleGraph evaluate(PathQuery query){
-		SimpleGraph result = evaluate(query.ast());
+		SimpleGraph result = evaluate(query.query().toAbstractSyntaxTree());
 		
 		Optional<Integer> boundSource = query.source();
 		if(boundSource.isPresent()){

@@ -15,7 +15,7 @@ contact:
     website: 'https://roanh.dev'
 repository-code: 'https://github.com/RoanH/gMark'
 repository-artifact: 'https://mvnrepository.com/artifact/dev.roanh.gmark/gmark'
-abstract: "gMark is a domain- and query language-independent graph instance and query workload generator"
+abstract: "gMark is a domain- and query language-independent query workload generator"
 license: GPL-3.0-or-later
 year-original: 2021
 references:
@@ -31,6 +31,14 @@ references:
     department: "Graduate School of Information Science and Technology and Department of Mathematics and Computer Science"
     institution:
       name: "Osaka University and Eindhoven University of Technology"
+  - title: "Graph Database & Query Evaluation Terminology"
+    authors:
+    - given-names: Roan
+      family-names: Hofland
+      email: roan@roanh.dev
+    type: report
+    url: 'https://research.roanh.dev/Graph%20Database%20&%20Query%20Evaluation%20Terminology%20v1.3.pdf'
+    date-published: 2024-09-23
   - title: "Conjunctive Path Query Generation for Benchmarking"
     authors:
     - given-names: Roan

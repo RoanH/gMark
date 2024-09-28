@@ -71,7 +71,7 @@
 	<!-- Intentional, just a sanity check -->
 	<Class name="dev.roanh.gmark.util.SimpleGraph$SimpleEdge"/>
 	<Method name="getTarget"/>
-	<Bug pattern="AA_ASERTION_OF_ARGUMENTS"/>
+	<Bug pattern="AA_ASSERTION_OF_ARGUMENTS"/>
   </Match>
   
 </FindBugsFilter>

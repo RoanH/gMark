@@ -69,6 +69,7 @@ ext.artifact = 'gmark'
 subprojects{
 	apply plugin: 'application'
 	apply plugin: 'com.gradleup.shadow'
+
 	shadowJar.archiveBaseName = 'gMark'
 	shadowJar.archiveVersion  = 'v' + version
 	shadowJar.archiveClassifier = ''

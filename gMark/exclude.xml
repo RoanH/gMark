@@ -67,4 +67,11 @@
     <Bug pattern="MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
   </Match>
   
+  <Match>
+	<!-- Intentional, just a sanity check -->
+	<Class name="dev.roanh.gmark.util.SimpleGraph$SimpleEdge"/>
+	<Method name="getTarget"/>
+	<Bug pattern="AA_ASERTION_OF_ARGUMENTS"/>
+  </Match>
+  
 </FindBugsFilter>

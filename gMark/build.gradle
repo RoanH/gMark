@@ -2,11 +2,14 @@ plugins{
 	id 'java-library'
 	id 'maven-publish'
 	id 'signing'
-	id 'com.github.spotbugs' version '5.0.14'
-	id 'org.sonarqube' version '4.4.1.3373'
-	id 'com.github.johnrengelman.shadow' version '7.1.2' apply false
-	id 'edu.sc.seis.launch4j' version '2.5.1' apply false
+	id 'com.github.spotbugs' version '6.0.18'
+	id 'org.sonarqube' version '5.1.0.4882'
+	id 'com.gradleup.shadow' version '8.3.2' apply false
+	id 'edu.sc.seis.launch4j' version '3.0.5' apply false
 }
+
+import com.github.spotbugs.snom.Confidence
+import com.github.spotbugs.snom.Effort
 
 allprojects{
 	apply plugin: 'eclipse'
@@ -37,7 +40,7 @@ allprojects{
 	}
 
 	dependencies{
-		testImplementation(platform('org.junit:junit-bom:5.10.0'))
+		testImplementation(platform('org.junit:junit-bom:5.11.1'))
 		testImplementation('org.junit.jupiter:junit-jupiter')
 	}
 
@@ -65,7 +68,11 @@ ext.artifact = 'gmark'
 
 subprojects{
 	apply plugin: 'application'
-	apply plugin: 'com.github.johnrengelman.shadow'
+	apply plugin: 'com.gradleup.shadow'
+
+	shadowJar.archiveBaseName = 'gMark'
+	shadowJar.archiveVersion  = 'v' + version
+	shadowJar.archiveClassifier = ''
 }
 
 project(':cli'){
@@ -85,8 +92,7 @@ project(':cli'){
 	}
 
 	eclipse.project.name = 'gMark-CLI'
-	shadowJar.archiveName = 'gMark-v' + version + '.jar'
-	application.mainClassName = 'dev.roanh.gmark.Main'
+	application.mainClass = 'dev.roanh.gmark.Main'
 
 	shadowJar{
 		mergeServiceFiles()
@@ -116,8 +122,7 @@ project(':client'){
 	}
 
 	eclipse.project.name = 'gMark-Client'
-	shadowJar.archiveName = 'gMark-v' + version + '.jar'
-	application.mainClassName = 'dev.roanh.gmark.client.GraphMark'
+	application.mainClass = 'dev.roanh.gmark.client.GraphMark'
 
 	shadowJar{
 		mergeServiceFiles()
@@ -125,8 +130,8 @@ project(':client'){
 
 	launch4j{
 		jarTask = project.tasks.shadowJar
-		mainClassName = application.mainClassName
-		jreMinVersion = project.sourceCompatibility
+		mainClassName = application.mainClass
+		jreMinVersion = project.sourceCompatibility.toString()
 		bundledJrePath = "%JAVA_HOME%"
 		outfile = 'gMark-v' + project.version + '.exe'
 		fileDescription = "gMark-Client"
@@ -225,8 +230,8 @@ task spotbugsAll(type: com.github.spotbugs.snom.SpotBugsTask, group: "verificati
 allprojects{
 	spotbugs{
 		showProgress = true
-		effort = 'max'
-		reportLevel = 'low'
+		effort = Effort.valueOf('MAX')
+		reportLevel = Confidence.valueOf('LOW')
 		excludeFilter = file("$rootDir/exclude.xml")
 	}
 

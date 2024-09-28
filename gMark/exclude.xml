@@ -12,6 +12,7 @@
       <Bug pattern="MS_PKGPROTECT"/>
       <Bug pattern="REC_CATCH_EXCEPTION"/>
       <Bug pattern="CI_CONFUSED_INHERITANCE"/>
+      <Bug pattern="CT_CONSTRUCTOR_THROW"/>
     </Or>
   </Match>
   
@@ -64,6 +65,13 @@
       <Class name="dev.roanh.gmark.util.GraphPanel"/>
     </Or>
     <Bug pattern="MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
+  </Match>
+  
+  <Match>
+	<!-- Intentional, just a sanity check -->
+	<Class name="dev.roanh.gmark.util.SimpleGraph$SimpleEdge"/>
+	<Method name="getTarget"/>
+	<Bug pattern="AA_ASSERTION_OF_ARGUMENTS"/>
   </Match>
   
 </FindBugsFilter>

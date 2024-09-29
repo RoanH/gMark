@@ -15,7 +15,7 @@ contact:
     website: 'https://roanh.dev'
 repository-code: 'https://github.com/RoanH/gMark'
 repository-artifact: 'https://mvnrepository.com/artifact/dev.roanh.gmark/gmark'
-abstract: "gMark is a domain- and query language-independent query workload generator"
+abstract: "gMark is a domain- and query language-independent query workload generator and query language utility library."
 license: GPL-3.0-or-later
 year-original: 2021
 references:

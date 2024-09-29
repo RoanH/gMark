@@ -175,7 +175,7 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 		case KLEENE:
 			return kleene(parse(ast.getLeft()));
 		default:
-			throw new IllegalArgumentException("The given AST contains operations that are not part of the CPQ query language.");
+			throw new IllegalArgumentException("The given AST contains operations that are not part of the RPQ query language.");
 		}
 	}
 }

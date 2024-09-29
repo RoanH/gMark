@@ -90,7 +90,7 @@ docker:
   before_script: []
   script:
     - docker info
-    - docker build --build-arg version=${CI_COMMIT_REF_NAME:1} -t gmark .
+    - docker build -t gmark .
   stage: compile
 
 cli:

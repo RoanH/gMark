@@ -90,7 +90,7 @@ docker:
   before_script: []
   script:
     - docker info
-    - docker build -t gmark .
+    - docker build --build-arg version=${CI_COMMIT_REF_NAME:1} -t gmark .
   stage: compile
 
 cli:
@@ -160,7 +160,7 @@ hub:
   before_script: []
   script:
     - docker info
-    - docker build --build-arg ref=${CI_COMMIT_REF_NAME} -t gmark .
+    - docker build --build-arg version=${CI_COMMIT_REF_NAME:1} -t gmark .
     - docker tag gmark roanh/gmark:${CI_COMMIT_REF_NAME:1}
     - docker tag gmark roanh/gmark:latest
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD

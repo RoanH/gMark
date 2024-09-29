@@ -98,15 +98,15 @@ public final class GeneratorRPQ{
 			if(Util.getRandom().nextBoolean()){
 				//concatenation
 				int split = Util.uniformRandom(0, ruleApplications - 1);
-				return RPQ.concat(generatePlainRPQ(split, labels), generatePlainRPQ(ruleApplications - split - 1, labels));
+				return RPQ.concat(generatePlainRPQImpl(split, labels), generatePlainRPQImpl(ruleApplications - split - 1, labels));
 			}else{
 				if(Util.getRandom().nextBoolean()){
 					//disjunction
 					int split = Util.uniformRandom(0, ruleApplications - 1);
-					return RPQ.disjunct(generatePlainRPQ(split, labels), generatePlainRPQ(ruleApplications - split - 1, labels));
+					return RPQ.disjunct(generatePlainRPQImpl(split, labels), generatePlainRPQImpl(ruleApplications - split - 1, labels));
 				}else{
 					//transitive closure
-					return RPQ.kleene(generatePlainRPQ(ruleApplications - 1, labels));
+					return RPQ.kleene(generatePlainRPQImpl(ruleApplications - 1, labels));
 				}
 			}
 		}

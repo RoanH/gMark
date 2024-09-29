@@ -50,7 +50,7 @@ public class DisjunctionRPQ implements RPQ{
 	}
 
 	@Override
-	public String toString(){
+	public String toFormalSyntax(){
 		StringJoiner builder = new StringJoiner(" " + QueryLanguageSyntax.CHAR_DISJUNCTION + " ", "(", ")");
 		
 		for(RPQ item : rpq){
@@ -58,6 +58,11 @@ public class DisjunctionRPQ implements RPQ{
 		}
 		
 		return builder.toString();
+	}
+	
+	@Override
+	public String toString(){
+		return toFormalSyntax();
 	}
 	
 	@Override

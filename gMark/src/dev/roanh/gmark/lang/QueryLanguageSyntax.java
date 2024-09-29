@@ -19,6 +19,7 @@
 package dev.roanh.gmark.lang;
 
 import dev.roanh.gmark.ast.QueryFragment;
+import dev.roanh.gmark.output.OutputFormal;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
 
@@ -26,7 +27,7 @@ import dev.roanh.gmark.output.OutputXML;
  * Base interface for query language specifications.
  * @author Roan
  */
-public abstract interface QueryLanguageSyntax extends OutputSQL, OutputXML, QueryFragment{
+public abstract interface QueryLanguageSyntax extends OutputSQL, OutputFormal, OutputXML, QueryFragment{
 	/**
 	 * The character used to denote the intersection/conjunction operator.
 	 */

@@ -68,7 +68,7 @@ public class IntersectionCPQ implements CPQ{
 	}
 	
 	@Override
-	public String toString(){
+	public String toFormalSyntax(){
 		StringJoiner builder = new StringJoiner(" " + QueryLanguageSyntax.CHAR_INTERSECTION + " ", "(", ")");
 		
 		for(CPQ item : cpq){
@@ -76,6 +76,11 @@ public class IntersectionCPQ implements CPQ{
 		}
 		
 		return builder.toString();
+	}
+	
+	@Override
+	public String toString(){
+		return toFormalSyntax();
 	}
 	
 	@Override

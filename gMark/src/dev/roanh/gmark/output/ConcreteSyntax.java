@@ -31,7 +31,15 @@ public enum ConcreteSyntax{
 	/**
 	 * SQL query output.
 	 */
-	SQL("sql", "sql", OutputSQL::toSQL);
+	SQL("sql", "sql", OutputSQL::toSQL),
+	/**
+	 * Formal syntax output.
+	 */
+	FORMAL("formal", "txt", OutputFormal::toFormalSyntax),
+	/**
+	 * Internal XML format output.
+	 */
+	XML("xml", "xml", OutputXML::toXML);
 	
 	/**
 	 * The ID of this concrete syntax as used for command

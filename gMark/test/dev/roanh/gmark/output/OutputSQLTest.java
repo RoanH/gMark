@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.output.sql;
+package dev.roanh.gmark.output;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -28,23 +28,18 @@ import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.cpq.CPQ;
+import dev.roanh.gmark.lang.rpq.RPQ;
 import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.Variable;
 import dev.roanh.gmark.query.conjunct.cpq.ConjunctCPQ;
 
-public class ConversionCPQTest{
+public class OutputSQLTest{
 	private static final Predicate pred0 = new Predicate(0, "0");
 	private static final Predicate pred1 = new Predicate(1, "1");
 	private static final CPQ label0 = CPQ.label(pred0);
 	private static final CPQ label1 = CPQ.label(pred1);
 	private static final CPQ label1i = CPQ.label(pred1.getInverse());
-	private static final CPQ concat0 = CPQ.concat(label0, label1, label1, label1i);
-	private static final CPQ concat1 = CPQ.concat(label1);
-	private static final CPQ concat2 = CPQ.concat(label0, label1);
 	private static final CPQ intersect0 = CPQ.intersect(label0, label1);
-	private static final CPQ intersect1 = CPQ.intersect(label0, label1, label1i);
-	private static final CPQ intersect2 = CPQ.intersect(intersect0, label1);
-	private static final CPQ intersect3 = CPQ.intersect(concat2, label1);
 	private static final Variable v0 = new Variable(0);
 	private static final Variable v1 = new Variable(1);
 	
@@ -169,7 +164,7 @@ public class ConversionCPQTest{
 			  )
 			)
 			""".trim(),
-			intersect1.toSQL()
+			CPQ.intersect(label0, label1, label1i).toSQL()
 		);
 	}
 	
@@ -195,7 +190,7 @@ public class ConversionCPQTest{
 			  )
 			)
 			""".trim(),
-			intersect2.toSQL()
+			CPQ.intersect(intersect0, label1).toSQL()
 		);
 	}
 	
@@ -221,7 +216,29 @@ public class ConversionCPQTest{
 			  )
 			)
 			""".trim(),
-			intersect3.toSQL()
+			CPQ.intersect(CPQ.concat(label0, label1), label1).toSQL()
+		);
+	}
+	
+	@Test
+	public void disjuctToSQL0(){
+		assertEquals(
+			"""
+			SELECT src, trg FROM (
+			  SELECT src, trg FROM (
+			    SELECT src, trg FROM edge WHERE label = 0
+			  )
+			  UNION
+			  SELECT src, trg FROM (
+			    SELECT src, trg FROM edge WHERE label = 1
+			  )
+			  UNION
+			  SELECT src, trg FROM (
+			    SELECT trg AS src, src AS trg FROM edge WHERE label = 1
+			  )
+			)
+			""".trim(),
+			RPQ.disjunct(RPQ.label(pred0), RPQ.label(pred1), RPQ.label(pred1.getInverse())).toSQL()
 		);
 	}
 	
@@ -245,13 +262,13 @@ public class ConversionCPQTest{
 			  ) AS s3
 			WHERE s0.trg = s1.src AND s1.trg = s2.src AND s2.trg = s3.src
 			""".trim(),
-			concat0.toSQL()
+			CPQ.concat(label0, label1, label1, label1i).toSQL()
 		);
 	}
 	
 	@Test
 	public void monoConcatToSQL(){
-		assertEquals("SELECT src, trg FROM edge WHERE label = 1", concat1.toSQL());
+		assertEquals("SELECT src, trg FROM edge WHERE label = 1", CPQ.concat(label1).toSQL());
 	}
 	
 	@Test
@@ -280,6 +297,48 @@ public class ConversionCPQTest{
 			)
 			""".trim(),
 			CPQ.IDENTITY.toSQL()
+		);
+	}
+	
+	@Test
+	public void tc0(){
+		assertEquals(
+			"""
+			SELECT s0.src AS src, s1.trg AS trg
+			FROM
+			  (
+			    SELECT src, trg FROM edge WHERE label = 0
+			  ) AS s0,
+			  (
+			    WITH RECURSIVE
+			    base(src, trg) AS (
+			      WITH RECURSIVE
+			      base(src, trg) AS (
+			        SELECT src, trg FROM edge WHERE label = 0
+			      ),
+			      tc(src, trg) AS (
+			        SELECT src, trg
+			        FROM base
+			        UNION
+			        SELECT head.src, tail.trg
+			        FROM base AS head, tc AS tail
+			        WHERE head.trg = tail.src
+			      )
+			      SELECT base.src, base.trg FROM base, tc
+			    ),
+			    tc(src, trg) AS (
+			      SELECT src, trg
+			      FROM base
+			      UNION
+			      SELECT head.src, tail.trg
+			      FROM base AS head, tc AS tail
+			      WHERE head.trg = tail.src
+			    )
+			    SELECT base.src, base.trg FROM base, tc
+			  ) AS s1
+			WHERE s0.trg = s1.src
+			""".trim(),
+			RPQ.concat(RPQ.label(pred0), RPQ.kleene(RPQ.kleene(RPQ.label(pred0)))).toSQL()
 		);
 	}
 }

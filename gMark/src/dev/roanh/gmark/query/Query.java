@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 
 import dev.roanh.gmark.core.QueryShape;
 import dev.roanh.gmark.core.Selectivity;
+import dev.roanh.gmark.output.OutputFormal;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
@@ -38,7 +39,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * projected variables and one or more query bodies.
  * @author Roan
  */
-public class Query implements OutputSQL, OutputXML{
+public class Query implements OutputSQL, OutputFormal, OutputXML{
 	/**
 	 * The projected variables for this query (head, left hand side).
 	 */
@@ -121,7 +122,7 @@ public class Query implements OutputSQL, OutputXML{
 	}
 	
 	@Override
-	public String toString(){
+	public String toFormalSyntax(){
 		StringJoiner lhs = new StringJoiner(",", "(", ")");
 		for(Variable v : variables){
 			lhs.add(v.toString());
@@ -132,6 +133,11 @@ public class Query implements OutputSQL, OutputXML{
 		buffer.append(" ← ");
 		buffer.append(body.toString());
 		return buffer.toString();
+	}
+	
+	@Override
+	public String toString(){
+		return toFormalSyntax();
 	}
 	
 	@Override

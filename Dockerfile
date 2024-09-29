@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-ARG version=v0.0
+ARG version=0.0
 
 FROM eclipse-temurin:17 AS compile
 LABEL maintainer="roan@roanh.dev"

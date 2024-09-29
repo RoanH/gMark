@@ -25,6 +25,8 @@ allprojects{
 	eclipse.classpath.downloadSources = true
 	eclipse.classpath.downloadJavadoc = true
 	compileJava.options.encoding = 'UTF-8'
+	compileTestJava.options.encoding = 'UTF-8'
+	jacocoTestReport.reports.xml.required = true
 	sourceCompatibility = 1.17
 	javadoc.options.memberLevel = JavadocMemberLevel.PRIVATE
 
@@ -71,7 +73,7 @@ subprojects{
 	apply plugin: 'com.gradleup.shadow'
 
 	shadowJar.archiveBaseName = 'gMark'
-	shadowJar.archiveVersion  = 'v' + version
+	shadowJar.archiveVersion = 'v' + version
 	shadowJar.archiveClassifier = ''
 }
 

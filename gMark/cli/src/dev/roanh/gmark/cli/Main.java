@@ -56,7 +56,7 @@ public class Main{
 	/**
 	 * The current version of gMark.
 	 */
-	public static final String VERSION = "v1.2";//build.gradle
+	public static final String VERSION;
 	/**
 	 * The command line options.
 	 */
@@ -67,7 +67,7 @@ public class Main{
 	 * @param args The passed command line arguments.
 	 */
 	public static void main(String[] args){
-		System.out.println("Running gMark (CLI) version " + VERSION.substring(1));
+		System.out.println("Running gMark (CLI) version " + VERSION);
 		
 		CommandLineParser parser = new DefaultParser();
 		try{
@@ -177,6 +177,9 @@ public class Main{
 		options.addOption(Option.builder("w").longOpt("workload").hasArg().optionalArg(true).argName("file").desc("Triggers workload generation, a previously generated input workload can optionally be provided to generate concrete syntaxes for instead").build());
 		options.addOption(Option.builder("o").longOpt("output").hasArg().argName("folder").desc("The folder to write the generated output to").build());
 		options.addOption(Option.builder("f").longOpt("force").desc("Overwrite existing files if present").build());
+		
+		String version = dev.roanh.util.Util.readArtifactVersion("dev.roanh.gmark", "gmark");
+		VERSION = version == null ? "unknown" : version;
 	}
 	
 	/**

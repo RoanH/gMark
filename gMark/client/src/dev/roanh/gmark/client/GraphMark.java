@@ -57,7 +57,7 @@ public class GraphMark{
 			return;
 		}
 		
-		System.out.println("Running gMark (GUI) version " + Main.VERSION.substring(1));
+		System.out.println("Running gMark (GUI) version " + Main.VERSION);
 		Util.installUI();
 		Dialog.setDialogTitle("gMark");
 		Dialog.setParentFrame(frame);

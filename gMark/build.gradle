@@ -118,6 +118,9 @@ project(':client'){
 		
 		//Util
 		implementation 'dev.roanh.util:util:2.5'
+		
+		//Commons CLI
+		implementation 'commons-cli:commons-cli:1.9.0'
 	}
 
 	eclipse.project.name = 'gMark-Client'

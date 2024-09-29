@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
@@ -29,7 +30,7 @@ import dev.roanh.gmark.lang.QueryLanguageSyntax;
 /**
  * Interface for regular path queries (RPQs).
  * @author Roan
- * @see <a href="https://en.wikipedia.org/wiki/Regular_path_query/">Regular Path Query</a>
+ * @see <a href="https://en.wikipedia.org/wiki/Regular_path_query">Regular Path Query</a>
  */
 public abstract interface RPQ extends QueryLanguageSyntax{
 
@@ -122,6 +123,25 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 	}
 	
 	/**
+	 * Generates a random RPQ created by applying the disjunction,
+	 * Kleene and concatenation steps from the RPQ grammar the
+	 * given number of times. A set of labels of the given size
+	 * is automatically generated together with corresponding inverse
+	 * labels for each label. It is worth noting that concatenation
+	 * will be generated at double the rate of the relatively more
+	 * expensive Kleene and disjunction operations.
+	 * @param ruleApplications The number of times the disjunction,
+	 *        Kleene, and concatenation steps are allowed to be applied.
+	 * @param labels The number of distinct labels to use (upper limit).
+	 * @return The randomly generated RPQ.
+	 * @throws IllegalArgumentException When the given number of labels is 0 or less.
+	 * @see GeneratorRPQ#generatePlainRPQ(int, List)
+	 */
+	public static RPQ generatePlainRPQ(int ruleApplications, int labels) throws IllegalArgumentException{
+		return GeneratorRPQ.generatePlainRPQ(ruleApplications, labels);
+	}
+	
+	/**
 	 * Parses the given RPQ in string form to an RPQ instance. The input is assumed
 	 * to use brackets where possible and to use the '{@value QueryLanguageSyntax#CHAR_DISJUNCTION}',
 	 * '{@value QueryLanguageSyntax#CHAR_JOIN}', '{@value QueryLanguageSyntax#CHAR_KLEENE}' and
@@ -134,5 +154,28 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 	 */
 	public static RPQ parse(String query) throws IllegalArgumentException{
 		return ParserRPQ.parse(query);
+	}
+	
+	/**
+	 * Attempts to parse the given AST to an RPQ.
+	 * @param ast The AST to parse to a RPQ.
+	 * @return The RPQ represented by the given AST.
+	 * @throws IllegalArgumentException When the given AST does
+	 *         not represent a valid RPQ.
+	 * @see QueryTree
+	 */
+	public static RPQ parse(QueryTree ast) throws IllegalArgumentException{
+		switch(ast.getOperation()){
+		case CONCATENATION:
+			return concat(parse(ast.getLeft()), parse(ast.getRight()));
+		case DISJUNCTION:
+			return disjunct(parse(ast.getLeft()), parse(ast.getLeft()));
+		case EDGE:
+			return label(ast.getPredicate());
+		case KLEENE:
+			return kleene(parse(ast.getLeft()));
+		default:
+			throw new IllegalArgumentException("The given AST contains operations that are not part of the RPQ query language.");
+		}
 	}
 }

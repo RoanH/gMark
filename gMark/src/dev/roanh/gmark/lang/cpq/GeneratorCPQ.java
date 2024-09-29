@@ -53,7 +53,7 @@ public final class GeneratorCPQ{
 	 *        concatenation steps are allowed to be applied.
 	 * @param labels The number of distinct labels to use (upper limit).
 	 * @return The randomly generated CPQ.
-	 * @throws IllegalArgumentException When the list of labels is empty.
+	 * @throws IllegalArgumentException When the given number of labels is 0 or less.
 	 * @see CPQ
 	 * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
 	 */

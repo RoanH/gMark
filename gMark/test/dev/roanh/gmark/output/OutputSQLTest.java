@@ -221,7 +221,7 @@ public class OutputSQLTest{
 	}
 	
 	@Test
-	public void intersectToSQL4(){
+	public void disjuctToSQL0(){
 		assertEquals(
 			"""
 			SELECT src, trg FROM (

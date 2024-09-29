@@ -18,5 +18,5 @@ FROM eclipse-temurin:17
 LABEL maintainer="roan@roanh.dev"
 ARG ref
 WORKDIR /gMark
-COPY --from=compile /gMark/cli/build/libs/gMark-v$ref.jar ./gMark.jar
+COPY --from=compile /gMark/cli/build/libs/gMark-$ref.jar ./gMark.jar
 ENTRYPOINT ["java", "-jar", "gMark.jar"]

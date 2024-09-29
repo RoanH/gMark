@@ -114,6 +114,7 @@ CPQ query = CPQ.generateRandomCPQ(4, 1);
 
 RPQ query = RPQ.parse("a ◦ a");
 RPQ query = RPQ.disjunct(RPQ.concat(a, a), a);
+RPQ query = RPQ.generateRandomRPQ(4, 1);
 ```
 
 For CPQs query graphs and cores can be constructed using:
@@ -134,6 +135,13 @@ CPQ query = ...;
 String sql = query.toSQL();
 String formal = query.toString();
 QueryTree = query.toAbstractSyntaxTree();
+```
+
+Note that CPQ and RPQ can also be constructed from an AST, which can sometimes be used to convert between the two query languages:
+
+```java
+RPQ rpq = RPQ.parse("a ◦ a");
+CPQ cpq = CPQ.parse(rpq.toAbstractSyntaxTree());
 ```
 
 All more general utilities can be found in the `dev.roanh.gmark.util` package.

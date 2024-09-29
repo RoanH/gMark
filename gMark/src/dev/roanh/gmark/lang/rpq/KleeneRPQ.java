@@ -48,9 +48,22 @@ public class KleeneRPQ implements RPQ{
 
 	@Override
 	public void writeSQL(IndentWriter writer){
-		throw new UnsupportedOperationException("Not yet implemented, see issue #18.");
+		writer.println("WITH RECURSIVE");
+		writer.println("base(src, trg) AS (", 2);
+		rpq.writeSQL(writer);
+		writer.println();
+		writer.println(2, "),");
+		writer.println("tc(src, trg) AS (", 2);
+		writer.println("SELECT src, trg");
+		writer.println("FROM base");
+		writer.println("UNION");
+		writer.println("SELECT head.src, tail.trg");
+		writer.println("FROM base AS head, tc AS tail");
+		writer.println("WHERE head.trg = tail.src");
+		writer.println(2, ")");
+		writer.print("SELECT base.src, base.trg FROM base, tc");
 	}
-
+	
 	@Override
 	public void writeXML(IndentWriter writer){
 		writer.println("<rpq type=\"kleene\">", 2);

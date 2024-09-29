@@ -22,6 +22,7 @@ import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.ast.QueryFragment;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.output.OutputFormal;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
@@ -32,7 +33,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * in inverse direction from target to source.
  * @author Roan
  */
-public abstract class GenericEdge implements OutputSQL, OutputXML, QueryFragment{
+public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML, QueryFragment{
 	/**
 	 * The label traversed by this query.
 	 */
@@ -55,8 +56,13 @@ public abstract class GenericEdge implements OutputSQL, OutputXML, QueryFragment
 	}
 	
 	@Override
-	public String toString(){
+	public String toFormalSyntax(){
 		return symbol.getAlias();
+	}
+	
+	@Override
+	public String toString(){
+		return toFormalSyntax();
 	}
 	
 	@Override

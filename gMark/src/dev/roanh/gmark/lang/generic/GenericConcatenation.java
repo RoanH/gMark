@@ -25,6 +25,7 @@ import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.ast.QueryFragment;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.output.OutputFormal;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -34,7 +35,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * @author Roan
  * @param <T> The concrete query language fragment syntax.
  */
-public abstract class GenericConcatenation<T extends QueryLanguageSyntax> implements OutputSQL, QueryFragment{
+public abstract class GenericConcatenation<T extends QueryLanguageSyntax> implements OutputSQL, OutputFormal, QueryFragment{
 	/**
 	 * The sub queries to concatenate in order from first to last.
 	 */
@@ -53,7 +54,7 @@ public abstract class GenericConcatenation<T extends QueryLanguageSyntax> implem
 	}
 	
 	@Override
-	public String toString(){
+	public String toFormalSyntax(){
 		StringJoiner builder = new StringJoiner(String.valueOf(QueryLanguageSyntax.CHAR_JOIN), "(", ")");
 		
 		for(T item : elements){
@@ -61,6 +62,11 @@ public abstract class GenericConcatenation<T extends QueryLanguageSyntax> implem
 		}
 		
 		return builder.toString();
+	}
+	
+	@Override
+	public String toString(){
+		return toFormalSyntax();
 	}
 	
 	@Override

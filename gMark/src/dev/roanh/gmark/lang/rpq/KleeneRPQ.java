@@ -42,8 +42,13 @@ public class KleeneRPQ implements RPQ{
 	}
 	
 	@Override
-	public String toString(){
+	public String toFormalSyntax(){
 		return rpq.toString() + String.valueOf(QueryLanguageSyntax.CHAR_KLEENE);
+	}
+	
+	@Override
+	public String toString(){
+		return toFormalSyntax();
 	}
 
 	@Override

@@ -133,7 +133,7 @@ Other notable utilities for CPQ and RPQ are:
 CPQ query = ...;
 
 String sql = query.toSQL();
-String formal = query.toString();
+String formal = query.toFormalSyntax();
 QueryTree = query.toAbstractSyntaxTree();
 ```
 

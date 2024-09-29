@@ -37,8 +37,13 @@ public final class IdentityCPQ implements CPQ{
 	}
 	
 	@Override
-	public String toString(){
+	public String toFormalSyntax(){
 		return "id";
+	}
+	
+	@Override
+	public String toString(){
+		return toFormalSyntax();
 	}
 	
 	@Override

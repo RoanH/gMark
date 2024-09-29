@@ -23,15 +23,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
 
-public class ConversionRPQTest{
+public class QueryTreeTest{
 	private static final Predicate a = new Predicate(0, "a");
 	private static final Predicate b = new Predicate(1, "b");
 
 	@Test
 	public void ast0(){
-		RPQ query = RPQ.labels(a, b);
+		CPQ query = CPQ.labels(a, b);
 		
 		QueryTree ast = query.toAbstractSyntaxTree();
 		assertEquals(OperationType.CONCATENATION, ast.getOperation());
@@ -43,6 +44,34 @@ public class ConversionRPQTest{
 	
 	@Test
 	public void ast1(){
+		CPQ query = CPQ.intersect(CPQ.label(a), CPQ.label(b), CPQ.id());
+		
+		QueryTree ast = query.toAbstractSyntaxTree();
+		assertEquals(OperationType.INTERSECTION, ast.getOperation());
+		assertEquals(OperationType.EDGE, ast.getLeft().getOperation());
+		assertEquals(a, ast.getLeft().getPredicate());
+		assertEquals(OperationType.INTERSECTION, ast.getRight().getOperation());
+		
+		ast = ast.getRight();
+		assertEquals(OperationType.EDGE, ast.getLeft().getOperation());
+		assertEquals(b, ast.getLeft().getPredicate());
+		assertEquals(OperationType.IDENTITY, ast.getRight().getOperation());
+	}
+
+	@Test
+	public void ast2(){
+		RPQ query = RPQ.labels(a, b);
+		
+		QueryTree ast = query.toAbstractSyntaxTree();
+		assertEquals(OperationType.CONCATENATION, ast.getOperation());
+		assertEquals(OperationType.EDGE, ast.getLeft().getOperation());
+		assertEquals(a, ast.getLeft().getPredicate());
+		assertEquals(OperationType.EDGE, ast.getRight().getOperation());
+		assertEquals(b, ast.getRight().getPredicate());
+	}
+	
+	@Test
+	public void ast3(){
 		RPQ query = RPQ.disjunct(RPQ.label(a), RPQ.label(b), RPQ.kleene(RPQ.label(a)));
 		
 		QueryTree ast = query.toAbstractSyntaxTree();

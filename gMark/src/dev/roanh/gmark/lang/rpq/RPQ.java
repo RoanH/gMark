@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
@@ -134,5 +135,28 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 	 */
 	public static RPQ parse(String query) throws IllegalArgumentException{
 		return ParserRPQ.parse(query);
+	}
+	
+	/**
+	 * Attempts to parse the given AST to a RPQ.
+	 * @param ast The AST to parse to a RPQ.
+	 * @return The RPQ represented by the given AST.
+	 * @throws IllegalArgumentException When the given AST does
+	 *         not represent a valid RPQ.
+	 * @see QueryTree
+	 */
+	public static RPQ parse(QueryTree ast) throws IllegalArgumentException{
+		switch(ast.getOperation()){
+		case CONCATENATION:
+			return concat(parse(ast.getLeft()), parse(ast.getRight()));
+		case DISJUNCTION:
+			return disjunct(parse(ast.getLeft()), parse(ast.getLeft()));
+		case EDGE:
+			return label(ast.getPredicate());
+		case KLEENE:
+			return kleene(parse(ast.getLeft()));
+		default:
+			throw new IllegalArgumentException("The given AST contains operations that are not part of the CPQ query language.");
+		}
 	}
 }

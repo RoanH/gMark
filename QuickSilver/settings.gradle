@@ -1,0 +1,10 @@
+pluginManagement{
+	repositories{
+		maven{
+			allowInsecureProtocol = true
+			url "$nexusPublic"
+		}
+	}
+}
+
+rootProject.name = 'QuickSilver'

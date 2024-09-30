@@ -1,0 +1,48 @@
+image: eclipse-temurin:17
+
+variables:
+  SUFFIX: ${CI_PIPELINE_ID}-${CI_COMMIT_REF_NAME}
+  PROJECTNAME: QuickSilver
+
+before_script:
+  - java -version
+  - cd ${PROJECTNAME}
+  - ls -l
+  - chmod -R 755 ./*
+
+stages:
+  - compile
+  - test
+  - javadoc
+
+javadoc:
+  script:
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} javadoc
+    - mv ./build/docs/javadoc ../
+  stage: javadoc
+  artifacts:
+    name: Javadoc-${SUFFIX}
+    expire_in: 1 day
+    paths:
+      - javadoc/
+
+compile:
+  script:
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} :shadowJar
+    - mv ./build/libs/*.jar ../QuickSilver.jar
+  stage: compile
+  artifacts:
+    name: QuickSilver-${SUFFIX}
+    expire_in: 1 day
+    paths:
+      - QuickSilver.jar
+
+test:
+  script:
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} :test :jacocoTestReport
+    - cat ./build/reports/jacoco/test/html/index.html
+  stage: test
+  coverage: '/Total.*?([0-9]{1,3})%/'
+  artifacts:
+    reports:
+      junit: ./${PROJECTNAME}/build/test-results/test/TEST-*.xml

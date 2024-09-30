@@ -16,26 +16,18 @@ dependencies{
 }
 
 repositories{
-	maven{
-		allowInsecureProtocol = true
-		url "$nexusPublic"
-	}
+	mavenCentral()
 }
 
-version = findProperty("refName") ?: 'SNAPSHOT'
-if(version.matches("v\\d+\\.\\d+")){
-	version = version.substring(1)
-}
-
+version = findProperty("refName")
 eclipse.classpath.downloadSources = true
 eclipse.classpath.downloadJavadoc = true
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
-jacocoTestReport.reports.xml.required = true
 sourceCompatibility = 1.17
 javadoc.options.memberLevel = JavadocMemberLevel.PRIVATE
 shadowJar.archiveBaseName = 'QuickSilver'
-shadowJar.archiveVersion = 'v' + version
+shadowJar.archiveVersion = version
 shadowJar.archiveClassifier = ''
 application.mainClass = 'nl.group9.quicksilver.Main'
 
@@ -46,8 +38,4 @@ test{
 	testLogging{
 		events "passed", "skipped", "failed"
 	}
-}
-
-shadowJar{
-	mergeServiceFiles()
 }

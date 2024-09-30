@@ -11,25 +11,13 @@ before_script:
   - chmod -R 755 ./*
 
 stages:
-  - check
   - compile
   - test
   - javadoc
 
-endings:
-  allow_failure: true
-  script: curl ${SERVER}ci/lf.sh | bash
-  stage: check
-
-verify:
-  allow_failure: true
-  script: curl ${SERVER}ci/javadoc.sh | bash
-  stage: javadoc
-  coverage: '/\([0-9]{2,3}\.[0-9]{2}%\)/'
-
 javadoc:
   script:
-    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} javadoc
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} javadoc
     - mv ./build/docs/javadoc ../
   stage: javadoc
   artifacts:
@@ -40,7 +28,7 @@ javadoc:
 
 compile:
   script:
-    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} :shadowJar
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} :shadowJar
     - mv ./build/libs/*.jar ../QuickSilver.jar
   stage: compile
   artifacts:
@@ -51,7 +39,7 @@ compile:
 
 test:
   script:
-    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} -PnexusPublic=${NEXUS_PUBLIC} :test :jacocoTestReport
+    - ./gradlew -PrefName=${CI_COMMIT_REF_NAME} :test :jacocoTestReport
     - cat ./build/reports/jacoco/test/html/index.html
   stage: test
   coverage: '/Total.*?([0-9]{1,3})%/'

@@ -103,7 +103,7 @@ dependencies{
 ```
 
 ## Query Language API
-Most of the query language API is accessible directly via the CPQ and RPQ classes. For example, queries can be constructed using:
+Most of the query language API is accessible directly via the [CPQ](https://gmark.docs.roanh.dev/dev/roanh/gmark/lang/cpq/CPQ.html) and [RPQ](https://gmark.docs.roanh.dev/dev/roanh/gmark/lang/rpq/RPQ.html) classes. For example, queries can be constructed using:
 
 ```java
 Predicate a = new Predicate(0, "a");

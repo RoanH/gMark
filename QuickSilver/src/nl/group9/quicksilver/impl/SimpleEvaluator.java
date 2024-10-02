@@ -5,7 +5,6 @@ import java.util.Optional;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.core.graph.Predicate;
 
-import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.PathQuery;
 import nl.group9.quicksilver.core.spec.Evaluator;
 import nl.group9.quicksilver.impl.data.SourceLabelPair;
@@ -28,7 +27,6 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	@Override
 	public void prepare(SimpleGraph graph){
 		this.graph = graph;
-		//TODO prepare estimator
 	}
 	
 	//TODO inefficiencies (not meant to be solved)
@@ -114,10 +112,10 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 		SimpleGraph transitiveClosure = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
 		unionDistinct(transitiveClosure, in);
 		
-		int edgesAdded = 1;
-		while(edgesAdded > 0){
+		int edgesAdded;
+		do{
 			edgesAdded = unionDistinct(transitiveClosure, join(transitiveClosure, in));
-		}
+		}while(edgesAdded > 0);
 		
 		return transitiveClosure;
 	}

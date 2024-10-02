@@ -24,7 +24,7 @@ public abstract class EvaluatorTest<G extends Graph, R extends Graph>{
 
 	@Test
 	public void query0(){
-		EvalResult result = evaluate(1, CPQ.intersect(
+		R result = evaluate(1, CPQ.intersect(
 			CPQ.labels(a, b),
 			CPQ.label(b)
 		));
@@ -34,12 +34,12 @@ public abstract class EvaluatorTest<G extends Graph, R extends Graph>{
 			new SourceTargetPair(1, 2)
 		));
 		
-		assertEquals(new CardStat(1, 1, 1), result.cardStat());
+		assertEquals(new CardStat(1, 1, 1), result.computeCardinality());
 	}
 	
 	@Test
 	public void query1(){
-		EvalResult result = evaluate(1, RPQ.kleene(RPQ.label(a)));
+		R result = evaluate(1, RPQ.kleene(RPQ.label(a)));
 		
 		assertPaths(result, List.of(
 			new SourceTargetPair(1, 0),
@@ -52,36 +52,35 @@ public abstract class EvaluatorTest<G extends Graph, R extends Graph>{
 			new SourceTargetPair(1, 12)
 		));
 		
-		assertEquals(new CardStat(1, 8, 8), result.cardStat());
+		assertEquals(new CardStat(1, 8, 8), result.computeCardinality());
 	}
 	
-	private void assertPaths(EvalResult result, List<SourceTargetPair> expected){
-		List<SourceTargetPair> actual = result.resultGraph().getSourceTargetPairs();
+	private void assertPaths(R result, List<SourceTargetPair> expected){
+		List<SourceTargetPair> actual = result.getSourceTargetPairs();
 		actual.sort(null);
 		assertIterableEquals(expected, actual);
 	}
 	
-	private EvalResult evaluate(QueryLanguageSyntax query){
+	private R evaluate(QueryLanguageSyntax query){
 		return evaluate(PathQuery.of(query));
 	}
 
-	private EvalResult evaluate(QueryLanguageSyntax query, int target){
+	private R evaluate(QueryLanguageSyntax query, int target){
 		return evaluate(PathQuery.of(query, target));
 	}
 
-	private EvalResult evaluate(int source, QueryLanguageSyntax query){
+	private R evaluate(int source, QueryLanguageSyntax query){
 		return evaluate(PathQuery.of(source, query));
 	}
 
-	private EvalResult evaluate(int source, QueryLanguageSyntax query, int target){
+	private R evaluate(int source, QueryLanguageSyntax query, int target){
 		return evaluate(PathQuery.of(source, query, target));
 	}
 	
-	private EvalResult evaluate(PathQuery query){
+	private R evaluate(PathQuery query){
 		Evaluator<G, R> evaluator = getProvider().createEvaluator();
 		evaluator.prepare(getGraph());
-		R result = evaluator.evaluate(query);
-		return new EvalResult(result, result.computeCardinality());
+		return evaluator.evaluate(query);
 	}
 	
 	//see: https://research.roanh.dev/Indexing%20Conjunctive%20Path%20Queries%20for%20Accelerated%20Query%20Evaluation.pdf#subsubsection.5.2.1.1
@@ -115,8 +114,5 @@ public abstract class EvaluatorTest<G extends Graph, R extends Graph>{
 		graph.addEdge(12, 11, 0);
 		graph.addEdge(12, 13, 1);
 		return graph;
-	}
-	
-	private static final record EvalResult(Graph resultGraph, CardStat cardStat){
 	}
 }

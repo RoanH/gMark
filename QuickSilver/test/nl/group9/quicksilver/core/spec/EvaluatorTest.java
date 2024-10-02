@@ -81,7 +81,7 @@ public abstract class EvaluatorTest<G extends Graph, R extends Graph>{
 		Evaluator<G, R> evaluator = getProvider().createEvaluator();
 		evaluator.prepare(getGraph());
 		R result = evaluator.evaluate(query);
-		return new EvalResult(result, evaluator.computeCardinality(result));
+		return new EvalResult(result, result.computeCardinality());
 	}
 	
 	//see: https://research.roanh.dev/Indexing%20Conjunctive%20Path%20Queries%20for%20Accelerated%20Query%20Evaluation.pdf#subsubsection.5.2.1.1

@@ -11,6 +11,12 @@ import nl.group9.quicksilver.core.spec.Evaluator;
 import nl.group9.quicksilver.impl.data.SourceLabelPair;
 import nl.group9.quicksilver.impl.data.TargetLabelPair;
 
+/**
+ * Implementation of a simple reachability query evaluator.
+ * @author Roan
+ * @see <a href="https://research.roanh.dev/Graph%20Database%20&%20Query%20Evaluation%20Terminology%20v1.3.pdf">
+ *      Graph Database &amp; Query Evaluation Terminology</a>
+ */
 public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	/**
 	 * After projection labels are no longer useful and generally make database operations
@@ -66,29 +72,6 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 		}
 		
 		throw new IllegalArgumentException("Unsupported database operation.");
-	}
-	
-	@Override
-	public CardStat computeCardinality(SimpleGraph graph){
-		int outCount = 0;
-		for(int source = 0; source < graph.getNoVertices(); source++){
-			if(!graph.getOutgoingEdges(source).isEmpty()){
-				outCount++;
-			}
-		}
-		
-		int inCount = 0;
-		for(int target = 0; target < graph.getNoVertices(); target++){
-			if(!graph.getIncomingEdges(target).isEmpty()){
-				inCount++;
-			}
-		}
-		
-		return new CardStat(
-			outCount,
-			graph.getNoDistinctEdges(),
-			inCount
-		);
 	}
 	
 	private static SimpleGraph selectIdentity(SimpleGraph in){
@@ -203,6 +186,12 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 		return out;
 	}
 	
+	/**
+	 * Selects all the edges from the given input graph that start at the given source node.
+	 * @param source The source node of the edges.
+	 * @param in The input graph to select edges from.
+	 * @return A copy of the input graph containing only the edges that started at the given source vertex.
+	 */
 	private static SimpleGraph selectSource(int source, SimpleGraph in){
 		SimpleGraph out = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
 		for(TargetLabelPair edge : in.getOutgoingEdges(source)){

@@ -55,13 +55,14 @@ public class Benchmark{
 		for(PathQuery query : queries){
 			System.out.println("[EVAL] Evaluating query: " + query);
 			long start = System.nanoTime();
-			CardStat result = evaluator.computeCardinality(evaluator.evaluate(query));
+			CardStat result = evaluator.evaluate(query).computeCardinality();
 			long end = System.nanoTime();
 			System.out.println("[EVAL] Evaluation result: " + result);
 			System.out.println("[EVAL] Evaluation time: " + (end - start) + " ns");
 			evalTime += end - start;
 		}
 		
+		System.out.println("[EVAL] Total evaluation time: " + evalTime + " ns");
 		return new BenchmarkResult(
 			loadEnd - loadStart,
 			prepEnd - prepStart,

@@ -56,7 +56,7 @@ public class Main{
 		
 		SimpleGraph result = evaluator.evaluate(PathQuery.of(query));
 		result.getSourceTargetPairs().forEach(System.out::println);
-		System.out.println(evaluator.computeCardinality(result));
+		System.out.println(result.computeCardinality());
 	}
 
 	public static void main(String[] args) throws IOException{

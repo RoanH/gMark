@@ -6,6 +6,7 @@ import java.util.List;
 
 import dev.roanh.gmark.util.RangeList;
 
+import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.SourceTargetPair;
 import nl.group9.quicksilver.core.spec.Graph;
 import nl.group9.quicksilver.impl.data.SourceLabelPair;
@@ -97,5 +98,28 @@ public class SimpleGraph implements Graph{
 		}
 		
 		return edges;
+	}
+	
+	@Override
+	public CardStat computeCardinality(){
+		int outCount = 0;
+		for(int source = 0; source < vertexCount; source++){
+			if(!getOutgoingEdges(source).isEmpty()){
+				outCount++;
+			}
+		}
+		
+		int inCount = 0;
+		for(int target = 0; target < vertexCount; target++){
+			if(!getIncomingEdges(target).isEmpty()){
+				inCount++;
+			}
+		}
+		
+		return new CardStat(
+			outCount,
+			getNoDistinctEdges(),
+			inCount
+		);
 	}
 }

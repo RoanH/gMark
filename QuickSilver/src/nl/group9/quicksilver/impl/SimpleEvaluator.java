@@ -120,6 +120,15 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 		return transitiveClosure;
 	}
 	
+	/**
+	 * Computes the union of the given left and right input graphs by
+	 * adding all edges from the right graph to the left graph that do
+	 * not already exist in the left input graph.
+	 * @param left The left input graph edges will be added to.
+	 * @param right The right input graph containing edges to add.
+	 * @return The number of new edges actually added to the left input graph.
+	 * @see #union(SimpleGraph, SimpleGraph)
+	 */
 	private static int unionDistinct(SimpleGraph left, SimpleGraph right){
 		int edgesAdded = 0;
 		
@@ -135,6 +144,14 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 		return edgesAdded;
 	}
 	
+	/**
+	 * Computes the union (or disjunction) of the given left and right input graphs.
+	 * Recall that this operation simply added all the paths in both input graphs
+	 * to the result graph. Note that the order of the input arguments is irrelevant.
+	 * @param left The left input graph.
+	 * @param right The right input graph.
+	 * @return The result graph representing the union of the input graphs.
+	 */
 	private static SimpleGraph union(SimpleGraph left, SimpleGraph right){
 		SimpleGraph out = new SimpleGraph(left.getNoVertices(), 1);
 		
@@ -155,6 +172,15 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 		return out;
 	}
 	
+	/**
+	 * Computes the intersection of the given left and right input graphs.
+	 * Recall that this operation simply discards all paths that are not
+	 * present in both input graphs. Note that the order of the input
+	 * arguments is irrelevant.
+	 * @param left The left input graph.
+	 * @param right The right input graph.
+	 * @return The result graph representing the intersection of the input graphs.
+	 */
 	private static SimpleGraph intersection(SimpleGraph left, SimpleGraph right){
 		SimpleGraph out = new SimpleGraph(left.getNoVertices(), left.getNoLabels());
 		
@@ -169,6 +195,15 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 		return out;
 	}
 	
+	/**
+	 * Computes the join of the given left and right input graphs by
+	 * extending paths in the left input graph with paths in the right
+	 * input graph if the target vertex of a left input path is equal
+	 * to the source vertex of a right input path.
+	 * @param left The left input graph containing path prefixes.
+	 * @param right The right input graph containing path suffixes.
+	 * @return The result graph representing the join of the input graphs.
+	 */
 	private static SimpleGraph join(SimpleGraph left, SimpleGraph right){
 		SimpleGraph out = new SimpleGraph(left.getNoVertices(), 1);
 		

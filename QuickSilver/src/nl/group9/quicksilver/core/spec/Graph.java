@@ -5,7 +5,7 @@ import java.util.List;
 import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.SourceTargetPair;
 
-public abstract interface Graph{
+public abstract interface Graph{//TODO we should probably separate the graph from the minimum graph required by the core logic
 
 	public abstract int getNoVertices();
 	

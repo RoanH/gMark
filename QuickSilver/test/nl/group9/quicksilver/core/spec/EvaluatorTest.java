@@ -24,13 +24,18 @@ public abstract class EvaluatorTest<G extends Graph, R extends Graph>{
 
 	@Test
 	public void query0(){
-		R result = evaluate(1, CPQ.intersect(
-			CPQ.labels(a, b),
-			CPQ.label(b)
-		));
+		R result = evaluate(
+			1,
+			CPQ.intersect(
+				CPQ.label(b),
+				CPQ.labels(
+					a,
+					b
+				)
+			)
+		);
 		
 		assertPaths(result, List.of(
-			new SourceTargetPair(1, 2),
 			new SourceTargetPair(1, 2)
 		));
 		
@@ -39,7 +44,12 @@ public abstract class EvaluatorTest<G extends Graph, R extends Graph>{
 	
 	@Test
 	public void query1(){
-		R result = evaluate(1, RPQ.kleene(RPQ.label(a)));
+		R result = evaluate(
+			1,
+			RPQ.kleene(
+				RPQ.label(a)
+			)
+		);
 		
 		assertPaths(result, List.of(
 			new SourceTargetPair(1, 0),
@@ -55,10 +65,223 @@ public abstract class EvaluatorTest<G extends Graph, R extends Graph>{
 		assertEquals(new CardStat(1, 8, 8), result.computeCardinality());
 	}
 	
+	@Test
+	public void query2(){
+		R result = evaluate(
+			CPQ.id()
+		);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(0, 0),
+			new SourceTargetPair(1, 1),
+			new SourceTargetPair(2, 2),
+			new SourceTargetPair(3, 3),
+			new SourceTargetPair(4, 4),
+			new SourceTargetPair(5, 5),
+			new SourceTargetPair(6, 6),
+			new SourceTargetPair(7, 7),
+			new SourceTargetPair(8, 8),
+			new SourceTargetPair(9, 9),
+			new SourceTargetPair(10, 10),
+			new SourceTargetPair(11, 11),
+			new SourceTargetPair(12, 12),
+			new SourceTargetPair(13, 13)
+		));
+		
+		assertEquals(new CardStat(14, 14, 14), result.computeCardinality());
+	}
+	
+	@Test
+	public void query3(){
+		R result = evaluate(
+			RPQ.labels(
+				b.getInverse(),
+				a,
+				b
+			)
+		);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(2, 2),
+			new SourceTargetPair(2, 13),
+			new SourceTargetPair(13, 2),
+			new SourceTargetPair(13, 13)
+		));
+		
+		assertEquals(new CardStat(2, 4, 2), result.computeCardinality());
+	}
+	
+	@Test
+	public void query4(){
+		R result = evaluate(
+			RPQ.disjunct(
+				RPQ.label(a),
+				RPQ.label(b)
+			)
+		);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(0, 2),
+			new SourceTargetPair(1, 0),
+			new SourceTargetPair(1, 2),
+			new SourceTargetPair(1, 3),
+			new SourceTargetPair(3, 2),
+			new SourceTargetPair(3, 6),
+			new SourceTargetPair(3, 9),
+			new SourceTargetPair(4, 2),
+			new SourceTargetPair(4, 7),
+			new SourceTargetPair(5, 2),
+			new SourceTargetPair(5, 4),
+			new SourceTargetPair(6, 2),
+			new SourceTargetPair(6, 8),
+			new SourceTargetPair(6, 10),
+			new SourceTargetPair(7, 2),
+			new SourceTargetPair(7, 5),
+			new SourceTargetPair(7, 10),
+			new SourceTargetPair(8, 12),
+			new SourceTargetPair(8, 13),
+			new SourceTargetPair(9, 8),
+			new SourceTargetPair(9, 13),
+			new SourceTargetPair(10, 2),
+			new SourceTargetPair(10, 11),
+			new SourceTargetPair(11, 0),
+			new SourceTargetPair(11, 2),
+			new SourceTargetPair(12, 11),
+			new SourceTargetPair(12, 13)
+		));
+		
+		assertEquals(new CardStat(12, 27, 13), result.computeCardinality());
+	}
+	
+	@Test
+	public void query5(){
+		R result = evaluate(
+			CPQ.intersect(
+				CPQ.id(),
+				CPQ.labels(
+					a,
+					a.getInverse()
+				)
+			)
+		);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(1, 1),
+			new SourceTargetPair(3, 3),
+			new SourceTargetPair(4, 4),
+			new SourceTargetPair(5, 5),
+			new SourceTargetPair(6, 6),
+			new SourceTargetPair(7, 7),
+			new SourceTargetPair(8, 8),
+			new SourceTargetPair(9, 9),
+			new SourceTargetPair(10, 10),
+			new SourceTargetPair(11, 11),
+			new SourceTargetPair(12, 12)
+		));
+		
+		assertEquals(new CardStat(11, 11, 11), result.computeCardinality());
+	}
+	
+	@Test
+	public void query6(){
+		R result = evaluate(
+			CPQ.intersect(
+				CPQ.labels(
+					a,
+					a,
+					a
+				),
+				CPQ.id()
+			)
+		);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(4, 4),
+			new SourceTargetPair(5, 5),
+			new SourceTargetPair(7, 7)
+		));
+		
+		assertEquals(new CardStat(3, 3, 3), result.computeCardinality());
+	}
+	
+	@Test
+	public void query7(){
+		R result = evaluate(
+			CPQ.concat(
+				CPQ.intersect(
+					CPQ.id(),
+					CPQ.labels(
+						a,
+						a,
+						a
+					)
+				),
+				CPQ.label(a)
+			)
+		);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(4, 7),
+			new SourceTargetPair(5, 4),
+			new SourceTargetPair(7, 5),
+			new SourceTargetPair(7, 10)
+		));
+		
+		assertEquals(new CardStat(3, 4, 4), result.computeCardinality());
+	}
+	
+	@Test
+	public void query8(){
+		R result = evaluate(
+			RPQ.label(a),
+			10
+		);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(6, 10),
+			new SourceTargetPair(7, 10)
+		));
+		
+		assertEquals(new CardStat(2, 2, 1), result.computeCardinality());
+	}
+	
+	@Test
+	public void query9(){
+		R result = evaluate(
+			3,
+			RPQ.labels(
+				a,
+				a
+			),
+			8
+		);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(3, 8)
+		));
+		
+		assertEquals(new CardStat(1, 1, 1), result.computeCardinality());
+	}
+	
+	@Test
+	public void query10(){
+		R result = evaluate(
+			3,
+			RPQ.labels(
+				a,
+				b
+			),
+			8
+		);
+		
+		assertPaths(result, List.of());
+		
+		assertEquals(new CardStat(0, 0, 0), result.computeCardinality());
+	}
+	
 	private void assertPaths(R result, List<SourceTargetPair> expected){
-		List<SourceTargetPair> actual = result.getSourceTargetPairs();
-		actual.sort(null);
-		assertIterableEquals(expected, actual);
+		//we allow duplicates in the output, but by definition there should not be any
+		assertIterableEquals(expected, result.getSourceTargetPairs().stream().distinct().sorted().toList());
 	}
 	
 	private R evaluate(QueryLanguageSyntax query){

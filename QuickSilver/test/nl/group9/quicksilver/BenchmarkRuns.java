@@ -43,10 +43,13 @@ public class BenchmarkRuns{
 	 */
 	private static BenchmarkResult run(String dataset, QueryLanguage workload, Provider provider) throws IOException{
 		System.out.println("Running dataset: " + dataset + " with workload type " + workload);
-		return Benchmark.runEvaluatorBenchmark(
+		BenchmarkResult result = Benchmark.runEvaluatorBenchmark(
 			new Provider(), 
 			Paths.get("workload", dataset, "graph.edge"),
 			Paths.get("workload", dataset, workload.name().toLowerCase(Locale.ROOT) + ".query")
 		);
+		
+		System.out.println(result);
+		return result;
 	}
 }

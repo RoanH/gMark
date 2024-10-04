@@ -1,6 +1,7 @@
 package nl.group9.quicksilver;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.apache.commons.cli.CommandLine;
@@ -29,8 +30,20 @@ public class Main{
 				
 				System.out.println("Benchmark result: " + result);
 				if(cli.hasOption('o')){
-					//TODO output result
+					Files.writeString(
+						Paths.get(cli.getOptionValue('o')),
+						"""
+						{
+						  "load": %d,
+						  "prep": %d,
+						  "eval": %d,
+						  "score": %f
+						}
+						""".formatted(result.loadTime(), result.prepTime(), result.evalTime(), result.computeScore()).trim()
+					);
 				}
+				
+				return;
 			}
 		}catch(ParseException ignore){
 		}catch(IOException e){

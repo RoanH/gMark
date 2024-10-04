@@ -16,7 +16,7 @@ import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.PathQuery;
 import nl.group9.quicksilver.core.data.SourceTargetPair;
 
-public abstract class EvaluatorTest<G extends Graph, R extends Graph>{
+public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGraph>{
 	private static final Predicate a = new Predicate(0, "a");
 	private static final Predicate b = new Predicate(1, "b");
 	

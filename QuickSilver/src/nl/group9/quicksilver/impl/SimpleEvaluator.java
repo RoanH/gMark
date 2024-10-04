@@ -73,9 +73,9 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	}
 	
 	private static SimpleGraph selectIdentity(SimpleGraph in){
-		SimpleGraph out = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
+		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 
-		for(int vertex = 0; vertex < in.getNoVertices(); vertex++){
+		for(int vertex = 0; vertex < in.getVertexCount(); vertex++){
 			out.addEdge(vertex, vertex, NO_LABEL);
 		}
 		
@@ -83,11 +83,11 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	}
 	
 	private static SimpleGraph selectLabel(int projectLabel, boolean inverse, SimpleGraph in){
-		SimpleGraph out = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
+		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		
 		if(!inverse){
 			//follow edges going forward (natural direction)
-			for(int source = 0; source < in.getNoVertices(); source++){
+			for(int source = 0; source < in.getVertexCount(); source++){
 				for(TargetLabelPair edge : in.getOutgoingEdges(source)){
 					if(edge.label() == projectLabel){
 						out.addEdge(source, edge.target(), NO_LABEL);
@@ -96,7 +96,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 			}
 		}else{
 			//follow edges going backward (from target to source)
-			for(int source = 0; source < in.getNoVertices(); source++){
+			for(int source = 0; source < in.getVertexCount(); source++){
 				for(SourceLabelPair edge : in.getIncomingEdges(source)){
 					if(edge.label() == projectLabel){
 						out.addEdge(source, edge.source(), NO_LABEL);
@@ -109,7 +109,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	}
 	
 	private static SimpleGraph transitiveClosure(SimpleGraph in){
-		SimpleGraph transitiveClosure = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
+		SimpleGraph transitiveClosure = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		unionDistinct(transitiveClosure, in);
 		
 		int edgesAdded;
@@ -132,7 +132,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	private static int unionDistinct(SimpleGraph left, SimpleGraph right){
 		int edgesAdded = 0;
 		
-		for(int source = 0; source < right.getNoVertices(); source++){
+		for(int source = 0; source < right.getVertexCount(); source++){
 			for(TargetLabelPair edge : right.getOutgoingEdges(source)){
 				if(!left.hasEdge(source, edge.target(), edge.label())){
 					left.addEdge(source, edge.target(), edge.label());
@@ -153,17 +153,17 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return The result graph representing the union of the input graphs.
 	 */
 	private static SimpleGraph union(SimpleGraph left, SimpleGraph right){
-		SimpleGraph out = new SimpleGraph(left.getNoVertices(), 1);
+		SimpleGraph out = new SimpleGraph(left.getVertexCount(), 1);
 		
 		//copy all edges in the left graph
-		for(int source = 0; source < left.getNoVertices(); source++){
+		for(int source = 0; source < left.getVertexCount(); source++){
 			for(TargetLabelPair edge : left.getOutgoingEdges(source)){
 				out.addEdge(source, edge.target(), edge.label());
 			}
 		}
 		
 		//copy all edges in the right graph
-		for(int source = 0; source < right.getNoVertices(); source++){
+		for(int source = 0; source < right.getVertexCount(); source++){
 			for(TargetLabelPair edge : right.getOutgoingEdges(source)){
 				out.addEdge(source, edge.target(), edge.label());
 			}
@@ -182,9 +182,9 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return The result graph representing the intersection of the input graphs.
 	 */
 	private static SimpleGraph intersection(SimpleGraph left, SimpleGraph right){
-		SimpleGraph out = new SimpleGraph(left.getNoVertices(), left.getNoLabels());
+		SimpleGraph out = new SimpleGraph(left.getVertexCount(), left.getLabelCount());
 		
-		for(int source = 0; source < left.getNoVertices(); source++){
+		for(int source = 0; source < left.getVertexCount(); source++){
 			for(TargetLabelPair edge : left.getOutgoingEdges(source)){
 				if(right.hasEdge(source, edge.target(), edge.label())){
 					out.addEdge(source, edge.target(), edge.label());
@@ -205,9 +205,9 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return The result graph representing the join of the input graphs.
 	 */
 	private static SimpleGraph join(SimpleGraph left, SimpleGraph right){
-		SimpleGraph out = new SimpleGraph(left.getNoVertices(), 1);
+		SimpleGraph out = new SimpleGraph(left.getVertexCount(), 1);
 		
-		for(int leftSource = 0; leftSource < left.getNoVertices(); leftSource++){
+		for(int leftSource = 0; leftSource < left.getVertexCount(); leftSource++){
 			for(TargetLabelPair firstEdge : left.getOutgoingEdges(leftSource)){
 				//attempt to join this edge with all source vertices in the right graph
 				for(TargetLabelPair secondEdge : right.getOutgoingEdges(firstEdge.target())){
@@ -226,7 +226,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return A copy of the input graph containing only the edges that started at the given source vertex.
 	 */
 	private static SimpleGraph selectSource(int source, SimpleGraph in){
-		SimpleGraph out = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
+		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		for(TargetLabelPair edge : in.getOutgoingEdges(source)){
 			out.addEdge(source, edge.target(), edge.label());
 		}
@@ -241,7 +241,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return A copy of the input graph containing only the edges that ended at the given target vertex.
 	 */
 	private static SimpleGraph selectedTarget(int target, SimpleGraph in){
-		SimpleGraph out = new SimpleGraph(in.getNoVertices(), in.getNoLabels());
+		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		for(SourceLabelPair edge : in.getIncomingEdges(target)){
 			out.addEdge(edge.source(), target, edge.label());
 		}

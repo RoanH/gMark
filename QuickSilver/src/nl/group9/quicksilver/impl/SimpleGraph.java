@@ -8,11 +8,12 @@ import dev.roanh.gmark.util.RangeList;
 
 import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.SourceTargetPair;
-import nl.group9.quicksilver.core.spec.Graph;
+import nl.group9.quicksilver.core.spec.DatabaseGraph;
+import nl.group9.quicksilver.core.spec.ResultGraph;
 import nl.group9.quicksilver.impl.data.SourceLabelPair;
 import nl.group9.quicksilver.impl.data.TargetLabelPair;
 
-public class SimpleGraph implements Graph{
+public class SimpleGraph implements DatabaseGraph, ResultGraph{
 	private final int labelCount;
 	private final int vertexCount;
 	private final RangeList<List<TargetLabelPair>> adjacenyList;
@@ -34,13 +35,11 @@ public class SimpleGraph implements Graph{
 		return reverseAdjacencyList.get(target);
 	}
 
-	@Override
-	public int getNoVertices(){
+	public int getVertexCount(){
 		return vertexCount;
 	}
 
-	@Override
-	public int getNoEdges(){
+	public int getEdgeCount(){
 		int count = 0;
 		for(List<TargetLabelPair> out : adjacenyList){
 			count += out.size();
@@ -49,7 +48,14 @@ public class SimpleGraph implements Graph{
 		return count;
 	}
 
-	@Override
+	public int getLabelCount(){
+		return labelCount;
+	}
+
+	public boolean hasEdge(int source, int target, int label){
+		return adjacenyList.get(source).contains(new TargetLabelPair(target, label));
+	}
+	
 	public int getNoDistinctEdges(){
 		int count = 0;
 		for(List<TargetLabelPair> out : adjacenyList){
@@ -68,11 +74,6 @@ public class SimpleGraph implements Graph{
 	}
 	
 	@Override
-	public int getNoLabels(){
-		return labelCount;
-	}
-
-	@Override
 	public void addEdge(int from, int to, int label){
 		if(from >= vertexCount || to >= vertexCount || label >= labelCount){
 			throw new IllegalArgumentException("Edge data out of bounds: (source=%d, target=%d, label=%d)".formatted(from, to, label));
@@ -82,11 +83,6 @@ public class SimpleGraph implements Graph{
 		reverseAdjacencyList.get(to).add(new SourceLabelPair(from, label));
 	}
 
-	@Override
-	public boolean hasEdge(int source, int target, int label){
-		return adjacenyList.get(source).contains(new TargetLabelPair(target, label));
-	}
-	
 	@Override
 	public List<SourceTargetPair> getSourceTargetPairs(){
 		List<SourceTargetPair> edges = new ArrayList<SourceTargetPair>();

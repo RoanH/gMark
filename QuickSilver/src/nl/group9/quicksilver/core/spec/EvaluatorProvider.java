@@ -1,6 +1,6 @@
 package nl.group9.quicksilver.core.spec;
 
-public abstract interface EvaluatorProvider<G extends Graph, R extends Graph>{
+public abstract interface EvaluatorProvider<G extends DatabaseGraph, R extends ResultGraph>{
 
 	public abstract Evaluator<G, R> createEvaluator();
 	

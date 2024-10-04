@@ -19,13 +19,14 @@ import dev.roanh.gmark.lang.rpq.RPQ;
 import nl.group9.quicksilver.core.data.BenchmarkResult;
 import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.PathQuery;
+import nl.group9.quicksilver.core.spec.DatabaseGraph;
 import nl.group9.quicksilver.core.spec.Evaluator;
 import nl.group9.quicksilver.core.spec.EvaluatorProvider;
-import nl.group9.quicksilver.core.spec.Graph;
+import nl.group9.quicksilver.core.spec.ResultGraph;
 
 public class Benchmark{
 
-	public static <G extends Graph, R extends Graph> BenchmarkResult runEvaluatorBenchmark(EvaluatorProvider<G, R> provider, Path graphFile, Path workloadFile) throws IOException{
+	public static <G extends DatabaseGraph, R extends ResultGraph> BenchmarkResult runEvaluatorBenchmark(EvaluatorProvider<G, R> provider, Path graphFile, Path workloadFile) throws IOException{
 		System.out.println("[LOAD] Reading graph...");
 		long loadStart = System.nanoTime();
 		G graph = readGraph(provider, graphFile);
@@ -99,12 +100,12 @@ public class Benchmark{
 		}
 	}
 	
-	private static final <G extends Graph> G readGraph(EvaluatorProvider<G, ?> evaluator, Path file) throws IOException{
+	private static final <G extends DatabaseGraph> G readGraph(EvaluatorProvider<G, ?> evaluator, Path file) throws IOException{
 		return readGraph(evaluator, Files.newInputStream(file));
 	}
 
 	//n tripples ish
-	private static final <G extends Graph> G readGraph(EvaluatorProvider<G, ?> provider, InputStream in) throws IOException{
+	private static final <G extends DatabaseGraph> G readGraph(EvaluatorProvider<G, ?> provider, InputStream in) throws IOException{
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))){
 			String header = reader.readLine();
 			if(header == null){

@@ -154,7 +154,7 @@ public class SimpleGraph implements DatabaseGraph, ResultGraph{
 			}
 		}
 		
-		return edges;
+		return edges.stream().distinct().toList();
 	}
 	
 	@Override

@@ -3,25 +3,38 @@ package nl.group9.quicksilver.core.spec;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
 
+import nl.group9.quicksilver.GraphUtil;
 import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.PathQuery;
 import nl.group9.quicksilver.core.data.SourceTargetPair;
 
+@TestInstance(Lifecycle.PER_CLASS)
 public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGraph>{
 	private static final Predicate a = new Predicate(0, "a");
 	private static final Predicate b = new Predicate(1, "b");
+	private G example;
 	
 	public abstract EvaluatorProvider<G, R> getProvider();
 
+	@BeforeAll
+	public void loadData() throws IOException{
+		example = getGraph();
+	}
+	
 	@Test
 	public void query0(){
 		R result = evaluate(
@@ -280,8 +293,11 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	}
 	
 	private void assertPaths(R result, List<SourceTargetPair> expected){
-		//we allow duplicates in the output, but by definition there should not be any
-		assertIterableEquals(expected, result.getSourceTargetPairs().stream().distinct().sorted().toList());
+		assertIterableEquals(expected, result.getSourceTargetPairs().stream().sorted().toList());
+	}
+	
+	private CardStat evaluate(G graph, QueryLanguageSyntax query){
+		return evaluate(graph, PathQuery.of(query)).computeCardinality();
 	}
 	
 	private R evaluate(QueryLanguageSyntax query){
@@ -301,8 +317,12 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	}
 	
 	private R evaluate(PathQuery query){
+		return evaluate(example, query);
+	}
+	
+	private R evaluate(G graph, PathQuery query){
 		Evaluator<G, R> evaluator = getProvider().createEvaluator();
-		evaluator.prepare(getGraph());
+		evaluator.prepare(graph);
 		return evaluator.evaluate(query);
 	}
 	

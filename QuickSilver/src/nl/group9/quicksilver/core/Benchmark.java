@@ -16,6 +16,7 @@ import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
 
+import nl.group9.quicksilver.GraphUtil;
 import nl.group9.quicksilver.core.data.BenchmarkResult;
 import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.PathQuery;
@@ -29,7 +30,7 @@ public class Benchmark{
 	public static <G extends DatabaseGraph, R extends ResultGraph> BenchmarkResult runEvaluatorBenchmark(EvaluatorProvider<G, R> provider, Path graphFile, Path workloadFile) throws IOException{
 		System.out.println("[LOAD] Reading graph...");
 		long loadStart = System.nanoTime();
-		G graph = readGraph(provider, graphFile);
+		G graph = GraphUtil.readGraph(provider, graphFile);
 		long loadEnd = System.nanoTime();
 		System.out.println("[LOAD] Graph read in " + (loadEnd - loadStart) + " ns");
 		
@@ -97,42 +98,6 @@ public class Benchmark{
 			}
 			
 			return queries;
-		}
-	}
-	
-	private static final <G extends DatabaseGraph> G readGraph(EvaluatorProvider<G, ?> evaluator, Path file) throws IOException{
-		return readGraph(evaluator, Files.newInputStream(file));
-	}
-
-	//n tripples ish
-	private static final <G extends DatabaseGraph> G readGraph(EvaluatorProvider<G, ?> provider, InputStream in) throws IOException{
-		try(BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))){
-			String header = reader.readLine();
-			if(header == null){
-				return null;
-			}
-			
-			String[] metadata = header.split(" ");
-			int vertices = Integer.parseInt(metadata[0]);
-			int edges = Integer.parseInt(metadata[1]);
-			int labels = Integer.parseInt(metadata[2]);
-			G graph = provider.createGraph(vertices, edges, labels);
-			
-			String line;
-			while((line = reader.readLine()) != null){
-				String[] edge = line.split(" ");
-				if(edge.length == 0){
-					break;
-				}
-
-				int src = Integer.parseInt(edge[0]);
-				int trg = Integer.parseInt(edge[1]);
-				int lab = Integer.parseInt(edge[2]);
-
-				graph.addEdge(src, trg, lab);
-			}
-			
-			return graph;
 		}
 	}
 }

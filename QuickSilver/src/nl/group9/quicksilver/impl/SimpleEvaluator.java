@@ -34,6 +34,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	//- prevent duplicate edges from ending up in output graphs as much as possible
 	//- some operations are just more efficient when considered in more context, e.g., intersection with identity
 	//- labels are only used for projection, after that they are only a huge inefficiency
+	//- note on data format? vertices/labels are integers
 
 	@Override
 	public SimpleGraph evaluate(PathQuery query){

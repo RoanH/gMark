@@ -6,26 +6,42 @@ import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.core.graph.Predicate;
 
 import nl.group9.quicksilver.core.data.PathQuery;
+import nl.group9.quicksilver.core.spec.DatabaseGraph;
 import nl.group9.quicksilver.core.spec.Evaluator;
+import nl.group9.quicksilver.core.spec.ResultGraph;
 import nl.group9.quicksilver.impl.data.SourceLabelPair;
 import nl.group9.quicksilver.impl.data.TargetLabelPair;
 
 /**
- * Implementation of a simple reachability query evaluator.
+ * Implementation of a simple reachability query evaluator. Note that for simplicity
+ * and performance vertex, edge and label information is abstracted away and instead
+ * associated with an integer. There is no need to account for database graph modifications
+ * at run time, so you can construct all the indices you want without having to worry about updates.
  * @author Roan
  * @see <a href="https://research.roanh.dev/Graph%20Database%20&%20Query%20Evaluation%20Terminology%20v1.3.pdf">
  *      Graph Database &amp; Query Evaluation Terminology</a>
+ * @see DatabaseGraph
+ * @see ResultGraph
+ * @see Evaluator
  */
 public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	/**
 	 * After projection labels are no longer useful and generally make database operations
 	 * hard or ambiguous to implement, so they are typically erased as soon as possible.
+	 * <p>
+	 * See optimisation 2.1.
 	 */
-	private static final int NO_LABEL = 0;//TODO I did not erase them entirely
+	private static final int NO_LABEL = 0;
+	/**
+	 * The main database graph.
+	 * <p>
+	 * See optimisation 2.16.
+	 */
 	private SimpleGraph graph;
 
 	@Override
 	public void prepare(SimpleGraph graph){
+		//see optimisation 2.16
 		this.graph = graph;
 	}
 	
@@ -38,27 +54,37 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 
 	@Override
 	public SimpleGraph evaluate(PathQuery query){
+		//see optimisation 2.6 & 2.11
 		SimpleGraph result = evaluate(query.query().toAbstractSyntaxTree());
 		
 		Optional<Integer> boundSource = query.source();
 		if(boundSource.isPresent()){
+			//see optimisation 2.3 & 2.13 
 			result = selectSource(boundSource.get(), result);
 		}
 		
 		Optional<Integer> boundTarget = query.target();
 		if(boundTarget.isPresent()){
+			//see optimisation 2.4 & 2.14
 			result = selectedTarget(boundTarget.get(), result);
 		}
 		
 		return result;
 	}
 
+	/**
+	 * Evaluates the given query tree (AST) bottom up.
+	 * @param path The path query tree (AST) to evaluate.
+	 * @return The result of evaluating the given query tree.
+	 * @see QueryTree
+	 */
 	private SimpleGraph evaluate(QueryTree path){
+		//see optimisation 2.7, 2.9, 2.10 & 2.17
 		switch(path.getOperation()){
 		case CONCATENATION:
 			return join(evaluate(path.getLeft()), evaluate(path.getRight()));
 		case DISJUNCTION:
-			return union(evaluate(path.getLeft()), evaluate(path.getRight()));
+			return disjunction(evaluate(path.getLeft()), evaluate(path.getRight()));
 		case EDGE:
 			Predicate predicate = path.getPredicate();
 			return selectLabel(predicate.getID(), predicate.isInverse(), graph);
@@ -128,7 +154,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @param left The left input graph edges will be added to.
 	 * @param right The right input graph containing edges to add.
 	 * @return The number of new edges actually added to the left input graph.
-	 * @see #union(SimpleGraph, SimpleGraph)
+	 * @see #disjunction(SimpleGraph, SimpleGraph)
 	 */
 	private static int unionDistinct(SimpleGraph left, SimpleGraph right){
 		int edgesAdded = 0;
@@ -146,14 +172,14 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	}
 	
 	/**
-	 * Computes the union (or disjunction) of the given left and right input graphs.
+	 * Computes the disjunction (or union) of the given left and right input graphs.
 	 * Recall that this operation simply added all the paths in both input graphs
 	 * to the result graph. Note that the order of the input arguments is irrelevant.
 	 * @param left The left input graph.
 	 * @param right The right input graph.
 	 * @return The result graph representing the union of the input graphs.
 	 */
-	private static SimpleGraph union(SimpleGraph left, SimpleGraph right){
+	private static SimpleGraph disjunction(SimpleGraph left, SimpleGraph right){
 		SimpleGraph out = new SimpleGraph(left.getVertexCount(), 1);
 		
 		//copy all edges in the left graph

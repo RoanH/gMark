@@ -11,13 +11,60 @@ import java.nio.file.Path;
 import nl.group9.quicksilver.core.spec.DatabaseGraph;
 import nl.group9.quicksilver.core.spec.EvaluatorProvider;
 
+/**
+ * Small utility class for reading database graphs.
+ * @author Roan
+ */
 public final class GraphUtil{
+
+	/**
+	 * Prevent instantiation.
+	 */
+	private GraphUtil(){
+	}
 	
-	public static final <G extends DatabaseGraph> G readGraph(EvaluatorProvider<G, ?> evaluator, Path file) throws IOException{
-		return readGraph(evaluator, Files.newInputStream(file));
+	/**
+	 * Reads a database graph from the file at the given path. The graph file is expected
+	 * to be encoded using UTF-8 and have the following format:
+	 * <ol>
+	 * <li>First a single header line containing the following three
+	 * integers in order separated by a single space:<br>
+	 * {@code <vertex count> <edge count> <label count>}</li>
+	 * <li>Then a number of lines matching the header edge count,
+	 * each containing a single edge definition specified by three
+	 * integers separated by a single space in the following format:<br>
+	 * {@code <source vertex> <target vertex> <label>}</li>
+	 * </ol>
+	 * Note: empty lines and comments are not permitted between edge definitions.
+	 * @param <G> The concrete database graph implementation. 
+	 * @param provider The provider to use to construct a new database graph to add edges to.
+	 * @param file The input file to read from.
+	 * @return The constructed database graph instance.
+	 * @throws IOException When an IOException occurs.
+	 */
+	public static final <G extends DatabaseGraph> G readGraph(EvaluatorProvider<G, ?> provider, Path file) throws IOException{
+		return readGraph(provider, Files.newInputStream(file));
 	}
 
-	//n tripples ish
+	/**
+	 * Reads a database graph from the given input stream. The graph file is expected
+	 * to be encoded using UTF-8 and have the following format:
+	 * <ol>
+	 * <li>First a single header line containing the following three
+	 * integers in order separated by a single space:<br>
+	 * {@code <vertex count> <edge count> <label count>}</li>
+	 * <li>Then a number of lines matching the header edge count,
+	 * each containing a single edge definition specified by three
+	 * integers separated by a single space in the following format:<br>
+	 * {@code <source vertex> <target vertex> <label>}</li>
+	 * </ol>
+	 * Note: empty lines and comments are not permitted between edge definitions.
+	 * @param <G> The concrete database graph implementation. 
+	 * @param provider The provider to use to construct a new database graph to add edges to.
+	 * @param in The input stream to read from.
+	 * @return The constructed database graph instance.
+	 * @throws IOException When an IOException occurs.
+	 */
 	public static final <G extends DatabaseGraph> G readGraph(EvaluatorProvider<G, ?> provider, InputStream in) throws IOException{
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))){
 			String header = reader.readLine();

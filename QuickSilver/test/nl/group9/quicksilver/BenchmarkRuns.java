@@ -27,6 +27,8 @@ public class BenchmarkRuns{
 	 */
 	public static void main(String[] args) throws IOException{
 		run("syn/mini", QueryLanguage.CPQ, config);
+		run("syn/mini", QueryLanguage.RPQ, config);
+		run("syn/1", QueryLanguage.RPQ, config);
 		run("real/1", QueryLanguage.RPQ, config);
 		run("real/2", QueryLanguage.RPQ, config);
 		run("real/3", QueryLanguage.RPQ, config);

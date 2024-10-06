@@ -35,6 +35,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	private static final Predicate l9 = new Predicate(9, "9");
 	private static final Predicate l17 = new Predicate(17, "17");
 	private G example;
+	private G syn1;
 	private G real1;
 	private G real2;
 	private G real3;
@@ -46,6 +47,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	@BeforeAll
 	public void loadData() throws IOException{
 		example = getGraph();
+		syn1 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "syn", "1", "graph.edge"));
 		real1 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "1", "graph.edge"));
 		real2 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "2", "graph.edge"));
 		real3 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "3", "graph.edge"));
@@ -548,6 +550,141 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	}
 	
 	@Test
+	public void syn1q0(){
+		assertEquals(new CardStat(2291, 118241, 861), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3)));
+	}
+	
+	@Test
+	public void syn1q1(){
+		assertEquals(new CardStat(1, 170, 170), evaluate(syn1, 3, RPQ.labels(l0, l1, l2, l2, l3)));
+	}
+	
+	@Test
+	public void syn1q2(){
+		assertEquals(new CardStat(1, 454, 454), evaluate(syn1, 12, RPQ.labels(l0, l1, l2, l2, l3)));
+	}
+	
+	@Test
+	public void syn1q3(){
+		assertEquals(new CardStat(1, 157, 157), evaluate(syn1, 48, RPQ.labels(l0, l1, l2, l2, l3)));
+	}
+	
+	@Test
+	public void syn1q4(){
+		assertEquals(new CardStat(275, 275, 1), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3), 4));
+	}
+	
+	@Test
+	public void syn1q5(){
+		assertEquals(new CardStat(73, 73, 1), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3), 13));
+	}
+	
+	@Test
+	public void syn1q6(){
+		assertEquals(new CardStat(185, 185, 1), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3), 47));
+	}
+	
+	@Test
+	public void syn1q7(){
+		assertEquals(new CardStat(2368, 25841, 270), evaluate(syn1, RPQ.labels(l0, l1, l2, l3)));
+	}
+	
+	@Test
+	public void syn1q8(){
+		assertEquals(new CardStat(3841, 7067, 4000), evaluate(syn1, RPQ.label(l0)));
+	}
+	
+	@Test
+	public void syn1q9(){
+		assertEquals(new CardStat(3841, 78917, 3841), evaluate(syn1, RPQ.labels(l0, l0.getInverse())));
+	}
+	
+	@Test
+	public void syn1q10(){
+		assertEquals(new CardStat(3841, 367675, 4000), evaluate(syn1, RPQ.labels(l0, l0.getInverse(), l0)));
+	}
+	
+	@Test
+	public void syn1q11(){
+		assertEquals(new CardStat(1, 57, 57), evaluate(syn1, 8, RPQ.labels(l0, l1, l2, l2, l3)));
+	}
+	
+	@Test
+	public void syn1q12(){
+		assertEquals(new CardStat(1, 26, 26), evaluate(syn1, 14, RPQ.labels(l0, l1, l2, l2, l3)));
+	}
+	
+	@Test
+	public void syn1q13(){
+		assertEquals(new CardStat(1, 262, 262), evaluate(syn1, 31, RPQ.labels(l0, l1, l2, l2, l3)));
+	}
+	
+	@Test
+	public void syn1q14(){
+		assertEquals(new CardStat(1, 397, 397), evaluate(syn1, 90, RPQ.labels(l0, l1, l2, l2, l3)));
+	}
+	
+	@Test
+	public void syn1q15(){
+		assertEquals(new CardStat(1, 362, 362), evaluate(syn1, 95, RPQ.labels(l0, l1, l2, l2, l3)));
+	}
+	
+	@Test
+	public void syn1q16(){
+		assertEquals(new CardStat(1, 94, 94), evaluate(syn1, 132, RPQ.labels(l0, l1, l2, l2, l3)));
+	}
+	
+	@Test
+	public void syn1q17(){
+		assertEquals(new CardStat(1, 220, 220), evaluate(syn1, 119, RPQ.labels(l0, l1, l2, l2, l3)));
+	}
+	
+	@Test
+	public void syn1q18(){
+		assertEquals(new CardStat(605, 605, 1), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3), 49));
+	}
+	
+	@Test
+	public void syn1q19(){
+		assertEquals(new CardStat(76, 76, 1), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3), 96));
+	}
+	
+	@Test
+	public void syn1q20(){
+		assertEquals(new CardStat(479, 479, 1), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3), 133));
+	}
+	
+	@Test
+	public void syn1q21(){
+		assertEquals(new CardStat(6234, 37006, 4491), evaluate(syn1, kleene(l0, l1)));
+	}
+	
+	@Test
+	public void syn1q22(){
+		assertEquals(new CardStat(3841, 7067, 4000), evaluate(syn1, RPQ.kleene(RPQ.label(l0))));
+	}
+	
+	@Test
+	public void syn1q23(){
+		assertEquals(new CardStat(2393, 10460, 491), evaluate(syn1, RPQ.kleene(RPQ.label(l1))));
+	}
+	
+	@Test
+	public void syn1q24(){
+		assertEquals(new CardStat(944, 4065, 968), evaluate(syn1, RPQ.kleene(RPQ.label(l2))));
+	}
+	
+	@Test
+	public void syn1q25(){
+		assertEquals(new CardStat(807, 1907, 1676), evaluate(syn1, RPQ.kleene(RPQ.label(l3))));
+	}
+	
+	@Test
+	public void syn1q26(){
+		assertEquals(new CardStat(7178, 185374, 5459), evaluate(syn1, kleene(l0, l1, l2)));
+	}
+	
+	@Test
 	public void real1q0(){
 		assertEquals(new CardStat(823, 823, 282), evaluate(real1, RPQ.label(l1)));
 	}
@@ -842,6 +979,10 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	
 	private CardStat evaluate(G graph, int source, QueryLanguageSyntax query){
 		return evaluate(graph, PathQuery.of(source, query)).computeCardinality();
+	}
+	
+	private CardStat evaluate(G graph, QueryLanguageSyntax query, int target){
+		return evaluate(graph, PathQuery.of(query, target)).computeCardinality();
 	}
 	
 	private R evaluate(QueryLanguageSyntax query){

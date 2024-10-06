@@ -25,12 +25,12 @@ import nl.group9.quicksilver.core.data.SourceTargetPair;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGraph>{
-	private static final Predicate a = new Predicate(0, "a");
-	private static final Predicate b = new Predicate(1, "b");
-	private static final Predicate c = new Predicate(2, "c");
-	private static final Predicate d = new Predicate(3, "d");
-	private static final Predicate e = new Predicate(4, "e");
-	private static final Predicate f = new Predicate(5, "f");
+	private static final Predicate l0 = new Predicate(0, "0");
+	private static final Predicate l1 = new Predicate(1, "1");
+	private static final Predicate l2 = new Predicate(2, "2");
+	private static final Predicate l3 = new Predicate(3, "3");
+	private static final Predicate l4 = new Predicate(4, "4");
+	private static final Predicate l5 = new Predicate(5, "5");
 	private G example;
 	private G real1;
 	private G real2;
@@ -44,7 +44,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	public void loadData() throws IOException{
 		example = getGraph();
 //		real1 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "1", "graph.edge"));
-//		real2 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "2", "graph.edge"));
+		real2 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "2", "graph.edge"));
 		real3 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "3", "graph.edge"));
 		real4 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "4", "graph.edge"));
 		real5 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "5", "graph.edge"));
@@ -55,10 +55,10 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 		R result = evaluate(
 			1,
 			CPQ.intersect(
-				CPQ.label(b),
+				CPQ.label(l1),
 				CPQ.labels(
-					a,
-					b
+					l0,
+					l1
 				)
 			)
 		);
@@ -75,7 +75,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 		R result = evaluate(
 			1,
 			RPQ.kleene(
-				RPQ.label(a)
+				RPQ.label(l0)
 			)
 		);
 		
@@ -123,9 +123,9 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	public void query3(){
 		R result = evaluate(
 			RPQ.labels(
-				b.getInverse(),
-				a,
-				b
+				l1.getInverse(),
+				l0,
+				l1
 			)
 		);
 		
@@ -143,8 +143,8 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	public void query4(){
 		R result = evaluate(
 			RPQ.disjunct(
-				RPQ.label(a),
-				RPQ.label(b)
+				RPQ.label(l0),
+				RPQ.label(l1)
 			)
 		);
 		
@@ -187,8 +187,8 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 			CPQ.intersect(
 				CPQ.id(),
 				CPQ.labels(
-					a,
-					a.getInverse()
+					l0,
+					l0.getInverse()
 				)
 			)
 		);
@@ -215,9 +215,9 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 		R result = evaluate(
 			CPQ.intersect(
 				CPQ.labels(
-					a,
-					a,
-					a
+					l0,
+					l0,
+					l0
 				),
 				CPQ.id()
 			)
@@ -239,12 +239,12 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 				CPQ.intersect(
 					CPQ.id(),
 					CPQ.labels(
-						a,
-						a,
-						a
+						l0,
+						l0,
+						l0
 					)
 				),
-				CPQ.label(a)
+				CPQ.label(l0)
 			)
 		);
 		
@@ -261,7 +261,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	@Test
 	public void query8(){
 		R result = evaluate(
-			RPQ.label(a),
+			RPQ.label(l0),
 			10
 		);
 		
@@ -278,8 +278,8 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 		R result = evaluate(
 			3,
 			RPQ.labels(
-				a,
-				a
+				l0,
+				l0
 			),
 			8
 		);
@@ -296,8 +296,8 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 		R result = evaluate(
 			3,
 			RPQ.labels(
-				a,
-				b
+				l0,
+				l1
 			),
 			8
 		);
@@ -308,83 +308,163 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	}
 	
 	@Test
+	public void real2q0(){
+		assertEquals(new CardStat(3005, 17258, 1480), evaluate(real2, RPQ.label(l0)));
+	}
+	
+	@Test
+	public void real2q1(){
+		assertEquals(new CardStat(3016, 21260, 2963), evaluate(real2, RPQ.label(l1)));
+	}
+	
+	@Test
+	public void real2q2(){
+		assertEquals(new CardStat(2723, 216799, 2510), evaluate(real2, RPQ.labels(l0, l1)));
+	}
+	
+	@Test
+	public void real2q3(){
+		assertEquals(new CardStat(2886, 183286, 2547), evaluate(real2, RPQ.labels(l0, l1.getInverse())));
+	}
+	
+	@Test
+	public void real2q4(){
+		assertEquals(new CardStat(2657, 835604, 2441), evaluate(real2, RPQ.labels(l0, l1, l2)));
+	}
+	
+	@Test
+	public void real2q5(){
+		assertEquals(new CardStat(2214, 395003, 1693), evaluate(real2, RPQ.labels(l1, l2, l3)));
+	}
+	
+	@Test
+	public void real2q6(){
+		assertEquals(new CardStat(946, 31587, 1697), evaluate(real2, RPQ.labels(l2, l3)));
+	}
+	
+	@Test
+	public void real2q7(){
+		assertEquals(new CardStat(2580, 1335113, 1684), evaluate(real2, RPQ.labels(l0, l1, l2, l3)));
+	}
+	
+	@Test
+	public void real2q8(){
+		assertEquals(new CardStat(2639, 756006, 1528), evaluate(real2, RPQ.labels(l0, l1, l2.getInverse(), l3)));
+	}
+	
+	@Test
+	public void real2q9(){
+		assertEquals(new CardStat(1, 33, 33), evaluate(real2, 8, RPQ.label(l0)));
+	}
+	
+	@Test
+	public void real2q10(){
+		assertEquals(new CardStat(1, 12, 12), evaluate(real2, 12, RPQ.label(l0)));
+	}
+	
+	@Test
+	public void real2q11(){
+		assertEquals(new CardStat(1, 439, 439), evaluate(real2, 8, RPQ.labels(l0, l1)));
+	}
+	
+	@Test
+	public void real2q12(){
+		assertEquals(new CardStat(1, 182, 182), evaluate(real2, 16, RPQ.labels(l0, l1)));
+	}
+	
+	@Test
+	public void real2q13(){
+		assertEquals(new CardStat(1, 203, 203), evaluate(real2, 32, RPQ.labels(l0, l1)));
+	}
+	
+	@Test
+	public void real2q14(){
+		assertEquals(new CardStat(1, 697, 697), evaluate(real2, 32, RPQ.labels(l1, l2, l3)));
+	}
+	
+	@Test
+	public void real2q15(){
+		assertEquals(new CardStat(1, 5, 5), evaluate(real2, 45, RPQ.labels(l1, l2, l3)));
+	}
+	
+	@Test
 	public void real3q0(){
-		assertEquals(new CardStat(5482, 81754, 251), evaluate(real3, RPQ.concat(RPQ.label(a), RPQ.kleene(RPQ.label(d)), RPQ.kleene(RPQ.label(c)))));
+		assertEquals(new CardStat(5482, 81754, 251), evaluate(real3, RPQ.concat(RPQ.label(l0), RPQ.kleene(RPQ.label(l3)), RPQ.kleene(RPQ.label(l2)))));
 	}
 	
 	@Test
 	public void real3q1(){
-		assertEquals(new CardStat(6032, 60754, 34), evaluate(real3, RPQ.concat(RPQ.label(a), RPQ.kleene(RPQ.label(d)), RPQ.label(c.getInverse()))));
+		assertEquals(new CardStat(6032, 60754, 34), evaluate(real3, RPQ.concat(RPQ.label(l0), RPQ.kleene(RPQ.label(l3)), RPQ.label(l2.getInverse()))));
 	}
 	
 	@Test
 	public void real3q2(){
-		assertEquals(new CardStat(5482, 81702, 243), evaluate(real3, RPQ.labels(a, d, c)));
+		assertEquals(new CardStat(5482, 81702, 243), evaluate(real3, RPQ.labels(l0, l3, l2)));
 	}
 	
 	@Test
 	public void real3q3(){
-		assertEquals(new CardStat(3, 12, 4), evaluate(real3, RPQ.labels(a, d, c, b, e, c)));
+		assertEquals(new CardStat(3, 12, 4), evaluate(real3, RPQ.labels(l0, l3, l2, l1, l4, l2)));
 	}
 	
 	@Test
 	public void real3q4(){
-		assertEquals(new CardStat(1596, 6384, 4), evaluate(real3, RPQ.labels(d, c, b, e, c)));
+		assertEquals(new CardStat(1596, 6384, 4), evaluate(real3, RPQ.labels(l3, l2, l1, l4, l2)));
 	}
 	
 	@Test
 	public void real3q5(){
-		assertEquals(new CardStat(45351, 118371, 18098), evaluate(real3, kleene(a, b, c)));
+		assertEquals(new CardStat(45351, 118371, 18098), evaluate(real3, kleene(l0, l1, l2)));
 	}
 	
 	@Test
 	public void real3q6(){
-		assertEquals(new CardStat(58167, 841888, 36508), evaluate(real3, kleene(a, b, c, d)));
+		assertEquals(new CardStat(58167, 841888, 36508), evaluate(real3, kleene(l0, l1, l2, l3)));
 	}
 	
 	@Test
 	public void real3q7(){
-		assertEquals(new CardStat(58635, 940640, 36594), evaluate(real3, kleene(a, b, c, d, e)));
+		assertEquals(new CardStat(58635, 940640, 36594), evaluate(real3, kleene(l0, l1, l2, l3, l4)));
 	}
 	
 	@Test
 	public void real4q0(){
-		assertEquals(new CardStat(1, 1, 1), evaluate(real4, RPQ.labels(a, c, d, e, f, b)));
+		assertEquals(new CardStat(1, 1, 1), evaluate(real4, RPQ.labels(l0, l2, l3, l4, l5, l1)));
 	}
 	
 	@Test
 	public void real4q1(){
-		assertEquals(new CardStat(19591, 49678, 8090), evaluate(real4, kleene(a, b, c)));
+		assertEquals(new CardStat(19591, 49678, 8090), evaluate(real4, kleene(l0, l1, l2)));
 	}
 	
 	@Test
 	public void real4q2(){
-		assertEquals(new CardStat(20133, 52278, 8518), evaluate(real4, kleene(a, b, c, d)));
+		assertEquals(new CardStat(20133, 52278, 8518), evaluate(real4, kleene(l0, l1, l2, l3)));
 	}
 	
 	@Test
 	public void real4q3(){
-		assertEquals(new CardStat(59043, 99433, 30672), evaluate(real4, kleene(a, b, c, d, e)));
+		assertEquals(new CardStat(59043, 99433, 30672), evaluate(real4, kleene(l0, l1, l2, l3, l4)));
 	}
 	
 	@Test
 	public void real5q0(){
-		assertEquals(new CardStat(23, 23, 1), evaluate(real5, RPQ.labels(e, d, a, c, e, b)));
+		assertEquals(new CardStat(23, 23, 1), evaluate(real5, RPQ.labels(l4, l3, l0, l2, l4, l1)));
 	}
 	
 	@Test
 	public void real5q1(){
-		assertEquals(new CardStat(117599, 187448, 27431), evaluate(real5, kleene(a, b, c)));
+		assertEquals(new CardStat(117599, 187448, 27431), evaluate(real5, kleene(l0, l1, l2)));
 	}
 	
 	@Test
 	public void real5q2(){
-		assertEquals(new CardStat(132218, 240562, 32690), evaluate(real5, kleene(a, b, c, d)));
+		assertEquals(new CardStat(132218, 240562, 32690), evaluate(real5, kleene(l0, l1, l2, l3)));
 	}
 	
 	@Test
 	public void real5q3(){
-		assertEquals(new CardStat(141187, 494784, 37545), evaluate(real5, kleene(a, b, c, d, e)));
+		assertEquals(new CardStat(141187, 494784, 37545), evaluate(real5, kleene(l0, l1, l2, l3, l4)));
 	}
 	
 	private void assertPaths(R result, List<SourceTargetPair> expected){
@@ -393,6 +473,10 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	
 	private CardStat evaluate(G graph, QueryLanguageSyntax query){
 		return evaluate(graph, PathQuery.of(query)).computeCardinality();
+	}
+	
+	private CardStat evaluate(G graph, int source, QueryLanguageSyntax query){
+		return evaluate(graph, PathQuery.of(source, query)).computeCardinality();
 	}
 	
 	private R evaluate(QueryLanguageSyntax query){

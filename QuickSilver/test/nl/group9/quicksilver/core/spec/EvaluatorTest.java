@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -26,13 +27,27 @@ import nl.group9.quicksilver.core.data.SourceTargetPair;
 public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGraph>{
 	private static final Predicate a = new Predicate(0, "a");
 	private static final Predicate b = new Predicate(1, "b");
+	private static final Predicate c = new Predicate(2, "c");
+	private static final Predicate d = new Predicate(3, "d");
+	private static final Predicate e = new Predicate(4, "e");
+	private static final Predicate f = new Predicate(5, "f");
 	private G example;
+	private G real1;
+	private G real2;
+	private G real3;
+	private G real4;
+	private G real5;
 	
 	public abstract EvaluatorProvider<G, R> getProvider();
 
 	@BeforeAll
 	public void loadData() throws IOException{
 		example = getGraph();
+//		real1 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "1", "graph.edge"));
+//		real2 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "2", "graph.edge"));
+		real3 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "3", "graph.edge"));
+		real4 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "4", "graph.edge"));
+		real5 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "5", "graph.edge"));
 	}
 	
 	@Test
@@ -292,6 +307,86 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 		assertEquals(new CardStat(0, 0, 0), result.computeCardinality());
 	}
 	
+	@Test
+	public void real3q0(){
+		assertEquals(new CardStat(5482, 81754, 251), evaluate(real3, RPQ.concat(RPQ.label(a), RPQ.kleene(RPQ.label(d)), RPQ.kleene(RPQ.label(c)))));
+	}
+	
+	@Test
+	public void real3q1(){
+		assertEquals(new CardStat(6032, 60754, 34), evaluate(real3, RPQ.concat(RPQ.label(a), RPQ.kleene(RPQ.label(d)), RPQ.label(c.getInverse()))));
+	}
+	
+	@Test
+	public void real3q2(){
+		assertEquals(new CardStat(5482, 81702, 243), evaluate(real3, RPQ.labels(a, d, c)));
+	}
+	
+	@Test
+	public void real3q3(){
+		assertEquals(new CardStat(3, 12, 4), evaluate(real3, RPQ.labels(a, d, c, b, e, c)));
+	}
+	
+	@Test
+	public void real3q4(){
+		assertEquals(new CardStat(1596, 6384, 4), evaluate(real3, RPQ.labels(d, c, b, e, c)));
+	}
+	
+	@Test
+	public void real3q5(){
+		assertEquals(new CardStat(45351, 118371, 18098), evaluate(real3, kleene(a, b, c)));
+	}
+	
+	@Test
+	public void real3q6(){
+		assertEquals(new CardStat(58167, 841888, 36508), evaluate(real3, kleene(a, b, c, d)));
+	}
+	
+	@Test
+	public void real3q7(){
+		assertEquals(new CardStat(58635, 940640, 36594), evaluate(real3, kleene(a, b, c, d, e)));
+	}
+	
+	@Test
+	public void real4q0(){
+		assertEquals(new CardStat(1, 1, 1), evaluate(real4, RPQ.labels(a, c, d, e, f, b)));
+	}
+	
+	@Test
+	public void real4q1(){
+		assertEquals(new CardStat(19591, 49678, 8090), evaluate(real4, kleene(a, b, c)));
+	}
+	
+	@Test
+	public void real4q2(){
+		assertEquals(new CardStat(20133, 52278, 8518), evaluate(real4, kleene(a, b, c, d)));
+	}
+	
+	@Test
+	public void real4q3(){
+		assertEquals(new CardStat(59043, 99433, 30672), evaluate(real4, kleene(a, b, c, d, e)));
+	}
+	
+	@Test
+	public void real5q0(){
+		assertEquals(new CardStat(23, 23, 1), evaluate(real5, RPQ.labels(e, d, a, c, e, b)));
+	}
+	
+	@Test
+	public void real5q1(){
+		assertEquals(new CardStat(117599, 187448, 27431), evaluate(real5, kleene(a, b, c)));
+	}
+	
+	@Test
+	public void real5q2(){
+		assertEquals(new CardStat(132218, 240562, 32690), evaluate(real5, kleene(a, b, c, d)));
+	}
+	
+	@Test
+	public void real5q3(){
+		assertEquals(new CardStat(141187, 494784, 37545), evaluate(real5, kleene(a, b, c, d, e)));
+	}
+	
 	private void assertPaths(R result, List<SourceTargetPair> expected){
 		assertIterableEquals(expected, result.getSourceTargetPairs().stream().sorted().toList());
 	}
@@ -357,5 +452,9 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 		graph.addEdge(12, 11, 0);
 		graph.addEdge(12, 13, 1);
 		return graph;
+	}
+	
+	private static RPQ kleene(Predicate... labels){
+		return RPQ.kleene(RPQ.disjunct(Arrays.stream(labels).map(RPQ::label).toList()));
 	}
 }

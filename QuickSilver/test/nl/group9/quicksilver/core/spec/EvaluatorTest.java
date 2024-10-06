@@ -310,9 +310,6 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 		assertEquals(new CardStat(0, 0, 0), result.computeCardinality());
 	}
 	
-	
-	
-	
 	@Test
 	public void real1q0(){
 		assertEquals(new CardStat(823, 823, 282), evaluate(real1, RPQ.label(l1)));
@@ -383,11 +380,6 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 		assertEquals(new CardStat(4, 4, 1), evaluate(real1, RPQ.labels(l9, l8)));
 	}
 	
-	
-	
-	
-
-	
 	@Test
 	public void real1q14(){
 		assertEquals(new CardStat(1, 1, 1), evaluate(real1, 200, RPQ.label(l1)));
@@ -423,8 +415,6 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 		assertEquals(new CardStat(1, 3, 3), evaluate(real1, 227, kleene(l1, l8)));
 	}
 	
-
-	
 	@Test
 	public void real1q21(){
 		assertEquals(new CardStat(3935, 10010, 1328), evaluate(real1, kleene(l1, l8)));
@@ -444,12 +434,6 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	public void real1q24(){
 		assertEquals(new CardStat(4122, 9020, 1391), evaluate(real1, kleene(l0, l1, l2, l3, l4)));
 	}
-	
-	
-	
-	
-	
-	
 	
 	@Test
 	public void real2q0(){

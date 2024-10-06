@@ -123,10 +123,10 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 			}
 		}else{
 			//follow edges going backward (from target to source)
-			for(int source = 0; source < in.getVertexCount(); source++){
-				for(SourceLabelPair edge : in.getIncomingEdges(source)){
+			for(int target = 0; target < in.getVertexCount(); target++){
+				for(SourceLabelPair edge : in.getIncomingEdges(target)){
 					if(edge.label() == projectLabel){
-						out.addEdge(source, edge.source(), NO_LABEL);
+						out.addEdge(target, edge.source(), NO_LABEL);
 					}
 				}
 			}

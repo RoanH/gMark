@@ -12,10 +12,10 @@ package nl.group9.quicksilver.core.spec;
  * reasons and for QuickSilver this conversion was done in advance for simplicity.</li>
  * <li>The numerical vertex identifiers are consecutive, that is, if the database
  * graph has <i>V</i> vertices, then all vertices will have an identifier
- * <i>v</i> that satisfies <code>0 <= v < V</code>.</li>
+ * <i>v</i> that satisfies {@code 0 <= v < V}.</li>
  * <li>The numerical label identifiers are consecutive, that is, if the database
  * graph has <i>L</i> labels, then all labels will have an identifier
- * <i>l</i> that satisfies <code>0 <= l < L</code>.</li>
+ * <i>l</i> that satisfies {@code 0 <= l < L}.</li>
  * <li>In particular for real world data graph, there is no guarantee that no
  * duplicates exist of some edges.</li>
  * </ul>

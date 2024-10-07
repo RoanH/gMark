@@ -1,4 +1,4 @@
-package nl.group9.quicksilver;
+package nl.group9.quicksilver.core;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -18,7 +18,7 @@ import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
 
-import nl.group9.quicksilver.GraphUtil;
+import nl.group9.quicksilver.core.GraphUtil;
 import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.PathQuery;
 import nl.group9.quicksilver.core.data.SourceTargetPair;

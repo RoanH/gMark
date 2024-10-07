@@ -6,7 +6,7 @@ plugins{
 }
 
 sourceSets{
-	main.java.srcDirs = ['src']
+	main.java.srcDirs = ['core', 'impl']
 	test.java.srcDirs = ['test']
 }
 

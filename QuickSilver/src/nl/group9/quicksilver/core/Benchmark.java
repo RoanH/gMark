@@ -23,11 +23,31 @@ import nl.group9.quicksilver.core.data.PathQuery;
 import nl.group9.quicksilver.core.spec.DatabaseGraph;
 import nl.group9.quicksilver.core.spec.Evaluator;
 import nl.group9.quicksilver.core.spec.EvaluatorProvider;
-import nl.group9.quicksilver.core.spec.ResultGraph;
 
-public class Benchmark{
+/**
+ * Simple benchmark implementation, note that no warm-up runs are performed.
+ * @author Roan
+ */
+public final class Benchmark{
 
-	public static <G extends DatabaseGraph, R extends ResultGraph> BenchmarkResult runEvaluatorBenchmark(EvaluatorProvider<G, R> provider, Path graphFile, Path workloadFile) throws IOException{
+	/**
+	 * Prevent instantiation.
+	 */
+	private Benchmark(){
+	}
+	
+	/**
+	 * Runs the given workload on the given graph with the given evaluator and returns some runtime statistics.
+	 * @param <G> The database graph data type.
+	 * @param provider The provider to use to construct and evaluator to evaluate the queries with.
+	 * @param graphFile The path to the file containing the database graph.
+	 * @param workloadFile The path to the file containing the query workload with queries to evaluate, note
+	 *        that the workload query language is derived from the filename.
+	 * @return The result times of the workload evaluation.
+	 * @throws IOException When an IOException occurs.
+	 * @see DatabaseGraph
+	 */
+	public static <G extends DatabaseGraph> BenchmarkResult runEvaluatorBenchmark(EvaluatorProvider<G, ?> provider, Path graphFile, Path workloadFile) throws IOException{
 		System.out.println("[LOAD] Reading graph...");
 		long loadStart = System.nanoTime();
 		G graph = GraphUtil.readGraph(provider, graphFile);
@@ -36,7 +56,7 @@ public class Benchmark{
 		
 		System.out.println("[PREP] Preparing evaluator...");
 		long prepStart = System.nanoTime();
-		Evaluator<G, R> evaluator = provider.createEvaluator();
+		Evaluator<G, ?> evaluator = provider.createEvaluator();
 		evaluator.prepare(graph);
 		long prepEnd = System.nanoTime();
 		System.out.println("[PREP] Evaluator prepared in " + (prepEnd - prepStart) + " ns");
@@ -72,10 +92,35 @@ public class Benchmark{
 		);  
 	}
 	
+	/**
+	 * Reads a query workload from the given file. The file is assumed to be encoded
+	 * using UTF-8 with at most one query per line in the following format:
+	 * <pre>{@code <source>, <query>, <target>}</pre>
+	 * Lines that do not contain a valid query definition are ignored. The source and
+	 * target vertex are expected to be given as integers, however, if unbound then
+	 * <code>*</code> has to be specified.
+	 * @param file The file to read from.
+	 * @param parser The parser to use to parse the query definition into a query instance.
+	 * @return A list with the parsed queries.
+	 * @throws IOException When an IOException occurs.
+	 */
 	private static final List<PathQuery> readWorkload(Path file, Function<String, QueryLanguageSyntax> parser) throws IOException{
 		return readWorkload(Files.newInputStream(file), parser);
 	}
 	
+	/**
+	 * Reads a query workload from the given input stream. The input stream is assumed
+	 * to represent a text file encoded using UTF-8 with at most one query per line in
+	 * the following format:
+	 * <pre>{@code <source>, <query>, <target>}</pre>
+	 * Lines that do not contain a valid query definition are ignored. The source and
+	 * target vertex are expected to be given as integers, however, if unbound then
+	 * <code>*</code> has to be specified.
+	 * @param in The input stream to read from.
+	 * @param parser The parser to use to parse the query definition into a query instance.
+	 * @return A list with the parsed queries.
+	 * @throws IOException When an IOException occurs.
+	 */
 	private static final List<PathQuery> readWorkload(InputStream in, Function<String, QueryLanguageSyntax> parser) throws IOException{
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))){
 			List<PathQuery> queries = new ArrayList<PathQuery>();

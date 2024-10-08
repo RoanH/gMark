@@ -52,11 +52,11 @@ public final class GraphUtil{
 	 * <ol>
 	 * <li>First a single header line containing the following three
 	 * integers in order separated by a single space:<br>
-	 * {@code <vertex count> <edge count> <label count>}</li>
+	 * <pre>{@code <vertex count> <edge count> <label count>}</pre></li>
 	 * <li>Then a number of lines matching the header edge count,
 	 * each containing a single edge definition specified by three
 	 * integers separated by a single space in the following format:<br>
-	 * {@code <source vertex> <target vertex> <label>}</li>
+	 * <pre>{@code <source vertex> <target vertex> <label>}</pre></li>
 	 * </ol>
 	 * Note: empty lines and comments are not permitted between edge definitions.
 	 * @param <G> The concrete database graph implementation. 

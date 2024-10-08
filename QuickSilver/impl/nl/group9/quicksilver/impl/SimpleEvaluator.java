@@ -41,17 +41,10 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 
 	@Override
 	public void prepare(SimpleGraph graph){
-		//see optimisation 2.16
+		//see optimisation 2.16 & 2.17
 		this.graph = graph;
 	}
 	
-	//TODO inefficiencies (not meant to be solved)
-	//- almost all operations produce a new graph, a lot can be significantly faster if they modify the input graph
-	//- prevent duplicate edges from ending up in output graphs as much as possible
-	//- some operations are just more efficient when considered in more context, e.g., intersection with identity
-	//- labels are only used for projection, after that they are only a huge inefficiency
-	//- note on data format? vertices/labels are integers
-
 	@Override
 	public SimpleGraph evaluate(PathQuery query){
 		//see optimisation 2.6 & 2.11
@@ -87,7 +80,11 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 			return disjunction(evaluate(path.getLeft()), evaluate(path.getRight()));
 		case EDGE:
 			Predicate predicate = path.getPredicate();
-			return selectLabel(predicate.getID(), predicate.isInverse(), graph);
+			if(predicate.isInverse()){
+				return selectInverseLabel(predicate.getID(), graph);
+			}else{
+				return selectLabel(predicate.getID(), graph);
+			}
 		case IDENTITY:
 			return selectIdentity(graph);
 		case INTERSECTION:
@@ -99,6 +96,12 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 		throw new IllegalArgumentException("Unsupported database operation.");
 	}
 	
+	/**
+	 * Selects all the vertices from the given input database graph. Note that vertices
+	 * are selected together with themselves to form a complete source target pair.
+	 * @param in The input database graph to select vertices from.
+	 * @return A copy of the input graph containing only vertices selected with themselves.
+	 */
 	private static SimpleGraph selectIdentity(SimpleGraph in){
 		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 
@@ -109,25 +112,20 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 		return out;
 	}
 	
-	private static SimpleGraph selectLabel(int projectLabel, boolean inverse, SimpleGraph in){
+	/**
+	 * Selects all edges from the given input database graph with the given label.
+	 * @param projectLabel The projection label to use to filter the edge set.
+	 * @param in The input database graph to select edges from.
+	 * @return A copy of the input graph containing only edges with the given label.
+	 */
+	private static SimpleGraph selectLabel(int projectLabel, SimpleGraph in){
 		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		
-		if(!inverse){
-			//follow edges going forward (natural direction)
-			for(int source = 0; source < in.getVertexCount(); source++){
-				for(TargetLabelPair edge : in.getOutgoingEdges(source)){
-					if(edge.label() == projectLabel){
-						out.addEdge(source, edge.target(), NO_LABEL);
-					}
-				}
-			}
-		}else{
-			//follow edges going backward (from target to source)
-			for(int target = 0; target < in.getVertexCount(); target++){
-				for(SourceLabelPair edge : in.getIncomingEdges(target)){
-					if(edge.label() == projectLabel){
-						out.addEdge(target, edge.source(), NO_LABEL);
-					}
+		//follow edges going forward (natural direction)
+		for(int source = 0; source < in.getVertexCount(); source++){
+			for(TargetLabelPair edge : in.getOutgoingEdges(source)){
+				if(edge.label() == projectLabel){
+					out.addEdge(source, edge.target(), NO_LABEL);
 				}
 			}
 		}
@@ -135,6 +133,33 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 		return out;
 	}
 	
+	/**
+	 * Selects all inverse edges from the given input database graph with the given label.
+	 * @param projectLabel The projection label to use to filter the edge set.
+	 * @param in The input database graph to select inverted edges from.
+	 * @return A copy of the input graph containing only inverted edges with the given label.
+	 */
+	private static SimpleGraph selectInverseLabel(int projectLabel, SimpleGraph in){
+		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
+		
+		//follow edges going backward (from target to source)
+		for(int target = 0; target < in.getVertexCount(); target++){
+			for(SourceLabelPair edge : in.getIncomingEdges(target)){
+				if(edge.label() == projectLabel){
+					out.addEdge(target, edge.source(), NO_LABEL);
+				}
+			}
+		}
+		
+		return out;
+	}
+	
+	/**
+	 * Computes the transitive closure of the given input graph. Note that the transitive
+	 * closure is the smallest graph that contains the entire input graph and is also transitive.
+	 * @param in The input graph to compute the transitive closure of.
+	 * @return A new graph representing the transitive closure of the input graph.
+	 */
 	private static SimpleGraph transitiveClosure(SimpleGraph in){
 		SimpleGraph transitiveClosure = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		unionDistinct(transitiveClosure, in);

@@ -41,7 +41,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 
 	@Override
 	public void prepare(SimpleGraph graph){
-		//see optimisation 2.16 & 2.17
+		//see optimisation (2.5), 2.16, 2.17 & (2.20)
 		this.graph = graph;
 	}
 	
@@ -59,7 +59,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 		Optional<Integer> boundTarget = query.target();
 		if(boundTarget.isPresent()){
 			//see optimisation 2.4 & 2.14
-			result = selectedTarget(boundTarget.get(), result);
+			result = selectTarget(boundTarget.get(), result);
 		}
 		
 		return result;
@@ -72,7 +72,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @see QueryTree
 	 */
 	private SimpleGraph evaluate(QueryTree path){
-		//see optimisation 2.7, 2.9, 2.10 & 2.17
+		//see optimisation (2.3), (2.4), 2.7, 2.9, 2.10 & 2.17
 		switch(path.getOperation()){
 		case CONCATENATION:
 			return join(evaluate(path.getLeft()), evaluate(path.getRight()));
@@ -103,6 +103,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return A copy of the input graph containing only vertices selected with themselves.
 	 */
 	private static SimpleGraph selectIdentity(SimpleGraph in){
+		//see optimisation 2.1, (2.3), (2.4) & (2.9)
 		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 
 		for(int vertex = 0; vertex < in.getVertexCount(); vertex++){
@@ -119,6 +120,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return A copy of the input graph containing only edges with the given label.
 	 */
 	private static SimpleGraph selectLabel(int projectLabel, SimpleGraph in){
+		//see optimisation 2.1, (2.3), (2.4), 2.5 & 2.20 
 		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		
 		//follow edges going forward (natural direction)
@@ -140,6 +142,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return A copy of the input graph containing only inverted edges with the given label.
 	 */
 	private static SimpleGraph selectInverseLabel(int projectLabel, SimpleGraph in){
+		//see optimisation 2.1, (2.3), (2.4), 2.5 & 2.20 
 		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		
 		//follow edges going backward (from target to source)
@@ -161,6 +164,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return A new graph representing the transitive closure of the input graph.
 	 */
 	private static SimpleGraph transitiveClosure(SimpleGraph in){
+		//see optimisation 2.1, 2.5, 2.8, 2.20 & (2.21)
 		SimpleGraph transitiveClosure = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		unionDistinct(transitiveClosure, in);
 		
@@ -205,6 +209,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return The result graph representing the union of the input graphs.
 	 */
 	private static SimpleGraph disjunction(SimpleGraph left, SimpleGraph right){
+		//see optimisation 2.1, 2.5, 2.20 & (2.21)
 		SimpleGraph out = new SimpleGraph(left.getVertexCount(), 1);
 		
 		//copy all edges in the left graph
@@ -234,6 +239,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return The result graph representing the intersection of the input graphs.
 	 */
 	private static SimpleGraph intersection(SimpleGraph left, SimpleGraph right){
+		//see optimisation 2.1, 2.5, 2.19, 2.20 & (2.21)
 		SimpleGraph out = new SimpleGraph(left.getVertexCount(), left.getLabelCount());
 		
 		for(int source = 0; source < left.getVertexCount(); source++){
@@ -257,6 +263,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return The result graph representing the join of the input graphs.
 	 */
 	private static SimpleGraph join(SimpleGraph left, SimpleGraph right){
+		//see optimisation 2.1, 2.5, 2.18, 2.20 & (2.21)
 		SimpleGraph out = new SimpleGraph(left.getVertexCount(), 1);
 		
 		for(int leftSource = 0; leftSource < left.getVertexCount(); leftSource++){
@@ -278,6 +285,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return A copy of the input graph containing only the edges that started at the given source vertex.
 	 */
 	private static SimpleGraph selectSource(int source, SimpleGraph in){
+		//see optimisation 2.1, 2.3, 2.5, (2.20) & (2.21)
 		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		for(TargetLabelPair edge : in.getOutgoingEdges(source)){
 			out.addEdge(source, edge.target(), edge.label());
@@ -292,7 +300,8 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @param in The input graph to select edges from.
 	 * @return A copy of the input graph containing only the edges that ended at the given target vertex.
 	 */
-	private static SimpleGraph selectedTarget(int target, SimpleGraph in){
+	private static SimpleGraph selectTarget(int target, SimpleGraph in){
+		//see optimisation 2.1, 2.4, 2.5, (2.20) & (2.21)
 		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		for(SourceLabelPair edge : in.getIncomingEdges(target)){
 			out.addEdge(edge.source(), target, edge.label());

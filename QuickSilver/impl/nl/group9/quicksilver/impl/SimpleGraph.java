@@ -19,8 +19,11 @@ import nl.group9.quicksilver.impl.data.TargetLabelPair;
  * @see <a href="https://en.wikipedia.org/wiki/Adjacency_list">Adjacency List Based Graph</a>
  */
 public class SimpleGraph implements DatabaseGraph, ResultGraph{
+	//see optimisation 2.15 & 2.16
 	/**
 	 * The (maximum) number of distinct labels in this graph.
+	 * <p>
+	 * See optimisation 2.1.
 	 */
 	private final int labelCount;
 	/**
@@ -31,12 +34,16 @@ public class SimpleGraph implements DatabaseGraph, ResultGraph{
 	 * An adjacency list encoding edges in the forward direction.
 	 * For vertex <i>i</i> its outgoing edges with their target
 	 * vertex and label are stored at the <i>i</i>-th position of the list.
+	 * <p>
+	 * See optimisation 2.15 and 2.16.
 	 */
 	private final RangeList<List<TargetLabelPair>> adjacenyList;
 	/**
 	 * An adjacency list encoding edges in the inverse direction.
 	 * For vertex <i>i</i> its incoming edges with their source
 	 * vertex and label are stored at the <i>i</i>-th position of the list.
+	 * <p>
+	 * See optimisation 2.2 and 2.16.
 	 */
 	private final RangeList<List<SourceLabelPair>> reverseAdjacencyList;
 	
@@ -49,6 +56,7 @@ public class SimpleGraph implements DatabaseGraph, ResultGraph{
 		this.vertexCount = vertexCount;
 		this.labelCount = labelCount;
 		
+		//see optimisation 2.2, 2.15 & 2.16
 		adjacenyList = new RangeList<List<TargetLabelPair>>(vertexCount, ArrayList::new);
 		reverseAdjacencyList = new RangeList<List<SourceLabelPair>>(vertexCount, ArrayList::new);
 	}
@@ -118,6 +126,7 @@ public class SimpleGraph implements DatabaseGraph, ResultGraph{
 	 * @return The number of distinct edges in this graph.
 	 */
 	public int getNoDistinctEdges(){
+		//see optimisation (2.5), 2.12 & (2.20)
 		int count = 0;
 		for(List<TargetLabelPair> out : adjacenyList){
 			out.sort(Comparator.comparingInt(TargetLabelPair::target).thenComparingInt(TargetLabelPair::label));
@@ -146,6 +155,7 @@ public class SimpleGraph implements DatabaseGraph, ResultGraph{
 
 	@Override
 	public List<SourceTargetPair> getSourceTargetPairs(){
+		//note: runtime for this method only matters in unit tests, it is not used during benchmarks.
 		List<SourceTargetPair> edges = new ArrayList<SourceTargetPair>();
 		
 		for(int i = 0; i < vertexCount; i++){
@@ -159,6 +169,8 @@ public class SimpleGraph implements DatabaseGraph, ResultGraph{
 	
 	@Override
 	public CardStat computeCardinality(){
+		//see optimisation 2.12
+
 		int outCount = 0;
 		for(int source = 0; source < vertexCount; source++){
 			if(!getOutgoingEdges(source).isEmpty()){

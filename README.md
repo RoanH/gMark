@@ -6,9 +6,9 @@ QuickSilver is a simple graph database that supports evaluating reachability que
 ## High Level Overview
 QuickSilver is divided into three source sets:
 
-- The [core](QuickSilver/core) main source set contains the general high level logic to make the database run and the definitions of the concepts used and implemented by the database evaluator internals. You should **not** make any changes to the code in this source set.
-- The [impl](QuickSilver/impl) main source set contains the concrete database evaluator implementation which you should attempt to optimise at much as possible. The only real requirement for this source set is that an implementation of the interfaces in the [spec](QuickSilver/core/nl/group9/quicksilver/impl) package is provided and that the concrete evaluator and database graph implementation that should be used by the program are returned via the [Provider](QuickSilver/impl/nl/group9/quicksilver/impl/Provider.java) class. This source set also contains references to the optimisations listed in the optimisations document, optimisations listed in brackets are generally less applicable or things that can be implemented in multiple places. 
-- The [test](QuickSilver/test) test source set contains a number of unit tests based on the datasets available in the [workload](QuickSilver/workload) folder. A small program is also provided in [BenchmarkRuns](QuickSilver/test/nl/group9/quicksilver/BenchmarkRuns.java) that directly runs all the workloads, feel free to edit this class. You can also add more of your own unit tests if you want, however, please do not remove any existing unit tests.
+- The [core](QuickSilver/core/nl/group9/quicksilver) main source set contains the general high level logic to make the database run and the definitions of the concepts used and implemented by the database evaluator internals. You should **not** make any changes to the code in this source set.
+- The [impl](QuickSilver/impl/nl/group9/quicksilver/impl) main source set contains the concrete database evaluator implementation which you should attempt to optimise at much as possible. The only real requirement for this source set is that an implementation of the interfaces in the [spec](QuickSilver/core/nl/group9/quicksilver/core/spec) package is provided and that the concrete evaluator and database graph implementation that should be used by the program are returned via the [Provider](QuickSilver/impl/nl/group9/quicksilver/impl/Provider.java) class. This source set also contains references to the optimisations listed in the optimisations document, optimisations listed in brackets are generally less applicable or things that can be implemented in multiple places. 
+- The [test](QuickSilver/test/nl/group9/quicksilver) test source set contains a number of unit tests based on the datasets available in the [workload](QuickSilver/workload) folder. A small program is also provided in [BenchmarkRuns](QuickSilver/test/nl/group9/quicksilver/BenchmarkRuns.java) that directly runs all the workloads, feel free to edit this class. You can also add more of your own unit tests if you want, however, please do not remove any existing unit tests.
 
 ## Compiling
 This repository contains an [Eclipse](https://www.eclipse.org/) & [Gradle](https://gradle.org/) project with [gMark](https://github.com/RoanH/gMark) and [Apache Commons CLI](https://commons.apache.org/proper/commons-cli/introduction.html) as the only dependencies. 
@@ -25,7 +25,7 @@ Or on Windows:
 .\gradlew.bat shadowJar
 ```
 
-This will place the built JAR in the [build/libs](QuickSilver/build/libs) folder.
+This will place the built JAR in the `build/libs` folder.
 
 ## Benchmarking
 After building the application benchmark results for a single workload can be obtained by running:

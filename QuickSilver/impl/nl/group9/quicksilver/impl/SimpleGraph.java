@@ -81,26 +81,9 @@ public class SimpleGraph implements DatabaseGraph, ResultGraph{
 		return reverseAdjacencyList.get(target);
 	}
 
-	/**
-	 * Gets the number of edges in this graph.
-	 * @return The number of edges in this graph.
-	 */
-	public int getEdgeCount(){
-		int count = 0;
-		for(List<TargetLabelPair> out : adjacenyList){
-			count += out.size();
-		}
-		
-		return count;
-	}
+	
 
-	/**
-	 * Gets the number of labels in this graph.
-	 * @return The number of labels in this graph.
-	 */
-	public int getLabelCount(){
-		return labelCount;
-	}
+	
 
 	/**
 	 * Checks if this graph contains the given edge.
@@ -135,9 +118,30 @@ public class SimpleGraph implements DatabaseGraph, ResultGraph{
 		return count;
 	}
 	
-	@Override
+	/**
+	 * Gets the number of edges in this graph.
+	 * @return The number of edges in this graph.
+	 */
+	public int getEdgeCount(){
+		int count = 0;
+		for(List<TargetLabelPair> out : adjacenyList){
+			count += out.size();
+		}
+		
+		return count;
+	}
+	
+	/**
+	 * Gets the number of vertices in this graph.
+	 * @return The number of vertices in this graph.
+	 */
 	public int getVertexCount(){
 		return vertexCount;
+	}
+	
+	@Override
+	public int getLabelCount(){
+		return labelCount;
 	}
 	
 	@Override

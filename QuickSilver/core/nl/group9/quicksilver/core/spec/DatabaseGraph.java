@@ -32,8 +32,8 @@ public abstract interface DatabaseGraph{
 	public abstract void addEdge(int source, int target, int label);
 	
 	/**
-	 * Gets the number of vertices in this graph.
-	 * @return The number of vertices in this graph.
+	 * Gets the number of labels in this graph.
+	 * @return The number of labels in this graph.
 	 */
-	public abstract int getVertexCount();
+	public abstract int getLabelCount();
 }

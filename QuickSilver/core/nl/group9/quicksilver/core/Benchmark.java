@@ -108,7 +108,7 @@ public final class Benchmark{
 	 * @return The constructed predicate set mapping from alias to predicate.
 	 */
 	private static final <G extends DatabaseGraph> Map<String, Predicate> createPredicteMap(G graph){
-		return Util.generateLabels(graph.getVertexCount()).stream().collect(Collectors.toMap(Predicate::getAlias, Function.identity()));
+		return Util.generateLabels(graph.getLabelCount()).stream().collect(Collectors.toMap(Predicate::getAlias, Function.identity()));
 	}
 	
 	/**

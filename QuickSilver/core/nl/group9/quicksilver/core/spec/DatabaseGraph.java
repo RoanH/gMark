@@ -21,7 +21,6 @@ package nl.group9.quicksilver.core.spec;
  * </ul>
  * @author Roan
  */
-@FunctionalInterface
 public abstract interface DatabaseGraph{
 
 	/**
@@ -31,4 +30,10 @@ public abstract interface DatabaseGraph{
 	 * @param label The edge label of the edge.
 	 */
 	public abstract void addEdge(int source, int target, int label);
+	
+	/**
+	 * Gets the number of vertices in this graph.
+	 * @return The number of vertices in this graph.
+	 */
+	public abstract int getVertexCount();
 }

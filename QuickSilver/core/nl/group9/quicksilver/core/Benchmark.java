@@ -1,5 +1,11 @@
 package nl.group9.quicksilver.core;
 
+import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_DISJUNCTION;
+import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_INTERSECTION;
+import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_INVERSE;
+import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_JOIN;
+import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_KLEENE;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,12 +15,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
-import dev.roanh.gmark.lang.cpq.CPQ;
-import dev.roanh.gmark.lang.rpq.RPQ;
+import dev.roanh.gmark.lang.cpq.ParserCPQ;
+import dev.roanh.gmark.lang.rpq.ParserRPQ;
+import dev.roanh.gmark.util.Util;
 
 import nl.group9.quicksilver.core.data.BenchmarkResult;
 import nl.group9.quicksilver.core.data.CardStat;
@@ -65,9 +75,9 @@ public final class Benchmark{
 		String type = filename.substring(0, filename.lastIndexOf('.'));
 		List<PathQuery> queries = switch(type){
 		case "cpq": 
-			yield readWorkload(workloadFile, CPQ::parse);
+			yield readWorkload(workloadFile, q->ParserCPQ.parse(q, createPredicteMap(graph), CHAR_JOIN, CHAR_INTERSECTION, CHAR_INVERSE));
 		case "rpq": 
-			yield readWorkload(workloadFile, RPQ::parse);
+			yield readWorkload(workloadFile, q->ParserRPQ.parse(q, createPredicteMap(graph), CHAR_JOIN, CHAR_DISJUNCTION, CHAR_KLEENE, CHAR_INVERSE));
 		default:
 			throw new IllegalArgumentException("Unknown query language: " + type);
 		};
@@ -89,6 +99,16 @@ public final class Benchmark{
 			prepEnd - prepStart,
 			evalTime
 		);  
+	}
+	
+	/**
+	 * Constructs a map with predicates for the given graph.
+	 * @param <G> The database graph type.
+	 * @param graph The graph to create a predicate set for.
+	 * @return The constructed predicate set mapping from alias to predicate.
+	 */
+	private static final <G extends DatabaseGraph> Map<String, Predicate> createPredicteMap(G graph){
+		return Util.generateLabels(graph.getVertexCount()).stream().collect(Collectors.toMap(Predicate::getAlias, Function.identity()));
 	}
 	
 	/**

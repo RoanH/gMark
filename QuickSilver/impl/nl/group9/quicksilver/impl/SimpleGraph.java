@@ -82,14 +82,6 @@ public class SimpleGraph implements DatabaseGraph, ResultGraph{
 	}
 
 	/**
-	 * Gets the number of vertices in this graph.
-	 * @return The number of vertices in this graph.
-	 */
-	public int getVertexCount(){
-		return vertexCount;
-	}
-
-	/**
 	 * Gets the number of edges in this graph.
 	 * @return The number of edges in this graph.
 	 */
@@ -141,6 +133,11 @@ public class SimpleGraph implements DatabaseGraph, ResultGraph{
 		}
 		
 		return count;
+	}
+	
+	@Override
+	public int getVertexCount(){
+		return vertexCount;
 	}
 	
 	@Override

@@ -64,8 +64,8 @@ public final class ParserCPQ extends GenericParser{
 	 * '{@value QueryLanguageSyntax#CHAR_INTERSECTION}' and '{@value QueryLanguageSyntax#CHAR_INVERSE}' symbols to denote
 	 * operations. Example input: {@code (0◦(((1◦0) ∩ (1◦1))◦1⁻))}.
 	 * @param query The CPQ to parse.
-	 * @param labels The label set to use, this list should only contain forward labels. New labels will be created
-	 *        if labels are found in the input that are not covered by the given list.
+	 * @param labels The label set to use, new labels will be created if labels are found in the
+	 *        input that are not covered by the given list.
 	 * @return The parsed CPQ.
 	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
 	 * @see #parse(String, Map, char, char, char)

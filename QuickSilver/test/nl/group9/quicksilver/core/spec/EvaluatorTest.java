@@ -312,6 +312,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 		assertEquals(new CardStat(0, 0, 0), result.computeCardinality());
 	}
 	
+	@Test
 	public void query11(){
 		R result = evaluate(
 			RPQ.labels(

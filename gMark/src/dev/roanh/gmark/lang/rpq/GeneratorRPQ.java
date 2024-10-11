@@ -43,7 +43,8 @@ public final class GeneratorRPQ{
 	 * is automatically generated together with corresponding inverse
 	 * labels for each label. It is worth noting that concatenation
 	 * will be generated at double the rate of the relatively more
-	 * expensive Kleene and disjunction operations.
+	 * expensive Kleene and disjunction operations and that nested
+	 * transitive closures without additional structure are not generated.
 	 * @param ruleApplications The number of times the disjunction,
 	 *        Kleene, and concatenation steps are allowed to be applied.
 	 * @param labels The number of distinct labels to use (upper limit).
@@ -61,7 +62,8 @@ public final class GeneratorRPQ{
 	 * given number of times. Labels and inverse labels are drawn
 	 * from the given set of labels. It is worth noting that concatenation
 	 * will be generated at double the rate of the relatively more
-	 * expensive Kleene and disjunction operations.
+	 * expensive Kleene and disjunction operations and that nested
+	 * transitive closures without additional structure are not generated.
 	 * @param ruleApplications The number of times the disjunction,
 	 *        Kleene, and concatenation steps are allowed to be applied.
 	 * @param labels The set of labels to draw from.
@@ -74,7 +76,7 @@ public final class GeneratorRPQ{
 			throw new IllegalArgumentException("List of labels cannot be empty.");
 		}
 		
-		return generatePlainRPQImpl(ruleApplications, labels);
+		return generatePlainRPQImpl(ruleApplications, true, labels);
 	}
 	
 	/**
@@ -83,13 +85,16 @@ public final class GeneratorRPQ{
 	 * given number of times. Labels and inverse labels are drawn
 	 * from the given set of labels. It is worth noting that concatenation
 	 * will be generated at double the rate of the relatively more
-	 * expensive Kleene and disjunction operations.
+	 * expensive Kleene and disjunction operations and that nested
+	 * transitive closures without additional structure are not generated.
 	 * @param ruleApplications The number of times the disjunction,
 	 *        Kleene, and concatenation steps are allowed to be applied.
+	 * @param allowTC True if the transitive closure is allowed to be
+	 *        generated at the top level.
 	 * @param labels The set of labels to draw from.
 	 * @return The randomly generated RPQ.
 	 */
-	private static RPQ generatePlainRPQImpl(int ruleApplications, List<Predicate> labels){
+	private static RPQ generatePlainRPQImpl(int ruleApplications, boolean allowTC, List<Predicate> labels){
 		if(ruleApplications == 0){
 			//edge label
 			Predicate label = Util.selectRandom(labels);
@@ -98,15 +103,15 @@ public final class GeneratorRPQ{
 			if(Util.getRandom().nextBoolean()){
 				//concatenation
 				int split = Util.uniformRandom(0, ruleApplications - 1);
-				return RPQ.concat(generatePlainRPQImpl(split, labels), generatePlainRPQImpl(ruleApplications - split - 1, labels));
+				return RPQ.concat(generatePlainRPQImpl(split, true, labels), generatePlainRPQImpl(ruleApplications - split - 1, true, labels));
 			}else{
-				if(Util.getRandom().nextBoolean()){
+				if(allowTC && Util.getRandom().nextBoolean()){
+					//transitive closure
+					return RPQ.kleene(generatePlainRPQImpl(ruleApplications - 1, false, labels));
+				}else{
 					//disjunction
 					int split = Util.uniformRandom(0, ruleApplications - 1);
-					return RPQ.disjunct(generatePlainRPQImpl(split, labels), generatePlainRPQImpl(ruleApplications - split - 1, labels));
-				}else{
-					//transitive closure
-					return RPQ.kleene(generatePlainRPQImpl(ruleApplications - 1, labels));
+					return RPQ.disjunct(generatePlainRPQImpl(split, true, labels), generatePlainRPQImpl(ruleApplications - split - 1, true, labels));
 				}
 			}
 		}

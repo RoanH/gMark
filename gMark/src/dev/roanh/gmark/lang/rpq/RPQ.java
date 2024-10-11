@@ -130,7 +130,8 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 	 * is automatically generated together with corresponding inverse
 	 * labels for each label. It is worth noting that concatenation
 	 * will be generated at double the rate of the relatively more
-	 * expensive Kleene and disjunction operations.
+	 * expensive Kleene and disjunction operations and that nested
+	 * transitive closures without additional structure are not generated.
 	 * @param ruleApplications The number of times the disjunction,
 	 *        Kleene, and concatenation steps are allowed to be applied.
 	 * @param labels The number of distinct labels to use (upper limit).

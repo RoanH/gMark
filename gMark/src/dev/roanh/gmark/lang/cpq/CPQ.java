@@ -21,6 +21,7 @@ package dev.roanh.gmark.lang.cpq;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.ast.QueryTree;
@@ -245,9 +246,27 @@ public abstract interface CPQ extends QueryLanguageSyntax{
 	 * @return The parsed CPQ.
 	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
 	 * @see ParserCPQ#parse(String, char, char, char)
+	 * @see QueryLanguageSyntax
 	 */
 	public static CPQ parse(String query) throws IllegalArgumentException{
 		return ParserCPQ.parse(query);
+	}
+	
+	/**
+	 * Parses the given CPQ in string form to a CPQ instance. The input is assumed
+	 * to use brackets where possible and to use the '{@code id}', '{@value QueryLanguageSyntax#CHAR_JOIN}',
+	 * '{@value QueryLanguageSyntax#CHAR_INTERSECTION}' and '{@value QueryLanguageSyntax#CHAR_INVERSE}' symbols to denote
+	 * operations. Example input: {@code (0◦(((1◦0) ∩ (1◦1))◦1⁻))}.
+	 * @param query The CPQ to parse.
+	 * @param labels The label set to use, this list should only contain forward labels. New labels will be created
+	 *        if labels are found in the input that are not covered by the given list.
+	 * @return The parsed CPQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
+	 * @see ParserCPQ#parse(String, Map, char, char, char)
+	 * @see QueryLanguageSyntax
+	 */
+	public static CPQ parse(String query, List<Predicate> labels) throws IllegalArgumentException{
+		return ParserCPQ.parse(query, labels);
 	}
 	
 	/**

@@ -20,6 +20,7 @@ package dev.roanh.gmark.lang.rpq;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.ast.QueryTree;
@@ -129,7 +130,8 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 	 * is automatically generated together with corresponding inverse
 	 * labels for each label. It is worth noting that concatenation
 	 * will be generated at double the rate of the relatively more
-	 * expensive Kleene and disjunction operations.
+	 * expensive Kleene and disjunction operations and that nested
+	 * transitive closures without additional structure are not generated.
 	 * @param ruleApplications The number of times the disjunction,
 	 *        Kleene, and concatenation steps are allowed to be applied.
 	 * @param labels The number of distinct labels to use (upper limit).
@@ -151,9 +153,28 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 	 * @return The parsed RPQ.
 	 * @throws IllegalArgumentException When the given string is not a valid RPQ.
 	 * @see ParserRPQ#parse(String, char, char, char, char)
+	 * @see QueryLanguageSyntax
 	 */
 	public static RPQ parse(String query) throws IllegalArgumentException{
 		return ParserRPQ.parse(query);
+	}
+	
+	/**
+	 * Parses the given RPQ in string form to an RPQ instance. The input is assumed
+	 * to use brackets where possible and to use the '{@value QueryLanguageSyntax#CHAR_DISJUNCTION}',
+	 * '{@value QueryLanguageSyntax#CHAR_JOIN}', '{@value QueryLanguageSyntax#CHAR_KLEENE}' and
+	 * '{@value QueryLanguageSyntax#CHAR_INVERSE}' symbols to denote operations.
+	 * Example input: {@code (0◦(((1◦0) ∪ (1◦1))◦1⁻))}.
+	 * @param query The RPQ to parse.
+	 * @param labels The label set to use, new labels will be created if labels are found in the
+	 *        input that are not covered by the given list.
+	 * @return The parsed RPQ.
+	 * @throws IllegalArgumentException When the given string is not a valid RPQ.
+	 * @see ParserRPQ#parse(String, Map, char, char, char, char)
+	 * @see QueryLanguageSyntax
+	 */
+	public static RPQ parse(String query, List<Predicate> labels) throws IllegalArgumentException{
+		return ParserRPQ.parse(query, labels);
 	}
 	
 	/**

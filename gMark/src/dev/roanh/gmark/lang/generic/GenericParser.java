@@ -19,8 +19,11 @@
 package dev.roanh.gmark.lang.generic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import dev.roanh.gmark.core.graph.Predicate;
 
@@ -104,5 +107,21 @@ public abstract class GenericParser{
 		}
 		
 		throw new IllegalArgumentException("Invalid predicate syntax.");
+	}
+	
+	/**
+	 * Constructs a map of predicates to use for query parsing from the given list of predicates.
+	 * @param labels The list of predicates to map.
+	 * @return A map from non-inverted predicate alias to the associated predicate.
+	 */
+	protected static Map<String, Predicate> mapPredicates(List<Predicate> labels){
+		return labels.stream().map(predicate->{
+			return predicate.isInverse() ? predicate.getInverse() : predicate;
+		}).collect(Collectors.toMap(
+			Predicate::getAlias,
+			Function.identity(),
+			(p1, p2)->p1,
+			()->new HashMap<String, Predicate>()
+		));
 	}
 }

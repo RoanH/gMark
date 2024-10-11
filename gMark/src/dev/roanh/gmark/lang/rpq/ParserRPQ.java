@@ -18,6 +18,11 @@
  */
 package dev.roanh.gmark.lang.rpq;
 
+import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_DISJUNCTION;
+import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_INVERSE;
+import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_JOIN;
+import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_KLEENE;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,9 +54,28 @@ public final class ParserRPQ extends GenericParser{
 	 * @return The parsed RPQ.
 	 * @throws IllegalArgumentException When the given string is not a valid RPQ.
 	 * @see ParserRPQ#parse(String, char, char, char, char)
+	 * @see QueryLanguageSyntax
 	 */
 	public static RPQ parse(String query) throws IllegalArgumentException{
-		return parse(query, QueryLanguageSyntax.CHAR_JOIN, QueryLanguageSyntax.CHAR_DISJUNCTION, QueryLanguageSyntax.CHAR_KLEENE, QueryLanguageSyntax.CHAR_INVERSE);
+		return parse(query, CHAR_JOIN, CHAR_DISJUNCTION, CHAR_KLEENE, CHAR_INVERSE);
+	}
+
+	/**
+	 * Parses the given RPQ in string form to an RPQ instance. The input is assumed
+	 * to use brackets where possible and to use the '{@value QueryLanguageSyntax#CHAR_DISJUNCTION}',
+	 * '{@value QueryLanguageSyntax#CHAR_JOIN}', '{@value QueryLanguageSyntax#CHAR_KLEENE}' and
+	 * '{@value QueryLanguageSyntax#CHAR_INVERSE}' symbols to denote operations.
+	 * Example input: {@code (0◦(((1◦0) ∪ (1◦1))◦1⁻))}.
+	 * @param query The RPQ to parse.
+	 * @param labels The label set to use, new labels will be created if labels are found in the
+	 *        input that are not covered by the given list.
+	 * @return The parsed RPQ.
+	 * @throws IllegalArgumentException When the given string is not a valid RPQ.
+	 * @see ParserRPQ#parse(String, char, char, char, char)
+	 * @see QueryLanguageSyntax
+	 */
+	public static RPQ parse(String query, List<Predicate> labels) throws IllegalArgumentException{
+		return parse(query, mapPredicates(labels), CHAR_JOIN, CHAR_DISJUNCTION, CHAR_KLEENE, CHAR_INVERSE);
 	}
 	
 	/**

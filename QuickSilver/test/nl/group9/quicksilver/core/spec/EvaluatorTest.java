@@ -1156,6 +1156,31 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 		assertEquals(new CardStat(141187, 494784, 37545), evaluate(real5, kleene(l0, l1, l2, l3, l4)));
 	}
 	
+	@Test
+	public void real5cpq0(){
+		assertEquals(new CardStat(14, 14, 14), evaluate(real5, CPQ.intersect(CPQ.id(), CPQ.label(l3), CPQ.label(l3.getInverse()))));
+	}
+	
+	@Test
+	public void real5cpq1(){
+		assertEquals(new CardStat(14, 14, 14), evaluate(real5, CPQ.intersect(CPQ.id(), CPQ.labels(l3, l3), CPQ.label(l3))));
+	}
+	
+	@Test
+	public void real5cpq2(){
+		assertEquals(new CardStat(10, 14, 13), evaluate(real5, CPQ.intersect(CPQ.labels(l4.getInverse(), l3, l3.getInverse()), CPQ.label(l4))));
+	}
+	
+	@Test
+	public void real5cpq3(){
+		assertEquals(new CardStat(17, 66, 20), evaluate(real5, CPQ.concat(CPQ.labels(l3.getInverse(), l4), CPQ.intersect(l4, l4.getInverse()))));
+	}
+	
+	@Test
+	public void real5cpq4(){
+		assertEquals(new CardStat(166, 810, 6), evaluate(real5, CPQ.labels(l2, l4, l3.getInverse())));
+	}
+	
 	private void assertPaths(R result, List<SourceTargetPair> expected){
 		assertIterableEquals(expected, result.getSourceTargetPairs().stream().sorted().toList());
 	}

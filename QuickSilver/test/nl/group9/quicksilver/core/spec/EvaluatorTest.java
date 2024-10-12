@@ -957,6 +957,66 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	}
 	
 	@Test
+	public void real2cpq0(){
+		assertEquals(new CardStat(2023, 98657, 1348), evaluate(real2, CPQ.concat(CPQ.label(l2.getInverse()), CPQ.intersect(l2.getInverse(), l2), CPQ.label(l2.getInverse()))));
+	}
+	
+	@Test
+	public void real2cpq1(){
+		assertEquals(new CardStat(238, 1192, 345), evaluate(real2, CPQ.concat(CPQ.label(l3), CPQ.intersect(CPQ.id(), CPQ.labels(l0, l0)))));
+	}
+	
+	@Test
+	public void real2cpq2(){
+		assertEquals(new CardStat(206, 28088, 1587), evaluate(real2, CPQ.concat(CPQ.intersect(l2, l1.getInverse()), CPQ.labels(l3, l3))));
+	}
+	
+	@Test
+	public void real2cpq3(){
+		assertEquals(new CardStat(443, 24254, 548), evaluate(real2, CPQ.concat(CPQ.label(l0.getInverse()), CPQ.intersect(l0, l3.getInverse()), CPQ.label(l1))));
+	}
+	
+	@Test
+	public void real2cpq4(){
+		assertEquals(new CardStat(60, 106, 54), evaluate(real2, CPQ.intersect(CPQ.concat(CPQ.label(l2), CPQ.intersect(l3, l1.getInverse())), CPQ.label(l1.getInverse()))));
+	}
+	
+	@Test
+	public void real2cpq5(){
+		assertEquals(new CardStat(1101, 19187, 244), evaluate(real2, CPQ.concat(CPQ.label(l1), CPQ.intersect(l1.getInverse(), l3), CPQ.label(l3.getInverse()))));
+	}
+	
+	@Test
+	public void real2cpq6(){
+		assertEquals(new CardStat(513, 2599, 393), evaluate(real2, CPQ.intersect(CPQ.labels(l2, l1.getInverse()), CPQ.labels(l2.getInverse(), l0))));
+	}
+	
+	@Test
+	public void real2cpq7(){
+		assertEquals(new CardStat(269, 2151, 179), evaluate(real2, CPQ.concat(CPQ.label(l3), CPQ.intersect(CPQ.label(l1), CPQ.labels(l3.getInverse(), l2.getInverse())))));
+	}
+	
+	@Test
+	public void real2cpq8(){
+		assertEquals(new CardStat(145, 5854, 1289), evaluate(real2, CPQ.concat(CPQ.intersect(CPQ.labels(l2.getInverse(), l3.getInverse()), CPQ.label(l2.getInverse())), CPQ.label(l1))));
+	}
+	
+	@Test
+	public void real2cpq9(){
+		assertEquals(new CardStat(707, 707, 707), evaluate(real2, CPQ.intersect(CPQ.id(), CPQ.concat(CPQ.label(l2.getInverse()), CPQ.intersect(l2, l2.getInverse())))));
+	}
+	
+	@Test
+	public void real2cpq10(){
+		assertEquals(new CardStat(741, 2294, 403), evaluate(real2, CPQ.concat(CPQ.intersect(CPQ.id(), CPQ.labels(l0.getInverse(), l0)), CPQ.label(l3.getInverse()))));
+	}
+	
+	@Test
+	public void real2cpq11(){
+		assertEquals(new CardStat(372, 1631, 412), evaluate(real2, CPQ.concat(CPQ.label(l3), CPQ.intersect(CPQ.id(), CPQ.labels(l3, l3.getInverse())))));
+	}
+	
+	@Test
 	public void real3rpq0(){
 		assertEquals(new CardStat(5482, 81754, 251), evaluate(real3, RPQ.concat(RPQ.label(l0), RPQ.kleene(RPQ.label(l3)), RPQ.kleene(RPQ.label(l2)))));
 	}

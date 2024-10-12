@@ -3,6 +3,7 @@ package nl.group9.quicksilver;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Locale;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -50,14 +51,21 @@ public class Main{
 				if(cli.hasOption('o')){
 					Files.writeString(
 						Paths.get(cli.getOptionValue('o')),
-						"""
-						{
-						  "load": %d,
-						  "prep": %d,
-						  "eval": %d,
-						  "score": %f
-						}
-						""".formatted(result.loadTime(), result.prepTime(), result.evalTime(), result.computeScore()).trim()
+						String.format(
+							Locale.ROOT,
+							"""
+							{
+							  "load": %d,
+							  "prep": %d,
+							  "eval": %d,
+							  "score": %f
+							}
+							""".trim(),
+							result.loadTime(),
+							result.prepTime(),
+							result.evalTime(),
+							result.computeScore()
+						)
 					);
 				}
 				

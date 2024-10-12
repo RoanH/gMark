@@ -551,422 +551,422 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	}
 	
 	@Test
-	public void syn1q0(){
+	public void syn1rpq0(){
 		assertEquals(new CardStat(2291, 118241, 861), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3)));
 	}
 	
 	@Test
-	public void syn1q1(){
+	public void syn1rpq1(){
 		assertEquals(new CardStat(1, 170, 170), evaluate(syn1, 3, RPQ.labels(l0, l1, l2, l2, l3)));
 	}
 	
 	@Test
-	public void syn1q2(){
+	public void syn1rpq2(){
 		assertEquals(new CardStat(1, 454, 454), evaluate(syn1, 12, RPQ.labels(l0, l1, l2, l2, l3)));
 	}
 	
 	@Test
-	public void syn1q3(){
+	public void syn1rpq3(){
 		assertEquals(new CardStat(1, 157, 157), evaluate(syn1, 48, RPQ.labels(l0, l1, l2, l2, l3)));
 	}
 	
 	@Test
-	public void syn1q4(){
+	public void syn1rpq4(){
 		assertEquals(new CardStat(275, 275, 1), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3), 4));
 	}
 	
 	@Test
-	public void syn1q5(){
+	public void syn1rpq5(){
 		assertEquals(new CardStat(73, 73, 1), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3), 13));
 	}
 	
 	@Test
-	public void syn1q6(){
+	public void syn1rpq6(){
 		assertEquals(new CardStat(185, 185, 1), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3), 47));
 	}
 	
 	@Test
-	public void syn1q7(){
+	public void syn1rpq7(){
 		assertEquals(new CardStat(2368, 25841, 270), evaluate(syn1, RPQ.labels(l0, l1, l2, l3)));
 	}
 	
 	@Test
-	public void syn1q8(){
+	public void syn1rpq8(){
 		assertEquals(new CardStat(3841, 7067, 4000), evaluate(syn1, RPQ.label(l0)));
 	}
 	
 	@Test
-	public void syn1q9(){
+	public void syn1rpq9(){
 		assertEquals(new CardStat(3841, 78917, 3841), evaluate(syn1, RPQ.labels(l0, l0.getInverse())));
 	}
 	
 	@Test
-	public void syn1q10(){
+	public void syn1rpq10(){
 		assertEquals(new CardStat(3841, 367675, 4000), evaluate(syn1, RPQ.labels(l0, l0.getInverse(), l0)));
 	}
 	
 	@Test
-	public void syn1q11(){
+	public void syn1rpq11(){
 		assertEquals(new CardStat(1, 57, 57), evaluate(syn1, 8, RPQ.labels(l0, l1, l2, l2, l3)));
 	}
 	
 	@Test
-	public void syn1q12(){
+	public void syn1rpq12(){
 		assertEquals(new CardStat(1, 26, 26), evaluate(syn1, 14, RPQ.labels(l0, l1, l2, l2, l3)));
 	}
 	
 	@Test
-	public void syn1q13(){
+	public void syn1rpq13(){
 		assertEquals(new CardStat(1, 262, 262), evaluate(syn1, 31, RPQ.labels(l0, l1, l2, l2, l3)));
 	}
 	
 	@Test
-	public void syn1q14(){
+	public void syn1rpq14(){
 		assertEquals(new CardStat(1, 397, 397), evaluate(syn1, 90, RPQ.labels(l0, l1, l2, l2, l3)));
 	}
 	
 	@Test
-	public void syn1q15(){
+	public void syn1rpq15(){
 		assertEquals(new CardStat(1, 362, 362), evaluate(syn1, 95, RPQ.labels(l0, l1, l2, l2, l3)));
 	}
 	
 	@Test
-	public void syn1q16(){
+	public void syn1rpq16(){
 		assertEquals(new CardStat(1, 94, 94), evaluate(syn1, 132, RPQ.labels(l0, l1, l2, l2, l3)));
 	}
 	
 	@Test
-	public void syn1q17(){
+	public void syn1rpq17(){
 		assertEquals(new CardStat(1, 220, 220), evaluate(syn1, 119, RPQ.labels(l0, l1, l2, l2, l3)));
 	}
 	
 	@Test
-	public void syn1q18(){
+	public void syn1rpq18(){
 		assertEquals(new CardStat(605, 605, 1), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3), 49));
 	}
 	
 	@Test
-	public void syn1q19(){
+	public void syn1rpq19(){
 		assertEquals(new CardStat(76, 76, 1), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3), 96));
 	}
 	
 	@Test
-	public void syn1q20(){
+	public void syn1rpq20(){
 		assertEquals(new CardStat(479, 479, 1), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3), 133));
 	}
 	
 	@Test
-	public void syn1q21(){
+	public void syn1rpq21(){
 		assertEquals(new CardStat(6234, 37006, 4491), evaluate(syn1, kleene(l0, l1)));
 	}
 	
 	@Test
-	public void syn1q22(){
+	public void syn1rpq22(){
 		assertEquals(new CardStat(3841, 7067, 4000), evaluate(syn1, RPQ.kleene(RPQ.label(l0))));
 	}
 	
 	@Test
-	public void syn1q23(){
+	public void syn1rpq23(){
 		assertEquals(new CardStat(2393, 10460, 491), evaluate(syn1, RPQ.kleene(RPQ.label(l1))));
 	}
 	
 	@Test
-	public void syn1q24(){
+	public void syn1rpq24(){
 		assertEquals(new CardStat(944, 4065, 968), evaluate(syn1, RPQ.kleene(RPQ.label(l2))));
 	}
 	
 	@Test
-	public void syn1q25(){
+	public void syn1rpq25(){
 		assertEquals(new CardStat(807, 1907, 1676), evaluate(syn1, RPQ.kleene(RPQ.label(l3))));
 	}
 	
 	@Test
-	public void syn1q26(){
+	public void syn1rpq26(){
 		assertEquals(new CardStat(7178, 185374, 5459), evaluate(syn1, kleene(l0, l1, l2)));
 	}
 	
 	@Test
-	public void real1q0(){
+	public void real1rpq0(){
 		assertEquals(new CardStat(823, 823, 282), evaluate(real1, RPQ.label(l1)));
 	}
 	
 	@Test
-	public void real1q1(){
+	public void real1rpq1(){
 		assertEquals(new CardStat(823, 823, 282), evaluate(real1, RPQ.kleene(RPQ.label(l1))));
 	}
 	
 	@Test
-	public void real1q2(){
+	public void real1rpq2(){
 		assertEquals(new CardStat(780, 1396, 143), evaluate(real1, RPQ.labels(l1, l8)));
 	}
 	
 	@Test
-	public void real1q3(){
+	public void real1rpq3(){
 		assertEquals(new CardStat(3112, 4964, 1150), evaluate(real1, RPQ.label(l8)));
 	}
 	
 	@Test
-	public void real1q4(){
+	public void real1rpq4(){
 		assertEquals(new CardStat(3112, 7442, 1150), evaluate(real1, RPQ.kleene(RPQ.label(l8))));
 	}
 	
 	@Test
-	public void real1q5(){
+	public void real1rpq5(){
 		assertEquals(new CardStat(780, 1778, 151), evaluate(real1, RPQ.concat(RPQ.kleene(RPQ.label(l1)), RPQ.kleene(RPQ.label(l8)))));
 	}
 	
 	@Test
-	public void real1q6(){
+	public void real1rpq6(){
 		assertEquals(new CardStat(535, 3240, 17), evaluate(real1, RPQ.labels(l1, l8, l9)));
 	}
 	
 	@Test
-	public void real1q7(){
+	public void real1rpq7(){
 		assertEquals(new CardStat(595, 3455, 17), evaluate(real1, RPQ.concat(RPQ.label(l1), RPQ.kleene(RPQ.label(l8)), RPQ.kleene(RPQ.label(l9)))));
 	}
 	
 	@Test
-	public void real1q8(){
+	public void real1rpq8(){
 		assertEquals(new CardStat(340, 340, 1), evaluate(real1, RPQ.labels(l1, l8, l9, l8)));
 	}
 	
 	@Test
-	public void real1q9(){
+	public void real1rpq9(){
 		assertEquals(new CardStat(340, 4420, 13), evaluate(real1, RPQ.labels(l1, l8, l9, l8, l17)));
 	}
 	
 	@Test
-	public void real1q10(){
+	public void real1rpq10(){
 		assertEquals(new CardStat(743, 9659, 13), evaluate(real1, RPQ.labels(l8, l9, l8, l17)));
 	}
 	
 	@Test
-	public void real1q11(){
+	public void real1rpq11(){
 		assertEquals(new CardStat(4, 52, 13), evaluate(real1, RPQ.labels(l9, l8, l17)));
 	}
 	
 	@Test
-	public void real1q12(){
+	public void real1rpq12(){
 		assertEquals(new CardStat(4, 52, 13), evaluate(real1, RPQ.concat(RPQ.label(l9), RPQ.kleene(RPQ.label(l8)), RPQ.label(l17))));
 	}
 	
 	@Test
-	public void real1q13(){
+	public void real1rpq13(){
 		assertEquals(new CardStat(4, 4, 1), evaluate(real1, RPQ.labels(l9, l8)));
 	}
 	
 	@Test
-	public void real1q14(){
+	public void real1rpq14(){
 		assertEquals(new CardStat(1, 1, 1), evaluate(real1, 200, RPQ.label(l1)));
 	}
 	
 	@Test
-	public void real1q15(){
+	public void real1rpq15(){
 		assertEquals(new CardStat(1, 1, 1), evaluate(real1, 242, RPQ.label(l1)));
 	}
 	
 	@Test
-	public void real1q16(){
+	public void real1rpq16(){
 		assertEquals(new CardStat(1, 2, 2), evaluate(real1, 200, RPQ.labels(l1, l8)));
 	}
 	
 	@Test
-	public void real1q17(){
+	public void real1rpq17(){
 		assertEquals(new CardStat(1, 2, 2), evaluate(real1, 200, RPQ.concat(RPQ.label(l1), RPQ.kleene(RPQ.label(l8)))));
 	}
 	
 	@Test
-	public void real1q18(){
+	public void real1rpq18(){
 		assertEquals(new CardStat(1, 2, 2), evaluate(real1, 227, RPQ.labels(l1, l8)));
 	}
 	
 	@Test
-	public void real1q19(){
+	public void real1rpq19(){
 		assertEquals(new CardStat(1, 2, 2), evaluate(real1, 227, RPQ.concat(RPQ.kleene(RPQ.label(l1)), RPQ.kleene(RPQ.label(l8)))));
 	}
 	
 	@Test
-	public void real1q20(){
+	public void real1rpq20(){
 		assertEquals(new CardStat(1, 3, 3), evaluate(real1, 227, kleene(l1, l8)));
 	}
 	
 	@Test
-	public void real1q21(){
+	public void real1rpq21(){
 		assertEquals(new CardStat(3935, 10010, 1328), evaluate(real1, kleene(l1, l8)));
 	}
 	
 	@Test
-	public void real1q22(){
+	public void real1rpq22(){
 		assertEquals(new CardStat(2114, 5065, 1340), evaluate(real1, kleene(l0, l1, l2)));
 	}
 	
 	@Test
-	public void real1q23(){
+	public void real1rpq23(){
 		assertEquals(new CardStat(2164, 5167, 1389), evaluate(real1, kleene(l0, l1, l2, l3)));
 	}
 	
 	@Test
-	public void real1q24(){
+	public void real1rpq24(){
 		assertEquals(new CardStat(4122, 9020, 1391), evaluate(real1, kleene(l0, l1, l2, l3, l4)));
 	}
 	
 	@Test
-	public void real2q0(){
+	public void real2rpq0(){
 		assertEquals(new CardStat(3005, 17258, 1480), evaluate(real2, RPQ.label(l0)));
 	}
 	
 	@Test
-	public void real2q1(){
+	public void real2rpq1(){
 		assertEquals(new CardStat(3016, 21260, 2963), evaluate(real2, RPQ.label(l1)));
 	}
 	
 	@Test
-	public void real2q2(){
+	public void real2rpq2(){
 		assertEquals(new CardStat(2723, 216799, 2510), evaluate(real2, RPQ.labels(l0, l1)));
 	}
 	
 	@Test
-	public void real2q3(){
+	public void real2rpq3(){
 		assertEquals(new CardStat(2886, 183286, 2547), evaluate(real2, RPQ.labels(l0, l1.getInverse())));
 	}
 	
 	@Test
-	public void real2q4(){
+	public void real2rpq4(){
 		assertEquals(new CardStat(2657, 835604, 2441), evaluate(real2, RPQ.labels(l0, l1, l2)));
 	}
 	
 	@Test
-	public void real2q5(){
+	public void real2rpq5(){
 		assertEquals(new CardStat(2214, 395003, 1693), evaluate(real2, RPQ.labels(l1, l2, l3)));
 	}
 	
 	@Test
-	public void real2q6(){
+	public void real2rpq6(){
 		assertEquals(new CardStat(946, 31587, 1697), evaluate(real2, RPQ.labels(l2, l3)));
 	}
 	
 	@Test
-	public void real2q7(){
+	public void real2rpq7(){
 		assertEquals(new CardStat(2580, 1335113, 1684), evaluate(real2, RPQ.labels(l0, l1, l2, l3)));
 	}
 	
 	@Test
-	public void real2q8(){
+	public void real2rpq8(){
 		assertEquals(new CardStat(2639, 756006, 1528), evaluate(real2, RPQ.labels(l0, l1, l2.getInverse(), l3)));
 	}
 	
 	@Test
-	public void real2q9(){
+	public void real2rpq9(){
 		assertEquals(new CardStat(1, 33, 33), evaluate(real2, 8, RPQ.label(l0)));
 	}
 	
 	@Test
-	public void real2q10(){
+	public void real2rpq10(){
 		assertEquals(new CardStat(1, 12, 12), evaluate(real2, 12, RPQ.label(l0)));
 	}
 	
 	@Test
-	public void real2q11(){
+	public void real2rpq11(){
 		assertEquals(new CardStat(1, 439, 439), evaluate(real2, 8, RPQ.labels(l0, l1)));
 	}
 	
 	@Test
-	public void real2q12(){
+	public void real2rpq12(){
 		assertEquals(new CardStat(1, 182, 182), evaluate(real2, 16, RPQ.labels(l0, l1)));
 	}
 	
 	@Test
-	public void real2q13(){
+	public void real2rpq13(){
 		assertEquals(new CardStat(1, 203, 203), evaluate(real2, 32, RPQ.labels(l0, l1)));
 	}
 	
 	@Test
-	public void real2q14(){
+	public void real2rpq14(){
 		assertEquals(new CardStat(1, 697, 697), evaluate(real2, 32, RPQ.labels(l1, l2, l3)));
 	}
 	
 	@Test
-	public void real2q15(){
+	public void real2rpq15(){
 		assertEquals(new CardStat(1, 5, 5), evaluate(real2, 45, RPQ.labels(l1, l2, l3)));
 	}
 	
 	@Test
-	public void real3q0(){
+	public void real3rpq0(){
 		assertEquals(new CardStat(5482, 81754, 251), evaluate(real3, RPQ.concat(RPQ.label(l0), RPQ.kleene(RPQ.label(l3)), RPQ.kleene(RPQ.label(l2)))));
 	}
 	
 	@Test
-	public void real3q1(){
+	public void real3rpq1(){
 		assertEquals(new CardStat(6032, 60754, 34), evaluate(real3, RPQ.concat(RPQ.label(l0), RPQ.kleene(RPQ.label(l3)), RPQ.label(l2.getInverse()))));
 	}
 	
 	@Test
-	public void real3q2(){
+	public void real3rpq2(){
 		assertEquals(new CardStat(5482, 81702, 243), evaluate(real3, RPQ.labels(l0, l3, l2)));
 	}
 	
 	@Test
-	public void real3q3(){
+	public void real3rpq3(){
 		assertEquals(new CardStat(3, 12, 4), evaluate(real3, RPQ.labels(l0, l3, l2, l1, l4, l2)));
 	}
 	
 	@Test
-	public void real3q4(){
+	public void real3rpq4(){
 		assertEquals(new CardStat(1596, 6384, 4), evaluate(real3, RPQ.labels(l3, l2, l1, l4, l2)));
 	}
 	
 	@Test
-	public void real3q5(){
+	public void real3rpq5(){
 		assertEquals(new CardStat(45351, 118371, 18098), evaluate(real3, kleene(l0, l1, l2)));
 	}
 	
 	@Test
-	public void real3q6(){
+	public void real3rpq6(){
 		assertEquals(new CardStat(58167, 841888, 36508), evaluate(real3, kleene(l0, l1, l2, l3)));
 	}
 	
 	@Test
-	public void real3q7(){
+	public void real3rpq7(){
 		assertEquals(new CardStat(58635, 940640, 36594), evaluate(real3, kleene(l0, l1, l2, l3, l4)));
 	}
 	
 	@Test
-	public void real4q0(){
+	public void real4rpq0(){
 		assertEquals(new CardStat(1, 1, 1), evaluate(real4, RPQ.labels(l0, l2, l3, l4, l5, l1)));
 	}
 	
 	@Test
-	public void real4q1(){
+	public void real4rpq1(){
 		assertEquals(new CardStat(19591, 49678, 8090), evaluate(real4, kleene(l0, l1, l2)));
 	}
 	
 	@Test
-	public void real4q2(){
+	public void real4rpq2(){
 		assertEquals(new CardStat(20133, 52278, 8518), evaluate(real4, kleene(l0, l1, l2, l3)));
 	}
 	
 	@Test
-	public void real4q3(){
+	public void real4rpq3(){
 		assertEquals(new CardStat(59043, 99433, 30672), evaluate(real4, kleene(l0, l1, l2, l3, l4)));
 	}
 	
 	@Test
-	public void real5q0(){
+	public void real5rpq0(){
 		assertEquals(new CardStat(23, 23, 1), evaluate(real5, RPQ.labels(l4, l3, l0, l2, l4, l1)));
 	}
 	
 	@Test
-	public void real5q1(){
+	public void real5rpq1(){
 		assertEquals(new CardStat(117599, 187448, 27431), evaluate(real5, kleene(l0, l1, l2)));
 	}
 	
 	@Test
-	public void real5q2(){
+	public void real5rpq2(){
 		assertEquals(new CardStat(132218, 240562, 32690), evaluate(real5, kleene(l0, l1, l2, l3)));
 	}
 	
 	@Test
-	public void real5q3(){
+	public void real5rpq3(){
 		assertEquals(new CardStat(141187, 494784, 37545), evaluate(real5, kleene(l0, l1, l2, l3, l4)));
 	}
 	

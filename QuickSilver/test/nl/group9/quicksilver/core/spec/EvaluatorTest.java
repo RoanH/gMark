@@ -695,6 +695,51 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	public void syn1rpq26(){
 		assertEquals(new CardStat(7178, 185374, 5459), evaluate(syn1, kleene(l0, l1, l2)));
 	}
+
+	@Test
+	public void syn1cpq0(){
+		assertEquals(new CardStat(4, 4, 4), evaluate(syn1, CPQ.intersect(CPQ.id(), CPQ.labels(l1.getInverse(), l3.getInverse(), l2.getInverse()))));
+	}
+
+	@Test
+	public void syn1cpq1(){
+		assertEquals(new CardStat(2393, 4374, 2699), evaluate(syn1, CPQ.concat(CPQ.intersect(CPQ.id(), CPQ.labels(l1, l1.getInverse())), CPQ.label(l0.getInverse()))));
+	}
+
+	@Test
+	public void syn1cpq2(){
+		assertEquals(new CardStat(2393, 10460, 491), evaluate(syn1, CPQ.concat(CPQ.intersect(CPQ.id(), CPQ.labels(l1, l1.getInverse())), CPQ.label(l1))));
+	}
+
+	@Test
+	public void syn1cpq3(){
+		assertEquals(new CardStat(1268, 7904, 886), evaluate(syn1, CPQ.labels(l3.getInverse(), l2.getInverse(), l2)));
+	}
+
+	@Test
+	public void syn1cpq4(){
+		assertEquals(new CardStat(280, 5728, 280), evaluate(syn1, CPQ.intersect(CPQ.labels(l2, l2.getInverse()), CPQ.labels(l1.getInverse(), l1))));
+	}
+
+	@Test
+	public void syn1cpq5(){
+		assertEquals(new CardStat(4, 4, 4), evaluate(syn1, CPQ.intersect(CPQ.id(), CPQ.labels(l1, l2, l3))));
+	}
+
+	@Test
+	public void syn1cpq6(){
+		assertEquals(new CardStat(2393, 2393, 2393), evaluate(syn1, CPQ.intersect(CPQ.id(), CPQ.labels(l1, l1.getInverse()))));
+	}
+	
+	@Test
+	public void syn1cpq7(){
+		assertEquals(new CardStat(1, 157, 157), evaluate(syn1, 48, CPQ.labels(l0, l1, l2, l2, l3)));
+	}
+	
+	@Test
+	public void syn1cpq8(){
+		assertEquals(new CardStat(275, 275, 1), evaluate(syn1, CPQ.labels(l0, l1, l2, l2, l3), 4));
+	}
 	
 	@Test
 	public void real1rpq0(){

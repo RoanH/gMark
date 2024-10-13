@@ -209,7 +209,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return The result graph representing the union of the input graphs.
 	 */
 	private static SimpleGraph disjunction(SimpleGraph left, SimpleGraph right){
-		//see optimisation 2.1, 2.5, 2.20 & (2.21)
+		//see optimisation 2.1, 2.5, 2.20, (2.21) & 2.22
 		SimpleGraph out = new SimpleGraph(left.getVertexCount(), 1);
 		
 		//copy all edges in the left graph

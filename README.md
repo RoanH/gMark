@@ -1,7 +1,7 @@
 # QuickSilver
 QuickSilver is a simple graph database that supports evaluating reachability queries written in the CPQ and RPQ query languages.
 
-> TODO link optim & db terms
+The two most important references for working with this codebase are the optimisations documented in [Optimising a Simple Graph Database](https://research.roanh.dev/Optimising%20a%20Simple%20Graph%20Database%20v1.1.pdf) and the [Graph Database & Query Evaluation Terminology](https://research.roanh.dev/Graph%20Database%20&%20Query%20Evaluation%20Terminology%20v1.3.pdf) reference document. Other references can be found at the end of this README under [Main Reference Material](#main-reference-material).
 
 ## High Level Overview
 QuickSilver is divided into three source sets:
@@ -49,7 +49,7 @@ For more details see the [BenchmarkResult](QuickSilver/core/nl/group9/quicksilve
 - [Graph Database & Query Evaluation Terminology](https://research.roanh.dev/Graph%20Database%20&%20Query%20Evaluation%20Terminology%20v1.3.pdf), the hand-out provided with basic definitions of all core terminology and concepts used.
 - [Querying Graphs](https://perso.liris.cnrs.fr/angela.bonifati/pubs/book-Bonifati-et-al-18.pdf), this book is the main reference for graph specific database algorithms.
 - [Database System Concepts](https://www.db-book.com/), this book is the main reference for non-graph specific database algorithms (note that we have one copy in the library).
-- [Indexing Conjunctive Path Queries for Accelerated Query Evaluation](https://thesis.roanh.dev/), this is my master's thesis on constructing a CPQ-native Graph Database Index. This document currently contains the most extensive and detailed write-up of how CPQs are structured, and contains the specification for the algorithms in gMark for CPQ Query Graph Computation, Query Homomorphism testing, CPQ Core Computation, and [various other utility algorithms](https://github.com/RoanH/gMark/releases/tag/v1.2).
+- [Indexing Conjunctive Path Queries for Accelerated Query Evaluation](https://thesis.roanh.dev/), this is my master's thesis on constructing a CPQ-native Graph Database Index. This document currently contains the most extensive and detailed write-up of how CPQs are structured, and contains the specification for many of the algorithms implemented in gMark.
 
 ## History
 Project development started: 14th of June, 2024.

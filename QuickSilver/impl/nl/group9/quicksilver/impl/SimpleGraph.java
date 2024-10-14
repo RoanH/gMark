@@ -80,11 +80,7 @@ public class SimpleGraph implements DatabaseGraph, ResultGraph{
 	public List<SourceLabelPair> getIncomingEdges(int target){
 		return reverseAdjacencyList.get(target);
 	}
-
 	
-
-	
-
 	/**
 	 * Checks if this graph contains the given edge.
 	 * @param source The source vertex for the edge.

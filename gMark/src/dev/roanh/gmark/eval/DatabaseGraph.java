@@ -2,7 +2,7 @@ package dev.roanh.gmark.eval;
 
 import dev.roanh.gmark.core.graph.Predicate;
 
-public class BinaryDatabaseGraph{
+public class DatabaseGraph{
 	private final int vertexCount;
 	private final int[] syn1;
 	protected final int[] slt;
@@ -30,18 +30,17 @@ public class BinaryDatabaseGraph{
 		return syn1.length;
 	}
 	
-	
-	public BinaryGraph selectLabel(Predicate label){
-		BinaryGraph out = new BinaryGraph(vertexCount, getEdgeCount(label));
+	public ResultGraph selectLabel(Predicate label){
+		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount(label));
 		
 		final int[] data = label.isInverse() ? reverseSlt : slt;
 		for(int source = 0; source < vertexCount; source++){
 			out.setActiveSource(source);
 			
-			int start = data[source];
+			final int start = data[source];
 			if(start != data[source + 1]){
-				int labelStart = data[start + label.getID()];
-				int labelEnd = data[start + label.getID() + 1];
+				final int labelStart = data[start + label.getID()];
+				final int labelEnd = data[start + label.getID() + 1];
 				for(int i = labelStart; i < labelEnd; i++){
 					out.addTarget(data[i]);
 				}
@@ -57,8 +56,8 @@ public class BinaryDatabaseGraph{
 //	 * are selected together with themselves to form a complete source target pair.
 //	 * @return A copy of the input graph containing only vertices selected with themselves.
 //	 */
-	public BinaryGraph selectIdentity(){
-		BinaryGraph out = new BinaryGraph(vertexCount, vertexCount);
+	public ResultGraph selectIdentity(){
+		ResultGraph out = new ResultGraph(vertexCount, vertexCount);
 
 		for(int vertex = 0; vertex < vertexCount; vertex++){
 			out.setActiveSource(vertex);

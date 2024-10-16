@@ -41,7 +41,7 @@ public class SmartBitSet{
 		return data.cardinality();
 	}
 	
-	public int rangeCount(){
-		//TODO bitset does not support this
-	}
+//	public int rangeCount(){
+//		//TODO bitset does not support this
+//	}
 }

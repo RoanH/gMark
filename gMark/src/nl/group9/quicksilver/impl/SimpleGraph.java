@@ -18,7 +18,7 @@ import nl.group9.quicksilver.impl.data.TargetLabelPair;
  * @author Roan
  * @see <a href="https://en.wikipedia.org/wiki/Adjacency_list">Adjacency List Based Graph</a>
  */
-public class SimpleGraph implements DatabaseGraph, ResultGraph{
+public class SimpleGraph implements DatabaseGraph{
 	//see optimisation 2.15 & 2.16
 	/**
 	 * The (maximum) number of distinct labels in this graph.
@@ -150,21 +150,7 @@ public class SimpleGraph implements DatabaseGraph, ResultGraph{
 		reverseAdjacencyList.get(target).add(new SourceLabelPair(source, label));
 	}
 
-	public List<SourceTargetPair> getSourceTargetPairs(){
-		//note: runtime for this method only matters in unit tests, it is not used during benchmarks.
-		List<SourceTargetPair> edges = new ArrayList<SourceTargetPair>();
-		
-		for(int i = 0; i < vertexCount; i++){
-			for(TargetLabelPair edge : adjacenyList.get(i)){
-				edges.add(new SourceTargetPair(i, edge.target()));
-			}
-		}
-		
-		return edges.stream().distinct().toList();
-	}
-	
 	public CardStat computeCardinality(){
-		//see optimisation 2.12
 
 		int outCount = 0;
 		for(int source = 0; source < vertexCount; source++){

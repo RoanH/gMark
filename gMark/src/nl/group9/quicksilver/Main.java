@@ -47,28 +47,6 @@ public class Main{
 					Paths.get(cli.getOptionValue('w'))
 				);
 				
-				System.out.println("Benchmark result: " + result);
-				if(cli.hasOption('o')){
-					Files.writeString(
-						Paths.get(cli.getOptionValue('o')),
-						String.format(
-							Locale.ROOT,
-							"""
-							{
-							  "load": %d,
-							  "prep": %d,
-							  "eval": %d,
-							  "score": %f
-							}
-							""".trim(),
-							result.loadTime(),
-							result.prepTime(),
-							result.evalTime(),
-							result.computeScore()
-						)
-					);
-				}
-				
 				return;
 			}
 		}catch(ParseException ignore){

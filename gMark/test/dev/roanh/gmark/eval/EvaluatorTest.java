@@ -1,4 +1,4 @@
-package nl.group9.quicksilver.core.spec;
+package dev.roanh.gmark.eval;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;

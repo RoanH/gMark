@@ -12,13 +12,6 @@ package nl.group9.quicksilver.core.spec;
 public abstract interface EvaluatorProvider<G extends DatabaseGraph, R extends ResultGraph>{
 
 	/**
-	 * Constructs a new evaluator instance to be used to evaluate queries.
-	 * @return The constructed evaluator instance.
-	 * @see Evaluator
-	 */
-	public abstract Evaluator<G, R> createEvaluator();
-	
-	/**
 	 * Constructs a new empty graph to use for for the main database graph. After construction
 	 * the graph will be built up using {@link DatabaseGraph#addEdge(int, int, int)}.
 	 * @param vertexCount The number of vertices the allocated graph has to have space for.

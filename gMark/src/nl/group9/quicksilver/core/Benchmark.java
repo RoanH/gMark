@@ -26,7 +26,6 @@ import dev.roanh.gmark.lang.cpq.ParserCPQ;
 import dev.roanh.gmark.lang.rpq.ParserRPQ;
 import dev.roanh.gmark.util.Util;
 
-import nl.group9.quicksilver.core.data.BenchmarkResult;
 import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.PathQuery;
 import nl.group9.quicksilver.core.spec.DatabaseGraph;

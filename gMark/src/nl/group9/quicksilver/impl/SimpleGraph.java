@@ -150,7 +150,6 @@ public class SimpleGraph implements DatabaseGraph, ResultGraph{
 		reverseAdjacencyList.get(target).add(new SourceLabelPair(source, label));
 	}
 
-	@Override
 	public List<SourceTargetPair> getSourceTargetPairs(){
 		//note: runtime for this method only matters in unit tests, it is not used during benchmarks.
 		List<SourceTargetPair> edges = new ArrayList<SourceTargetPair>();
@@ -164,7 +163,6 @@ public class SimpleGraph implements DatabaseGraph, ResultGraph{
 		return edges.stream().distinct().toList();
 	}
 	
-	@Override
 	public CardStat computeCardinality(){
 		//see optimisation 2.12
 

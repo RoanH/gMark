@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import dev.roanh.gmark.eval.ResultGraph;
 import dev.roanh.gmark.util.RangeList;
 
 import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.SourceTargetPair;
 import nl.group9.quicksilver.core.spec.DatabaseGraph;
-import nl.group9.quicksilver.core.spec.ResultGraph;
 import nl.group9.quicksilver.impl.data.SourceLabelPair;
 import nl.group9.quicksilver.impl.data.TargetLabelPair;
 

@@ -1,5 +1,7 @@
 package nl.group9.quicksilver.core.spec;
 
+import dev.roanh.gmark.eval.ResultGraph;
+
 import nl.group9.quicksilver.core.data.PathQuery;
 
 /**

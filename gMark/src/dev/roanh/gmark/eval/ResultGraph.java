@@ -1,6 +1,8 @@
-package nl.group9.quicksilver.core.spec;
+package dev.roanh.gmark.eval;
 
 import java.util.List;
+
+import dev.roanh.gmark.util.graph.BinaryGraph;
 
 import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.SourceTargetPair;
@@ -16,7 +18,10 @@ import nl.group9.quicksilver.core.data.SourceTargetPair;
  * @see CardStat
  * @see SourceTargetPair
  */
-public abstract interface ResultGraph{
+public class ResultGraph{
+	private final BinaryGraph graph;
+	
+	//TODO may not be spec but actual impl
 
 	/**
 	 * Computes cardinality statistics for the result contained in this graph.

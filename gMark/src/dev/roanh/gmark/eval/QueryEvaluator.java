@@ -1,30 +1,27 @@
-package nl.group9.quicksilver.impl;
+package dev.roanh.gmark.eval;
 
 import java.util.Optional;
 
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.graph.BinaryGraph;
 
 import nl.group9.quicksilver.core.data.PathQuery;
 import nl.group9.quicksilver.core.spec.DatabaseGraph;
 import nl.group9.quicksilver.core.spec.Evaluator;
-import nl.group9.quicksilver.core.spec.ResultGraph;
+import nl.group9.quicksilver.impl.SimpleGraph;
 import nl.group9.quicksilver.impl.data.SourceLabelPair;
 import nl.group9.quicksilver.impl.data.TargetLabelPair;
 
 /**
  * Implementation of a simple reachability query evaluator. Note that for simplicity
  * and performance vertex, edge and label information is abstracted away and instead
- * associated with an integer. There is no need to account for database graph modifications
- * at run time, so you can construct all the indices you want without having to worry about updates.
+ * associated with an integer.
  * @author Roan
  * @see <a href="https://research.roanh.dev/Graph%20Database%20&%20Query%20Evaluation%20Terminology%20v1.3.pdf">
  *      Graph Database &amp; Query Evaluation Terminology</a>
- * @see DatabaseGraph
- * @see ResultGraph
- * @see Evaluator
  */
-public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
+public class QueryEvaluator{
 	/**
 	 * After projection labels are no longer useful and generally make database operations
 	 * hard or ambiguous to implement, so they are typically erased as soon as possible.
@@ -39,13 +36,11 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 */
 	private SimpleGraph graph;
 
-	@Override
 	public void prepare(SimpleGraph graph){
 		//see optimisation (2.5), 2.16, 2.17 & (2.20)
 		this.graph = graph;
 	}
 	
-	@Override
 	public SimpleGraph evaluate(PathQuery query){
 		//see optimisation 2.6 & 2.11
 		SimpleGraph result = evaluate(query.query().toAbstractSyntaxTree());
@@ -71,7 +66,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @return The result of evaluating the given query tree.
 	 * @see QueryTree
 	 */
-	private SimpleGraph evaluate(QueryTree path){
+	private ResultGraph evaluate(QueryTree path){
 		//see optimisation (2.3), (2.4), 2.7, 2.9, 2.10 & 2.17
 		switch(path.getOperation()){
 		case CONCATENATION:
@@ -102,7 +97,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @param in The input database graph to select vertices from.
 	 * @return A copy of the input graph containing only vertices selected with themselves.
 	 */
-	private static SimpleGraph selectIdentity(SimpleGraph in){
+	private static BinaryGraph selectIdentity(SimpleGraph in){
 		//see optimisation 2.1, (2.3), (2.4) & (2.9)
 		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 
@@ -119,7 +114,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @param in The input database graph to select edges from.
 	 * @return A copy of the input graph containing only edges with the given label.
 	 */
-	private static SimpleGraph selectLabel(int projectLabel, SimpleGraph in){
+	private static BinaryGraph selectLabel(int projectLabel, SimpleGraph in){
 		//see optimisation 2.1, (2.3), (2.4), 2.5 & 2.20 
 		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		
@@ -141,7 +136,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @param in The input database graph to select inverted edges from.
 	 * @return A copy of the input graph containing only inverted edges with the given label.
 	 */
-	private static SimpleGraph selectInverseLabel(int projectLabel, SimpleGraph in){
+	private static BinaryGraph selectInverseLabel(int projectLabel, SimpleGraph in){
 		//see optimisation 2.1, (2.3), (2.4), 2.5 & 2.20 
 		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		
@@ -163,7 +158,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @param in The input graph to compute the transitive closure of.
 	 * @return A new graph representing the transitive closure of the input graph.
 	 */
-	private static SimpleGraph transitiveClosure(SimpleGraph in){
+	private static BinaryGraph transitiveClosure(SimpleGraph in){
 		//see optimisation 2.1, 2.5, 2.8, 2.20 & (2.21)
 		SimpleGraph transitiveClosure = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		unionDistinct(transitiveClosure, in);
@@ -208,7 +203,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @param right The right input graph.
 	 * @return The result graph representing the union of the input graphs.
 	 */
-	private static SimpleGraph disjunction(SimpleGraph left, SimpleGraph right){
+	private static BinaryGraph disjunction(SimpleGraph left, SimpleGraph right){
 		//see optimisation 2.1, 2.5, 2.20, (2.21) & 2.22
 		SimpleGraph out = new SimpleGraph(left.getVertexCount(), 1);
 		
@@ -238,7 +233,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @param right The right input graph.
 	 * @return The result graph representing the intersection of the input graphs.
 	 */
-	private static SimpleGraph intersection(SimpleGraph left, SimpleGraph right){
+	private static BinaryGraph intersection(SimpleGraph left, SimpleGraph right){
 		//see optimisation 2.1, 2.5, 2.19, 2.20 & (2.21)
 		SimpleGraph out = new SimpleGraph(left.getVertexCount(), left.getLabelCount());
 		
@@ -262,7 +257,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @param right The right input graph containing path suffixes.
 	 * @return The result graph representing the join of the input graphs.
 	 */
-	private static SimpleGraph join(SimpleGraph left, SimpleGraph right){
+	private static BinaryGraph join(SimpleGraph left, SimpleGraph right){
 		//see optimisation 2.1, 2.5, 2.18, 2.20 & (2.21)
 		SimpleGraph out = new SimpleGraph(left.getVertexCount(), 1);
 		
@@ -284,7 +279,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @param in The input graph to select edges from.
 	 * @return A copy of the input graph containing only the edges that started at the given source vertex.
 	 */
-	private static SimpleGraph selectSource(int source, SimpleGraph in){
+	private static BinaryGraph selectSource(int source, SimpleGraph in){
 		//see optimisation 2.1, 2.3, 2.5, (2.20) & (2.21)
 		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		for(TargetLabelPair edge : in.getOutgoingEdges(source)){
@@ -300,7 +295,7 @@ public class SimpleEvaluator implements Evaluator<SimpleGraph, SimpleGraph>{
 	 * @param in The input graph to select edges from.
 	 * @return A copy of the input graph containing only the edges that ended at the given target vertex.
 	 */
-	private static SimpleGraph selectTarget(int target, SimpleGraph in){
+	private static BinaryGraph selectTarget(int target, SimpleGraph in){
 		//see optimisation 2.1, 2.4, 2.5, (2.20) & (2.21)
 		SimpleGraph out = new SimpleGraph(in.getVertexCount(), in.getLabelCount());
 		for(SourceLabelPair edge : in.getIncomingEdges(target)){

@@ -1,5 +1,7 @@
 package nl.group9.quicksilver.core.spec;
 
+import dev.roanh.gmark.eval.ResultGraph;
+
 /**
  * Simple bridging facility deliver the right concrete implementation
  * of the evaluator and database graph that should be used in QuickSilver.

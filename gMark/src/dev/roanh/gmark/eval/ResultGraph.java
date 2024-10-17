@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import dev.roanh.gmark.data.CardStat;
+import dev.roanh.gmark.data.SourceTargetPair;
 import dev.roanh.gmark.util.SmartBitSet;
-
-import nl.group9.quicksilver.core.data.CardStat;
-import nl.group9.quicksilver.core.data.SourceTargetPair;
 
 /**
  * Result graph describing the result of a database operation
@@ -22,11 +21,13 @@ import nl.group9.quicksilver.core.data.SourceTargetPair;
  */
 public class ResultGraph{
 	private final int vertexCount;
+	private final boolean sorted;
 	private int[] csr;
 	private int head;
 	
-	public ResultGraph(int vertexCount, int sizeEstimate){
+	protected ResultGraph(int vertexCount, int sizeEstimate, boolean sorted){
 		this.vertexCount = vertexCount;
+		this.sorted = sorted;
 		csr = new int[vertexCount + 1 + sizeEstimate];
 		head = vertexCount + 1;
 	}

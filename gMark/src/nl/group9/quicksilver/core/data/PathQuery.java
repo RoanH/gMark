@@ -2,6 +2,7 @@ package nl.group9.quicksilver.core.data;
 
 import java.util.Optional;
 
+import dev.roanh.gmark.data.SourceTargetPair;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.CPQ;

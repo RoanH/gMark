@@ -1,4 +1,4 @@
-package nl.group9.quicksilver.impl.data;
+package dev.roanh.gmark.data;
 
 /**
  * Record representing the combination of a target vertex and a label.

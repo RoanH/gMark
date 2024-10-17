@@ -14,14 +14,14 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.data.CardStat;
+import dev.roanh.gmark.data.SourceTargetPair;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
 
 import nl.group9.quicksilver.core.GraphUtil;
-import nl.group9.quicksilver.core.data.CardStat;
 import nl.group9.quicksilver.core.data.PathQuery;
-import nl.group9.quicksilver.core.data.SourceTargetPair;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGraph>{

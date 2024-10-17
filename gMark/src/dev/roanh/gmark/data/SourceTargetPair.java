@@ -1,4 +1,4 @@
-package nl.group9.quicksilver.core.data;
+package dev.roanh.gmark.data;
 
 /**
  * Combination of a source and target vertex implicitly representing

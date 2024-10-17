@@ -1,8 +1,10 @@
 package dev.roanh.gmark.eval;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Deque;
 import java.util.List;
 
 import dev.roanh.gmark.data.CardStat;
@@ -32,6 +34,13 @@ public class ResultGraph{
 		this.sorted = sorted;
 		csr = new int[vertexCount + 1 + sizeEstimate];
 		head = vertexCount + 1;
+	}
+	
+	private ResultGraph(ResultGraph base, int sizeEstimate){
+		vertexCount = base.vertexCount;
+		sorted = base.sorted;
+		head = base.head;
+		csr = Arrays.copyOf(base.csr, Math.max(base.csr.length, sizeEstimate));
 	}
 	
 	public int getEdgeCount(){
@@ -220,20 +229,58 @@ public class ResultGraph{
 //	 * @param in The input graph to compute the transitive closure of.
 //	 * @return A new graph representing the transitive closure of the input graph.
 //	 */
+//	public ResultGraph transitiveClosure(){
+//		 ResultGraph out = this;
+//		 
+//		 int lastSize = out.getEdgeCount();
+//		 while(true){
+//			 out = out.union(out.join(this));
+//			 if(out.getEdgeCount() != lastSize){
+//				 lastSize = out.getEdgeCount();
+//			 }else{
+//				 break;
+//			 }
+//		 }
+//		 
+//		 return out;
+//	}
+	
 	public ResultGraph transitiveClosure(){
-		 ResultGraph out = this;
-		 
-		 int lastSize = out.getEdgeCount();
-		 while(true){
-			 out = out.union(out.join(this));
-			 if(out.getEdgeCount() != lastSize){
-				 lastSize = out.getEdgeCount();
-			 }else{
-				 break;
-			 }
-		 }
-		 
-		 return out;
+		ResultGraph out = new ResultGraph(this, vertexCount * 2);
+		
+		Deque<Integer> stack = new ArrayDeque<Integer>(vertexCount);
+		SmartBitSet seen = new SmartBitSet(vertexCount);
+		
+		for(int source = 0; source < vertexCount; source++){
+			out.setActiveSource(source);
+			
+			if(csr[source] != csr[source + 1]){
+				stack.push(source);
+				seen.rangeClear();
+				
+				while(!stack.isEmpty()){
+					int vertex = stack.pop();
+					
+					final int from = csr[vertex];
+					final int to = csr[vertex + 1];
+					for(int i = from; i < to; i++){
+						int target = csr[i];
+						if(!seen.get(target)){
+							seen.rangeSet(target);
+							out.addTarget(target);
+							stack.push(target);
+						}
+					}
+				}
+			}
+			
+			
+			
+			
+		}
+		
+		out.endFinalSource();
+		return out;
 	}
 	
 //	/**

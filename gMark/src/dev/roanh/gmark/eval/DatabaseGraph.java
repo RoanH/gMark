@@ -77,7 +77,7 @@ public class DatabaseGraph{
 				
 				int labIdx = idx;
 				idx += labelCount + 1;
-				reverseSlt[labIdx] = idx;
+				reverseSlt[labIdx++] = idx;
 				
 				int inIdx = 0;
 				for(int label = 0; label < labelCount; label++){

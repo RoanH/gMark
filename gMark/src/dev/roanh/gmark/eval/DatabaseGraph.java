@@ -100,17 +100,18 @@ public class DatabaseGraph{
 		}
 	}
 	
-	
-	
-	
-	
 	public int getVertexCount(){
 		return vertexCount;
 	}
 	
-//	public int getEdgeCount(){
-//		
-//	}
+	public int getEdgeCount(){
+		int edges = 0;
+		for(int i = 0; i < syn1.length; i++){
+			edges += syn1[i];
+		}
+		
+		return edges;
+	}
 	
 	public int getEdgeCount(Predicate label){
 		return syn1[label.getID()];
@@ -141,11 +142,11 @@ public class DatabaseGraph{
 		return out;
 	}
 	
-//	/**
-//	 * Selects all the vertices from the given input database graph. Note that vertices
-//	 * are selected together with themselves to form a complete source target pair.
-//	 * @return A copy of the input graph containing only vertices selected with themselves.
-//	 */
+	/**
+	 * Selects all the vertices from the this database graph. Note that vertices
+	 * are selected together with themselves to form a complete source target pair.
+	 * @return A result graph containing only vertices selected with themselves.
+	 */
 	public ResultGraph selectIdentity(){
 		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
 

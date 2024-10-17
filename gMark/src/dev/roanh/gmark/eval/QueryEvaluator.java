@@ -13,6 +13,10 @@ import nl.group9.quicksilver.core.data.PathQuery;
  * @author Roan
  * @see <a href="https://research.roanh.dev/Graph%20Database%20&%20Query%20Evaluation%20Terminology%20v1.3.pdf">
  *      Graph Database &amp; Query Evaluation Terminology</a>
+ * @see <a href="https://research.roanh.dev/Optimising%20a%20Simple%20Graph%20Database%20v1.1.pdf">
+ *      Optimising a Simple Graph Database</a>
+ * @see DatabaseGraph
+ * @see ResultGraph
  */
 public class QueryEvaluator{
 	/**
@@ -25,18 +29,15 @@ public class QueryEvaluator{
 	}
 
 	public ResultGraph evaluate(PathQuery query){
-		//see optimisation 2.6 & 2.11
 		ResultGraph result = evaluate(query.query().toAbstractSyntaxTree());
 		
 		Optional<Integer> boundSource = query.source();
 		if(boundSource.isPresent()){
-			//see optimisation 2.3 & 2.13 
 			result = result.selectSource(boundSource.get());
 		}
 		
 		Optional<Integer> boundTarget = query.target();
 		if(boundTarget.isPresent()){
-			//see optimisation 2.4 & 2.14
 			result = result.selectTarget(boundTarget.get());
 		}
 		

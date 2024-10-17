@@ -36,9 +36,9 @@ public class ResultGraph{
 		head = vertexCount + 1;
 	}
 	
-	private ResultGraph(ResultGraph base, int sizeEstimate){
+	private ResultGraph(ResultGraph base, int sizeEstimate, boolean sorted){
+		this.sorted = sorted;
 		vertexCount = base.vertexCount;
-		sorted = base.sorted;
 		head = base.head;
 		csr = Arrays.copyOf(base.csr, Math.max(base.csr.length, sizeEstimate));
 	}
@@ -78,17 +78,18 @@ public class ResultGraph{
 		}
 	}
 	
-//	/**
-//	 * Computes the disjunction (or union) of the given left and right input graphs.
-//	 * Recall that this operation simply added all the paths in both input graphs
-//	 * to the result graph. Note that the order of the input arguments is irrelevant.
-//	 * @param left The left input graph.
-//	 * @param right The right input graph.
-//	 * @return The result graph representing the union of the input graphs.
-//	 */
-	//assumed same vertex count
+	/**
+	 * Computes the disjunction (or union) of this graph and the given input graph.
+	 * Recall that this operation simply added all the paths in both input graphs
+	 * to the result graph. This method also ensures target lists for each vertex
+	 * remain (or become) sorted and prevents duplicates from ending up in the output.
+	 * @param other The other input graph to compute the union with.
+	 * @return The result graph representing the union of this graph and the input graph.
+	 */
 	public ResultGraph union(ResultGraph other){
+		//TODO assumed same vertex count
 		assert vertexCount == other.vertexCount;
+		
 		sort();
 		other.sort();
 		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount() + other.getEdgeCount(), true);
@@ -144,7 +145,9 @@ public class ResultGraph{
 	//assumed same vertex count
 	public ResultGraph intersection(ResultGraph other){
 		assert vertexCount == other.vertexCount;
-		ResultGraph out = new ResultGraph(vertexCount, Math.min(getEdgeCount(), other.getEdgeCount()), false);//TODO
+		sort();
+		other.sort();
+		ResultGraph out = new ResultGraph(vertexCount, Math.min(getEdgeCount(), other.getEdgeCount()), true);
 		
 		for(int source = 0; source < out.vertexCount; source++){
 			out.setActiveSource(source);
@@ -156,9 +159,6 @@ public class ResultGraph{
 			
 			//relatively straight forward sort-merge-intersection
 			if(ls != le && rs != re){
-				Arrays.sort(csr, ls, le);
-				Arrays.sort(other.csr, rs, re);
-				
 				int li = ls;
 				int ri = rs;
 				while(li < le && ri < re){
@@ -194,7 +194,7 @@ public class ResultGraph{
 	//assumed same vertex count
 	public ResultGraph join(ResultGraph right){
 		assert vertexCount == right.vertexCount;
-		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount() + right.getEdgeCount(), false);//TODO
+		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount() + right.getEdgeCount(), false);
 		
 		SmartBitSet seen = new SmartBitSet(out.vertexCount);
 		for(int source = 0; source < vertexCount; source++){
@@ -223,30 +223,13 @@ public class ResultGraph{
 		return out;
 	}
 	
-//	/**
-//	 * Computes the transitive closure of the given input graph. Note that the transitive
-//	 * closure is the smallest graph that contains the entire input graph and is also transitive.
-//	 * @param in The input graph to compute the transitive closure of.
-//	 * @return A new graph representing the transitive closure of the input graph.
-//	 */
-//	public ResultGraph transitiveClosure(){
-//		 ResultGraph out = this;
-//		 
-//		 int lastSize = out.getEdgeCount();
-//		 while(true){
-//			 out = out.union(out.join(this));
-//			 if(out.getEdgeCount() != lastSize){
-//				 lastSize = out.getEdgeCount();
-//			 }else{
-//				 break;
-//			 }
-//		 }
-//		 
-//		 return out;
-//	}
-	
+	/**
+	 * Computes the transitive closure of this graph. Note that the transitive closure
+	 * is the smallest graph that contains the entire input graph and is also transitive.
+	 * @return A new graph representing the transitive closure of this result graph.
+	 */
 	public ResultGraph transitiveClosure(){
-		ResultGraph out = new ResultGraph(this, vertexCount * 2);
+		ResultGraph out = new ResultGraph(this, vertexCount * 2, false);
 		
 		Deque<Integer> stack = new ArrayDeque<Integer>(vertexCount);
 		SmartBitSet seen = new SmartBitSet(vertexCount);
@@ -273,10 +256,6 @@ public class ResultGraph{
 					}
 				}
 			}
-			
-			
-			
-			
 		}
 		
 		out.endFinalSource();
@@ -291,7 +270,7 @@ public class ResultGraph{
 //	 */
 	//TODO this should not be in post
 	public ResultGraph selectSource(int source){
-		ResultGraph out = new ResultGraph(vertexCount, vertexCount, false);//TODO
+		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
 		
 		for(int i = 0; i < vertexCount; i++){
 			out.setActiveSource(i);
@@ -317,7 +296,7 @@ public class ResultGraph{
 //	 */
 	//TODO this should not be in post
 	public ResultGraph selectTarget(int target){
-		ResultGraph out = new ResultGraph(vertexCount, vertexCount, false);//TODO
+		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
 		
 		for(int source = 0; source < vertexCount; source++){
 			out.setActiveSource(source);
@@ -335,7 +314,6 @@ public class ResultGraph{
 		out.endFinalSource();
 		return out;
 	}
-	
 	
 	/**
 	 * Computes cardinality statistics for the result contained in this graph.
@@ -377,8 +355,4 @@ public class ResultGraph{
 		
 		return edges;
 	}
-	
-
-
-
 }

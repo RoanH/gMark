@@ -4,9 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,8 +29,10 @@ public class DatabaseGraphTest{
 			db.slt
 		);
 		
-		System.out.println(Arrays.toString(db.reverseSlt));
-		System.out.println(Arrays.toString(IntStream.rangeClosed(0, 40).toArray()));
+		assertArrayEquals(
+			new int[]{9, 13, 13, 13, 17, 23, 27, 31, 35, 12, 13, 13, 7, 16, 17, 17, 2, 20, 22, 23, 1, 3, 5, 26, 26, 27, 7, 30, 31, 31, 4, 34, 34, 35, 6, 0, 0, 0, 0, 0},
+			db.reverseSlt
+		);
 	}
 	
 	@Test

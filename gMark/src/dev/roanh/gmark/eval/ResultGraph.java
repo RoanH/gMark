@@ -23,7 +23,7 @@ import dev.roanh.gmark.util.SmartBitSet;
 public class ResultGraph{
 	private static final int RESIZE_FACTOR = 3;
 	private final int vertexCount;
-	private final boolean sorted;
+	private boolean sorted;
 	private int[] csr;
 	private int head;
 	
@@ -59,6 +59,16 @@ public class ResultGraph{
 		//TODO possibly shrink array
 	}
 	
+	public void sort(){
+		if(!sorted){
+			for(int source = 0; source < vertexCount; source++){
+				Arrays.sort(csr, csr[source], csr[source + 1]);
+			}
+			
+			sorted = true;
+		}
+	}
+	
 //	/**
 //	 * Computes the disjunction (or union) of the given left and right input graphs.
 //	 * Recall that this operation simply added all the paths in both input graphs
@@ -70,28 +80,42 @@ public class ResultGraph{
 	//assumed same vertex count
 	public ResultGraph union(ResultGraph other){
 		assert vertexCount == other.vertexCount;
-		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount() + other.getEdgeCount(), false);//TODO
+		sort();
+		other.sort();
+		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount() + other.getEdgeCount(), true);
 		
-		SmartBitSet seen = new SmartBitSet(out.vertexCount);
 		for(int source = 0; source < out.vertexCount; source++){
 			out.setActiveSource(source);
-			seen.rangeClear();
 			
-			final int ls = csr[source];
+			int li = csr[source];
 			final int le = csr[source + 1];
-			for(int i = ls; i < le; i++){
-				int target = csr[i];
-				out.addTarget(target);
-				seen.rangeSet(target);
+			
+			int ri = other.csr[source];
+			final int re = other.csr[source + 1];
+			
+			while(li < le && ri < re){
+				final int l = csr[li];
+				final int r = other.csr[ri];
+				
+				if(l == r){
+					out.addTarget(l);
+					li++;
+					ri++;
+				}else if(l < r){
+					out.addTarget(l);
+					li++;
+				}else{
+					out.addTarget(r);
+					ri++;
+				}
 			}
 			
-			final int rs = other.csr[source];
-			final int re = other.csr[source + 1];
-			for(int i = rs; i < re; i++){
-				final int target = other.csr[i];
-				if(!seen.get(target)){
-					out.addTarget(target);
-				}
+			while(li < le){
+				out.addTarget(csr[li++]);
+			}
+			
+			while(ri < re){
+				out.addTarget(other.csr[ri++]);
 			}
 		}
 		

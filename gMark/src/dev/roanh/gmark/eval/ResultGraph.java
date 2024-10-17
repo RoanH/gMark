@@ -2,6 +2,7 @@ package dev.roanh.gmark.eval;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 
 import dev.roanh.gmark.data.CardStat;
@@ -20,6 +21,7 @@ import dev.roanh.gmark.util.SmartBitSet;
  * @see SourceTargetPair
  */
 public class ResultGraph{
+	private static final int RESIZE_FACTOR = 3;
 	private final int vertexCount;
 	private final boolean sorted;
 	private int[] csr;
@@ -45,7 +47,9 @@ public class ResultGraph{
 	}
 	
 	public void addTarget(int target){
-		//TODO resize if required
+		if(head >= csr.length){
+			csr = Arrays.copyOf(csr, RESIZE_FACTOR * csr.length);
+		}
 		
 		csr[head++] = target;
 	}
@@ -53,8 +57,6 @@ public class ResultGraph{
 	public void endFinalSource(){
 		csr[vertexCount] = head;
 		//TODO possibly shrink array
-		
-		
 	}
 	
 //	/**
@@ -68,7 +70,7 @@ public class ResultGraph{
 	//assumed same vertex count
 	public ResultGraph union(ResultGraph other){
 		assert vertexCount == other.vertexCount;
-		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount() + other.getEdgeCount());
+		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount() + other.getEdgeCount(), false);//TODO
 		
 		SmartBitSet seen = new SmartBitSet(out.vertexCount);
 		for(int source = 0; source < out.vertexCount; source++){
@@ -109,7 +111,7 @@ public class ResultGraph{
 	//assumed same vertex count
 	public ResultGraph intersection(ResultGraph other){
 		assert vertexCount == other.vertexCount;
-		ResultGraph out = new ResultGraph(vertexCount, Math.min(getEdgeCount(), other.getEdgeCount()));
+		ResultGraph out = new ResultGraph(vertexCount, Math.min(getEdgeCount(), other.getEdgeCount()), false);//TODO
 		
 		for(int source = 0; source < out.vertexCount; source++){
 			out.setActiveSource(source);
@@ -122,7 +124,7 @@ public class ResultGraph{
 			//relatively straight forward sort-merge-intersection
 			if(ls != le && rs != re){
 				Arrays.sort(csr, ls, le);
-				Arrays.sort(other.csr, rs, le);
+				Arrays.sort(other.csr, rs, re);
 				
 				int li = ls;
 				int ri = rs;
@@ -159,7 +161,7 @@ public class ResultGraph{
 	//assumed same vertex count
 	public ResultGraph join(ResultGraph right){
 		assert vertexCount == right.vertexCount;
-		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount() + right.getEdgeCount());
+		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount() + right.getEdgeCount(), false);//TODO
 		
 		SmartBitSet seen = new SmartBitSet(out.vertexCount);
 		for(int source = 0; source < vertexCount; source++){
@@ -218,7 +220,7 @@ public class ResultGraph{
 //	 */
 	//TODO this should not be in post
 	public ResultGraph selectSource(int source){
-		ResultGraph out = new ResultGraph(vertexCount, vertexCount);
+		ResultGraph out = new ResultGraph(vertexCount, vertexCount, false);//TODO
 		
 		for(int i = 0; i < vertexCount; i++){
 			out.setActiveSource(i);
@@ -244,7 +246,7 @@ public class ResultGraph{
 //	 */
 	//TODO this should not be in post
 	public ResultGraph selectTarget(int target){
-		ResultGraph out = new ResultGraph(vertexCount, vertexCount);
+		ResultGraph out = new ResultGraph(vertexCount, vertexCount, false);//TODO
 		
 		for(int source = 0; source < vertexCount; source++){
 			out.setActiveSource(source);
@@ -271,13 +273,18 @@ public class ResultGraph{
 	 */
 	public CardStat computeCardinality(){
 		int out = 0;
+		for(int source = 0; source < vertexCount; source++){
+			if(csr[source] != csr[source + 1]){
+				out++;
+			}
+		}
 		
+		BitSet in = new BitSet(vertexCount);
+		for(int i = csr[0]; i < head; i++){
+			in.set(csr[i]);
+		}
 		
-		
-		
-		
-		
-		
+		return new CardStat(out, getEdgeCount(), in.cardinality());
 	}
 
 	/**
@@ -300,12 +307,7 @@ public class ResultGraph{
 		return edges;
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
 }

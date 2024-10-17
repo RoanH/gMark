@@ -22,9 +22,10 @@ import dev.roanh.gmark.lang.rpq.RPQ;
 
 import nl.group9.quicksilver.core.GraphUtil;
 import nl.group9.quicksilver.core.data.PathQuery;
+import nl.group9.quicksilver.impl.IntGraph;
 
 @TestInstance(Lifecycle.PER_CLASS)
-public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGraph>{
+public class EvaluatorTest{
 	private static final Predicate l0 = new Predicate(0, "0");//a
 	private static final Predicate l1 = new Predicate(1, "1");//b
 	private static final Predicate l2 = new Predicate(2, "2");
@@ -45,30 +46,28 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	private static final Predicate l24 = new Predicate(24, "24");
 	private static final Predicate l28 = new Predicate(28, "28");
 	private static final Predicate l30 = new Predicate(30, "30");
-	private G example;
-	private G syn1;
-	private G real1;
-	private G real2;
-	private G real3;
-	private G real4;
-	private G real5;
-	
-	public abstract EvaluatorProvider<G, R> getProvider();
+	private DatabaseGraph example;
+	private DatabaseGraph syn1;
+	private DatabaseGraph real1;
+	private DatabaseGraph real2;
+	private DatabaseGraph real3;
+	private DatabaseGraph real4;
+	private DatabaseGraph real5;
 
 	@BeforeAll
 	public void loadData() throws IOException{
 		example = getGraph();
-		syn1 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "syn", "1", "graph.edge"));
-		real1 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "1", "graph.edge"));
-		real2 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "2", "graph.edge"));
-		real3 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "3", "graph.edge"));
-		real4 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "4", "graph.edge"));
-		real5 = GraphUtil.readGraph(getProvider(), Paths.get("workload", "real", "5", "graph.edge"));
+		syn1 = new DatabaseGraph(GraphUtil.readGraph(ClassLoader.getSystemResourceAsStream("workload/syn/1/graph.edge")));
+		real1 = new DatabaseGraph(GraphUtil.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/1/graph.edge")));
+		real2 = new DatabaseGraph(GraphUtil.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/2/graph.edge")));
+		real3 = new DatabaseGraph(GraphUtil.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/3/graph.edge")));
+		real4 = new DatabaseGraph(GraphUtil.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/4/graph.edge")));
+		real5 = new DatabaseGraph(GraphUtil.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/5/graph.edge")));
 	}
 	
 	@Test
 	public void query0(){
-		R result = evaluate(
+		ResultGraph result = evaluate(
 			1,
 			CPQ.intersect(
 				CPQ.label(l1),
@@ -88,7 +87,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	
 	@Test
 	public void query1(){
-		R result = evaluate(
+		ResultGraph result = evaluate(
 			1,
 			RPQ.kleene(
 				RPQ.label(l0)
@@ -111,7 +110,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	
 	@Test
 	public void query2(){
-		R result = evaluate(
+		ResultGraph result = evaluate(
 			CPQ.id()
 		);
 		
@@ -137,7 +136,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	
 	@Test
 	public void query3(){
-		R result = evaluate(
+		ResultGraph result = evaluate(
 			RPQ.labels(
 				l1.getInverse(),
 				l0,
@@ -157,7 +156,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	
 	@Test
 	public void query4(){
-		R result = evaluate(
+		ResultGraph result = evaluate(
 			RPQ.disjunct(
 				RPQ.label(l0),
 				RPQ.label(l1)
@@ -199,7 +198,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	
 	@Test
 	public void query5(){
-		R result = evaluate(
+		ResultGraph result = evaluate(
 			CPQ.intersect(
 				CPQ.id(),
 				CPQ.labels(
@@ -228,7 +227,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	
 	@Test
 	public void query6(){
-		R result = evaluate(
+		ResultGraph result = evaluate(
 			CPQ.intersect(
 				CPQ.labels(
 					l0,
@@ -250,7 +249,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	
 	@Test
 	public void query7(){
-		R result = evaluate(
+		ResultGraph result = evaluate(
 			CPQ.concat(
 				CPQ.intersect(
 					CPQ.id(),
@@ -276,7 +275,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	
 	@Test
 	public void query8(){
-		R result = evaluate(
+		ResultGraph result = evaluate(
 			RPQ.label(l0),
 			10
 		);
@@ -291,7 +290,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	
 	@Test
 	public void query9(){
-		R result = evaluate(
+		ResultGraph result = evaluate(
 			3,
 			RPQ.labels(
 				l0,
@@ -309,7 +308,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	
 	@Test
 	public void query10(){
-		R result = evaluate(
+		ResultGraph result = evaluate(
 			3,
 			RPQ.labels(
 				l0,
@@ -325,7 +324,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	
 	@Test
 	public void query11(){
-		R result = evaluate(
+		ResultGraph result = evaluate(
 			RPQ.labels(
 				l1,
 				l1.getInverse()
@@ -430,7 +429,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 	
 	@Test
 	public void query12(){
-		R result = evaluate(
+		ResultGraph result = evaluate(
 			RPQ.kleene(
 				RPQ.disjunct(
 					RPQ.label(l1),
@@ -1226,51 +1225,49 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 		assertEquals(new CardStat(166, 810, 6), evaluate(real5, CPQ.labels(l2, l4, l3.getInverse())));
 	}
 	
-	private void assertPaths(R result, List<SourceTargetPair> expected){
+	private void assertPaths(ResultGraph result, List<SourceTargetPair> expected){
 		assertIterableEquals(expected, result.getSourceTargetPairs().stream().sorted().toList());
 	}
 	
-	private CardStat evaluate(G graph, QueryLanguageSyntax query){
+	private CardStat evaluate(DatabaseGraph graph, QueryLanguageSyntax query){
 		return evaluate(graph, PathQuery.of(query)).computeCardinality();
 	}
 	
-	private CardStat evaluate(G graph, int source, QueryLanguageSyntax query){
+	private CardStat evaluate(DatabaseGraph graph, int source, QueryLanguageSyntax query){
 		return evaluate(graph, PathQuery.of(source, query)).computeCardinality();
 	}
 	
-	private CardStat evaluate(G graph, QueryLanguageSyntax query, int target){
+	private CardStat evaluate(DatabaseGraph graph, QueryLanguageSyntax query, int target){
 		return evaluate(graph, PathQuery.of(query, target)).computeCardinality();
 	}
 	
-	private R evaluate(QueryLanguageSyntax query){
+	private ResultGraph evaluate(QueryLanguageSyntax query){
 		return evaluate(PathQuery.of(query));
 	}
 
-	private R evaluate(QueryLanguageSyntax query, int target){
+	private ResultGraph evaluate(QueryLanguageSyntax query, int target){
 		return evaluate(PathQuery.of(query, target));
 	}
 
-	private R evaluate(int source, QueryLanguageSyntax query){
+	private ResultGraph evaluate(int source, QueryLanguageSyntax query){
 		return evaluate(PathQuery.of(source, query));
 	}
 
-	private R evaluate(int source, QueryLanguageSyntax query, int target){
+	private ResultGraph evaluate(int source, QueryLanguageSyntax query, int target){
 		return evaluate(PathQuery.of(source, query, target));
 	}
 	
-	private R evaluate(PathQuery query){
+	private ResultGraph evaluate(PathQuery query){
 		return evaluate(example, query);
 	}
 	
-	private R evaluate(G graph, PathQuery query){
-		Evaluator<G, R> evaluator = getProvider().createEvaluator();
-		evaluator.prepare(graph);
-		return evaluator.evaluate(query);
+	private ResultGraph evaluate(DatabaseGraph graph, PathQuery query){
+		return new QueryEvaluator(graph).evaluate(query);
 	}
 	
 	//see: https://research.roanh.dev/Indexing%20Conjunctive%20Path%20Queries%20for%20Accelerated%20Query%20Evaluation.pdf#subsubsection.5.2.1.1
-	private G getGraph(){
-		G graph = getProvider().createGraph(14, 27, 2);
+	private DatabaseGraph getGraph(){
+		IntGraph graph = new IntGraph(14, 2);
 		graph.addEdge(0, 2, 1);
 		graph.addEdge(1, 0, 0);
 		graph.addEdge(1, 2, 1);
@@ -1298,7 +1295,7 @@ public abstract class EvaluatorTest<G extends DatabaseGraph, R extends ResultGra
 		graph.addEdge(11, 2, 1);
 		graph.addEdge(12, 11, 0);
 		graph.addEdge(12, 13, 1);
-		return graph;
+		return new DatabaseGraph(graph);
 	}
 	
 	private static RPQ kleene(Predicate... labels){

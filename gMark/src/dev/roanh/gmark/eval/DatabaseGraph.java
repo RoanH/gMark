@@ -1,6 +1,5 @@
 package dev.roanh.gmark.eval;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -97,7 +96,7 @@ public class DatabaseGraph{
 				}
 			}
 			
-			slt[target + 1] = idx;
+			reverseSlt[target + 1] = idx;
 		}
 	}
 	
@@ -148,7 +147,7 @@ public class DatabaseGraph{
 //	 * @return A copy of the input graph containing only vertices selected with themselves.
 //	 */
 	public ResultGraph selectIdentity(){
-		ResultGraph out = new ResultGraph(vertexCount, vertexCount);
+		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
 
 		for(int vertex = 0; vertex < vertexCount; vertex++){
 			out.setActiveSource(vertex);

@@ -8,8 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import nl.group9.quicksilver.core.spec.DatabaseGraph;
-import nl.group9.quicksilver.core.spec.EvaluatorProvider;
+import nl.group9.quicksilver.impl.IntGraph;
 
 /**
  * Small utility class for reading database graphs.
@@ -42,8 +41,8 @@ public final class GraphUtil{
 	 * @return The constructed database graph instance.
 	 * @throws IOException When an IOException occurs.
 	 */
-	public static final <G extends DatabaseGraph> G readGraph(EvaluatorProvider<G, ?> provider, Path file) throws IOException{
-		return readGraph(provider, Files.newInputStream(file));
+	public static final IntGraph readGraph(Path file) throws IOException{
+		return readGraph(Files.newInputStream(file));
 	}
 
 	/**
@@ -65,7 +64,7 @@ public final class GraphUtil{
 	 * @return The constructed database graph instance.
 	 * @throws IOException When an IOException occurs.
 	 */
-	public static final <G extends DatabaseGraph> G readGraph(EvaluatorProvider<G, ?> provider, InputStream in) throws IOException{
+	public static final IntGraph readGraph(InputStream in) throws IOException{
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))){
 			String header = reader.readLine();
 			if(header == null){
@@ -74,9 +73,8 @@ public final class GraphUtil{
 			
 			String[] metadata = header.split(" ");
 			int vertices = Integer.parseInt(metadata[0]);
-			int edges = Integer.parseInt(metadata[1]);
 			int labels = Integer.parseInt(metadata[2]);
-			G graph = provider.createGraph(vertices, edges, labels);
+			IntGraph graph = new IntGraph(vertices, labels);
 			
 			String line;
 			while((line = reader.readLine()) != null){

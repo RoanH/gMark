@@ -19,10 +19,9 @@ import dev.roanh.gmark.data.SourceTargetPair;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
+import dev.roanh.gmark.util.graph.IntGraph;
 
 import nl.group9.quicksilver.core.GraphUtil;
-import nl.group9.quicksilver.core.data.PathQuery;
-import nl.group9.quicksilver.impl.IntGraph;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class EvaluatorTest{

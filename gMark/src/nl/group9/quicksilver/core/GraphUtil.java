@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import nl.group9.quicksilver.impl.IntGraph;
+import dev.roanh.gmark.util.graph.IntGraph;
 
 /**
  * Small utility class for reading database graphs.

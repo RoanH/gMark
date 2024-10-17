@@ -1,4 +1,4 @@
-package nl.group9.quicksilver.impl;
+package dev.roanh.gmark.util.graph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,10 +99,20 @@ public class IntGraph{
 		return vertexCount;
 	}
 	
+	/**
+	 * Gets the number of labels in this graph.
+	 * @return The number of labels in this graph.
+	 */
 	public int getLabelCount(){
 		return labelCount;
 	}
 	
+	/**
+	 * Adds a new edge to this graph.
+	 * @param source The source vertex for the edge.
+	 * @param target The target vertex for the edge.
+	 * @param label The edge label of the edge.
+	 */
 	public void addEdge(int source, int target, int label){
 		if(source >= vertexCount || target >= vertexCount || label >= labelCount){
 			throw new IllegalArgumentException("Edge data out of bounds: (source=%d, target=%d, label=%d)".formatted(source, target, label));

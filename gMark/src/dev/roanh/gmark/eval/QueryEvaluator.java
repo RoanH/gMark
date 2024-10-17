@@ -4,8 +4,6 @@ import java.util.Optional;
 
 import dev.roanh.gmark.ast.QueryTree;
 
-import nl.group9.quicksilver.core.data.PathQuery;
-
 /**
  * Implementation of a simple reachability query evaluator. Note that for simplicity
  * and performance vertex, edge and label information is abstracted away and instead
@@ -28,6 +26,14 @@ public class QueryEvaluator{
 		this.graph = graph;
 	}
 
+	/**
+	 * Evaluates the given reachability path query on the database graph for
+	 * this evaluator and returns the result graph.
+	 * @param query The path query to evaluate.
+	 * @return The query answer result graph containing the matched paths.
+	 * @see PathQuery
+	 * @see ResultGraph
+	 */
 	public ResultGraph evaluate(PathQuery query){
 		ResultGraph result = evaluate(query.query().toAbstractSyntaxTree());
 		

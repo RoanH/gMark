@@ -10,8 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.data.SourceTargetPair;
-
-import nl.group9.quicksilver.impl.IntGraph;
+import dev.roanh.gmark.util.graph.IntGraph;
 
 public class DatabaseGraphTest{
 

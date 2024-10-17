@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,9 +18,8 @@ import dev.roanh.gmark.data.SourceTargetPair;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
+import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.util.graph.IntGraph;
-
-import nl.group9.quicksilver.core.GraphUtil;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class EvaluatorTest{
@@ -56,12 +54,12 @@ public class EvaluatorTest{
 	@BeforeAll
 	public void loadData() throws IOException{
 		example = getGraph();
-		syn1 = new DatabaseGraph(GraphUtil.readGraph(ClassLoader.getSystemResourceAsStream("workload/syn/1/graph.edge")));
-		real1 = new DatabaseGraph(GraphUtil.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/1/graph.edge")));
-		real2 = new DatabaseGraph(GraphUtil.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/2/graph.edge")));
-		real3 = new DatabaseGraph(GraphUtil.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/3/graph.edge")));
-		real4 = new DatabaseGraph(GraphUtil.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/4/graph.edge")));
-		real5 = new DatabaseGraph(GraphUtil.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/5/graph.edge")));
+		syn1 = new DatabaseGraph(Util.readGraph(ClassLoader.getSystemResourceAsStream("workload/syn/1/graph.edge")));
+		real1 = new DatabaseGraph(Util.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/1/graph.edge")));
+		real2 = new DatabaseGraph(Util.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/2/graph.edge")));
+		real3 = new DatabaseGraph(Util.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/3/graph.edge")));
+		real4 = new DatabaseGraph(Util.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/4/graph.edge")));
+		real5 = new DatabaseGraph(Util.readGraph(ClassLoader.getSystemResourceAsStream("workload/real/5/graph.edge")));
 	}
 	
 	@Test

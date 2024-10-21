@@ -189,7 +189,7 @@ public class ResultGraphTest{
 	}
 	
 	@Test
-	public void selectIdentity(){
+	public void selectIdentityUnsorted(){
 		ResultGraph graph = new ResultGraph(5, 5, false);
 		graph.setActiveSource(0);
 		graph.addTarget(1);
@@ -204,6 +204,31 @@ public class ResultGraphTest{
 		graph.setActiveSource(4);
 		graph.addTarget(4);
 		graph.addTarget(2);
+		graph.endFinalSource();
+		
+		assertPaths(graph.selectIdentity(), List.of(
+			new SourceTargetPair(0, 0),
+			new SourceTargetPair(3, 3),
+			new SourceTargetPair(4, 4)
+		));
+	}
+	
+	@Test
+	public void selectIdentitySorted(){
+		ResultGraph graph = new ResultGraph(5, 5, true);
+		graph.setActiveSource(0);
+		graph.addTarget(0);
+		graph.addTarget(1);
+		graph.addTarget(2);
+		graph.setActiveSource(1);
+		graph.setActiveSource(2);
+		graph.addTarget(0);
+		graph.addTarget(1);
+		graph.setActiveSource(3);
+		graph.addTarget(3);
+		graph.setActiveSource(4);
+		graph.addTarget(2);
+		graph.addTarget(4);
 		graph.endFinalSource();
 		
 		assertPaths(graph.selectIdentity(), List.of(

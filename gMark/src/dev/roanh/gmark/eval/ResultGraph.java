@@ -23,6 +23,9 @@ import dev.roanh.gmark.util.SmartBitSet;
  * @see SourceTargetPair
  */
 public class ResultGraph{
+	/**
+	 * Factor used to allocate more space for the CSR if there is insufficient capacity.
+	 */
 	private static final int RESIZE_FACTOR = 3;
 	private final int vertexCount;
 	private boolean sorted;
@@ -263,13 +266,27 @@ public class ResultGraph{
 	}
 	
 	public ResultGraph selectIdentity(){
-		sort();
 		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
 
-		for(int source = 0; source < vertexCount; source++){
-			out.setActiveSource(source);
-			if(Arrays.binarySearch(csr, csr[source], csr[source + 1], source) >= 0){
-				out.addTarget(source);
+		if(sorted){
+			for(int source = 0; source < vertexCount; source++){
+				out.setActiveSource(source);
+				if(Arrays.binarySearch(csr, csr[source], csr[source + 1], source) >= 0){
+					out.addTarget(source);
+				}
+			}
+		}else{
+			for(int source = 0; source < vertexCount; source++){
+				out.setActiveSource(source);
+				
+				final int from = csr[source];
+				final int to = csr[source + 1];
+				for(int i = from; i < to; i++){
+					if(csr[i] == source){
+						out.addTarget(source);
+						break;
+					}
+				}
 			}
 		}
 		

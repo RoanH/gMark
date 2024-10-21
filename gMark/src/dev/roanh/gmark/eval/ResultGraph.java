@@ -284,6 +284,7 @@ public class ResultGraph{
 //	 * @return A copy of the input graph containing only the edges that started at the given source vertex.
 //	 */
 	//TODO this should not be in post
+	@Deprecated
 	public ResultGraph selectSource(int source){
 		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
 		
@@ -310,6 +311,7 @@ public class ResultGraph{
 //	 * @return A copy of the input graph containing only the edges that ended at the given target vertex.
 //	 */
 	//TODO this should not be in post
+	@Deprecated
 	public ResultGraph selectTarget(int target){
 		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
 		

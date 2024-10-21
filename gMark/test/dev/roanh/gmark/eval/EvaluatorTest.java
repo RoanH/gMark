@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -1108,8 +1107,7 @@ public class EvaluatorTest{
 		assertEquals(new CardStat(40, 58, 17), evaluate(real3, CPQ.concat(CPQ.label(l1.getInverse()), CPQ.intersect(CPQ.id(), CPQ.label(l3)))));
 	}
 	
-//	@Test
-	@RepeatedTest(10)
+	@Test
 	public void real3cpq2(){
 		assertEquals(new CardStat(21, 21, 21), evaluate(real3, CPQ.intersect(CPQ.labels(l3.getInverse(), l3), CPQ.intersect(CPQ.id(), CPQ.label(l2)))));
 	}

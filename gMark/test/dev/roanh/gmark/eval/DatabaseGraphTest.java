@@ -25,12 +25,12 @@ public class DatabaseGraphTest{
 		
 		assertArrayEquals(
 			new int[]{9, 9, 13, 17, 21, 25, 29, 33, 38, 12, 13, 13, 4, 16, 17, 17, 3, 20, 21, 21, 4, 24, 25, 25, 6, 28, 28, 29, 4, 32, 32, 33, 7, 36, 37, 38, 0, 5, 0, 0, 0, 0, 0},
-			db.slt
+			db.getData()
 		);
 		
 		assertArrayEquals(
 			new int[]{9, 13, 13, 13, 17, 23, 27, 31, 35, 12, 13, 13, 7, 16, 17, 17, 2, 20, 22, 23, 1, 3, 5, 26, 26, 27, 7, 30, 31, 31, 4, 34, 34, 35, 6, 0, 0, 0, 0, 0},
-			db.reverseSlt
+			db.getReverseData()
 		);
 	}
 	

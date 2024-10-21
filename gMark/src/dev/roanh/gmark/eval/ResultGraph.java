@@ -46,6 +46,24 @@ public class ResultGraph{
 		csr = Arrays.copyOf(base.csr, Math.max(base.csr.length, sizeEstimate));
 	}
 	
+	private ResultGraph(int vertexCount){
+		this.vertexCount = vertexCount;
+		sorted = true;
+		csr = new int[vertexCount + 1];
+		Arrays.fill(csr, csr.length);
+		head = csr.length;
+	}
+	
+	private ResultGraph(int vertexCount, int source, boolean sorted, int from, int to, int... targets){
+		this.vertexCount = vertexCount;
+		this.sorted = sorted;
+		csr = new int[vertexCount + 1 + targets.length];
+		Arrays.fill(csr, 0, source + 1, vertexCount + 1);
+		Arrays.fill(csr, source + 1, vertexCount + 1, csr.length);
+		System.arraycopy(targets, from, csr, vertexCount + 1, to - from);
+		head = csr.length;
+	}
+	
 	public int getEdgeCount(){
 		return csr[vertexCount] - csr[0];
 	}
@@ -388,5 +406,25 @@ public class ResultGraph{
 		}
 		
 		return edges;
+	}
+	
+	protected int[] getData(){
+		return csr;
+	}
+	
+	public static final ResultGraph empty(int vertexCount){
+		return new ResultGraph(vertexCount);
+	}
+	
+	public static final ResultGraph single(int vertexCount, int source, boolean sorted, int from, int to, int[] targets){
+		return new ResultGraph(vertexCount, source, sorted, from, to, targets);
+	}
+	
+	public static final ResultGraph single(int vertexCount, int source, boolean sorted, int... targets){
+		return new ResultGraph(vertexCount, source, sorted, 0, targets.length, targets);
+	}
+	
+	public static final ResultGraph single(int vertexCount, int source, int target){
+		return new ResultGraph(vertexCount, source, true, 0, 1, target);
 	}
 }

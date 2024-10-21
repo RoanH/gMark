@@ -32,8 +32,8 @@ import dev.roanh.gmark.util.graph.IntGraph;
 public class DatabaseGraph{
 	private final int vertexCount;
 	private final int[] syn1;
-	protected final int[] slt;
-	protected final int[] reverseSlt;
+	private final int[] slt;
+	private final int[] reverseSlt;
 	
 	public DatabaseGraph(IntGraph graph){
 		final int labelCount = graph.getLabelCount();
@@ -166,6 +166,20 @@ public class DatabaseGraph{
 		return out;
 	}
 	
+	public ResultGraph selectLabel(int source, Predicate label){
+		final int start = slt[source];
+		return ResultGraph.single(vertexCount, source, true, slt[start + label.getID()], slt[start + label.getID() + 1], slt);
+	}
+	
+//	public ResultGraph selectLabel(Predicate label, int target){
+//		final int start = reverseSlt[target];
+//		
+//		
+//		
+//		
+//		return ResultGraph.single(vertexCount, source, true, slt[start + label.getID()], slt[start + label.getID() + 1], slt);
+//	}
+	
 	/**
 	 * Selects all the vertices from the this database graph. Note that vertices
 	 * are selected together with themselves to form a complete source target pair.
@@ -181,5 +195,17 @@ public class DatabaseGraph{
 		
 		out.endFinalSource();
 		return out;
+	}
+	
+	public ResultGraph selectIdentity(int vertex){
+		return ResultGraph.single(vertexCount, vertex, true, vertex);
+	}
+	
+	protected int[] getData(){
+		return slt;
+	}
+	
+	protected int[] getReverseData(){
+		return reverseSlt;
 	}
 }

@@ -1,5 +1,6 @@
 package dev.roanh.gmark.eval;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 import java.util.List;
@@ -9,6 +10,24 @@ import org.junit.jupiter.api.Test;
 import dev.roanh.gmark.data.SourceTargetPair;
 
 public class ResultGraphTest{
+	
+	@Test
+	public void empty(){
+		ResultGraph empty = ResultGraph.empty(4);
+		assertArrayEquals(new int[]{5, 5, 5, 5, 5}, empty.getData());
+	}
+	
+	@Test
+	public void single0(){
+		ResultGraph single = ResultGraph.single(4, 1, 2);
+		assertArrayEquals(new int[]{5, 5, 6, 6, 6, 2}, single.getData());
+	}
+	
+	@Test
+	public void single1(){
+		ResultGraph single = ResultGraph.single(4, 1, true, 2, 4, 5);
+		assertArrayEquals(new int[]{5, 5, 6, 6, 6, 2, 4, 5}, single.getData());
+	}
 
 	@Test
 	public void union(){

@@ -57,7 +57,7 @@ public class ResultGraph{
 	private ResultGraph(int vertexCount, int source, boolean sorted, int from, int to, int... targets){
 		this.vertexCount = vertexCount;
 		this.sorted = sorted;
-		csr = new int[vertexCount + 1 + targets.length];
+		csr = new int[vertexCount + 1 + to - from];
 		Arrays.fill(csr, 0, source + 1, vertexCount + 1);
 		Arrays.fill(csr, source + 1, vertexCount + 1, csr.length);
 		System.arraycopy(targets, from, csr, vertexCount + 1, to - from);

@@ -1,5 +1,6 @@
 package dev.roanh.gmark.eval;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -166,19 +167,46 @@ public class DatabaseGraph{
 		return out;
 	}
 	
+	public ResultGraph selectLabel(Predicate label, int target){
+		final int offset = reverseSlt[target];
+		
+		int idx = reverseSlt[offset + label.getID()];
+		final int end = reverseSlt[offset + label.getID() + 1];
+		
+		if(end - idx == 0){
+			return ResultGraph.empty(vertexCount);
+		}
+		
+		int vertex = reverseSlt[idx];
+		ResultGraph out = new ResultGraph(vertexCount, end - idx, true);
+		for(int source = 0; source < vertexCount; source++){
+			out.setActiveSource(source);
+		
+			if(source == vertex){
+				out.addTarget(target);
+				if(idx < end){
+					vertex = reverseSlt[++idx];
+				}
+			}
+		}
+		
+		out.endFinalSource();
+		return out;
+	}
+	
 	public ResultGraph selectLabel(int source, Predicate label){
 		final int start = slt[source];
 		return ResultGraph.single(vertexCount, source, true, slt[start + label.getID()], slt[start + label.getID() + 1], slt);
 	}
 	
-//	public ResultGraph selectLabel(Predicate label, int target){
-//		final int start = reverseSlt[target];
-//		
-//		
-//		
-//		
-//		return ResultGraph.single(vertexCount, source, true, slt[start + label.getID()], slt[start + label.getID() + 1], slt);
-//	}
+	public ResultGraph selectLabel(int source, Predicate label, int target){
+		final int start = slt[source];
+		if(Arrays.binarySearch(slt, start + label.getID(), start + label.getID() + 1, target) >= 0){
+			return ResultGraph.single(vertexCount, source, target);
+		}else{
+			return ResultGraph.empty(vertexCount);
+		}
+	}
 	
 	/**
 	 * Selects all the vertices from the this database graph. Note that vertices

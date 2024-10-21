@@ -1,9 +1,8 @@
 package dev.roanh.gmark.eval;
 
-import java.util.Optional;
-
 import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
+import dev.roanh.gmark.core.graph.Predicate;
 
 /**
  * Implementation of a simple reachability query evaluator. Note that for simplicity
@@ -60,46 +59,16 @@ public class QueryEvaluator{
 	 */
 	private ResultGraph evaluate(int source, QueryTree path, int target){
 		switch(path.getOperation()){
-		case CONCATENATION:
+		case CONCATENATION://TODO simple join planner?
 			return evaluate(source, path.getLeft(), UNBOUND).join(evaluate(UNBOUND, path.getRight(), target));
 		case DISJUNCTION:
 			return evaluate(source, path.getLeft(), target).union(evaluate(source, path.getRight(), target));
 		case EDGE:
-			
-			
-			
-			
-			{
-				ResultGraph result = graph.selectLabel(path.getPredicate());
-	
-				if(source != UNBOUND){
-					result = result.selectSource(source);
-				}
-	
-				if(target != UNBOUND){
-					result = result.selectTarget(target);
-				}
-	
-				return result;
-			}
+			return selectEdge(source, path.getPredicate(), target);
 		case IDENTITY:
-			if(source == UNBOUND){
-				return target == UNBOUND ? graph.selectIdentity() : graph.selectIdentity(target);
-			}else{
-				if(target == UNBOUND){
-					return graph.selectIdentity(source);
-				}else{
-					return source == target ? graph.selectIdentity(source) : ResultGraph.empty(graph.getVertexCount());
-				}
-			}
+			return selectIdentity(source, target);
 		case INTERSECTION:
-			if(path.getLeft().getOperation() == OperationType.IDENTITY){
-				return evaluate(source, path.getRight(), target).selectIdentity();
-			}else if(path.getRight().getOperation() == OperationType.IDENTITY){
-				return evaluate(source, path.getLeft(), target).selectIdentity();
-			}else{
-				return evaluate(source, path.getLeft(), target).intersection(evaluate(source, path.getRight(), target));
-			}
+			return planIntersection(source, path, target);
 		case KLEENE:
 			//TODO bind
 			{
@@ -118,5 +87,36 @@ public class QueryEvaluator{
 		}
 
 		throw new IllegalArgumentException("Unsupported database operation.");
+	}
+	
+	//notably identity
+	private ResultGraph planIntersection(int source, QueryTree path, int target){
+		if(path.getLeft().getOperation() == OperationType.IDENTITY){
+			return evaluate(source, path.getRight(), target).selectIdentity();
+		}else if(path.getRight().getOperation() == OperationType.IDENTITY){
+			return evaluate(source, path.getLeft(), target).selectIdentity();
+		}else{
+			return evaluate(source, path.getLeft(), target).intersection(evaluate(source, path.getRight(), target));
+		}
+	}
+	
+	private ResultGraph selectIdentity(int source, int target){
+		if(source == UNBOUND){
+			return target == UNBOUND ? graph.selectIdentity() : graph.selectIdentity(target);
+		}else{
+			if(target == UNBOUND){
+				return graph.selectIdentity(source);
+			}else{
+				return source == target ? graph.selectIdentity(source) : ResultGraph.empty(graph.getVertexCount());
+			}
+		}
+	}
+	
+	private ResultGraph selectEdge(int source, Predicate label, int target){
+		if(source == UNBOUND){
+			return target == UNBOUND ? graph.selectLabel(label) : graph.selectLabel(label, target);
+		}else{
+			return target == UNBOUND ? graph.selectLabel(source, label) : graph.selectLabel(source, label, target);
+		}
 	}
 }

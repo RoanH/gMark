@@ -172,11 +172,15 @@ public class Main{
 	static{
 		options = new Options();
 		options.addOption("h", "help", false, "Prints this help text");
+		
+		//generation
 		options.addOption(Option.builder("c").longOpt("config").hasArg().argName("file").desc("The workload and graph configuration file").build());
 		options.addOption(Option.builder("s").longOpt("syntax").hasArgs().argName("syntax").desc("The concrete syntax(es) to output").build());
 		options.addOption(Option.builder("w").longOpt("workload").hasArg().optionalArg(true).argName("file").desc("Triggers workload generation, a previously generated input workload can optionally be provided to generate concrete syntaxes for instead").build());
 		options.addOption(Option.builder("o").longOpt("output").hasArg().argName("folder").desc("The folder to write the generated output to").build());
 		options.addOption(Option.builder("f").longOpt("force").desc("Overwrite existing files if present").build());
+		
+		options.addOption(Option.builder("g").longOpt("graph").hasArg().argName("file").desc("The database graph file.").build());
 		
 		String version = dev.roanh.util.Util.readArtifactVersion("dev.roanh.gmark", "gmark");
 		VERSION = version == null ? "unknown" : version;

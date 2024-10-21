@@ -1,15 +1,18 @@
 package dev.roanh.gmark.data;
 
+import dev.roanh.gmark.eval.PathQuery;
+
 /**
- * Cardinality statistics for a query.
+ * Cardinality statistics for a reachability path query.
  * @author Roan
- * @param noOut The number of distinct possible source nodes for the query, these are all
+ * @param sources The number of distinct possible source nodes for the query, these are all
  *        potential start point nodes for a query. This will be 1 by definition
  *        if a query has a bound source node.
- * @param noPaths The total number of distinct paths between the source and target nodes.
- * @param noIn The number of distinct possible target nodes for the query, these are all
+ * @param paths The total number of distinct paths between the source and target nodes.
+ * @param targets The number of distinct possible target nodes for the query, these are all
  *        potential end point nodes for a query. This will be 1 by definition
  *        if a query has a bound target node.
+ * @see PathQuery
  */
-public record CardStat(int noOut, int noPaths, int noIn){
+public record CardStat(int sources, int paths, int targets){
 }

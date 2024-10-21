@@ -2,6 +2,7 @@ package dev.roanh.gmark.eval;
 
 import java.util.Optional;
 
+import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
 
 /**
@@ -67,7 +68,13 @@ public class QueryEvaluator{
 		case IDENTITY:
 			return graph.selectIdentity();
 		case INTERSECTION:
-			return evaluate(path.getLeft()).intersection(evaluate(path.getRight()));
+			if(path.getLeft().getOperation() == OperationType.IDENTITY){
+				return evaluate(path.getRight()).selectIdentity();
+			}else if(path.getRight().getOperation() == OperationType.IDENTITY){
+				return evaluate(path.getLeft()).selectIdentity();
+			}else{
+				return evaluate(path.getLeft()).intersection(evaluate(path.getRight()));
+			}
 		case KLEENE:
 			return evaluate(path.getLeft()).transitiveClosure();
 		}

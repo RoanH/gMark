@@ -262,6 +262,21 @@ public class ResultGraph{
 		return out;
 	}
 	
+	public ResultGraph selectIdentity(){
+		sort();
+		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
+
+		for(int source = 0; source < vertexCount; source++){
+			out.setActiveSource(source);
+			if(Arrays.binarySearch(csr, csr[source], csr[source + 1], source) >= 0){
+				out.addTarget(source);
+			}
+		}
+		
+		out.endFinalSource();
+		return out;
+	}
+	
 //	/**
 //	 * Selects all the edges from the given input graph that start at the given source node.
 //	 * @param source The source node of the edges.

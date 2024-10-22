@@ -270,8 +270,8 @@ public class ResultGraph{
 					for(int i = from; i < to; i++){
 						int target = csr[i];
 						if(!seen.get(target)){
-							seen.rangeSet(target);
 							out.addTarget(target);
+							seen.rangeSet(target);
 							stack.push(target);
 						}
 					}
@@ -287,14 +287,13 @@ public class ResultGraph{
 		ResultGraph out = new ResultGraph(this, vertexCount, false);
 		
 		Deque<Integer> stack = new ArrayDeque<Integer>(vertexCount);
-		SmartBitSet seen = new SmartBitSet(vertexCount);
+		BitSet seen = new BitSet(vertexCount);
 		
 		for(int source = 0; source < vertexCount; source++){
 			out.setActiveSource(source);
 			
 			if(source == boundSource && csr[source] != csr[source + 1]){
 				stack.push(source);
-				seen.rangeClear();
 				
 				while(!stack.isEmpty()){
 					int vertex = stack.pop();
@@ -304,8 +303,8 @@ public class ResultGraph{
 					for(int i = from; i < to; i++){
 						int target = csr[i];
 						if(!seen.get(target)){
-							seen.rangeSet(target);
 							out.addTarget(target);
+							seen.set(target);
 							stack.push(target);
 						}
 					}
@@ -329,6 +328,7 @@ public class ResultGraph{
 			if(csr[source] != csr[source + 1]){
 				stack.push(source);
 				seen.rangeClear();
+				stack.clear();
 				
 				while(!stack.isEmpty()){
 					int vertex = stack.pop();
@@ -357,11 +357,10 @@ public class ResultGraph{
 	
 	public ResultGraph transitiveClosure(int boundSource, int boundTarget){
 		Deque<Integer> stack = new ArrayDeque<Integer>(vertexCount);
-		SmartBitSet seen = new SmartBitSet(vertexCount);
+		BitSet seen = new BitSet(vertexCount);
 
 		if(csr[boundSource] != csr[boundSource + 1]){
 			stack.push(boundSource);
-			seen.rangeClear();
 
 			while(!stack.isEmpty()){
 				int vertex = stack.pop();
@@ -375,7 +374,7 @@ public class ResultGraph{
 							return single(vertexCount, boundSource, boundTarget);
 						}
 
-						seen.rangeSet(target);
+						seen.set(target);
 						stack.push(target);
 					}
 				}

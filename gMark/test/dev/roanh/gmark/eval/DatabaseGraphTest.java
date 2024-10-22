@@ -13,6 +13,8 @@ import dev.roanh.gmark.data.SourceTargetPair;
 import dev.roanh.gmark.util.graph.IntGraph;
 
 public class DatabaseGraphTest{
+	private static final Predicate l0 = new Predicate(0, "0");
+	private static final Predicate l1 = new Predicate(1, "1");
 
 	@Test
 	public void construct(){
@@ -20,8 +22,11 @@ public class DatabaseGraphTest{
 		assertEquals(13, graph.getEdgeCount());
 		
 		DatabaseGraph db = new DatabaseGraph(graph);
-		assertEquals(5, db.getEdgeCount(new Predicate(0, "0")));
-		assertEquals(3, db.getEdgeCount(new Predicate(1, "1")));
+		assertEquals(5, db.getEdgeCount(l0));
+		assertEquals(3, db.getEdgeCount(l1));
+		assertEquals(8, db.getVertexCount());
+		assertEquals(8, db.getEdgeCount());
+		assertEquals(2, db.getLabelCount());
 		
 		assertArrayEquals(
 			new int[]{9, 9, 13, 17, 21, 25, 29, 33, 38, 12, 13, 13, 4, 16, 17, 17, 3, 20, 21, 21, 4, 24, 25, 25, 6, 28, 28, 29, 4, 32, 32, 33, 7, 36, 37, 38, 0, 5, 0, 0, 0, 0, 0},
@@ -36,7 +41,7 @@ public class DatabaseGraphTest{
 	
 	@Test
 	public void select0(){
-		ResultGraph result = createDatabaseGraph().selectLabel(new Predicate(0, "0"));
+		ResultGraph result = createDatabaseGraph().selectLabel(l0);
 		
 		assertPaths(result, List.of(
 			new SourceTargetPair(1, 4),
@@ -49,7 +54,7 @@ public class DatabaseGraphTest{
 	
 	@Test
 	public void select1(){
-		ResultGraph result = createDatabaseGraph().selectLabel(new Predicate(1, "1"));
+		ResultGraph result = createDatabaseGraph().selectLabel(l1);
 		
 		assertPaths(result, List.of(
 			new SourceTargetPair(5, 4),
@@ -59,8 +64,103 @@ public class DatabaseGraphTest{
 	}
 	
 	@Test
+	public void selectTarget0(){
+		ResultGraph result = createDatabaseGraph().selectLabel(l1, 4);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(5, 4)
+		));
+	}
+	
+	@Test
+	public void selectTarget1(){
+		ResultGraph result = createDatabaseGraph().selectLabel(l0, 4);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(1, 4),
+			new SourceTargetPair(3, 4)
+		));
+	}
+	
+	@Test
+	public void selectTarget2(){
+		assertPaths(createDatabaseGraph().selectLabel(l1, 6), List.of());
+	}
+	
+	@Test
+	public void selectTarget4(){
+		ResultGraph result = createDatabaseGraph().selectLabel(l0.getInverse(), 4);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(6, 4)
+		));
+	}
+	
+	@Test
+	public void selectSource0(){
+		ResultGraph result = createDatabaseGraph().selectLabel(4, l0);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(4, 6)
+		));
+	}
+	
+	@Test
+	public void selectSource1(){
+		ResultGraph result = createDatabaseGraph().selectLabel(7, l0);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(7, 0)
+		));
+	}
+	
+	@Test
+	public void selectSource2(){
+		ResultGraph result = createDatabaseGraph().selectLabel(4, l0.getInverse());
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(4, 1),
+			new SourceTargetPair(4, 3)
+		));
+	}
+	
+	@Test
+	public void selectSource3(){
+		ResultGraph result = createDatabaseGraph().selectLabel(4, l1.getInverse());
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(4, 5)
+		));
+	}
+	
+	@Test
+	public void selectExact0(){
+		ResultGraph result = createDatabaseGraph().selectLabel(4, l0, 6);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(4, 6)
+		));
+	}
+	
+	@Test
+	public void selectExact1(){
+		ResultGraph result = createDatabaseGraph().selectLabel(4, l1, 6);
+		
+		assertPaths(result, List.of());
+	}
+	
+	@Test
+	public void selectExact2(){
+		ResultGraph result = createDatabaseGraph().selectLabel(7, l1.getInverse(), 6);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(7, 6)
+		));
+	}
+	
+	@Test
 	public void selectInv0(){
-		ResultGraph result = createDatabaseGraph().selectLabel(new Predicate(0, "0").getInverse());
+		ResultGraph result = createDatabaseGraph().selectLabel(l0.getInverse());
 		
 		assertPaths(result, List.of(
 			new SourceTargetPair(0, 7),
@@ -73,12 +173,37 @@ public class DatabaseGraphTest{
 	
 	@Test
 	public void selectInv1(){
-		ResultGraph result = createDatabaseGraph().selectLabel(new Predicate(1, "1").getInverse());
+		ResultGraph result = createDatabaseGraph().selectLabel(l1.getInverse());
 		
 		assertPaths(result, List.of(
 			new SourceTargetPair(4, 5),
 			new SourceTargetPair(5, 7),
 			new SourceTargetPair(7, 6)
+		));
+	}
+	
+	@Test
+	public void id0(){
+		ResultGraph result = createDatabaseGraph().selectIdentity();
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(0, 0),
+			new SourceTargetPair(1, 1),
+			new SourceTargetPair(2, 2),
+			new SourceTargetPair(3, 3),
+			new SourceTargetPair(4, 4),
+			new SourceTargetPair(5, 5),
+			new SourceTargetPair(6, 6),
+			new SourceTargetPair(7, 7)
+		));
+	}
+	
+	@Test
+	public void idBound0(){
+		ResultGraph result = createDatabaseGraph().selectIdentity(4);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(4, 4)
 		));
 	}
 	
@@ -91,6 +216,14 @@ public class DatabaseGraphTest{
 	}
 	
 	private static IntGraph createGraph(){
+		/*
+		 *         |---0-- 3 <-0-- 2
+		 *         v
+		 * 1 --0-> 4 --0-> 6 --1-> 7 --0-> 0
+		 *         ^               |
+		 *         |---1-- 5 <-1---|
+		 */
+		
 		IntGraph graph = new IntGraph(8, 2);
 		graph.addEdge(1, 4, 0);
 		graph.addEdge(4, 6, 0);

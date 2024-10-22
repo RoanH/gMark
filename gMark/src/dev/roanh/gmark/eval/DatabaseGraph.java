@@ -168,24 +168,25 @@ public class DatabaseGraph{
 	}
 	
 	public ResultGraph selectLabel(Predicate label, int target){
-		final int offset = reverseSlt[target];
+		final int[] data = label.isInverse() ? slt : reverseSlt;
+		final int offset = data[target];
 		
-		int idx = reverseSlt[offset + label.getID()];
-		final int end = reverseSlt[offset + label.getID() + 1];
+		int idx = data[offset + label.getID()];
+		final int end = data[offset + label.getID() + 1];
 		
 		if(end - idx == 0){
 			return ResultGraph.empty(vertexCount);
 		}
 		
-		int vertex = reverseSlt[idx];
+		int vertex = data[idx];
 		ResultGraph out = new ResultGraph(vertexCount, end - idx, true);
 		for(int source = 0; source < vertexCount; source++){
 			out.setActiveSource(source);
 		
 			if(source == vertex){
 				out.addTarget(target);
-				if(idx < end){
-					vertex = reverseSlt[++idx];
+				if(++idx < end){
+					vertex = data[idx];
 				}
 			}
 		}
@@ -195,13 +196,15 @@ public class DatabaseGraph{
 	}
 	
 	public ResultGraph selectLabel(int source, Predicate label){
-		final int start = slt[source];
-		return ResultGraph.single(vertexCount, source, true, slt[start + label.getID()], slt[start + label.getID() + 1], slt);
+		final int[] data = label.isInverse() ? reverseSlt : slt;
+		final int start = data[source];
+		return ResultGraph.single(vertexCount, source, true, data[start + label.getID()], data[start + label.getID() + 1], data);
 	}
 	
 	public ResultGraph selectLabel(int source, Predicate label, int target){
-		final int start = slt[source];
-		if(Arrays.binarySearch(slt, start + label.getID(), start + label.getID() + 1, target) >= 0){
+		final int[] data = label.isInverse() ? reverseSlt : slt;
+		final int start = data[source];
+		if(Arrays.binarySearch(data, data[start + label.getID()], data[start + label.getID() + 1], target) >= 0){
 			return ResultGraph.single(vertexCount, source, target);
 		}else{
 			return ResultGraph.empty(vertexCount);

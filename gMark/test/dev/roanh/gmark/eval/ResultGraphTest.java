@@ -3,7 +3,6 @@ package dev.roanh.gmark.eval;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -266,7 +265,6 @@ public class ResultGraphTest{
 	}
 	
 	private void assertPaths(ResultGraph result, List<SourceTargetPair> expected){
-		System.out.println(result.getSourceTargetPairs().stream().sorted().toList());
 		assertIterableEquals(expected, result.getSourceTargetPairs().stream().sorted().toList());
 	}
 }

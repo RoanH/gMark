@@ -2,6 +2,7 @@ package dev.roanh.gmark.util;
 
 import java.util.BitSet;
 
+//TODO rename
 public class SmartBitSet{
 	private final BitSet data;
 	private int min = Integer.MAX_VALUE;

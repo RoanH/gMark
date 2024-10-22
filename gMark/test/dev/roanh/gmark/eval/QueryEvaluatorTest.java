@@ -22,7 +22,7 @@ import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.util.graph.IntGraph;
 
 @TestInstance(Lifecycle.PER_CLASS)
-public class EvaluatorTest{
+public class QueryEvaluatorTest{
 	private static final Predicate l0 = new Predicate(0, "0");//a
 	private static final Predicate l1 = new Predicate(1, "1");//b
 	private static final Predicate l2 = new Predicate(2, "2");

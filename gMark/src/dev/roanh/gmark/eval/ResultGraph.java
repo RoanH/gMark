@@ -283,6 +283,108 @@ public class ResultGraph{
 		return out;
 	}
 	
+	public ResultGraph transitiveClosureFrom(int boundSource){
+		ResultGraph out = new ResultGraph(this, vertexCount, false);
+		
+		Deque<Integer> stack = new ArrayDeque<Integer>(vertexCount);
+		SmartBitSet seen = new SmartBitSet(vertexCount);
+		
+		for(int source = 0; source < vertexCount; source++){
+			out.setActiveSource(source);
+			
+			if(source == boundSource && csr[source] != csr[source + 1]){
+				stack.push(source);
+				seen.rangeClear();
+				
+				while(!stack.isEmpty()){
+					int vertex = stack.pop();
+					
+					final int from = csr[vertex];
+					final int to = csr[vertex + 1];
+					for(int i = from; i < to; i++){
+						int target = csr[i];
+						if(!seen.get(target)){
+							seen.rangeSet(target);
+							out.addTarget(target);
+							stack.push(target);
+						}
+					}
+				}
+			}
+		}
+		
+		out.endFinalSource();
+		return out;
+	}
+	
+	public ResultGraph transitiveClosureTo(int boundTarget){
+		ResultGraph out = new ResultGraph(this, vertexCount, false);
+		
+		Deque<Integer> stack = new ArrayDeque<Integer>(vertexCount);
+		SmartBitSet seen = new SmartBitSet(vertexCount);
+		
+		sourceLoop: for(int source = 0; source < vertexCount; source++){
+			out.setActiveSource(source);
+			
+			if(csr[source] != csr[source + 1]){
+				stack.push(source);
+				seen.rangeClear();
+				
+				while(!stack.isEmpty()){
+					int vertex = stack.pop();
+					
+					final int from = csr[vertex];
+					final int to = csr[vertex + 1];
+					for(int i = from; i < to; i++){
+						int target = csr[i];
+						if(!seen.get(target)){
+							if(target == boundTarget){
+								out.addTarget(target);
+								continue sourceLoop;
+							}
+							
+							seen.rangeSet(target);
+							stack.push(target);
+						}
+					}
+				}
+			}
+		}
+		
+		out.endFinalSource();
+		return out;
+	}
+	
+	public ResultGraph transitiveClosure(int boundSource, int boundTarget){
+		Deque<Integer> stack = new ArrayDeque<Integer>(vertexCount);
+		SmartBitSet seen = new SmartBitSet(vertexCount);
+
+		if(csr[boundSource] != csr[boundSource + 1]){
+			stack.push(boundSource);
+			seen.rangeClear();
+
+			while(!stack.isEmpty()){
+				int vertex = stack.pop();
+
+				final int from = csr[vertex];
+				final int to = csr[vertex + 1];
+				for(int i = from; i < to; i++){
+					int target = csr[i];
+					if(!seen.get(target)){
+						if(target == boundTarget){
+							return single(vertexCount, boundSource, boundTarget);
+						}
+
+						seen.rangeSet(target);
+						stack.push(target);
+					}
+				}
+			}
+		}
+
+		return empty(vertexCount);
+	}
+
 	public ResultGraph selectIdentity(){
 		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
 

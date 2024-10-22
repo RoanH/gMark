@@ -70,20 +70,7 @@ public class QueryEvaluator{
 		case INTERSECTION:
 			return planIntersection(source, path, target);
 		case KLEENE:
-			//TODO bind
-			{
-				ResultGraph result = evaluate(UNBOUND, path.getLeft(), UNBOUND).transitiveClosure();
-	
-				if(source != UNBOUND){
-					result = result.selectSource(source);
-				}
-	
-				if(target != UNBOUND){
-					result = result.selectTarget(target);
-				}
-	
-				return result;
-			}
+			return planTransitiveClosure(source, path, target);
 		}
 
 		throw new IllegalArgumentException("Unsupported database operation.");
@@ -97,6 +84,16 @@ public class QueryEvaluator{
 			return evaluate(source, path.getLeft(), target).selectIdentity();
 		}else{
 			return evaluate(source, path.getLeft(), target).intersection(evaluate(source, path.getRight(), target));
+		}
+	}
+	
+	private ResultGraph planTransitiveClosure(int source, QueryTree path, int target){
+		ResultGraph base = evaluate(UNBOUND, path.getLeft(), UNBOUND);
+		
+		if(source == UNBOUND){
+			return target == UNBOUND ? base.transitiveClosure() : base.transitiveClosureTo(target);
+		}else{
+			return target == UNBOUND ? base.transitiveClosureFrom(source) : base.transitiveClosure(source, target);
 		}
 	}
 	

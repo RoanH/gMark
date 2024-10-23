@@ -326,9 +326,9 @@ public class ResultGraph{
 			out.setActiveSource(source);
 			
 			if(csr[source] != csr[source + 1]){
+				stack.clear();
 				stack.push(source);
 				seen.rangeClear();
-				stack.clear();
 				
 				while(!stack.isEmpty()){
 					int vertex = stack.pop();
@@ -405,61 +405,6 @@ public class ResultGraph{
 						out.addTarget(source);
 						break;
 					}
-				}
-			}
-		}
-		
-		out.endFinalSource();
-		return out;
-	}
-	
-//	/**
-//	 * Selects all the edges from the given input graph that start at the given source node.
-//	 * @param source The source node of the edges.
-//	 * @param in The input graph to select edges from.
-//	 * @return A copy of the input graph containing only the edges that started at the given source vertex.
-//	 */
-	//TODO this should not be in post
-	@Deprecated
-	public ResultGraph selectSource(int source){
-		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
-		
-		for(int i = 0; i < vertexCount; i++){
-			out.setActiveSource(i);
-			
-			if(i == source){
-				final int from = csr[source];
-				final int to = csr[source + 1];
-				for(int idx = from; idx < to; idx++){
-					out.addTarget(csr[idx]);
-				}
-			}
-		}
-		
-		out.endFinalSource();
-		return out;
-	}
-	
-//	/**
-//	 * Selects all the edges from the given input graph that end at the given target node.
-//	 * @param target The target node of the edges.
-//	 * @param in The input graph to select edges from.
-//	 * @return A copy of the input graph containing only the edges that ended at the given target vertex.
-//	 */
-	//TODO this should not be in post
-	@Deprecated
-	public ResultGraph selectTarget(int target){
-		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
-		
-		for(int source = 0; source < vertexCount; source++){
-			out.setActiveSource(source);
-			
-			final int from = csr[source];
-			final int to = csr[source + 1];
-			for(int i = from; i < to; i++){
-				if(csr[i] == target){
-					out.addTarget(target);
-					break;
 				}
 			}
 		}

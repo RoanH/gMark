@@ -1,12 +1,14 @@
 package dev.roanh.gmark.eval;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import dev.roanh.gmark.data.CardStat;
 import dev.roanh.gmark.data.SourceTargetPair;
 
 public class ResultGraphTest{
@@ -15,18 +17,24 @@ public class ResultGraphTest{
 	public void empty(){
 		ResultGraph empty = ResultGraph.empty(4);
 		assertArrayEquals(new int[]{5, 5, 5, 5, 5}, empty.getData());
+		assertEquals(4, empty.getVertexCount());
+		assertEquals(0, empty.getEdgeCount());
 	}
 	
 	@Test
 	public void single0(){
 		ResultGraph single = ResultGraph.single(4, 1, 2);
 		assertArrayEquals(new int[]{5, 5, 6, 6, 6, 2}, single.getData());
+		assertEquals(4, single.getVertexCount());
+		assertEquals(1, single.getEdgeCount());
 	}
 	
 	@Test
 	public void single1(){
 		ResultGraph single = ResultGraph.single(4, 1, true, 2, 4, 5);
 		assertArrayEquals(new int[]{5, 5, 8, 8, 8, 2, 4, 5}, single.getData());
+		assertEquals(4, single.getVertexCount());
+		assertEquals(3, single.getEdgeCount());
 	}
 	
 	@Test
@@ -34,6 +42,8 @@ public class ResultGraphTest{
 		int[] data = new int[]{1, 1, 2, 4, 5, 1, 1};
 		ResultGraph single = ResultGraph.single(4, 1, true, 2, 5, data);
 		assertArrayEquals(new int[]{5, 5, 8, 8, 8, 2, 4, 5}, single.getData());
+		assertEquals(4, single.getVertexCount());
+		assertEquals(3, single.getEdgeCount());
 	}
 
 	@Test
@@ -70,7 +80,9 @@ public class ResultGraphTest{
 		right.addTarget(3);
 		right.endFinalSource();
 		
-		assertPaths(left.union(right), List.of(
+		ResultGraph result = left.union(right);
+		assertEquals(new CardStat(5, 13, 5), result.computeCardinality());
+		assertPaths(result, List.of(
 			new SourceTargetPair(0, 0),
 			new SourceTargetPair(0, 1),
 			new SourceTargetPair(0, 2),
@@ -120,8 +132,10 @@ public class ResultGraphTest{
 		right.addTarget(4);
 		right.addTarget(3);
 		right.endFinalSource();
-		
-		assertPaths(left.intersection(right), List.of(
+
+		ResultGraph result = left.intersection(right);
+		assertEquals(new CardStat(2, 3, 3), result.computeCardinality());
+		assertPaths(result, List.of(
 			new SourceTargetPair(0, 0),
 			new SourceTargetPair(0, 1),
 			new SourceTargetPair(4, 4)
@@ -162,7 +176,9 @@ public class ResultGraphTest{
 		right.addTarget(3);
 		right.endFinalSource();
 		
-		assertPaths(left.join(right), List.of(
+		ResultGraph result = left.join(right);
+		assertEquals(new CardStat(4, 9, 5), result.computeCardinality());
+		assertPaths(result, List.of(
 			new SourceTargetPair(0, 0),
 			new SourceTargetPair(0, 1),
 			new SourceTargetPair(0, 4),
@@ -195,7 +211,9 @@ public class ResultGraphTest{
 		graph.setActiveSource(5);
 		graph.endFinalSource();
 		
-		assertPaths(graph.transitiveClosure(), List.of(
+		ResultGraph result = graph.transitiveClosure();
+		assertEquals(new CardStat(5, 15, 6), result.computeCardinality());
+		assertPaths(result, List.of(
 			new SourceTargetPair(0, 0),
 			new SourceTargetPair(0, 1),
 			new SourceTargetPair(0, 2),
@@ -212,6 +230,165 @@ public class ResultGraphTest{
 			new SourceTargetPair(4, 4),
 			new SourceTargetPair(4, 5)
 		));
+	}
+	
+	@Test
+	public void transitiveClosureFrom0(){
+		ResultGraph graph = new ResultGraph(6, 6, false);
+		graph.setActiveSource(0);
+		graph.addTarget(1);
+		graph.addTarget(2);
+		graph.addTarget(0);
+		graph.setActiveSource(1);
+		graph.addTarget(5);
+		graph.setActiveSource(2);
+		graph.addTarget(1);
+		graph.addTarget(0);
+		graph.setActiveSource(3);
+		graph.addTarget(3);
+		graph.setActiveSource(4);
+		graph.addTarget(4);
+		graph.addTarget(2);
+		graph.setActiveSource(5);
+		graph.endFinalSource();
+		
+		ResultGraph result = graph.transitiveClosureFrom(0);
+		assertEquals(new CardStat(1, 4, 4), result.computeCardinality());
+		assertPaths(result, List.of(
+			new SourceTargetPair(0, 0),
+			new SourceTargetPair(0, 1),
+			new SourceTargetPair(0, 2),
+			new SourceTargetPair(0, 5)
+		));
+	}
+	
+	@Test
+	public void transitiveClosureFrom1(){
+		ResultGraph graph = new ResultGraph(6, 6, false);
+		graph.setActiveSource(0);
+		graph.addTarget(1);
+		graph.addTarget(2);
+		graph.addTarget(0);
+		graph.setActiveSource(1);
+		graph.addTarget(5);
+		graph.setActiveSource(2);
+		graph.addTarget(1);
+		graph.addTarget(0);
+		graph.setActiveSource(3);
+		graph.addTarget(3);
+		graph.setActiveSource(4);
+		graph.addTarget(4);
+		graph.addTarget(2);
+		graph.setActiveSource(5);
+		graph.endFinalSource();
+		
+		ResultGraph result = graph.transitiveClosureFrom(5);
+		assertEquals(new CardStat(0, 0, 0), result.computeCardinality());
+		assertPaths(result, List.of());
+	}
+	
+	@Test
+	public void transitiveClosureTo(){
+		ResultGraph graph = new ResultGraph(6, 6, false);
+		graph.setActiveSource(0);
+		graph.addTarget(1);
+		graph.addTarget(2);
+		graph.addTarget(0);
+		graph.setActiveSource(1);
+		graph.addTarget(5);
+		graph.setActiveSource(2);
+		graph.addTarget(1);
+		graph.addTarget(0);
+		graph.setActiveSource(3);
+		graph.addTarget(3);
+		graph.setActiveSource(4);
+		graph.addTarget(4);
+		graph.addTarget(2);
+		graph.setActiveSource(5);
+		graph.endFinalSource();
+		
+		ResultGraph result = graph.transitiveClosureTo(1);
+		assertEquals(new CardStat(3, 3, 1), result.computeCardinality());
+		assertPaths(result, List.of(
+			new SourceTargetPair(0, 1),
+			new SourceTargetPair(2, 1),
+			new SourceTargetPair(4, 1)
+		));
+	}
+	
+	@Test
+	public void transitiveClosureExact0(){
+		ResultGraph graph = new ResultGraph(6, 6, false);
+		graph.setActiveSource(0);
+		graph.addTarget(1);
+		graph.addTarget(2);
+		graph.addTarget(0);
+		graph.setActiveSource(1);
+		graph.addTarget(5);
+		graph.setActiveSource(2);
+		graph.addTarget(1);
+		graph.addTarget(0);
+		graph.setActiveSource(3);
+		graph.addTarget(3);
+		graph.setActiveSource(4);
+		graph.addTarget(4);
+		graph.addTarget(2);
+		graph.setActiveSource(5);
+		graph.endFinalSource();
+		
+		ResultGraph result = graph.transitiveClosure(4, 1);
+		assertEquals(new CardStat(1, 1, 1), result.computeCardinality());
+		assertPaths(result, List.of(new SourceTargetPair(4, 1)));
+	}
+	
+	@Test
+	public void transitiveClosureExact1(){
+		ResultGraph graph = new ResultGraph(6, 6, false);
+		graph.setActiveSource(0);
+		graph.addTarget(1);
+		graph.addTarget(2);
+		graph.addTarget(0);
+		graph.setActiveSource(1);
+		graph.addTarget(5);
+		graph.setActiveSource(2);
+		graph.addTarget(1);
+		graph.addTarget(0);
+		graph.setActiveSource(3);
+		graph.addTarget(3);
+		graph.setActiveSource(4);
+		graph.addTarget(4);
+		graph.addTarget(2);
+		graph.setActiveSource(5);
+		graph.endFinalSource();
+		
+		ResultGraph result = graph.transitiveClosure(2, 4);
+		assertEquals(new CardStat(0, 0, 0), result.computeCardinality());
+		assertPaths(result, List.of());
+	}
+	
+	@Test
+	public void transitiveClosureExact2(){
+		ResultGraph graph = new ResultGraph(6, 6, false);
+		graph.setActiveSource(0);
+		graph.addTarget(1);
+		graph.addTarget(2);
+		graph.addTarget(0);
+		graph.setActiveSource(1);
+		graph.addTarget(5);
+		graph.setActiveSource(2);
+		graph.addTarget(1);
+		graph.addTarget(0);
+		graph.setActiveSource(3);
+		graph.addTarget(3);
+		graph.setActiveSource(4);
+		graph.addTarget(4);
+		graph.addTarget(2);
+		graph.setActiveSource(5);
+		graph.endFinalSource();
+		
+		ResultGraph result = graph.transitiveClosure(5, 4);
+		assertEquals(new CardStat(0, 0, 0), result.computeCardinality());
+		assertPaths(result, List.of());
 	}
 	
 	@Test
@@ -232,7 +409,9 @@ public class ResultGraphTest{
 		graph.addTarget(2);
 		graph.endFinalSource();
 		
-		assertPaths(graph.selectIdentity(), List.of(
+		ResultGraph result = graph.selectIdentity();
+		assertEquals(new CardStat(3, 3, 3), result.computeCardinality());
+		assertPaths(result, List.of(
 			new SourceTargetPair(0, 0),
 			new SourceTargetPair(3, 3),
 			new SourceTargetPair(4, 4)
@@ -257,7 +436,9 @@ public class ResultGraphTest{
 		graph.addTarget(4);
 		graph.endFinalSource();
 		
-		assertPaths(graph.selectIdentity(), List.of(
+		ResultGraph result = graph.selectIdentity();
+		assertEquals(new CardStat(3, 3, 3), result.computeCardinality());
+		assertPaths(result, List.of(
 			new SourceTargetPair(0, 0),
 			new SourceTargetPair(3, 3),
 			new SourceTargetPair(4, 4)

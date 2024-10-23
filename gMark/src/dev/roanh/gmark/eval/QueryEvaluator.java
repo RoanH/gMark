@@ -36,19 +36,11 @@ public class QueryEvaluator{
 	 * @see ResultGraph
 	 */
 	public ResultGraph evaluate(PathQuery query){
-		ResultGraph result = evaluate(query.source().orElse(UNBOUND), query.query().toAbstractSyntaxTree(), query.target().orElse(UNBOUND));
-		
-//		Optional<Integer> boundSource = query.source();
-//		if(boundSource.isPresent()){
-//			result = result.selectSource(boundSource.get());
-//		}
-//		
-//		Optional<Integer> boundTarget = query.target();
-//		if(boundTarget.isPresent()){
-//			result = result.selectTarget(boundTarget.get());
-//		}
-		
-		return result;
+		return evaluate(
+			query.source().orElse(UNBOUND),
+			query.query().toAbstractSyntaxTree(),
+			query.target().orElse(UNBOUND)
+		);
 	}
 
 	/**

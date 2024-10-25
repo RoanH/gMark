@@ -99,6 +99,10 @@ public class ResultGraph{
 		}
 	}
 	
+	public boolean isSorted(){
+		return sorted;
+	}
+	
 	/**
 	 * Computes the disjunction (or union) of this graph and the given input graph.
 	 * Recall that this operation simply added all the paths in both input graphs
@@ -413,14 +417,13 @@ public class ResultGraph{
 		return out;
 	}
 	
-//	/**
-//	 * Selects all the edges from the given input graph that start at the given source node.
-//	 * @param source The source node of the edges.
-//	 * @param in The input graph to select edges from.
-//	 * @return A copy of the input graph containing only the edges that started at the given source vertex.
-//	 */
+	/**
+	 * Selects all the edges from this graph that start at the given source node.
+	 * @param source The source node of the edges.
+	 * @return A copy of this graph containing only the edges that started at the given source vertex.
+	 */
 	public ResultGraph selectSource(int source){
-		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
+		ResultGraph out = new ResultGraph(vertexCount, vertexCount, sorted);
 		
 		for(int i = 0; i < vertexCount; i++){
 			out.setActiveSource(i);

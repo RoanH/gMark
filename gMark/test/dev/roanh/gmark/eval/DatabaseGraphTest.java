@@ -208,7 +208,7 @@ public class DatabaseGraphTest{
 	}
 	
 	private void assertPaths(ResultGraph result, List<SourceTargetPair> expected){
-		assertIterableEquals(expected, result.getSourceTargetPairs().stream().sorted().toList());
+		assertIterableEquals(expected, result.getSourceTargetPairs().stream().toList());
 	}
 	
 	private static DatabaseGraph createDatabaseGraph(){

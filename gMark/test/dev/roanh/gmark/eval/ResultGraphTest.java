@@ -2,7 +2,9 @@ package dev.roanh.gmark.eval;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -82,7 +84,8 @@ public class ResultGraphTest{
 		
 		ResultGraph result = left.union(right);
 		assertEquals(new CardStat(5, 13, 5), result.computeCardinality());
-		assertPaths(result, List.of(
+		assertTrue(result.isSorted());
+		assertPathsUnsorted(result, List.of(
 			new SourceTargetPair(0, 0),
 			new SourceTargetPair(0, 1),
 			new SourceTargetPair(0, 2),
@@ -135,7 +138,8 @@ public class ResultGraphTest{
 
 		ResultGraph result = left.intersection(right);
 		assertEquals(new CardStat(2, 3, 3), result.computeCardinality());
-		assertPaths(result, List.of(
+		assertTrue(result.isSorted());
+		assertPathsUnsorted(result, List.of(
 			new SourceTargetPair(0, 0),
 			new SourceTargetPair(0, 1),
 			new SourceTargetPair(4, 4)
@@ -178,7 +182,8 @@ public class ResultGraphTest{
 		
 		ResultGraph result = left.join(right);
 		assertEquals(new CardStat(4, 9, 5), result.computeCardinality());
-		assertPaths(result, List.of(
+		assertFalse(result.isSorted());
+		assertPathsSorted(result, List.of(
 			new SourceTargetPair(0, 0),
 			new SourceTargetPair(0, 1),
 			new SourceTargetPair(0, 4),
@@ -213,7 +218,8 @@ public class ResultGraphTest{
 		
 		ResultGraph result = graph.transitiveClosure();
 		assertEquals(new CardStat(5, 15, 6), result.computeCardinality());
-		assertPaths(result, List.of(
+		assertFalse(result.isSorted());
+		assertPathsSorted(result, List.of(
 			new SourceTargetPair(0, 0),
 			new SourceTargetPair(0, 1),
 			new SourceTargetPair(0, 2),
@@ -254,7 +260,8 @@ public class ResultGraphTest{
 		
 		ResultGraph result = graph.transitiveClosureFrom(0);
 		assertEquals(new CardStat(1, 4, 4), result.computeCardinality());
-		assertPaths(result, List.of(
+		assertFalse(result.isSorted());
+		assertPathsSorted(result, List.of(
 			new SourceTargetPair(0, 0),
 			new SourceTargetPair(0, 1),
 			new SourceTargetPair(0, 2),
@@ -284,7 +291,8 @@ public class ResultGraphTest{
 		
 		ResultGraph result = graph.transitiveClosureFrom(5);
 		assertEquals(new CardStat(0, 0, 0), result.computeCardinality());
-		assertPaths(result, List.of());
+		assertFalse(result.isSorted());
+		assertPathsUnsorted(result, List.of());
 	}
 	
 	@Test
@@ -309,7 +317,8 @@ public class ResultGraphTest{
 		
 		ResultGraph result = graph.transitiveClosureTo(1);
 		assertEquals(new CardStat(3, 3, 1), result.computeCardinality());
-		assertPaths(result, List.of(
+		assertFalse(result.isSorted());
+		assertPathsSorted(result, List.of(
 			new SourceTargetPair(0, 1),
 			new SourceTargetPair(2, 1),
 			new SourceTargetPair(4, 1)
@@ -338,7 +347,8 @@ public class ResultGraphTest{
 		
 		ResultGraph result = graph.transitiveClosure(4, 1);
 		assertEquals(new CardStat(1, 1, 1), result.computeCardinality());
-		assertPaths(result, List.of(new SourceTargetPair(4, 1)));
+		assertTrue(result.isSorted());
+		assertPathsUnsorted(result, List.of(new SourceTargetPair(4, 1)));
 	}
 	
 	@Test
@@ -363,7 +373,8 @@ public class ResultGraphTest{
 		
 		ResultGraph result = graph.transitiveClosure(2, 4);
 		assertEquals(new CardStat(0, 0, 0), result.computeCardinality());
-		assertPaths(result, List.of());
+		assertTrue(result.isSorted());
+		assertPathsUnsorted(result, List.of());
 	}
 	
 	@Test
@@ -388,7 +399,8 @@ public class ResultGraphTest{
 		
 		ResultGraph result = graph.transitiveClosure(5, 4);
 		assertEquals(new CardStat(0, 0, 0), result.computeCardinality());
-		assertPaths(result, List.of());
+		assertTrue(result.isSorted());
+		assertPathsUnsorted(result, List.of());
 	}
 	
 	@Test
@@ -411,7 +423,8 @@ public class ResultGraphTest{
 		
 		ResultGraph result = graph.selectIdentity();
 		assertEquals(new CardStat(3, 3, 3), result.computeCardinality());
-		assertPaths(result, List.of(
+		assertTrue(result.isSorted());
+		assertPathsUnsorted(result, List.of(
 			new SourceTargetPair(0, 0),
 			new SourceTargetPair(3, 3),
 			new SourceTargetPair(4, 4)
@@ -438,14 +451,100 @@ public class ResultGraphTest{
 		
 		ResultGraph result = graph.selectIdentity();
 		assertEquals(new CardStat(3, 3, 3), result.computeCardinality());
-		assertPaths(result, List.of(
+		assertTrue(result.isSorted());
+		assertPathsUnsorted(result, List.of(
 			new SourceTargetPair(0, 0),
 			new SourceTargetPair(3, 3),
 			new SourceTargetPair(4, 4)
 		));
 	}
 	
-	private void assertPaths(ResultGraph result, List<SourceTargetPair> expected){
+	@Test
+	public void selectTarget(){
+		ResultGraph graph = new ResultGraph(5, 5, false);
+		graph.setActiveSource(0);
+		graph.addTarget(1);
+		graph.addTarget(2);
+		graph.addTarget(0);
+		graph.setActiveSource(1);
+		graph.setActiveSource(2);
+		graph.addTarget(1);
+		graph.addTarget(0);
+		graph.setActiveSource(3);
+		graph.addTarget(3);
+		graph.setActiveSource(4);
+		graph.addTarget(4);
+		graph.addTarget(2);
+		graph.endFinalSource();
+		
+		ResultGraph result = graph.selectTarget(0);
+		assertEquals(new CardStat(2, 2, 1), result.computeCardinality());
+		assertTrue(result.isSorted());
+		assertPathsUnsorted(result, List.of(
+			new SourceTargetPair(0, 0),
+			new SourceTargetPair(2, 0)
+		));
+	}
+	
+	@Test
+	public void selectSourceUnsorted(){
+		ResultGraph graph = new ResultGraph(5, 5, false);
+		graph.setActiveSource(0);
+		graph.addTarget(1);
+		graph.addTarget(2);
+		graph.addTarget(0);
+		graph.setActiveSource(1);
+		graph.setActiveSource(2);
+		graph.addTarget(1);
+		graph.addTarget(0);
+		graph.setActiveSource(3);
+		graph.addTarget(3);
+		graph.setActiveSource(4);
+		graph.addTarget(4);
+		graph.addTarget(2);
+		graph.endFinalSource();
+		
+		ResultGraph result = graph.selectSource(2);
+		assertEquals(new CardStat(1, 2, 2), result.computeCardinality());
+		assertFalse(result.isSorted());
+		assertPathsSorted(result, List.of(
+			new SourceTargetPair(2, 0),
+			new SourceTargetPair(2, 1)
+		));
+	}
+	
+	@Test
+	public void selectSourceSorted(){
+		ResultGraph graph = new ResultGraph(5, 5, true);
+		graph.setActiveSource(0);
+		graph.addTarget(0);
+		graph.addTarget(1);
+		graph.addTarget(2);
+		graph.setActiveSource(1);
+		graph.setActiveSource(2);
+		graph.addTarget(0);
+		graph.addTarget(1);
+		graph.setActiveSource(3);
+		graph.addTarget(3);
+		graph.setActiveSource(4);
+		graph.addTarget(2);
+		graph.addTarget(4);
+		graph.endFinalSource();
+		
+		ResultGraph result = graph.selectSource(2);
+		assertEquals(new CardStat(1, 2, 2), result.computeCardinality());
+		assertTrue(result.isSorted());
+		assertPathsUnsorted(result, List.of(
+			new SourceTargetPair(2, 0),
+			new SourceTargetPair(2, 1)
+		));
+	}
+	
+	private static void assertPathsUnsorted(ResultGraph result, List<SourceTargetPair> expected){
+		assertIterableEquals(expected, result.getSourceTargetPairs().stream().toList());
+	}
+	
+	private static void assertPathsSorted(ResultGraph result, List<SourceTargetPair> expected){
 		assertIterableEquals(expected, result.getSourceTargetPairs().stream().sorted().toList());
 	}
 }

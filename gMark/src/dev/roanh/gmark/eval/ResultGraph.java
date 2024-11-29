@@ -480,12 +480,27 @@ public class ResultGraph{
 			}
 		}
 		
+		return new CardStat(out, getEdgeCount(), computeInIndex().cardinality());
+	}
+	
+	public BitSet computeOutIndex(){
+		BitSet out = new BitSet(vertexCount);
+		for(int source = 0; source < vertexCount; source++){
+			if(csr[source] != csr[source + 1]){
+				out.set(source);
+			}
+		}
+		
+		return out;
+	}
+	
+	public BitSet computeInIndex(){
 		BitSet in = new BitSet(vertexCount);
 		for(int i = csr[0]; i < head; i++){
 			in.set(csr[i]);
 		}
 		
-		return new CardStat(out, getEdgeCount(), in.cardinality());
+		return in;
 	}
 
 	/**

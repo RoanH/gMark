@@ -141,6 +141,7 @@ public class QueryEvaluatorTest{
 			)
 		);
 		
+		System.out.println(result.getSourceTargetPairs());
 		assertPaths(result, List.of(
 			new SourceTargetPair(2, 2),
 			new SourceTargetPair(2, 13),

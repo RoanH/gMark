@@ -1,5 +1,9 @@
 package dev.roanh.gmark.eval;
 
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.LinkedList;
+
 import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.core.graph.Predicate;
@@ -52,7 +56,9 @@ public class QueryEvaluator{
 	private ResultGraph evaluate(int source, QueryTree path, int target){
 		switch(path.getOperation()){
 		case CONCATENATION://TODO simple join planner?
-			return evaluate(source, path.getLeft(), UNBOUND).join(evaluate(UNBOUND, path.getRight(), target));
+			//return evaluate(source, path.getLeft(), UNBOUND).join(evaluate(UNBOUND, path.getRight(), target));
+
+			return planJoin(source, path, target);
 		case DISJUNCTION:
 			return evaluate(source, path.getLeft(), target).union(evaluate(source, path.getRight(), target));
 		case EDGE:
@@ -66,6 +72,110 @@ public class QueryEvaluator{
 		}
 
 		throw new IllegalArgumentException("Unsupported database operation.");
+	}
+	
+	private ResultGraph planJoin(int source, QueryTree path, int target){
+		if(path.getLeft().getOperation() == OperationType.CONCATENATION || path.getRight().getOperation() == OperationType.CONCATENATION){
+			JoinChain prefix = flattenJoinChainLeft(source, path.getLeft());
+			JoinChain suffix = flattenJoinChainRight(path.getRight(), target);
+			prefix.right = suffix;
+			suffix.left = prefix;
+			
+			//find the minimal join
+			JoinChain chain = prefix.getChainStart();
+			
+			//compute a cost for each join and build an array
+			JoinChain[] order = new JoinChain[chain.getRightJoinCount()];
+			JoinChain idx = chain;
+			int offset = 0;
+			while(idx.right != null){
+				idx.computeCostWithRight();
+				if(idx.cost == 0){
+					//if the out -> in intersection between any two graphs in the chain is empty, the result is also empty
+					//return ResultGraph.empty(idx.data.getVertexCount());
+				}
+				
+				order[offset++] = idx;
+				idx = idx.right;
+			}
+			
+			System.out.println("Order: " + Arrays.toString(order));
+			chain.printChain();
+			
+			//order based on cost
+			Arrays.sort(order, null);
+			
+			//evaluate from low to high cost
+			for(JoinChain join : order){
+				System.out.println("eval " + join + " as " + join.data.getEdgeCount() + " vs " + join.right.data.getEdgeCount() + " p: " + join.processed);
+				//note that we can process a left node
+				
+				//TODO proper fix is to build an AST
+				
+				if(join.processed){
+					join = join.right.left;
+				}
+				
+				ResultGraph result = join.data.join(join.right.data);
+				join.data = result;
+				join.relinkWithNextRight();
+				System.out.println("save result as " + result.getEdgeCount());
+				chain.printChain();
+			}
+			
+			//first node will be the only remaining node
+			return chain.data;
+			
+			
+//			while(chain.right != null){
+//				JoinChain min = chain;
+//				int minCost = min.data.getEdgeCount() * min.right.data.getEdgeCount();
+//				
+//				while(min.right != null){
+//					min = min.right;
+//					
+//					//if()
+//				}
+//				
+//				
+//				//TODO see DB systems join planner ?
+//				//actually maybe compute it? 
+//				//left right, make a bitmask on source/target
+//				//(left.outmask & right.inmask).cardinality, lowest first
+//				//would account very well for hub nodes but well...
+//				
+//			}
+			
+			
+//			return null;//TODO
+			
+		}else{
+			return evaluate(source, path.getLeft(), UNBOUND).join(evaluate(UNBOUND, path.getRight(), target));
+		}
+	}
+	
+	private JoinChain flattenJoinChainLeft(int source, QueryTree path){
+		if(path.getOperation() == OperationType.CONCATENATION){
+			JoinChain prefix = flattenJoinChainLeft(source, path.getLeft());
+			JoinChain suffix = flattenJoinChainRight(path.getRight(), UNBOUND);
+			prefix.right = suffix;
+			suffix.left = prefix;
+			return suffix;
+		}else{
+			return new JoinChain(evaluate(source, path, UNBOUND), path.fragment.toString());
+		}
+	}
+	
+	private JoinChain flattenJoinChainRight(QueryTree path, int target){
+		if(path.getOperation() == OperationType.CONCATENATION){
+			JoinChain prefix = flattenJoinChainLeft(UNBOUND, path.getLeft());
+			JoinChain suffix = flattenJoinChainRight(path.getRight(), target);
+			prefix.right = suffix;
+			suffix.left = prefix;
+			return prefix;
+		}else{
+			return new JoinChain(evaluate(UNBOUND, path, target), path.fragment.toString());
+		}
 	}
 	
 	//notably identity
@@ -106,6 +216,68 @@ public class QueryEvaluator{
 			return target == UNBOUND ? graph.selectLabel(label) : graph.selectLabel(label, target);
 		}else{
 			return target == UNBOUND ? graph.selectLabel(source, label) : graph.selectLabel(source, label, target);
+		}
+	}
+	
+	private static class JoinChain implements Comparable<JoinChain>{
+		private JoinChain left;
+		private JoinChain right;
+		private ResultGraph data;
+		private int cost;
+		private String meta;//TODO remove
+		private boolean processed = false;
+		
+		@Override
+		public String toString(){
+			return meta + " with " + right.meta + " cost " + cost;
+		}
+		
+		private JoinChain(ResultGraph data, String meta){
+			this.data = data;
+			this.meta = meta;
+		}
+		
+		public JoinChain getChainStart(){
+			return left == null ? this : left.getChainStart();
+		}
+		
+		public int getRightJoinCount(){
+			return right == null ? 0 : 1 + right.getRightJoinCount();
+		}
+		
+		public void computeCostWithRight(){
+			//TODO
+//			return data.getEdgeCount() * right.data.getEdgeCount();
+//			return outIndex.
+			
+			BitSet overlap = data.computeInIndex(); 
+			overlap.and(right.data.computeOutIndex());
+			cost = overlap.cardinality();
+		}
+		
+		public void relinkWithNextRight(){
+			JoinChain next = right.right;
+			if(next != null){
+				next.left = this;
+			}
+
+			right.processed = true;
+			right = next;
+		}
+		
+		public void printChain(){
+			JoinChain next = this;
+			do{
+				System.out.print(next + " -> ");
+				next = next.right;
+			}while(next.right != null);
+			
+			System.out.println();
+		}
+		
+		@Override
+		public int compareTo(JoinChain o){
+			return Integer.compare(cost, o.cost);
 		}
 	}
 }

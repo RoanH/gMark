@@ -46,7 +46,7 @@ public class QueryTree{
 	/**
 	 * The query fragment this query tree node was derived from.
 	 */
-	private final QueryFragment fragment;
+	public final QueryFragment fragment;
 	
 	/**
 	 * Constructs a new query tree from the given input.

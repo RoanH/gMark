@@ -17,12 +17,19 @@ import dev.roanh.gmark.core.graph.Predicate;
  * @see ResultGraph
  */
 public class QueryEvaluator{
+	/**
+	 * Constant used to indicate query without a bound source and/or target vertex.
+	 */
 	private static final int UNBOUND = -1;
 	/**
 	 * The main database graph.
 	 */
 	private final DatabaseGraph graph;
 	
+	/**
+	 * Constructs a new query evaluator for the given database graph.
+	 * @param graph The database graph to evaluate queries on.
+	 */
 	public QueryEvaluator(DatabaseGraph graph){
 		this.graph = graph;
 	}
@@ -45,13 +52,15 @@ public class QueryEvaluator{
 
 	/**
 	 * Evaluates the given query tree (AST) bottom up.
+	 * @param source The ID of the bound source vertex, or -1 if unbound.
 	 * @param path The path query tree (AST) to evaluate.
+	 * @param target The ID of the bound target vertex, or -1 if unbound.
 	 * @return The result of evaluating the given query tree.
 	 * @see QueryTree
 	 */
 	private ResultGraph evaluate(int source, QueryTree path, int target){
 		switch(path.getOperation()){
-		case CONCATENATION://TODO simple join planner?
+		case CONCATENATION:
 			return evaluate(source, path.getLeft(), UNBOUND).join(evaluate(UNBOUND, path.getRight(), target));
 		case DISJUNCTION:
 			return evaluate(source, path.getLeft(), target).union(evaluate(source, path.getRight(), target));
@@ -68,7 +77,20 @@ public class QueryEvaluator{
 		throw new IllegalArgumentException("Unsupported database operation.");
 	}
 	
-	//notably identity
+	/**
+	 * Plans the evaluation of an intersection operation. Notably triggers
+	 * special handling for intersection with identity, where evaluation of
+	 * the intersection operation is skipped and instead all vertices with
+	 * self loops are selected from the input graph.
+	 * @param source The ID of the bound source vertex, or -1 if unbound.
+	 * @param path The path query tree (AST) to evaluate.
+	 * @param target The ID of the bound target vertex, or -1 if unbound.
+	 * @return The result of evaluating the given query tree.
+	 * @see OperationType#IDENTITY
+	 * @see OperationType#INTERSECTION
+	 * @see ResultGraph#selectIdentity()
+	 * @see ResultGraph#intersection(ResultGraph)
+	 */
 	private ResultGraph planIntersection(int source, QueryTree path, int target){
 		if(path.getLeft().getOperation() == OperationType.IDENTITY){
 			return evaluate(source, path.getRight(), target).selectIdentity();
@@ -79,6 +101,17 @@ public class QueryEvaluator{
 		}
 	}
 	
+	/**
+	 * Plans the evaluation of a transitive closure operation. This planner
+	 * selected an appropriate transitive closure implementation depending
+	 * on whether the source and/or target vertices are bound or not.
+	 * @param source The ID of the bound source vertex, or -1 if unbound.
+	 * @param path The path query tree (AST) to evaluate.
+	 * @param target The ID of the bound target vertex, or -1 if unbound.
+	 * @return The result of evaluating the given query tree.
+	 * @see OperationType#KLEENE
+	 * @see ResultGraph#transitiveClosure()
+	 */
 	private ResultGraph planTransitiveClosure(int source, QueryTree path, int target){
 		ResultGraph base = evaluate(UNBOUND, path.getLeft(), UNBOUND);
 		
@@ -89,6 +122,14 @@ public class QueryEvaluator{
 		}
 	}
 	
+	/**
+	 * Selects identity from the database graph (i.e., zero length paths).
+	 * @param source The ID of the bound source vertex, or -1 if unbound.
+	 * @param target The ID of the bound target vertex, or -1 if unbound.
+	 * @return The result of selecting identity from the database graph.
+	 * @see OperationType#IDENTITY
+	 * @see DatabaseGraph#selectIdentity()
+	 */
 	private ResultGraph selectIdentity(int source, int target){
 		if(source == UNBOUND){
 			return target == UNBOUND ? graph.selectIdentity() : graph.selectIdentity(target);
@@ -101,6 +142,15 @@ public class QueryEvaluator{
 		}
 	}
 	
+	/**
+	 * Selects all edges with the given predicate from the database graph (i.e., length one paths).
+	 * @param source The ID of the bound source vertex, or -1 if unbound.
+	 * @param label The label of the edges to selected (predicate).
+	 * @param target The ID of the bound target vertex, or -1 if unbound.
+	 * @return The result of selecting all edge with the requested label from the database graph.
+	 * @see OperationType#EDGE
+	 * @see DatabaseGraph#selectLabel(Predicate)
+	 */
 	private ResultGraph selectEdge(int source, Predicate label, int target){
 		if(source == UNBOUND){
 			return target == UNBOUND ? graph.selectLabel(label) : graph.selectLabel(label, target);

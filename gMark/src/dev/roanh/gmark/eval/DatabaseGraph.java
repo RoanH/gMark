@@ -24,7 +24,8 @@ import dev.roanh.gmark.util.graph.IntGraph;
  * graph has <i>L</i> labels, then all labels will have an identifier
  * <i>l</i> that satisfies {@code 0 <= l < L}.</li>
  * <li>In particular for real world data graphs, there is no guarantee that no
- * duplicates exist of some edges.</li>
+ * duplicates exist of some edges. Therefore the implementation in this class
+ * filters out duplicate edges and sorts the targets.</li>
  * </ul>
  * @author Roan
  */
@@ -91,6 +92,11 @@ public class DatabaseGraph{
 	 */
 	private final int[] reverseSlt;
 	
+	/**
+	 * Constructs a new database graph (SLT) from the given source data. This procedure
+	 * will filter out duplicate edges and sort the target vertex lists.
+	 * @param graph The data for the database graph.
+	 */
 	public DatabaseGraph(IntGraph graph){
 		final int labelCount = graph.getLabelCount();
 		this.vertexCount = graph.getVertexCount();
@@ -176,10 +182,18 @@ public class DatabaseGraph{
 		}
 	}
 	
+	/**
+	 * Gets the total vertex count for this database graph.
+	 * @return The vertex count for this database graph.
+	 */
 	public int getVertexCount(){
 		return vertexCount;
 	}
 	
+	/**
+	 * Gets the total edge count for this database graph.
+	 * @return The total edge count for this database graph.
+	 */
 	public int getEdgeCount(){
 		int edges = 0;
 		for(int i = 0; i < syn1.length; i++){
@@ -189,6 +203,11 @@ public class DatabaseGraph{
 		return edges;
 	}
 	
+	/**
+	 * Gets the number of edges in this database graph with the given label.
+	 * @param label The label/predicate for the edges.
+	 * @return The number of edges in the database graph with the given label.
+	 */
 	public int getEdgeCount(Predicate label){
 		return syn1[label.getID()];
 	}
@@ -201,6 +220,12 @@ public class DatabaseGraph{
 		return syn1.length;
 	}
 	
+	/**
+	 * Selects all edges from this graph with the given label.
+	 * @param label The label to find (potentially inverted).
+	 * @return A result graph containing all the edges with the requested label,
+	 *         by construction this result graph will be sorted.
+	 */
 	public ResultGraph selectLabel(Predicate label){
 		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount(label), true);
 		
@@ -222,6 +247,15 @@ public class DatabaseGraph{
 		return out;
 	}
 	
+	/**
+	 * Selects all edges from this graph with the given label that
+	 * also end at the given target vertex.
+	 * @param label The label to find (potentially inverted).
+	 * @param target The ID of the vertex edges need to end at.
+	 * @return A result graph containing all the edges with the requested label
+	 *         that end at the given target vertex, by construction this result
+	 *         graph will be sorted.
+	 */
 	public ResultGraph selectLabel(Predicate label, int target){
 		final int[] data = label.isInverse() ? slt : reverseSlt;
 		final int offset = data[target];
@@ -250,6 +284,15 @@ public class DatabaseGraph{
 		return out;
 	}
 	
+	/**
+	 * Selects all edges from this graph with the given label that
+	 * start at the given source vertex.
+	 * @param source The ID of the vertex edges need to start at.
+	 * @param label The label to find (potentially inverted).
+	 * @return A result graph containing all the edges with the requested label
+	 *         that start at the given source vertex, by construction this result
+	 *         graph will be sorted.
+	 */
 	public ResultGraph selectLabel(int source, Predicate label){
 		final int[] data = label.isInverse() ? reverseSlt : slt;
 		final int start = data[source];

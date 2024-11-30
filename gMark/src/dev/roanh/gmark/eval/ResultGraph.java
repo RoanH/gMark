@@ -18,6 +18,9 @@ import dev.roanh.gmark.util.SmartBitSet;
  * paths exactly. In essence this graph can also be interpreted
  * as a set of source target pairs, each representing the existence
  * of one or more paths between the source and target vertex of the pair.
+ * <p>
+ * The concrete implementation in this class is based on a compressed sparse row matrix (CSR).
+ * In addition a result graph may be sorted (meaning its target vertex ranges are sorted).
  * @author Roan
  * @see CardStat
  * @see SourceTargetPair

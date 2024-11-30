@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.data.SourceLabelPair;
 import dev.roanh.gmark.data.TargetLabelPair;
@@ -27,7 +28,10 @@ import dev.roanh.gmark.util.graph.IntGraph;
  * duplicates exist of some edges. Therefore the implementation in this class
  * filters out duplicate edges and sorts the targets.</li>
  * </ul>
+ * Note that this class does not perform any input validations for performance
+ * reasons (unless assertions are enabled).
  * @author Roan
+ * @see #slt SLT
  */
 public class DatabaseGraph{
 	/**
@@ -57,15 +61,15 @@ public class DatabaseGraph{
 	 * where information about that node is stored is between SLT index {@code SLT[id]}
 	 * (inclusive) and {@code SLT[id + 1]} (exclusive). If these two indices are identical
 	 * then a node does not have any outgoing edges. In this case no information is stored
-	 * for the node in question.
+	 * for the node in question.</li>
 	 * <li>Label Index: After resolving the start index for the data of a node we can read
 	 * the label index for that node. Similar to the source index, the label index records
 	 * for each label type where the target nodes are stored in the SLT. If no edges from
 	 * the source node exist with a given label, then these two indices are again equal and
-	 * no target nodes are stored.
+	 * no target nodes are stored.</li>
 	 * <li>Target Range: The target range is the slice of the SLT referred to by the label
 	 * index which contains the node IDs of the actual targets for edges from the source
-	 * with the associated label.
+	 * with the associated label.</li>
 	 * </ol>
 	 * 
 	 * In general this means that if target nodes exist for some label we can find them in the
@@ -81,7 +85,9 @@ public class DatabaseGraph{
 	 * Assuming we want to find the data for node 4, then the data for this node is between index
 	 * {@code SLT[4] = 21} (inclusive) and {@code SLT[4 + 1] = 25} (exclusive). If we then
 	 * want to find the data for edges with label 0, this information is stored between index
-	 * {@code SLT[SLT[4] + 0] = 24} (inclusive) and {@code SLT[SLT[4] + 0 + 1] = 25} (exclusive). 
+	 * {@code SLT[SLT[4] + 0] = 24} (inclusive) and {@code SLT[SLT[4] + 0 + 1] = 25} (exclusive).
+	 * 
+	 * @see #reverseSlt
 	 */
 	private final int[] slt;
 	/**
@@ -209,6 +215,7 @@ public class DatabaseGraph{
 	 * @return The number of edges in the database graph with the given label.
 	 */
 	public int getEdgeCount(Predicate label){
+		assert 0 <= label.getID() && label.getID() < syn1.length;
 		return syn1[label.getID()];
 	}
 	
@@ -225,8 +232,11 @@ public class DatabaseGraph{
 	 * @param label The label to find (potentially inverted).
 	 * @return A result graph containing all the edges with the requested label,
 	 *         by construction this result graph will be sorted.
+	 * @see OperationType#EDGE
 	 */
 	public ResultGraph selectLabel(Predicate label){
+		assert 0 <= label.getID() && label.getID() < syn1.length;
+		
 		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount(label), true);
 		
 		final int[] data = label.isInverse() ? reverseSlt : slt;
@@ -255,8 +265,12 @@ public class DatabaseGraph{
 	 * @return A result graph containing all the edges with the requested label
 	 *         that end at the given target vertex, by construction this result
 	 *         graph will be sorted.
+	 * @see OperationType#EDGE
 	 */
 	public ResultGraph selectLabel(Predicate label, int target){
+		assert 0 <= label.getID() && label.getID() < syn1.length;
+		assert 0 <= target && target < vertexCount;
+		
 		final int[] data = label.isInverse() ? slt : reverseSlt;
 		final int offset = data[target];
 		
@@ -292,14 +306,32 @@ public class DatabaseGraph{
 	 * @return A result graph containing all the edges with the requested label
 	 *         that start at the given source vertex, by construction this result
 	 *         graph will be sorted.
+	 * @see OperationType#EDGE
 	 */
 	public ResultGraph selectLabel(int source, Predicate label){
+		assert 0 <= label.getID() && label.getID() < syn1.length;
+		assert 0 <= source && source < vertexCount;
+		
 		final int[] data = label.isInverse() ? reverseSlt : slt;
 		final int start = data[source];
 		return ResultGraph.single(vertexCount, source, true, data[start + label.getID()], data[start + label.getID() + 1], data);
 	}
 	
+	/**
+	 * Selects if present the single edge with the given label from this database graph
+	 * that start at the given source vertex and ends at the given target vertex. 
+	 * @param source The ID of the vertex edges need to start at.
+	 * @param label The label to find (potentially inverted).
+	 * @param target The ID of the vertex edges need to end at.
+	 * @return A result graph with the requested edge if it exists in the database graph,
+	 *         an empty result graph otherwise.
+	 * @see OperationType#EDGE
+	 */
 	public ResultGraph selectLabel(int source, Predicate label, int target){
+		assert 0 <= label.getID() && label.getID() < syn1.length;
+		assert 0 <= target && target < vertexCount;
+		assert 0 <= source && source < vertexCount;
+		
 		final int[] data = label.isInverse() ? reverseSlt : slt;
 		final int start = data[source];
 		if(Arrays.binarySearch(data, data[start + label.getID()], data[start + label.getID() + 1], target) >= 0){
@@ -313,6 +345,7 @@ public class DatabaseGraph{
 	 * Selects all the vertices from the this database graph. Note that vertices
 	 * are selected together with themselves to form a complete source target pair.
 	 * @return A result graph containing only vertices selected with themselves.
+	 * @see OperationType#IDENTITY
 	 */
 	public ResultGraph selectIdentity(){
 		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
@@ -326,14 +359,32 @@ public class DatabaseGraph{
 		return out;
 	}
 	
+	/**
+	 * Selects a single vertex from this database graph. Note that this vertex
+	 * is selected together with itself to form a complete source target pair.
+	 * @param vertex The vertex to selected.
+	 * @return A result graph containing only the given vertex selected with itself.
+	 * @see OperationType#IDENTITY
+	 */
 	public ResultGraph selectIdentity(int vertex){
+		assert 0 <= vertex && vertex < vertexCount;
 		return ResultGraph.single(vertexCount, vertex, true, vertex);
 	}
 	
+	/**
+	 * Gets the underlying SLT data for this database graph.
+	 * @return The raw SLT data for this database graph.
+	 * @see #slt
+	 */
 	protected int[] getData(){
 		return slt;
 	}
 	
+	/**
+	 * Gets the underlying reverse SLT data for this database graph.
+	 * @return The raw reverse SLT data for this database graph.
+	 * @see #reverseSlt
+	 */
 	protected int[] getReverseData(){
 		return reverseSlt;
 	}

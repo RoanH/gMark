@@ -21,6 +21,10 @@ import dev.roanh.gmark.util.SmartBitSet;
  * <p>
  * The concrete implementation in this class is based on a compressed sparse row matrix (CSR).
  * In addition a result graph may be sorted (meaning its target vertex ranges are sorted).
+ * <p>
+ * Finally, note that this graph does not perform any input validations for performance reasons.
+ * Notably, operations on this class are only well defined if the vertex count of the
+ * input result graph argument is the same as the vertex count of this graph.
  * @author Roan
  * @see CardStat
  * @see SourceTargetPair

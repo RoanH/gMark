@@ -134,7 +134,7 @@ CPQ query = ...;
 
 String sql = query.toSQL();
 String formal = query.toFormalSyntax();
-QueryTree = query.toAbstractSyntaxTree();
+QueryTree ast = query.toAbstractSyntaxTree();
 ```
 
 Note that CPQ and RPQ can also be constructed from an AST, which can sometimes be used to convert between the two query languages:

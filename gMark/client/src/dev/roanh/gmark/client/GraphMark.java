@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 import dev.roanh.gmark.cli.Main;
 import dev.roanh.util.ClickableLink;
@@ -81,7 +82,7 @@ public class GraphMark{
 		
 		frame.add(content);
 		frame.setSize(1000, 800);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		SwingUtilities.invokeLater(()->frame.setVisible(true));
 	}

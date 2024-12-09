@@ -37,6 +37,8 @@ import javax.swing.JTextArea;
 import org.apache.commons.cli.HelpFormatter;
 
 import dev.roanh.gmark.cli.Main;
+import dev.roanh.gmark.cli.client.EvaluatorClient;
+import dev.roanh.gmark.cli.client.WorkloadClient;
 
 /**
  * Tab showing command line usage and an example configuration.
@@ -59,7 +61,9 @@ public class UsageTab extends JPanel{
 		JPanel cli = new JPanel(new BorderLayout());
 		JTextArea usage = new JTextArea();
 		StringWriter writer = new StringWriter();
-		new HelpFormatter().printHelp(new PrintWriter(writer), 100, "gmark", "", Main.options, 1, 3, "", true);
+		//TODO eval usage and graph gen usage, also add a tab in teh GUI for eval?
+		//new HelpFormatter().printHelp(new PrintWriter(writer), 100, "gmark evaluate", "", EvaluatorClient.options, 1, 3, "", true);
+		//new HelpFormatter().printHelp(new PrintWriter(writer), 100, "gmark workload", "", WorkloadClient.options, 1, 3, "", true);
 		usage.setText(writer.toString());
 		usage.setEditable(false);
 		cli.add(new JScrollPane(usage), BorderLayout.CENTER);

@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -47,6 +48,8 @@ import java.util.stream.Stream;
 
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.eval.PathQuery;
+import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
@@ -620,6 +623,60 @@ public final class Util{
 			}
 			
 			return graph;
+		}
+	}
+
+	/**
+	 * Reads a query workload from the given file. The file is assumed to be encoded
+	 * using UTF-8 with at most one query per line in the following format:
+	 * <pre>{@code <source>, <query>, <target>}</pre>
+	 * Lines that do not contain a valid query definition are ignored. The source and
+	 * target vertex are expected to be given as integers, however, if unbound/free then
+	 * <code>*</code> has to be specified.
+	 * @param file The file to read from.
+	 * @param parser The parser to use to parse the query definition into a query instance.
+	 * @return A list with the parsed queries.
+	 * @throws IOException When an IOException occurs.
+	 */
+	public static final List<PathQuery> readWorkload(Path file, Function<String, QueryLanguageSyntax> parser) throws IOException{
+		return readWorkload(Files.newInputStream(file), parser);
+	}
+
+	/**
+	 * Reads a query workload from the given input stream. The input stream is assumed
+	 * to represent a text file encoded using UTF-8 with at most one query per line in
+	 * the following format:
+	 * <pre>{@code <source>, <query>, <target>}</pre>
+	 * Lines that do not contain a valid query definition are ignored. The source and
+	 * target vertex are expected to be given as integers, however, if unbound/free then
+	 * <code>*</code> has to be specified.
+	 * @param in The input stream to read from.
+	 * @param parser The parser to use to parse the query definition into a query instance.
+	 * @return A list with the parsed queries.
+	 * @throws IOException When an IOException occurs.
+	 */
+	public static final List<PathQuery> readWorkload(InputStream in, Function<String, QueryLanguageSyntax> parser) throws IOException{
+		try(BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))){
+			List<PathQuery> queries = new ArrayList<PathQuery>();
+
+			String line;
+			while((line = reader.readLine()) != null){
+				String[] args = line.split(",");
+				if(args.length != 3 || line.isBlank() || line.startsWith("#")){
+					continue;
+				}
+
+				String src = args[0].trim();
+				String trg = args[2].trim();
+
+				queries.add(new PathQuery(
+					src.equals("*") ? Optional.empty() : Optional.of(Integer.parseInt(src)),
+					parser.apply(args[1].trim()),
+					trg.equals("*") ? Optional.empty() : Optional.of(Integer.parseInt(trg))
+				));
+			}
+
+			return queries;
 		}
 	}
 }

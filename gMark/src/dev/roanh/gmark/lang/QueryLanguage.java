@@ -18,8 +18,13 @@
  */
 package dev.roanh.gmark.lang;
 
+import java.util.Optional;
+import java.util.function.Function;
+
 import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.lang.cpq.CPQ;
+import dev.roanh.gmark.lang.cpq.ParserCPQ;
+import dev.roanh.gmark.lang.rpq.ParserRPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
 
 /**
@@ -34,10 +39,30 @@ public enum QueryLanguage{
 	 * The language of Conjunctive Path Queries.
 	 * @see CPQ
 	 */
-	CPQ,
+	CPQ(ParserCPQ::parse),
 	/**
 	 * The language of Regular Path Queries.
 	 * @see RPQ
 	 */
-	RPQ
+	RPQ(ParserRPQ::parse);
+	
+	private final Function<String, QueryLanguageSyntax> parseFun;
+	
+	private QueryLanguage(Function<String, QueryLanguageSyntax> parseFun){
+		this.parseFun = parseFun;
+	}
+	
+	public QueryLanguageSyntax parse(String query){
+		return parseFun.apply(query);
+	}
+	
+	public static final Optional<QueryLanguage> fromName(String name){
+		for(QueryLanguage lang : values()){
+			if(lang.name().equalsIgnoreCase(name)){
+				return Optional.of(lang);
+			}
+		}
+		
+		return Optional.empty();
+	}
 }

@@ -21,11 +21,13 @@ package dev.roanh.gmark.cli;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.cli.client.EvaluatorClient;
 import dev.roanh.gmark.cli.client.WorkloadClient;
+import dev.roanh.util.Util;
 
 /**
  * Main class of the command line version of
@@ -36,7 +38,7 @@ public class Main{
 	/**
 	 * The current version of gMark.
 	 */
-	public static final String VERSION;
+	public static final String VERSION = Objects.requireNonNullElse(Util.readArtifactVersion("dev.roanh.gmark", "gmark"), "unknown");
 	private static final Map<String, CommandLineClient> clients = List.of(
 		new EvaluatorClient(),
 		new WorkloadClient()
@@ -60,10 +62,5 @@ public class Main{
 		}
 		
 		clients.values().forEach(CommandLineClient::printHelp);
-	}
-	
-	static{
-		String version = dev.roanh.util.Util.readArtifactVersion("dev.roanh.gmark", "gmark");
-		VERSION = version == null ? "unknown" : version;
 	}
 }

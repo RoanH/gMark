@@ -16,34 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.exception;
+package dev.roanh.gmark.cli;
 
 /**
- * Exception throw when there are issues
- * parsing a configuration file.
+ * Exception thrown when something is wrong with the CLI input.
  * @author Roan
  */
-public class ConfigException extends Exception{
+public class InputException extends Exception{
 	/**
 	 * Serial ID.
 	 */
-	private static final long serialVersionUID = -2229786583456473669L;
+	private static final long serialVersionUID = 7362315720501031916L;
 
 	/**
-	 * Constructs a new configuration exception
-	 * with the given root cause exception.
-	 * @param cause The original exception.
+	 * Constructs a new input exception.
+	 * @param message The cause of the exception.
 	 */
-	public ConfigException(Throwable cause){
-		super(cause.getMessage(), cause);
-	}
-	
-	/**
-	 * Constructs a new configuration exception
-	 * with the given exception message.
-	 * @param msg The exception message.
-	 */
-	public ConfigException(String msg){
-		super(msg);
+	public InputException(String message){
+		super(message);
 	}
 }

@@ -48,6 +48,9 @@ public abstract class CommandLineClient{
 			if(cli.getOptions().length != 0 && !cli.hasOption('h')){
 				handleInput(cli);
 			}
+		}catch(InputException e){
+			System.out.println(e.getMessage());
+			return;
 		}catch(ParseException ignore){
 		}
 	
@@ -71,5 +74,5 @@ public abstract class CommandLineClient{
 		return options;
 	}
 	
-	protected abstract void handleInput(CommandLine cli);
+	protected abstract void handleInput(CommandLine cli) throws InputException;
 }

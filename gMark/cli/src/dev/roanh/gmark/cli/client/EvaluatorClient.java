@@ -25,13 +25,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
 import dev.roanh.gmark.cli.CommandLineClient;
 import dev.roanh.gmark.cli.InputException;
-import dev.roanh.gmark.data.CardStat;
+import dev.roanh.gmark.data.SourceTargetPair;
 import dev.roanh.gmark.eval.DatabaseGraph;
 import dev.roanh.gmark.eval.PathQuery;
 import dev.roanh.gmark.eval.QueryEvaluator;
@@ -40,6 +41,14 @@ import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.util.graph.IntGraph;
 
+/**
+ * Command line client for query evaluation.
+ * <p>
+ * Example Usage:
+ * <ul><li><code>gmark evaluate -l cpq -s 56 -q "a ◦ b" -t 5 -g ./graph.edge -o out.txt</code></li>
+ * <li><code>gmark evaluate -l cpq -w ./queries.cpq -g ./graph.edge -o out.txt</code></li></ul>
+ * @author Roan
+ */
 public final class EvaluatorClient extends CommandLineClient{
 	public static final EvaluatorClient INSTANCE = new EvaluatorClient();
 
@@ -55,10 +64,6 @@ public final class EvaluatorClient extends CommandLineClient{
 			Option.builder("o").longOpt("output").hasArg().argName("file").desc("The file to write the query output to.").build(),
 			Option.builder("f").longOpt("force").desc("Overwrite the output file if present.").build()
 		);
-		
-		//gmark evaluate -l cpq -s 56 -q a -t 5 -g ./graph.edge -o out.txt
-		//gmark evaluate -l cpq -w ./q.cpq -g ./graph.edge -o out.txt
-
 	}
 
 	@Override
@@ -126,19 +131,35 @@ public final class EvaluatorClient extends CommandLineClient{
 	}
 	
 	private void executeQueries(DatabaseGraph graph, List<PathQuery> queries, Path outputFile){
+		if(outputFile == null){
+			executeAndWriteQueries(graph, queries, null);
+		}else{
+			try(PrintWriter writer = new PrintWriter(Files.newBufferedWriter(outputFile))){
+				executeAndWriteQueries(graph, queries, writer);
+			}catch(IOException e){
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void executeAndWriteQueries(DatabaseGraph graph, List<PathQuery> queries, PrintWriter output){
 		QueryEvaluator evaluator = new QueryEvaluator(graph);
 		
 		for(PathQuery query : queries){
 			System.out.println("Evaluating query: " + query);
 			long start = System.nanoTime();
-			CardStat result = evaluator.evaluate(query).computeCardinality();
+			ResultGraph result = evaluator.evaluate(query);
 			long end = System.nanoTime();
-			System.out.println("Evaluation cardinality statistics: " + result);
-			System.out.println("Evaluation time: " + (end - start) + " ns");
-			//TODO write result if requested
+			System.out.println("Evaluation time: " + TimeUnit.NANOSECONDS.toMillis(end - start) + " ns");
+			System.out.println("Result cardinality: " + result.computeCardinality());
+			
+			if(output != null){
+				printQueryResult(query, result, end - start, output);
+				output.println();
+			}
 		}
 		
-		//TODO done!""
+		System.out.println("Finished evaluating all input queries.");
 	}
 	
 	@Override
@@ -146,23 +167,13 @@ public final class EvaluatorClient extends CommandLineClient{
 		return "note: the evaluator is intended to be used either with a single query to evaluate (-s/-q/-t) or with a complete workload of queries (-w).";
 	}
 	
-	public static final void printQueryResult(ResultGraph result, long timeNs, PrintWriter writer){
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+	public static final void printQueryResult(PathQuery query, ResultGraph result, long timeNs, PrintWriter writer){
+		writer.println("Evaluated query: " + query);
+		writer.println("Evaluation time: " + TimeUnit.NANOSECONDS.toMillis(timeNs) + " ms");
+		writer.println("Result cardinality: " + result.computeCardinality());
+		writer.println("===== Result Paths =====");
+		for(SourceTargetPair pair : result.getSourceTargetPairs()){
+			writer.println(pair);
+		}
 	}
 }

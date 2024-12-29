@@ -47,14 +47,14 @@ public abstract class CommandLineClient{
 			CommandLine cli = new DefaultParser().parse(options, args);
 			if(cli.getOptions().length != 0 && !cli.hasOption('h')){
 				handleInput(cli);
+			}else{
+				printHelp();
 			}
 		}catch(InputException e){
 			System.out.println(e.getMessage());
-			return;
 		}catch(ParseException ignore){
+			printHelp();
 		}
-	
-		printHelp();
 	}
 	
 	public void printHelp(){

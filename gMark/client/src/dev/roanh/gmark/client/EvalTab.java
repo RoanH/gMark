@@ -4,18 +4,18 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -27,7 +27,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 
-import dev.roanh.gmark.data.SourceTargetPair;
+import dev.roanh.gmark.cli.client.EvaluatorClient;
 import dev.roanh.gmark.eval.DatabaseGraph;
 import dev.roanh.gmark.eval.PathQuery;
 import dev.roanh.gmark.eval.QueryEvaluator;
@@ -48,14 +48,13 @@ public class EvalTab extends JPanel{
 	private static final FileExtension EDGE_EXT = FileSelector.registerFileExtension("Database Graph Files", "edge");
 	private static final List<String> QUERY_SYMBOLS;
 	private static final ExecutorService executor = Executors.newSingleThreadExecutor();
-	private JLabel graphInfo = new JLabel("No graph loaded", SwingConstants.CENTER);
-	private JTextArea queryOutput = new JTextArea();
+	private final JButton run = new JButton("Evaluate Query");
+	private final JLabel graphInfo = new JLabel("No graph loaded", SwingConstants.CENTER);
+	private final JTextArea queryOutput = new JTextArea();
 	private QueryEvaluator evaluator = null;
 
 	public EvalTab(){
 		super(new BorderLayout());
-		
-		JButton run = new JButton("Evaluate Query");
 		
 		JPanel graph = new JPanel(new GridLayout(1, 2));
 		graph.setBorder(BorderFactory.createTitledBorder("Database Graph"));
@@ -141,6 +140,7 @@ public class EvalTab extends JPanel{
 				}catch(BadLocationException ignore){
 				}
 			});
+			
 			buttons.add(button);
 		}
 		
@@ -152,31 +152,20 @@ public class EvalTab extends JPanel{
 			Dialog.showMessageDialog("Please load a database graph first.");
 			return;
 		}
-		
-		//TODO no edit
+
+		run.setEnabled(false);
 		queryOutput.setText("Running query...");
-		//TODO disable run button
 		executor.submit(()->{
 			long start = System.nanoTime();
 			ResultGraph result = evaluator.evaluate(query);
 			long time = System.nanoTime() - start;
-			System.out.println("e");
 			
-			StringBuilder builder = new StringBuilder();
-			builder.append("Evaluated query: " + query);//TODO free handling in tostring
-			builder.append("\nEvaluation time: " + TimeUnit.NANOSECONDS.toMillis(time) + " ms");
-			builder.append("\nEvaluation cardinality statistics: " + result.computeCardinality());//TODO split
-			builder.append("\n\n===== Result Paths =====");
-			for(SourceTargetPair pair : result.getSourceTargetPairs()){
-				builder.append('\n');
-				builder.append(pair);
-			}
-			
-			System.out.println("end");
+			StringWriter buffer = new StringWriter();
+			EvaluatorClient.printQueryResult(query, result, time, new PrintWriter(buffer, true));
 			SwingUtilities.invokeLater(()->{
-				System.out.println("done set");
-				queryOutput.setText(builder.toString());
-				//TODO enble run
+				queryOutput.setText(buffer.toString());
+				queryOutput.setCaretPosition(0);
+				run.setEnabled(true);
 			});
 		});
 	}
@@ -184,21 +173,18 @@ public class EvalTab extends JPanel{
 	private void loadGraph(ActionEvent event){
 		Path file = Dialog.showFileOpenDialog(EDGE_EXT);
 		if(file != null){
-			((JComponent)event.getSource()).setEnabled(false);
+			JButton button = ((JButton)event.getSource());
+			button.setEnabled(false);
 			executor.submit(()->{
 				try{
 					IntGraph data = Util.readGraph(file);
 					DatabaseGraph db = new DatabaseGraph(data);
 					evaluator = new QueryEvaluator(db);
-					
 					graphInfo.setText("Vertices: %d, Edges: %d (%d unique), Labels: %d".formatted(data.getVertexCount(), data.getEdgeCount(), db.getEdgeCount(), data.getLabelCount()));
-					
-					
-					
 				}catch(IOException e){
 					Dialog.showErrorDialog("Failed to read the database graph: " + e.getMessage());
 				}finally{
-					((JComponent)event.getSource()).setEnabled(true);
+					button.setEnabled(true);
 				}
 			});
 		}
@@ -208,8 +194,8 @@ public class EvalTab extends JPanel{
 		QUERY_SYMBOLS = List.of(
 			String.valueOf(QueryLanguageSyntax.CHAR_DISJUNCTION),
 			String.valueOf(QueryLanguageSyntax.CHAR_INTERSECTION),
-			String.valueOf(QueryLanguageSyntax.CHAR_INVERSE),
 			String.valueOf(QueryLanguageSyntax.CHAR_JOIN),
+			String.valueOf(QueryLanguageSyntax.CHAR_INVERSE),
 			String.valueOf(QueryLanguageSyntax.CHAR_KLEENE),
 			"id",
 			"(",

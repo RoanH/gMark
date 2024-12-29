@@ -44,7 +44,7 @@ public record PathQuery(Optional<Integer> source, QueryLanguageSyntax query, Opt
 	 * @return The newly constructed path query.
 	 */
 	public static final PathQuery of(QueryLanguageSyntax query, int target){
-		return new PathQuery(Optional.empty(), query, Optional.of(target));
+		return new PathQuery(Optional.empty(), query, ofVertex(target));
 	}
 
 	/**
@@ -54,7 +54,7 @@ public record PathQuery(Optional<Integer> source, QueryLanguageSyntax query, Opt
 	 * @return The newly constructed path query.
 	 */
 	public static final PathQuery of(int source, QueryLanguageSyntax query){
-		return new PathQuery(Optional.of(source), query, Optional.empty());
+		return new PathQuery(ofVertex(source), query, Optional.empty());
 	}
 
 	/**
@@ -65,11 +65,21 @@ public record PathQuery(Optional<Integer> source, QueryLanguageSyntax query, Opt
 	 * @return The newly constructed path query.
 	 */
 	public static final PathQuery of(int source, QueryLanguageSyntax query, int target){
-		return new PathQuery(Optional.of(source), query, Optional.of(target));
+		return new PathQuery(ofVertex(source), query, ofVertex(target));
 	}
 
 	@Override
 	public String toString(){
 		return source.map(String::valueOf).orElse("*") + ", " + query + ", " + target.map(String::valueOf).orElse("*");
+	}
+	
+	/**
+	 * Constructs a new optional for the given vertex.
+	 * @param vertex An optional for the given vertex.
+	 * @return An optional for the given vertex or an empty
+	 *         optional of the vertex was -1.
+	 */
+	private static final Optional<Integer> ofVertex(int vertex){
+		return vertex == -1 ? Optional.empty() : Optional.of(vertex);
 	}
 }

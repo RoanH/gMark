@@ -15,4 +15,9 @@ import dev.roanh.gmark.eval.PathQuery;
  * @see PathQuery
  */
 public record CardStat(int sources, int paths, int targets){
+	
+	@Override
+	public String toString(){
+		return "(sources=%d, paths=%d, targets=%d)".formatted(sources, paths, targets);
+	}
 }

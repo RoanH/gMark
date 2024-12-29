@@ -3,6 +3,7 @@ package dev.roanh.gmark.eval;
 import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.util.graph.IntGraph;
 
 /**
  * Implementation of a simple reachability query evaluator. Note that for simplicity
@@ -25,6 +26,14 @@ public class QueryEvaluator{
 	 * The main database graph.
 	 */
 	private final DatabaseGraph graph;
+	
+	/**
+	 * Constructs a new query evaluator for the given database graph.
+	 * @param graph The database graph to evaluate queries on.
+	 */
+	public QueryEvaluator(IntGraph graph){
+		this(new DatabaseGraph(graph));
+	}
 	
 	/**
 	 * Constructs a new query evaluator for the given database graph.

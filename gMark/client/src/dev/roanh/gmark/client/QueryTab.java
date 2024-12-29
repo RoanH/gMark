@@ -24,7 +24,7 @@ import java.awt.GridLayout;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.swing.BorderFactory;
@@ -72,7 +72,7 @@ public class QueryTab extends JPanel{
 	/**
 	 * Executor used to run query generation tasks.
 	 */
-	private Executor executor = Executors.newSingleThreadExecutor();
+	private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 	/**
 	 * Panel showing information about the loaded gMark configuration.
 	 */

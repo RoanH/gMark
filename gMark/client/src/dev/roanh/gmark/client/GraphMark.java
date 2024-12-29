@@ -67,6 +67,7 @@ public class GraphMark{
 		
 		JTabbedPane tabs = new JTabbedPane();
 		tabs.addTab("Example Usage", new UsageTab());
+		tabs.addTab("Query Evaluation", new EvalTab());
 		tabs.addTab("Query Generation", new QueryTab());
 		tabs.addTab("Example Graphs", new ExampleTab());
 		content.add(tabs, BorderLayout.CENTER);

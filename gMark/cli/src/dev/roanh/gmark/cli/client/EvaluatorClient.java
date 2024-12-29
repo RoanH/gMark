@@ -150,7 +150,7 @@ public final class EvaluatorClient extends CommandLineClient{
 			long start = System.nanoTime();
 			ResultGraph result = evaluator.evaluate(query);
 			long end = System.nanoTime();
-			System.out.println("Evaluation time: " + TimeUnit.NANOSECONDS.toMillis(end - start) + " ns");
+			System.out.println("Evaluation time: " + TimeUnit.NANOSECONDS.toMillis(end - start) + " ms");
 			System.out.println("Result cardinality: " + result.computeCardinality());
 			
 			if(output != null){

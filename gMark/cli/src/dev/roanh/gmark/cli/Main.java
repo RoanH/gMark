@@ -39,6 +39,9 @@ public class Main{
 	 * The current version of gMark.
 	 */
 	public static final String VERSION = Objects.requireNonNullElse(Util.readArtifactVersion("dev.roanh.gmark", "gmark"), "unknown");
+	/**
+	 * Map of available command line clients.
+	 */
 	private static final Map<String, CommandLineClient> clients = List.of(
 		EvaluatorClient.INSTANCE,
 		WorkloadClient.INSTANCE
@@ -54,7 +57,7 @@ public class Main{
 		if(args.length > 0){
 			CommandLineClient client = clients.get(args[0].toLowerCase(Locale.ROOT));
 			if(client != null){
-				String[] newArgs = new String[args.length];
+				String[] newArgs = new String[args.length - 1];
 				System.arraycopy(args, 1, newArgs, 0, newArgs.length);
 				client.handleInput(newArgs);
 				return;

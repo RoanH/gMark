@@ -2,17 +2,38 @@ package dev.roanh.gmark.client;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.text.BadLocationException;
 
+import dev.roanh.gmark.data.SourceTargetPair;
 import dev.roanh.gmark.eval.DatabaseGraph;
+import dev.roanh.gmark.eval.PathQuery;
 import dev.roanh.gmark.eval.QueryEvaluator;
+import dev.roanh.gmark.eval.ResultGraph;
+import dev.roanh.gmark.lang.QueryLanguage;
+import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.util.graph.IntGraph;
 import dev.roanh.util.Dialog;
@@ -25,51 +46,174 @@ public class EvalTab extends JPanel{
 	 */
 	private static final long serialVersionUID = -3895083891700621666L;
 	private static final FileExtension EDGE_EXT = FileSelector.registerFileExtension("Database Graph Files", "edge");
+	private static final List<String> QUERY_SYMBOLS;
 	private static final ExecutorService executor = Executors.newSingleThreadExecutor();
-	private JButton loadGraph = new JButton("Load Database Graph");
-	private JLabel graphInfo = new JLabel("No graph loaded");
+	private JLabel graphInfo = new JLabel("No graph loaded", SwingConstants.CENTER);
+	private JTextArea queryOutput = new JTextArea();
 	private QueryEvaluator evaluator = null;
 
 	public EvalTab(){
 		super(new BorderLayout());
-	
-		JPanel input = new JPanel(new GridLayout(2, 1));
+		
+		JButton run = new JButton("Evaluate Query");
 		
 		JPanel graph = new JPanel(new GridLayout(1, 2));
+		graph.setBorder(BorderFactory.createTitledBorder("Database Graph"));
+		JButton loadGraph = new JButton("Load Database Graph");
+		loadGraph.addActionListener(this::loadGraph);
 		graph.add(loadGraph);
 		graph.add(graphInfo);
-		
+			
+		JPanel input = new JPanel(new GridLayout(2, 1));
 		input.add(graph);
+		input.add(createQueryPanel(run));
+		
+		JPanel output = new JPanel(new BorderLayout());
+		output.setBorder(BorderFactory.createTitledBorder("Query Output"));
+		output.add(run, BorderLayout.PAGE_START);
+		output.add(new JScrollPane(queryOutput), BorderLayout.CENTER);
 		
 		this.add(input, BorderLayout.PAGE_START);
-		//TODO output
+		this.add(output, BorderLayout.CENTER);
 	}
 	
+	private JPanel createQueryPanel(JButton run){
+		JPanel sourcePanel = new JPanel(new GridLayout(2, 1));
+		sourcePanel.add(new JLabel("Source (-1 for any)", SwingConstants.CENTER));
+		JSpinner source = new JSpinner(new SpinnerNumberModel(-1, -1, Integer.MAX_VALUE, 1));
+		sourcePanel.add(source);
+		
+		JPanel queryPanel = new JPanel(new GridLayout(2, 1));
+		JTextField query = new JTextField();
+		queryPanel.add(createQueryEditor(query));
+		queryPanel.add(query);
+
+		JPanel targetPanel = new JPanel(new GridLayout(2, 1));
+		targetPanel.add(new JLabel("Target (-1 for any)", SwingConstants.CENTER));
+		JSpinner target = new JSpinner(new SpinnerNumberModel(-1, -1, Integer.MAX_VALUE, 1));
+		targetPanel.add(target);
+		
+		JPanel langPanel = new JPanel(new GridLayout(2, 1));
+		JComboBox<QueryLanguage> lang = new JComboBox<QueryLanguage>(QueryLanguage.values());
+		langPanel.add(new JLabel("Language"));
+		langPanel.add(lang);
+		
+		run.addActionListener(e->{
+			try{
+				if(!query.getText().isBlank()){
+					runQuery(PathQuery.of(
+						(int)source.getValue(),
+						((QueryLanguage)lang.getSelectedItem()).parse(query.getText()),
+						(int)target.getValue()
+					));
+				}else{
+					Dialog.showMessageDialog("No query provided.");
+				}
+			}catch(RuntimeException e1){
+				Dialog.showErrorDialog("Failed to parse query: " + e1.getMessage());
+			}
+		});
+
+		JPanel line = new JPanel();
+		line.setLayout(new BoxLayout(line, BoxLayout.X_AXIS));
+		line.setBorder(BorderFactory.createTitledBorder("Query"));
+		line.add(sourcePanel);
+		line.add(Box.createHorizontalStrut(2));
+		line.add(queryPanel);
+		line.add(Box.createHorizontalStrut(2));
+		line.add(targetPanel);
+		line.add(Box.createHorizontalStrut(2));
+		line.add(langPanel);
+		line.add(Box.createHorizontalStrut(2));
+		line.add(run);
+		return line;
+	}
 	
+	private JPanel createQueryEditor(JTextField query){
+		JPanel buttons = new JPanel(new GridLayout(1, 0));
+
+		for(String symb : QUERY_SYMBOLS){
+			JButton button = new JButton(symb);
+			button.addActionListener(e->{
+				try{
+					query.getDocument().insertString(query.getCaretPosition(), symb, null);
+					query.requestFocus();
+				}catch(BadLocationException ignore){
+				}
+			});
+			buttons.add(button);
+		}
+		
+		return buttons;
+	}
 	
+	private void runQuery(PathQuery query){
+		if(evaluator == null){
+			Dialog.showMessageDialog("Please load a database graph first.");
+			return;
+		}
+		
+		//TODO no edit
+		queryOutput.setText("Running query...");
+		//TODO disable run button
+		executor.submit(()->{
+			long start = System.nanoTime();
+			ResultGraph result = evaluator.evaluate(query);
+			long time = System.nanoTime() - start;
+			System.out.println("e");
+			
+			StringBuilder builder = new StringBuilder();
+			builder.append("Evaluated query: " + query);//TODO free handling in tostring
+			builder.append("\nEvaluation time: " + TimeUnit.NANOSECONDS.toMillis(time) + " ms");
+			builder.append("\nEvaluation cardinality statistics: " + result.computeCardinality());//TODO split
+			builder.append("\n\n===== Result Paths =====");
+			for(SourceTargetPair pair : result.getSourceTargetPairs()){
+				builder.append('\n');
+				builder.append(pair);
+			}
+			
+			System.out.println("end");
+			SwingUtilities.invokeLater(()->{
+				System.out.println("done set");
+				queryOutput.setText(builder.toString());
+				//TODO enble run
+			});
+		});
+	}
 	
-	
-	
-	
-	private void loadGraph(){
+	private void loadGraph(ActionEvent event){
 		Path file = Dialog.showFileOpenDialog(EDGE_EXT);
 		if(file != null){
-			loadGraph.setEnabled(false);
+			((JComponent)event.getSource()).setEnabled(false);
 			executor.submit(()->{
 				try{
 					IntGraph data = Util.readGraph(file);
-					evaluator = new QueryEvaluator(data);
+					DatabaseGraph db = new DatabaseGraph(data);
+					evaluator = new QueryEvaluator(db);
 					
-					
+					graphInfo.setText("Vertices: %d, Edges: %d (%d unique), Labels: %d".formatted(data.getVertexCount(), data.getEdgeCount(), db.getEdgeCount(), data.getLabelCount()));
 					
 					
 					
 				}catch(IOException e){
 					Dialog.showErrorDialog("Failed to read the database graph: " + e.getMessage());
 				}finally{
-					loadGraph.setEnabled(true);
+					((JComponent)event.getSource()).setEnabled(true);
 				}
 			});
 		}
+	}
+	
+	static{
+		QUERY_SYMBOLS = List.of(
+			String.valueOf(QueryLanguageSyntax.CHAR_DISJUNCTION),
+			String.valueOf(QueryLanguageSyntax.CHAR_INTERSECTION),
+			String.valueOf(QueryLanguageSyntax.CHAR_INVERSE),
+			String.valueOf(QueryLanguageSyntax.CHAR_JOIN),
+			String.valueOf(QueryLanguageSyntax.CHAR_KLEENE),
+			"id",
+			"(",
+			")"
+		);
 	}
 }

@@ -19,13 +19,11 @@
 package dev.roanh.gmark.client;
 
 import java.awt.BorderLayout;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -58,8 +56,9 @@ public class UsageTab extends JPanel{
 		
 		JTabbedPane tabs = new JTabbedPane();
 		tabs.addTab("Evaluate Command Line Syntax", createHelpPane(EvaluatorClient.INSTANCE));
+		tabs.addTab("Example Database Graph", createExampleConfigPane("example.edge"));
 		tabs.addTab("Workload Command Line Syntax", createHelpPane(WorkloadClient.INSTANCE));
-		tabs.addTab("Example Configuration", createExampleConfigPane());
+		tabs.addTab("Example Workload Configuration", createExampleConfigPane("example.xml"));
 		
 		this.add(new JLabel("On this tab we display the command line arguments that can be used when running gmark as well as a complete example gMark configuration file."), BorderLayout.PAGE_START);
 		this.add(tabs, BorderLayout.CENTER);
@@ -74,21 +73,25 @@ public class UsageTab extends JPanel{
 		return createScrollPanel(usage);
 	}
 	
-	private static JPanel createExampleConfigPane(){
-		JTextArea xml = new JTextArea();
-		xml.setEditable(false);
-		try(BufferedReader example = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("example.xml"), StandardCharsets.UTF_8))){
-			xml.setText(example.lines().collect(Collectors.joining("\n")));
-		}catch(IOException ignore){
-			xml.setText("Failed to load example.");
-		}
-
-		return createScrollPanel(xml);
+	private static JPanel createExampleConfigPane(String resource){
+		JTextArea area = new JTextArea();
+		area.setText(readTextResource(resource));
+		area.setEditable(false);
+		return createScrollPanel(area);
 	}
 	
 	private static JPanel createScrollPanel(JComponent content){
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(new JScrollPane(content), BorderLayout.CENTER);
 		return panel;
+	}
+	
+	private static String readTextResource(String name){
+		try(InputStream in = ClassLoader.getSystemResourceAsStream(name)){
+			return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+		}catch(IOException ignore){
+			//not really possible given that this is an internal resource
+			return "Failed to load example.";
+		}
 	}
 }

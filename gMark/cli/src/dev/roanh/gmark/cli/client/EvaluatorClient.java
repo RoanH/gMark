@@ -35,6 +35,7 @@ import dev.roanh.gmark.data.CardStat;
 import dev.roanh.gmark.eval.DatabaseGraph;
 import dev.roanh.gmark.eval.PathQuery;
 import dev.roanh.gmark.eval.QueryEvaluator;
+import dev.roanh.gmark.eval.ResultGraph;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.util.graph.IntGraph;
@@ -143,5 +144,25 @@ public final class EvaluatorClient extends CommandLineClient{
 	@Override
 	public String getHelpFooter(){
 		return "note: the evaluator is intended to be used either with a single query to evaluate (-s/-q/-t) or with a complete workload of queries (-w).";
+	}
+	
+	public static final void printQueryResult(ResultGraph result, long timeNs, PrintWriter writer){
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 	}
 }

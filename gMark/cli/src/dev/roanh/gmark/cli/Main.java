@@ -40,8 +40,8 @@ public class Main{
 	 */
 	public static final String VERSION = Objects.requireNonNullElse(Util.readArtifactVersion("dev.roanh.gmark", "gmark"), "unknown");
 	private static final Map<String, CommandLineClient> clients = List.of(
-		new EvaluatorClient(),
-		new WorkloadClient()
+		EvaluatorClient.INSTANCE,
+		WorkloadClient.INSTANCE
 	).stream().collect(Collectors.toMap(CommandLineClient::getName, Function.identity()));
 
 	/**

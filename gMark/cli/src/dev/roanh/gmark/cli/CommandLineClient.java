@@ -63,7 +63,11 @@ public abstract class CommandLineClient{
 	
 	public void printHelp(PrintWriter out){
 		HelpFormatter help = new HelpFormatter();
-		help.printHelp(out, 100, "gmark " + name, "", options, 1, 3, "", true);
+		help.printHelp(out, 100, "gmark " + name, "", options, 1, 3, getHelpFooter(), true);
+	}
+	
+	public String getHelpFooter(){
+		return "";
 	}
 	
 	public String getName(){

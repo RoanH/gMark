@@ -44,14 +44,15 @@ import dev.roanh.gmark.query.QuerySet;
 import dev.roanh.gmark.util.Util;
 
 public final class WorkloadClient extends CommandLineClient{
+	public static final WorkloadClient INSTANCE = new WorkloadClient();
 	
-	public WorkloadClient(){
+	private WorkloadClient(){
 		super(
 			"workload",
 			Option.builder("c").longOpt("config").hasArg().argName("file").desc("The workload and graph configuration file.").build(),
 			Option.builder("s").longOpt("syntax").hasArgs().argName("syntax").desc("The concrete syntax(es) to output (sql and/or formal).").build(),
 			Option.builder("o").longOpt("output").hasArg().argName("folder").desc("The folder to write the generated output to.").build(),
-			Option.builder("f").longOpt("force").desc("Overwrite existing files if present").build()
+			Option.builder("f").longOpt("force").desc("Overwrite existing files if present.").build()
 		);
 	}
 	

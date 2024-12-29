@@ -28,15 +28,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
-import org.apache.commons.cli.HelpFormatter;
-
-import dev.roanh.gmark.cli.Main;
+import dev.roanh.gmark.cli.CommandLineClient;
 import dev.roanh.gmark.cli.client.EvaluatorClient;
 import dev.roanh.gmark.cli.client.WorkloadClient;
 
@@ -57,33 +56,39 @@ public class UsageTab extends JPanel{
 		super(new BorderLayout());
 		this.setBorder(BorderFactory.createTitledBorder("Usage"));
 		
-		//command line arguments
-		JPanel cli = new JPanel(new BorderLayout());
+		JTabbedPane tabs = new JTabbedPane();
+		tabs.addTab("Evaluate Command Line Syntax", createHelpPane(EvaluatorClient.INSTANCE));
+		tabs.addTab("Workload Command Line Syntax", createHelpPane(WorkloadClient.INSTANCE));
+		tabs.addTab("Example Configuration", createExampleConfigPane());
+		
+		this.add(new JLabel("On this tab we display the command line arguments that can be used when running gmark as well as a complete example gMark configuration file."), BorderLayout.PAGE_START);
+		this.add(tabs, BorderLayout.CENTER);
+	}
+	
+	private static JPanel createHelpPane(CommandLineClient client){
 		JTextArea usage = new JTextArea();
 		StringWriter writer = new StringWriter();
-		//TODO eval usage and graph gen usage, also add a tab in teh GUI for eval?
-		//new HelpFormatter().printHelp(new PrintWriter(writer), 100, "gmark evaluate", "", EvaluatorClient.options, 1, 3, "", true);
-		//new HelpFormatter().printHelp(new PrintWriter(writer), 100, "gmark workload", "", WorkloadClient.options, 1, 3, "", true);
+		client.printHelp(new PrintWriter(writer));
 		usage.setText(writer.toString());
 		usage.setEditable(false);
-		cli.add(new JScrollPane(usage), BorderLayout.CENTER);
-		
-		//example gmark config
-		JPanel config = new JPanel(new BorderLayout());
+		return createScrollPanel(usage);
+	}
+	
+	private static JPanel createExampleConfigPane(){
 		JTextArea xml = new JTextArea();
+		xml.setEditable(false);
 		try(BufferedReader example = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("example.xml"), StandardCharsets.UTF_8))){
 			xml.setText(example.lines().collect(Collectors.joining("\n")));
 		}catch(IOException ignore){
 			xml.setText("Failed to load example.");
 		}
-		xml.setEditable(false);
-		config.add(new JScrollPane(xml), BorderLayout.CENTER);
-		
-		JTabbedPane tabs = new JTabbedPane();
-		tabs.addTab("Command line arguments", cli);
-		tabs.addTab("Example configuration", config);
-		
-		this.add(new JLabel("On this tab we display the command line arguments that can be used when running gmark as well as a complete example gMark configuration file."), BorderLayout.PAGE_START);
-		this.add(tabs, BorderLayout.CENTER);
+
+		return createScrollPanel(xml);
+	}
+	
+	private static JPanel createScrollPanel(JComponent content){
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(new JScrollPane(content), BorderLayout.CENTER);
+		return panel;
 	}
 }

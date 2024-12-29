@@ -19,6 +19,7 @@
 package dev.roanh.gmark.cli.client;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,12 +39,13 @@ import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.util.graph.IntGraph;
 
-public class EvaluatorClient extends CommandLineClient{
+public final class EvaluatorClient extends CommandLineClient{
+	public static final EvaluatorClient INSTANCE = new EvaluatorClient();
 
-	public EvaluatorClient(){
+	private EvaluatorClient(){
 		super(
 			"evaluate",
-			Option.builder("l").longOpt("language").hasArg().argName("query language").desc("The query language for the queries to execute.").build(),
+			Option.builder("l").longOpt("language").hasArg().argName("query language").desc("The query language for the queries to execute (cpq or rpq).").build(),
 			Option.builder("g").longOpt("graph").hasArg().argName("data").desc("The database graph file.").build(),
 			Option.builder("w").longOpt("workload").hasArg().argName("file").desc("The query workload to run, one query per line with format 'source, query, target'.").build(),
 			Option.builder("s").longOpt("source").hasArg().argName("source").desc("Optionally the bound source node for the query.").build(),
@@ -62,7 +64,7 @@ public class EvaluatorClient extends CommandLineClient{
 	protected void handleInput(CommandLine cli) throws InputException{
 		QueryLanguage language = QueryLanguage.fromName(cli.getOptionValue('l')).orElse(null);
 		if(language == null){
-			throw new InputException("No query langauge specified.");
+			throw new InputException("No query language specified.");
 		}
 		
 		List<PathQuery> queries = readQueries(language, cli);
@@ -136,5 +138,10 @@ public class EvaluatorClient extends CommandLineClient{
 		}
 		
 		//TODO done!
+	}
+	
+	@Override
+	public String getHelpFooter(){
+		return "note: the evaluator is intended to be used either with a single query to evaluate (-s/-q/-t) or with a complete workload of queries (-w).";
 	}
 }

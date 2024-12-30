@@ -152,20 +152,21 @@ public class EvalTab extends JPanel{
 		
 		run.addActionListener(e->{
 			try{
-				if(!query.getText().isBlank()){
-					if(evaluator == null){
-						Dialog.showMessageDialog("Please load a database graph first.");
-						return;
-					}
-					
-					runQuery(PathQuery.of(
-						(int)source.getValue(),
-						((QueryLanguage)lang.getSelectedItem()).parse(query.getText(), evaluator.getLabels()),
-						(int)target.getValue()
-					));
-				}else{
-					Dialog.showMessageDialog("No query provided.");
+				if(evaluator == null){
+					Dialog.showMessageDialog("Please load a database graph first.");
+					return;
 				}
+				
+				if(query.getText().isBlank()){
+					Dialog.showMessageDialog("No query provided.");
+					return;
+				}
+
+				runQuery(PathQuery.of(
+					(int)source.getValue(),
+					((QueryLanguage)lang.getSelectedItem()).parse(query.getText(), evaluator.getLabels()),
+					(int)target.getValue()
+				));
 			}catch(RuntimeException e1){
 				e1.printStackTrace();
 				Dialog.showErrorDialog("Failed to parse query: " + e1.getMessage());

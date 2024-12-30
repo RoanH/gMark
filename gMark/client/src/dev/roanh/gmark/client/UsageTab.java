@@ -55,16 +55,21 @@ public class UsageTab extends JPanel{
 		this.setBorder(BorderFactory.createTitledBorder("Usage"));
 		
 		JTabbedPane tabs = new JTabbedPane();
-		tabs.addTab("Evaluate Command Line Syntax", createHelpPane(EvaluatorClient.INSTANCE));
-		tabs.addTab("Example Database Graph", createExampleConfigPane("example.edge"));
-		tabs.addTab("Workload Command Line Syntax", createHelpPane(WorkloadClient.INSTANCE));
-		tabs.addTab("Example Workload Configuration", createExampleConfigPane("example.xml"));
+		tabs.addTab("Evaluate Command Line Syntax", createHelpPanel(EvaluatorClient.INSTANCE));
+		tabs.addTab("Example Database Graph", createExampleConfigPanel("example.edge"));
+		tabs.addTab("Workload Command Line Syntax", createHelpPanel(WorkloadClient.INSTANCE));
+		tabs.addTab("Example Workload Configuration", createExampleConfigPanel("example.xml"));
 		
 		this.add(new JLabel("On this tab we display the command line arguments that can be used when running gmark as well as a complete example gMark configuration file."), BorderLayout.PAGE_START);
 		this.add(tabs, BorderLayout.CENTER);
 	}
 	
-	private static JPanel createHelpPane(CommandLineClient client){
+	/**
+	 * Constructs a CLI help panel for the given client.
+	 * @param client The CLI client to create a help panel for.
+	 * @return A panel with CLI instructions for the given client.
+	 */
+	private static JPanel createHelpPanel(CommandLineClient client){
 		JTextArea usage = new JTextArea();
 		StringWriter writer = new StringWriter();
 		client.printHelp(new PrintWriter(writer));
@@ -73,19 +78,34 @@ public class UsageTab extends JPanel{
 		return createScrollPanel(usage);
 	}
 	
-	private static JPanel createExampleConfigPane(String resource){
+	/**
+	 * Creates a panel with an example configuration.
+	 * @param resource The configuration file to load.
+	 * @return A panel displaying the given configuration resource.
+	 */
+	private static JPanel createExampleConfigPanel(String resource){
 		JTextArea area = new JTextArea();
 		area.setText(readTextResource(resource));
 		area.setEditable(false);
 		return createScrollPanel(area);
 	}
 	
+	/**
+	 * Creates a scroll panel containing the given component.
+	 * @param content The component to make scrollable.
+	 * @return The newly created scrollable display panel.
+	 */
 	private static JPanel createScrollPanel(JComponent content){
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(new JScrollPane(content), BorderLayout.CENTER);
 		return panel;
 	}
 	
+	/**
+	 * Reads the text resource with the given name and returns it.
+	 * @param name The name of the resource to read.
+	 * @return The UTF-8 text content of the requested resource.
+	 */
 	private static String readTextResource(String name){
 		try(InputStream in = ClassLoader.getSystemResourceAsStream(name)){
 			return new String(in.readAllBytes(), StandardCharsets.UTF_8);

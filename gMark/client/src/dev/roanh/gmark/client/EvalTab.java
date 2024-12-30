@@ -40,19 +40,48 @@ import dev.roanh.util.Dialog;
 import dev.roanh.util.FileSelector;
 import dev.roanh.util.FileSelector.FileExtension;
 
+/**
+ * Tab where you can evaluate queries on a database graph.
+ * @author Roan
+ * @see QueryEvaluator
+ */
 public class EvalTab extends JPanel{
 	/**
 	 * Serial ID.
 	 */
 	private static final long serialVersionUID = -3895083891700621666L;
+	/**
+	 * Extension used for database graph files.
+	 */
 	private static final FileExtension EDGE_EXT = FileSelector.registerFileExtension("Database Graph Files", "edge");
+	/**
+	 * List of special syntax symbols used in CPQ and RPQ queries.
+	 */
 	private static final List<String> QUERY_SYMBOLS;
+	/**
+	 * Background worker executor.
+	 */
 	private static final ExecutorService executor = Executors.newSingleThreadExecutor();
+	/**
+	 * Button to start evaluating the input query.
+	 */
 	private final JButton run = new JButton("Evaluate Query");
+	/**
+	 * Label showing basic graph statistics.
+	 */
 	private final JLabel graphInfo = new JLabel("No graph loaded", SwingConstants.CENTER);
+	/**
+	 * Text area displaying the query output.
+	 */
 	private final JTextArea queryOutput = new JTextArea();
+	/**
+	 * The current evaluator used to evaluate queries.
+	 */
 	private QueryEvaluator evaluator = null;
 
+	/**
+	 * Constructs a new query evaluation tab.
+	 */
 	public EvalTab(){
 		super(new BorderLayout());
 		
@@ -70,12 +99,18 @@ public class EvalTab extends JPanel{
 		JPanel output = new JPanel(new BorderLayout());
 		output.setBorder(BorderFactory.createTitledBorder("Query Output"));
 		output.add(run, BorderLayout.PAGE_START);
+		queryOutput.setEditable(false);
 		output.add(new JScrollPane(queryOutput), BorderLayout.CENTER);
 		
 		this.add(input, BorderLayout.PAGE_START);
 		this.add(output, BorderLayout.CENTER);
 	}
 	
+	/**
+	 * Creates the query input panel.
+	 * @param run The query run button to configure the run listener for.
+	 * @return A panel to input a query.
+	 */
 	private JPanel createQueryPanel(JButton run){
 		JPanel sourcePanel = new JPanel(new GridLayout(2, 1));
 		sourcePanel.add(new JLabel("Source (-1 for any)", SwingConstants.CENTER));
@@ -84,7 +119,7 @@ public class EvalTab extends JPanel{
 		
 		JPanel queryPanel = new JPanel(new GridLayout(2, 1));
 		JTextField query = new JTextField();
-		queryPanel.add(createQueryEditor(query));
+		queryPanel.add(createQueryEditorButtons(query));
 		queryPanel.add(query);
 
 		JPanel targetPanel = new JPanel(new GridLayout(2, 1));
@@ -134,7 +169,12 @@ public class EvalTab extends JPanel{
 		return line;
 	}
 	
-	private JPanel createQueryEditor(JTextField query){
+	/**
+	 * Creates a panel with all the special symbols for query input.
+	 * @param query The query text field to insert symbols in.
+	 * @return The constructed panel with helper buttons.
+	 */
+	private JPanel createQueryEditorButtons(JTextField query){
 		JPanel buttons = new JPanel(new GridLayout(1, 0));
 
 		for(String symb : QUERY_SYMBOLS){
@@ -153,6 +193,10 @@ public class EvalTab extends JPanel{
 		return buttons;
 	}
 	
+	/**
+	 * Runs the given query.
+	 * @param query The query to run.
+	 */
 	private void runQuery(PathQuery query){
 		run.setEnabled(false);
 		queryOutput.setText("Running query...");
@@ -177,6 +221,10 @@ public class EvalTab extends JPanel{
 		});
 	}
 	
+	/**
+	 * Asks the query for a graph to load in the evaluator.
+	 * @param event The button click event.
+	 */
 	private void loadGraph(ActionEvent event){
 		Path file = Dialog.showFileOpenDialog(EDGE_EXT);
 		if(file != null){

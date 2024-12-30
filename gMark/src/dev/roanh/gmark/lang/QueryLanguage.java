@@ -47,7 +47,7 @@ public enum QueryLanguage{
 	 * The language of Regular Path Queries.
 	 * @see RPQ
 	 */
-	RPQ(ParserRPQ::parse, ParserCPQ::parse);
+	RPQ(ParserRPQ::parse, ParserRPQ::parse);
 	
 	private final Function<String, QueryLanguageSyntax> parseFun;
 	private final BiFunction<String, List<Predicate>, QueryLanguageSyntax> parseLabelledFun;

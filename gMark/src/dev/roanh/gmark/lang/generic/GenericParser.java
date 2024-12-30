@@ -94,6 +94,10 @@ public abstract class GenericParser{
 	 * @throws IllegalArgumentException When the given query string does not represent a valid predicate.
 	 */
 	protected static Predicate parsePredicate(String query, Map<String, Predicate> labels, char inverse) throws IllegalArgumentException{
+		if(query.isEmpty()){
+			throw new IllegalArgumentException("The empty string is not a valid predicate.");
+		}
+		
 		boolean inv = false;
 		if(query.charAt(query.length() - 1) == inverse){
 			inv = true;

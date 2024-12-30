@@ -32,6 +32,7 @@ import org.apache.commons.cli.Option;
 
 import dev.roanh.gmark.cli.CommandLineClient;
 import dev.roanh.gmark.cli.InputException;
+import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.data.SourceTargetPair;
 import dev.roanh.gmark.eval.DatabaseGraph;
 import dev.roanh.gmark.eval.PathQuery;
@@ -50,8 +51,14 @@ import dev.roanh.gmark.util.graph.IntGraph;
  * @author Roan
  */
 public final class EvaluatorClient extends CommandLineClient{
+	/**
+	 * Instance of this client.
+	 */
 	public static final EvaluatorClient INSTANCE = new EvaluatorClient();
 
+	/**
+	 * Constructs a new evaluator client.
+	 */
 	private EvaluatorClient(){
 		super(
 			"evaluate",
@@ -73,11 +80,12 @@ public final class EvaluatorClient extends CommandLineClient{
 			throw new InputException("No query language specified.");
 		}
 		
-		List<PathQuery> queries = readQueries(language, cli);
-		executeQueries(readDatabaseGraph(cli), queries, resolveOutputPath(cli));
+		DatabaseGraph graph = readDatabaseGraph(cli);
+		List<PathQuery> queries = readQueries(language, graph, cli);
+		executeQueries(graph, queries, resolveOutputPath(cli));
 	}
 	
-	private List<PathQuery> readQueries(QueryLanguage language, CommandLine cli) throws InputException{
+	private List<PathQuery> readQueries(QueryLanguage language, DatabaseGraph graph, CommandLine cli) throws InputException{
 		boolean hasSingleQuery = cli.hasOption('s') || cli.hasOption('q') || cli.hasOption('t');
 		if(!hasSingleQuery && !cli.hasOption('w')){
 			throw new InputException("No query input provided.");
@@ -94,7 +102,8 @@ public final class EvaluatorClient extends CommandLineClient{
 		}else{
 			try{
 				System.out.println("Reading query workload...");
-				return Util.readWorkload(Paths.get(cli.getOptionValue('w')), language::parse);
+				final List<Predicate> labels = graph.getLabels();
+				return Util.readWorkload(Paths.get(cli.getOptionValue('w')), q->language.parse(q, labels));
 			}catch(IOException e){
 				e.printStackTrace();
 				throw new InputException("Failed to read the provided workload file.");

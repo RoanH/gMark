@@ -18,10 +18,13 @@
  */
 package dev.roanh.gmark.lang;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import dev.roanh.gmark.ast.OperationType;
+import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.cpq.ParserCPQ;
 import dev.roanh.gmark.lang.rpq.ParserRPQ;
@@ -39,21 +42,27 @@ public enum QueryLanguage{
 	 * The language of Conjunctive Path Queries.
 	 * @see CPQ
 	 */
-	CPQ(ParserCPQ::parse),
+	CPQ(ParserCPQ::parse, ParserCPQ::parse),
 	/**
 	 * The language of Regular Path Queries.
 	 * @see RPQ
 	 */
-	RPQ(ParserRPQ::parse);
+	RPQ(ParserRPQ::parse, ParserCPQ::parse);
 	
 	private final Function<String, QueryLanguageSyntax> parseFun;
+	private final BiFunction<String, List<Predicate>, QueryLanguageSyntax> parseLabelledFun;
 	
-	private QueryLanguage(Function<String, QueryLanguageSyntax> parseFun){
+	private QueryLanguage(Function<String, QueryLanguageSyntax> parseFun, BiFunction<String, List<Predicate>, QueryLanguageSyntax> parseLabelledFun){
 		this.parseFun = parseFun;
+		this.parseLabelledFun = parseLabelledFun;
 	}
 	
 	public QueryLanguageSyntax parse(String query){
 		return parseFun.apply(query);
+	}
+	
+	public QueryLanguageSyntax parse(String query, List<Predicate> labels){
+		return parseLabelledFun.apply(query, labels);
 	}
 	
 	public static final Optional<QueryLanguage> fromName(String name){

@@ -8,6 +8,7 @@ import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.data.SourceLabelPair;
 import dev.roanh.gmark.data.TargetLabelPair;
+import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.util.graph.IntGraph;
 
 /**
@@ -369,6 +370,14 @@ public class DatabaseGraph{
 	public ResultGraph selectIdentity(int vertex){
 		assert 0 <= vertex && vertex < vertexCount;
 		return ResultGraph.single(vertexCount, vertex, true, vertex);
+	}
+	
+	/**
+	 * Gets a list of all labels for this graph.
+	 * @return All labels for this graph.
+	 */
+	public List<Predicate> getLabels(){
+		return Util.generateLabels(getLabelCount());
 	}
 	
 	/**

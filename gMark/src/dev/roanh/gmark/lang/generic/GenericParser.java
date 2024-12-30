@@ -19,7 +19,6 @@
 package dev.roanh.gmark.lang.generic;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -89,7 +88,7 @@ public abstract class GenericParser{
 	 * Attempts to parse an (inverse) predicate/label from the given query string.
 	 * @param query The query string to parse.
 	 * @param labels The set of predicates encountered so far. Used to reuse existing
-	 *        labels and to register newly detected predicates.
+	 *        labels and to register newly detected predicates (if the map is modifiable).
 	 * @param inverse The symbol used to denote inverse labels.
 	 * @return The predicate that was parsed.
 	 * @throws IllegalArgumentException When the given query string does not represent a valid predicate.
@@ -102,7 +101,16 @@ public abstract class GenericParser{
 		}
 		
 		if(query.indexOf(inverse) == -1){
-			Predicate label = labels.computeIfAbsent(query, k->new Predicate(labels.size(), k));
+			Predicate label = labels.get(query);
+			if(label == null){
+				try{
+					label = new Predicate(labels.size(), query);
+					labels.put(query, label);
+				}catch(UnsupportedOperationException e){
+					throw new IllegalArgumentException("Unknown predicate found.", e);
+				}
+			}
+
 			return inv ? label.getInverse() : label;
 		}
 		
@@ -117,11 +125,10 @@ public abstract class GenericParser{
 	protected static Map<String, Predicate> mapPredicates(List<Predicate> labels){
 		return labels.stream().map(predicate->{
 			return predicate.isInverse() ? predicate.getInverse() : predicate;
-		}).collect(Collectors.toMap(
+		}).collect(Collectors.toUnmodifiableMap(
 			Predicate::getAlias,
 			Function.identity(),
-			(p1, p2)->p1,
-			()->new HashMap<String, Predicate>()
+			(p1, p2)->p1
 		));
 	}
 }

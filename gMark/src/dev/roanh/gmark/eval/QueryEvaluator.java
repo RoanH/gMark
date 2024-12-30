@@ -1,5 +1,7 @@
 package dev.roanh.gmark.eval;
 
+import java.util.List;
+
 import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.core.graph.Predicate;
@@ -166,5 +168,13 @@ public class QueryEvaluator{
 		}else{
 			return target == UNBOUND ? graph.selectLabel(source, label) : graph.selectLabel(source, label, target);
 		}
+	}
+	
+	/**
+	 * Gets a list of all labels for the graph this evaluator works with.
+	 * @return All labels for the database graph.
+	 */
+	public List<Predicate> getLabels(){
+		return graph.getLabels();
 	}
 }

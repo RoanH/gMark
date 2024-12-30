@@ -100,15 +100,21 @@ public class EvalTab extends JPanel{
 		run.addActionListener(e->{
 			try{
 				if(!query.getText().isBlank()){
+					if(evaluator == null){
+						Dialog.showMessageDialog("Please load a database graph first.");
+						return;
+					}
+					
 					runQuery(PathQuery.of(
 						(int)source.getValue(),
-						((QueryLanguage)lang.getSelectedItem()).parse(query.getText()),
+						((QueryLanguage)lang.getSelectedItem()).parse(query.getText(), evaluator.getLabels()),
 						(int)target.getValue()
 					));
 				}else{
 					Dialog.showMessageDialog("No query provided.");
 				}
 			}catch(RuntimeException e1){
+				e1.printStackTrace();
 				Dialog.showErrorDialog("Failed to parse query: " + e1.getMessage());
 			}
 		});
@@ -148,25 +154,26 @@ public class EvalTab extends JPanel{
 	}
 	
 	private void runQuery(PathQuery query){
-		if(evaluator == null){
-			Dialog.showMessageDialog("Please load a database graph first.");
-			return;
-		}
-
 		run.setEnabled(false);
 		queryOutput.setText("Running query...");
 		executor.submit(()->{
-			long start = System.nanoTime();
-			ResultGraph result = evaluator.evaluate(query);
-			long time = System.nanoTime() - start;
-			
-			StringWriter buffer = new StringWriter();
-			EvaluatorClient.printQueryResult(query, result, time, new PrintWriter(buffer, true));
-			SwingUtilities.invokeLater(()->{
-				queryOutput.setText(buffer.toString());
-				queryOutput.setCaretPosition(0);
+			try{
+				long start = System.nanoTime();
+				ResultGraph result = evaluator.evaluate(query);
+				long time = System.nanoTime() - start;
+				
+				StringWriter buffer = new StringWriter();
+				EvaluatorClient.printQueryResult(query, result, time, new PrintWriter(buffer, true));
+				SwingUtilities.invokeLater(()->{
+					queryOutput.setText(buffer.toString());
+					queryOutput.setCaretPosition(0);
+					run.setEnabled(true);
+				});
+			}catch(Exception e){
+				e.printStackTrace();
 				run.setEnabled(true);
-			});
+				Dialog.showErrorDialog("Failed to evaluate the query: " + e.getMessage());
+			}
 		});
 	}
 	

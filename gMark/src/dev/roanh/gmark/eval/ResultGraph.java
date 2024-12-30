@@ -149,7 +149,7 @@ public class ResultGraph{
 	 * @see #endFinalSource()
 	 */
 	public void setActiveSource(int source){
-		assert source == 0 || csr[source - 1] >= head;
+		assert source == 0 || (vertexCount < csr[source - 1] && csr[source - 1] <= head);
 		csr[source] = head;
 	}
 	

@@ -22,9 +22,10 @@ import dev.roanh.gmark.util.SmartBitSet;
  * The concrete implementation in this class is based on a compressed sparse row matrix (CSR).
  * In addition a result graph may be sorted (meaning its target vertex ranges are sorted).
  * <p>
- * Finally, note that this graph does not perform any input validations for performance reasons.
- * Notably, operations on this class are only well defined if the vertex count of the
- * input result graph argument is the same as the vertex count of this graph.
+ * Finally, note that this graph does not perform any input validations for performance reasons
+ * (unless assertions are enabled in the JVM). Notably, operations on this class are only well
+ * defined if the vertex count of the input result graph argument is the same as the vertex
+ * count of this graph.
  * @author Roan
  * @see CardStat
  * @see SourceTargetPair
@@ -34,11 +35,34 @@ public class ResultGraph{
 	 * Factor used to allocate more space for the CSR if there is insufficient capacity.
 	 */
 	private static final int RESIZE_FACTOR = 3;
+	/**
+	 * The number of vertices in this result graph.
+	 */
 	private final int vertexCount;
+	/**
+	 * True if the CSR target ranges for this result graph are sorted.
+	 */
 	private boolean sorted;
+	/**
+	 * The CSR storing the data for this graph.
+	 */
 	private int[] csr;
+	/**
+	 * The current write head position in {@link #csr}, i.e., the
+	 * next write operation will start at this index.
+	 */
 	private int head;
 	
+	/**
+	 * Constructs a new result graph with the given properties.
+	 * @param vertexCount The number of vertices for the result graph.
+	 * @param sizeEstimate The estimated number of edges for the result graph,
+	 *        this will allocated at least enough space for the requested number
+	 *        of edges, but the graph will still grow as required.
+	 * @param sorted True if the data that will be stored in this graph is
+	 *        guaranteed to result in a sorted result graph, i.e., this is
+	 *        a promise to this result graph that will make it assume sorted data.
+	 */
 	protected ResultGraph(int vertexCount, int sizeEstimate, boolean sorted){
 		this.vertexCount = vertexCount;
 		this.sorted = sorted;
@@ -46,6 +70,17 @@ public class ResultGraph{
 		head = vertexCount + 1;
 	}
 	
+	/**
+	 * Constructs a new result graph that is a copy of the given result graph.
+	 * @param base The result graph to copy.
+	 * @param sizeEstimate The estimated number of edges for the result graph,
+	 *        this will allocated at least enough space for the requested number
+	 *        of edges, but the graph will still grow as required. If the given
+	 *        based graph is larger than the given estimate, the estimate is ignored.
+	 * @param sorted True if the data that will be stored in this graph is
+	 *        guaranteed to result in a sorted result graph, i.e., this is
+	 *        a promise to this result graph that will make it assume sorted data.
+	 */
 	private ResultGraph(ResultGraph base, int sizeEstimate, boolean sorted){
 		this.sorted = sorted;
 		vertexCount = base.vertexCount;
@@ -53,6 +88,10 @@ public class ResultGraph{
 		csr = Arrays.copyOf(base.csr, Math.max(base.csr.length, sizeEstimate));
 	}
 	
+	/**
+	 * Constructs a new result graph with the given vertex count.
+	 * @param vertexCount The vertex count for the result graph.
+	 */
 	private ResultGraph(int vertexCount){
 		this.vertexCount = vertexCount;
 		sorted = true;
@@ -61,6 +100,18 @@ public class ResultGraph{
 		head = csr.length;
 	}
 	
+	/**
+	 * Constructs a new result graph with a single source vertex with outgoing edges.
+	 * @param vertexCount The vertex count for the result graph.
+	 * @param source The source vertex that has outgoing edges.
+	 * @param sorted True if the data that will be stored in this graph is
+	 *        guaranteed to result in a sorted result graph, i.e., this is
+	 *        a promise to this result graph that will make it assume sorted data.
+	 * @param from The start index in targets (inclusive).
+	 * @param to The end index in targets (exclusive).
+	 * @param targets The target vertices for the given source vertex, contained in the
+	 *        range specified by the from and to parameters.
+	 */
 	private ResultGraph(int vertexCount, int source, boolean sorted, int from, int to, int... targets){
 		this.vertexCount = vertexCount;
 		this.sorted = sorted;
@@ -71,18 +122,42 @@ public class ResultGraph{
 		head = csr.length;
 	}
 	
+	/**
+	 * Gets the number of edges in this result graph.
+	 * @return The number of edges in this result graph.
+	 */
 	public int getEdgeCount(){
 		return csr[vertexCount] - csr[0];
 	}
 	
+	/**
+	 * Gets the number of vertices for this result graph.
+	 * @return The number of vertices for this result graph.
+	 */
 	public int getVertexCount(){
 		return vertexCount;
 	}
 	
+	/**
+	 * Sets the active source vertex for target vertex write operations.
+	 * <p>
+	 * Note: the new source vertex always has to be the subsequent source
+	 * vertex, i.e., if the previous source vertex was 1, the next active
+	 * source vertex has to be 2.
+	 * @param source The new active source vertex.
+	 * @see #addTarget(int)
+	 * @see #endFinalSource()
+	 */
 	public void setActiveSource(int source){
+		assert source == 0 || csr[source - 1] >= head;
 		csr[source] = head;
 	}
 	
+	/**
+	 * Adds a new target vertex to the active source vertex.
+	 * @param target The target vertex to add.
+	 * @see #setActiveSource(int)
+	 */
 	public void addTarget(int target){
 		if(head >= csr.length){
 			csr = Arrays.copyOf(csr, RESIZE_FACTOR * csr.length);
@@ -91,11 +166,19 @@ public class ResultGraph{
 		csr[head++] = target;
 	}
 	
+	/**
+	 * Ends target writing for the final source vertex in the result graph.
+	 * After this method was called no more calls to {@link #setActiveSource(int)}
+	 * and {@link #addTarget(int)} are possible.
+	 */
 	public void endFinalSource(){
 		csr[vertexCount] = head;
-		//TODO possibly shrink array
 	}
 	
+	/**
+	 * Sorts the target ranges for this result graph if they are not yet sorted.
+	 * Each target range will be sorted in ascending order.
+	 */
 	public void sort(){
 		if(!sorted){
 			for(int source = 0; source < vertexCount; source++){
@@ -106,6 +189,11 @@ public class ResultGraph{
 		}
 	}
 	
+	/**
+	 * Checks if the target ranges for this result graph are sorted.
+	 * @return True if all target ranges for this result graph are sorted.
+	 * @see #sort()
+	 */
 	public boolean isSorted(){
 		return sorted;
 	}
@@ -115,11 +203,12 @@ public class ResultGraph{
 	 * Recall that this operation simply added all the paths in both input graphs
 	 * to the result graph. This method also ensures target lists for each vertex
 	 * remain (or become) sorted and prevents duplicates from ending up in the output.
+	 * <p>
+	 * Note: behaviour is undefined if the other result graph has a different vertex count.
 	 * @param other The other input graph to compute the union with.
 	 * @return The result graph representing the union of this graph and the input graph.
 	 */
 	public ResultGraph union(ResultGraph other){
-		//TODO assumed same vertex count
 		assert vertexCount == other.vertexCount;
 		
 		sort();
@@ -165,18 +254,20 @@ public class ResultGraph{
 		return out;
 	}
 	
-//	/**
-//	 * Computes the intersection of the given left and right input graphs.
-//	 * Recall that this operation simply discards all paths that are not
-//	 * present in both input graphs. Note that the order of the input
-//	 * arguments is irrelevant.
-//	 * @param left The left input graph.
-//	 * @param right The right input graph.
-//	 * @return The result graph representing the intersection of the input graphs.
-//	 */
-	//assumed same vertex count
+	/**
+	 * Computes the intersection of this graph and the given input graph.
+	 * Recall that this operation simply discards all paths that are not
+	 * present in both input graphs. This method also ensures target lists
+	 * for each vertex remain (or become) sorted and prevents duplicates
+	 * from ending up in the output.
+	 * <p>
+	 * Note: behaviour is undefined if the other result graph has a different vertex count.
+	 * @param other The other input graph to compute the intersection with.
+	 * @return The result graph representing the intersection of this graph and the input graph.
+	 */
 	public ResultGraph intersection(ResultGraph other){
 		assert vertexCount == other.vertexCount;
+		
 		sort();
 		other.sort();
 		ResultGraph out = new ResultGraph(vertexCount, Math.min(getEdgeCount(), other.getEdgeCount()), true);
@@ -519,6 +610,7 @@ public class ResultGraph{
 		return csr;
 	}
 	
+	//NOTE: the below factory methods do not create a writable graph
 	public static final ResultGraph empty(int vertexCount){
 		return new ResultGraph(vertexCount);
 	}

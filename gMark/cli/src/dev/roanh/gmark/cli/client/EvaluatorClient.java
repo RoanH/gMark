@@ -85,6 +85,14 @@ public final class EvaluatorClient extends CommandLineClient{
 		executeQueries(graph, queries, resolveOutputPath(cli));
 	}
 	
+	/**
+	 * Reads a query workload in the given language based on the given CLI input.
+	 * @param language The workload language.
+	 * @param graph The graph the workload has to be evaluated on (used for the label set).
+	 * @param cli The command line input.
+	 * @return The parsed workload queries.
+	 * @throws InputException When the provided CLI input contains issues.
+	 */
 	private List<PathQuery> readQueries(QueryLanguage language, DatabaseGraph graph, CommandLine cli) throws InputException{
 		boolean hasSingleQuery = cli.hasOption('s') || cli.hasOption('q') || cli.hasOption('t');
 		if(!hasSingleQuery && !cli.hasOption('w')){
@@ -111,6 +119,12 @@ public final class EvaluatorClient extends CommandLineClient{
 		}
 	}
 	
+	/**
+	 * Reads a database graph provided on the command line.
+	 * @param cli The command line arguments.
+	 * @return The read database graph.
+	 * @throws InputException When the provided CLI input contains issues.
+	 */
 	private DatabaseGraph readDatabaseGraph(CommandLine cli) throws InputException{
 		if(!cli.hasOption('g')){
 			throw new InputException("No database graph provided.");
@@ -130,6 +144,12 @@ public final class EvaluatorClient extends CommandLineClient{
 		}
 	}
 	
+	/**
+	 * Attempts to resolve the output path results should be written to.
+	 * @param cli The command line input.
+	 * @return The resolved results file path or null if none.
+	 * @throws InputException When the provided CLI input contains issues.
+	 */
 	private Path resolveOutputPath(CommandLine cli) throws InputException{
 		Path output = cli.hasOption('o') ? Paths.get(cli.getOptionValue('o')) : null;
 		if(output != null && !cli.hasOption('f') && Files.exists(output)){
@@ -139,6 +159,12 @@ public final class EvaluatorClient extends CommandLineClient{
 		return output;
 	}
 	
+	/**
+	 * Executes the given list of queries on the given graph and writes the results to the given file.
+	 * @param graph The graph to evaluate the queries on.
+	 * @param queries The queries to evaluate.
+	 * @param outputFile The file to write the results to (or null to not write any results to disk).
+	 */
 	private void executeQueries(DatabaseGraph graph, List<PathQuery> queries, Path outputFile){
 		if(outputFile == null){
 			executeAndWriteQueries(graph, queries, null);
@@ -151,6 +177,12 @@ public final class EvaluatorClient extends CommandLineClient{
 		}
 	}
 	
+	/**
+	 * Executes the given list of queries on the given graph and writes the results to the given file.
+	 * @param graph The graph to evaluate the queries on.
+	 * @param queries The queries to evaluate.
+	 * @param output The writer to write detailed query results to (or null to not write detailed results).
+	 */
 	private void executeAndWriteQueries(DatabaseGraph graph, List<PathQuery> queries, PrintWriter output){
 		QueryEvaluator evaluator = new QueryEvaluator(graph);
 		
@@ -176,6 +208,13 @@ public final class EvaluatorClient extends CommandLineClient{
 		return "note: the evaluator is intended to be used either with a single query to evaluate (-s/-q/-t) or with a complete workload of queries (-w).";
 	}
 	
+	/**
+	 * Formats the result of the evaluation of the given query.
+	 * @param query The query that was evaluated.
+	 * @param result The evaluation result.
+	 * @param timeNs The time in nanoseconds it took to execute the query.
+	 * @param writer The writer to write to.
+	 */
 	public static final void printQueryResult(PathQuery query, ResultGraph result, long timeNs, PrintWriter writer){
 		writer.println("Evaluated query: " + query);
 		writer.println("Evaluation time: " + TimeUnit.NANOSECONDS.toMillis(timeNs) + " ms");

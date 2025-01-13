@@ -43,9 +43,22 @@ import dev.roanh.gmark.query.QueryGenerator;
 import dev.roanh.gmark.query.QuerySet;
 import dev.roanh.gmark.util.Util;
 
+/**
+ * Command line client for workload generation.
+ * <p>
+ * Example Usage:
+ * <ul><li><code>gmark workload -c ./config.xml -s sql -o ./output -f</code></li></ul>
+ * @author Roan
+ */
 public final class WorkloadClient extends CommandLineClient{
+	/**
+	 * Instance of this client.
+	 */
 	public static final WorkloadClient INSTANCE = new WorkloadClient();
 	
+	/**
+	 * Constructs a new workload client.
+	 */
 	private WorkloadClient(){
 		super(
 			"workload",
@@ -60,6 +73,7 @@ public final class WorkloadClient extends CommandLineClient{
 	 * Handles the input arguments.
 	 * @param cli The command line argument.
 	 */
+	@Override
 	protected void handleInput(CommandLine cli){
 		if(!cli.hasOption('o')){
 			System.out.println("No output folder specified.");

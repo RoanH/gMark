@@ -558,6 +558,93 @@ public class QueryEvaluatorTest{
 	}
 	
 	@Test
+	public void query13(){
+		ResultGraph result = evaluate(1, CPQ.id());
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(1, 1)
+		));
+		 
+		assertEquals(new CardStat(1, 1, 1), result.computeCardinality());
+	}
+	
+	@Test
+	public void query14(){
+		ResultGraph result = evaluate(CPQ.id(), 2);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(2, 2)
+		));
+		 
+		assertEquals(new CardStat(1, 1, 1), result.computeCardinality());
+	}
+	
+	@Test
+	public void query15(){
+		ResultGraph result = evaluate(1, CPQ.id(), 2);
+		
+		assertPaths(result, List.of());
+		 
+		assertEquals(new CardStat(0, 0, 0), result.computeCardinality());
+	}
+	
+	@Test
+	public void query16(){
+		ResultGraph result = evaluate(2, CPQ.id(), 2);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(2, 2)
+		));
+		 
+		assertEquals(new CardStat(1, 1, 1), result.computeCardinality());
+	}
+	
+	@Test
+	public void query17(){
+		ResultGraph result = evaluate(3, CPQ.label(l0), 6);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(3, 6)
+		));
+		 
+		assertEquals(new CardStat(1, 1, 1), result.computeCardinality());
+	}
+	
+	@Test
+	public void query18(){
+		ResultGraph result = evaluate(3, CPQ.label(l0), 2);
+		
+		assertPaths(result, List.of());
+		 
+		assertEquals(new CardStat(0, 0, 0), result.computeCardinality());
+	}
+	
+	@Test
+	public void query19(){
+		ResultGraph result = evaluate(3, RPQ.kleene(RPQ.label(l0)), 11);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(3, 11)
+		));
+		 
+		assertEquals(new CardStat(1, 1, 1), result.computeCardinality());
+	}
+	
+	@Test
+	public void query20(){
+		ResultGraph result = evaluate(RPQ.kleene(RPQ.label(l0)), 8);
+		
+		assertPaths(result, List.of(
+			new SourceTargetPair(1, 8),
+			new SourceTargetPair(3, 8),
+			new SourceTargetPair(6, 8),
+			new SourceTargetPair(9, 8)
+		));
+		 
+		assertEquals(new CardStat(4, 4, 1), result.computeCardinality());
+	}
+	
+	@Test
 	public void syn1rpq0(){
 		assertEquals(new CardStat(2291, 118241, 861), evaluate(syn1, RPQ.labels(l0, l1, l2, l2, l3)));
 	}

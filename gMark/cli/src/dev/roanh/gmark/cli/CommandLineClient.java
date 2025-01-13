@@ -28,10 +28,25 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+/**
+ * Generic client for handling command line input.
+ * @author Roan
+ */
 public abstract class CommandLineClient{
+	/**
+	 * The name of this client.
+	 */
 	private final String name;
+	/**
+	 * The CLI options accepted by this client.
+	 */
 	private final Options options;
-	
+
+	/**
+	 * Constructs a new command line client.
+	 * @param name The name of this client.
+	 * @param args The options accepted by this client.
+	 */
 	protected CommandLineClient(String name, Option... args){
 		this.name = name;
 
@@ -41,7 +56,11 @@ public abstract class CommandLineClient{
 			options.addOption(option);
 		}
 	}
-	
+
+	/**
+	 * Handles the given CLI input with this client.
+	 * @param args The CLI input.
+	 */
 	public void handleInput(String[] args){
 		try{
 			CommandLine cli = new DefaultParser().parse(options, args);
@@ -56,27 +75,53 @@ public abstract class CommandLineClient{
 			printHelp();
 		}
 	}
-	
+
+	/**
+	 * Prints the help text for this client to standard out.
+	 * @see #printHelp(PrintWriter)
+	 */
 	public void printHelp(){
 		printHelp(new PrintWriter(System.out, true, StandardCharsets.UTF_8));
 	}
-	
+
+	/**
+	 * Prints the help text for this client to the given writer.
+	 * @param out The writer to write to.
+	 * @see #printHelp()
+	 */
 	public void printHelp(PrintWriter out){
 		HelpFormatter help = new HelpFormatter();
 		help.printHelp(out, 100, "gmark " + name, "", options, 1, 3, getHelpFooter(), true);
 	}
-	
+
+	/**
+	 * The help footer to show at the end of the help text for this client.
+	 * @return The help footer for this client.
+	 */
 	public String getHelpFooter(){
 		return "";
 	}
-	
+
+	/**
+	 * Gets the display name of this client.
+	 * @return The name of this client.
+	 */
 	public String getName(){
 		return name;
 	}
 
+	/**
+	 * Gets the arguments accepted by this client.
+	 * @return The argument for this client.
+	 */
 	public Options getOptions(){
 		return options;
 	}
-	
+
+	/**
+	 * Handles received command line input with this client.
+	 * @param cli The input that was received.
+	 * @throws InputException When the provided CLI input contains issues.
+	 */
 	protected abstract void handleInput(CommandLine cli) throws InputException;
 }

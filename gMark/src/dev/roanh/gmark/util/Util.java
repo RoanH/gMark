@@ -639,7 +639,9 @@ public final class Util{
 	 * @throws IOException When an IOException occurs.
 	 */
 	public static final List<PathQuery> readWorkload(Path file, Function<String, QueryLanguageSyntax> parser) throws IOException{
-		return readWorkload(Files.newInputStream(file), parser);
+		try(InputStream in = Files.newInputStream(file)){
+			return readWorkload(in, parser);
+		}
 	}
 
 	/**
@@ -656,27 +658,26 @@ public final class Util{
 	 * @throws IOException When an IOException occurs.
 	 */
 	public static final List<PathQuery> readWorkload(InputStream in, Function<String, QueryLanguageSyntax> parser) throws IOException{
-		try(BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))){
-			List<PathQuery> queries = new ArrayList<PathQuery>();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+		List<PathQuery> queries = new ArrayList<PathQuery>();
 
-			String line;
-			while((line = reader.readLine()) != null){
-				String[] args = line.split(",");
-				if(args.length != 3 || line.isBlank() || line.startsWith("#")){
-					continue;
-				}
+		String line;
+		while((line = reader.readLine()) != null){
+			String[] args = line.split(",");
+			if(args.length != 3 || line.isBlank() || line.startsWith("#")){
+				continue;
+			}
 
-				String src = args[0].trim();
-				String trg = args[2].trim();
+			String src = args[0].trim();
+			String trg = args[2].trim();
 
-				queries.add(new PathQuery(
-					src.equals("*") ? Optional.empty() : Optional.of(Integer.parseInt(src)),
+			queries.add(new PathQuery(
+				src.equals("*") ? Optional.empty() : Optional.of(Integer.parseInt(src)),
 					parser.apply(args[1].trim()),
 					trg.equals("*") ? Optional.empty() : Optional.of(Integer.parseInt(trg))
 				));
-			}
-
-			return queries;
 		}
+
+		return queries;
 	}
 }

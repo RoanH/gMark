@@ -49,22 +49,53 @@ public enum QueryLanguage{
 	 */
 	RPQ(ParserRPQ::parse, ParserRPQ::parse);
 	
+	/**
+	 * The function to use to parse a query without a given label set.
+	 */
 	private final Function<String, QueryLanguageSyntax> parseFun;
+	/**
+	 * The function to use to parse a query with a given label set.
+	 */
 	private final BiFunction<String, List<Predicate>, QueryLanguageSyntax> parseLabelledFun;
 	
+	/**
+	 * Constructs a new query language with the given parsers.
+	 * @param parseFun The parser without a given label set.
+	 * @param parseLabelledFun The parser with a given label set.
+	 */
 	private QueryLanguage(Function<String, QueryLanguageSyntax> parseFun, BiFunction<String, List<Predicate>, QueryLanguageSyntax> parseLabelledFun){
 		this.parseFun = parseFun;
 		this.parseLabelledFun = parseLabelledFun;
 	}
 	
+	/**
+	 * Parses the given query into an instance of this query language
+	 * and created the required label set on the fly as new symbols are discovered.
+	 * @param query The query to parse.
+	 * @return The parsed query.
+	 * @see #parse(String, List)
+	 */
 	public QueryLanguageSyntax parse(String query){
 		return parseFun.apply(query);
 	}
 	
+	/**
+	 * Parses the given query into an instance of this query language
+	 * using the given label set to resolve symbols with.
+	 * @param query The query to parse.
+	 * @param labels The label set to use when parsing the query.
+	 * @return The parsed query.
+	 * @see #parse(String)
+	 */
 	public QueryLanguageSyntax parse(String query, List<Predicate> labels){
 		return parseLabelledFun.apply(query, labels);
 	}
 	
+	/**
+	 * Resolves a query language by its name.
+	 * @param name The name of the query language to find.
+	 * @return The requested query language if found.
+	 */
 	public static final Optional<QueryLanguage> fromName(String name){
 		for(QueryLanguage lang : values()){
 			if(lang.name().equalsIgnoreCase(name)){

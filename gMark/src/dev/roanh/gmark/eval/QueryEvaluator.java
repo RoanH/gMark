@@ -21,7 +21,7 @@ import dev.roanh.gmark.util.graph.IntGraph;
  */
 public class QueryEvaluator{
 	/**
-	 * Constant used to indicate query without a bound source and/or target vertex.
+	 * Constant used to indicate an unbound (free) query source and/or target vertex.
 	 */
 	private static final int UNBOUND = -1;
 	/**

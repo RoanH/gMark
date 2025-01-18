@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Deque;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import dev.roanh.gmark.data.CardStat;
 import dev.roanh.gmark.data.SourceTargetPair;
@@ -64,6 +65,7 @@ public class ResultGraph{
 	 *        a promise to this result graph that will make it assume sorted data.
 	 */
 	protected ResultGraph(int vertexCount, int sizeEstimate, boolean sorted){
+		assert vertexCount >= 0;
 		this.vertexCount = vertexCount;
 		this.sorted = sorted;
 		csr = new int[vertexCount + 1 + sizeEstimate];
@@ -93,6 +95,7 @@ public class ResultGraph{
 	 * @param vertexCount The vertex count for the result graph.
 	 */
 	private ResultGraph(int vertexCount){
+		assert vertexCount >= 0;
 		this.vertexCount = vertexCount;
 		sorted = true;
 		csr = new int[vertexCount + 1];
@@ -113,6 +116,11 @@ public class ResultGraph{
 	 *        range specified by the from and to parameters.
 	 */
 	private ResultGraph(int vertexCount, int source, boolean sorted, int from, int to, int... targets){
+		assert vertexCount >= 0;
+		assert 0 <= source && source < vertexCount;
+		assert Arrays.stream(targets, from, to).allMatch(v->0 <= v && v < vertexCount);
+		assert !sorted || IntStream.range(from, to - 1).allMatch(i -> targets[i] <= targets[i + 1]);
+		
 		this.vertexCount = vertexCount;
 		this.sorted = sorted;
 		csr = new int[vertexCount + 1 + to - from];
@@ -159,6 +167,7 @@ public class ResultGraph{
 	 * @see #setActiveSource(int)
 	 */
 	public void addTarget(int target){
+		assert 0 <= target && target < vertexCount;
 		if(head >= csr.length){
 			csr = Arrays.copyOf(csr, RESIZE_FACTOR * csr.length);
 		}
@@ -200,9 +209,9 @@ public class ResultGraph{
 	
 	/**
 	 * Computes the disjunction (or union) of this graph and the given input graph.
-	 * Recall that this operation simply added all the paths in both input graphs
-	 * to the result graph. This method also ensures target lists for each vertex
-	 * remain (or become) sorted and prevents duplicates from ending up in the output.
+	 * This operation simply added all the paths in both input graphs to the result
+	 * graph. This method also ensures target lists for each vertex remain (or become)
+	 * sorted and prevents duplicates from ending up in the output.
 	 * <p>
 	 * Note: behaviour is undefined if the other result graph has a different vertex count.
 	 * @param other The other input graph to compute the union with.
@@ -256,10 +265,10 @@ public class ResultGraph{
 	
 	/**
 	 * Computes the intersection of this graph and the given input graph.
-	 * Recall that this operation simply discards all paths that are not
-	 * present in both input graphs. This method also ensures target lists
-	 * for each vertex remain (or become) sorted and prevents duplicates
-	 * from ending up in the output.
+	 * This operation simply discards all paths that are not present in
+	 * both input graphs. This method also ensures target lists for each
+	 * vertex remain (or become) sorted and prevents duplicates from ending
+	 * up in the output.
 	 * <p>
 	 * Note: behaviour is undefined if the other result graph has a different vertex count.
 	 * @param other The other input graph to compute the intersection with.
@@ -305,21 +314,25 @@ public class ResultGraph{
 		return out;
 	}
 	
-//	/**
-//	 * Computes the join of the given left and right input graphs by
-//	 * extending paths in the left input graph with paths in the right
-//	 * input graph if the target vertex of a left input path is equal
-//	 * to the source vertex of a right input path.
-//	 * @param left The left input graph containing path prefixes.
-//	 * @param right The right input graph containing path suffixes.
-//	 * @return The result graph representing the join of the input graphs.
-//	 */
-	//assumed same vertex count
+	/**
+	 * Computes the join of this graph and the given input graph.
+	 * This operation extends the paths in this result graph with
+	 * paths in the given graph if the target vertex of a path in
+	 * this graph is equal to the source vertex of a path in the
+	 * given graph to join with. The implementation prevents
+	 * duplicate paths from ending up in the output, but does not
+	 * guarantee that target lists remain sorted.
+	 * <p>
+	 * Note: behaviour is undefined if the other result graph has a different vertex count.
+	 * @param right The other input graph to compute the join with.
+	 * @return The result graph representing the join of this graph and the given graph.
+	 */
 	public ResultGraph join(ResultGraph right){
 		assert vertexCount == right.vertexCount;
-		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount() + right.getEdgeCount(), false);
 		
+		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount() + right.getEdgeCount(), false);
 		SmartBitSet seen = new SmartBitSet(out.vertexCount);
+		
 		for(int source = 0; source < vertexCount; source++){
 			out.setActiveSource(source);
 			
@@ -353,7 +366,6 @@ public class ResultGraph{
 	 */
 	public ResultGraph transitiveClosure(){
 		ResultGraph out = new ResultGraph(this, vertexCount * 2, false);
-		
 		Deque<Integer> stack = new ArrayDeque<Integer>(vertexCount);
 		SmartBitSet seen = new SmartBitSet(vertexCount);
 		
@@ -385,9 +397,21 @@ public class ResultGraph{
 		return out;
 	}
 	
+	/**
+	 * Computes the transitive closure of this graph, with all paths starting from
+	 * the given source node. Note that the transitive closure is the smallest graph
+	 * that contains the entire input graph and is also transitive. This means that
+	 * binding the source node effectively means we are computing all that nodes that
+	 * are reachable from the bound source node within the graph using only edges that
+	 * were originally present in the graph.
+	 * @param boundSource The bound source node all returned paths have to start at.
+	 * @return A new graph representing the transitive closure of this result graph,
+	 *         where all paths start at the given source node.
+	 */
 	public ResultGraph transitiveClosureFrom(int boundSource){
-		ResultGraph out = new ResultGraph(this, vertexCount, false);
+		assert 0 <= boundSource && boundSource < vertexCount;
 		
+		ResultGraph out = new ResultGraph(this, vertexCount, false);
 		Deque<Integer> stack = new ArrayDeque<Integer>(vertexCount);
 		BitSet seen = new BitSet(vertexCount);
 		
@@ -418,9 +442,21 @@ public class ResultGraph{
 		return out;
 	}
 	
+	/**
+	 * Computes the transitive closure of this graph, with all paths ending from
+	 * the given target node. Note that the transitive closure is the smallest graph
+	 * that contains the entire input graph and is also transitive. This means that
+	 * binding the target node effectively means we are computing all that nodes that
+	 * can reach the bound target node within the graph using only edges that were
+	 * originally present in the graph.
+	 * @param boundTarget The bound target node all returned paths have to end at.
+	 * @return A new graph representing the transitive closure of this result graph,
+	 *         where all paths end at the given target node.
+	 */
 	public ResultGraph transitiveClosureTo(int boundTarget){
-		ResultGraph out = new ResultGraph(this, vertexCount, false);
+		assert 0 <= boundTarget && boundTarget < vertexCount;
 		
+		ResultGraph out = new ResultGraph(this, vertexCount, false);
 		Deque<Integer> stack = new ArrayDeque<Integer>(vertexCount);
 		SmartBitSet seen = new SmartBitSet(vertexCount);
 		
@@ -457,7 +493,24 @@ public class ResultGraph{
 		return out;
 	}
 	
+	/**
+	 * Computes the transitive closure of this graph, with all paths starting and
+	 * ending at the given bound source and target nodes. Note that the transitive
+	 * closure is the smallest graph that contains the entire input graph and is also
+	 * transitive. This means that binding the source and target node effectively means
+	 * we are computing if there is any path in the graph that connects the given
+	 * source and target nodes, if there is then this is the only returned path,
+	 * otherwise there are no results in the result graph.
+	 * @param boundSource The bound source node the returned path has to start at.
+	 * @param boundTarget The bound target node the returned path has to end at.
+	 * @return A new graph representing the transitive closure of this result graph,
+	 *         where the only path, if present, starts and ends at the given bound
+	 *         source and target nodes.
+	 */
 	public ResultGraph transitiveClosure(int boundSource, int boundTarget){
+		assert 0 <= boundSource && boundSource < vertexCount;
+		assert 0 <= boundTarget && boundTarget < vertexCount;
+		
 		Deque<Integer> stack = new ArrayDeque<Integer>(vertexCount);
 		BitSet seen = new BitSet(vertexCount);
 
@@ -486,6 +539,10 @@ public class ResultGraph{
 		return empty(vertexCount);
 	}
 
+	/**
+	 * Selects all the edges from this graph that start and end at the same node, i.e., all zero length identity paths.
+	 * @return A copy of this graph containing only the edges that started and ended at the same vertex.
+	 */
 	public ResultGraph selectIdentity(){
 		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
 
@@ -521,6 +578,7 @@ public class ResultGraph{
 	 * @return A copy of this graph containing only the edges that started at the given source vertex.
 	 */
 	public ResultGraph selectSource(int source){
+		assert 0 <= source && source < vertexCount;
 		ResultGraph out = new ResultGraph(vertexCount, vertexCount, sorted);
 		
 		for(int i = 0; i < vertexCount; i++){
@@ -539,13 +597,13 @@ public class ResultGraph{
 		return out;
 	}
 	
-//	/**
-//	 * Selects all the edges from the given input graph that end at the given target node.
-//	 * @param target The target node of the edges.
-//	 * @param in The input graph to select edges from.
-//	 * @return A copy of the input graph containing only the edges that ended at the given target vertex.
-//	 */
+	/**
+	 * Selects all the edges from this graph that end at the given target node.
+	 * @param target The target node of the edges.
+	 * @return A copy of this graph containing only the edges that ended at the given source vertex.
+	 */
 	public ResultGraph selectTarget(int target){
+		assert 0 <= target && target < vertexCount;
 		ResultGraph out = new ResultGraph(vertexCount, vertexCount, true);
 		
 		for(int source = 0; source < vertexCount; source++){
@@ -606,23 +664,69 @@ public class ResultGraph{
 		return edges;
 	}
 	
+	/**
+	 * Gets the raw source data for the CSR representing this result graph.
+	 * @return The raw CSR data.
+	 * @see #csr
+	 */
 	protected int[] getData(){
 		return csr;
 	}
 	
-	//NOTE: the below factory methods do not create a writable graph
+	/**
+	 * Creates a new empty result graph with the the given vertex count and no paths.
+	 * <p>
+	 * Note: the created result graph is not meant to be written to.
+	 * @param vertexCount The vertex count for the result graph.
+	 * @return The newly constructed result graph.
+	 */
 	public static final ResultGraph empty(int vertexCount){
 		return new ResultGraph(vertexCount);
 	}
 	
+	/**
+	 * Creates a new result graph with a number of result path that
+	 * all start at the given source vertex and end at the given targets.
+	 * <p>
+	 * Note: the created result graph is not meant to be written to.
+	 * @param vertexCount The vertex count for the result graph.
+	 * @param source The source vertex for the result paths.
+	 * @param sorted True if the given list of targets is sorted.
+	 * @param from The start index in targets (inclusive).
+	 * @param to The end index in targets (exclusive).
+	 * @param targets The target vertices for the paths, contained
+	 *        in the given range.
+	 * @return The newly constructed result graph.
+	 */
 	public static final ResultGraph single(int vertexCount, int source, boolean sorted, int from, int to, int[] targets){
 		return new ResultGraph(vertexCount, source, sorted, from, to, targets);
 	}
 	
+	/**
+	 * Creates a new result graph with a number of result path that
+	 * all start at the given source vertex and end at the given targets.
+	 * <p>
+	 * Note: the created result graph is not meant to be written to.
+	 * @param vertexCount The vertex count for the result graph.
+	 * @param source The source vertex for the result paths.
+	 * @param sorted True if the given list of targets is sorted.
+	 * @param targets The target vertices for the paths.
+	 * @return The newly constructed result graph.
+	 */
 	public static final ResultGraph single(int vertexCount, int source, boolean sorted, int... targets){
 		return new ResultGraph(vertexCount, source, sorted, 0, targets.length, targets);
 	}
 	
+	/**
+	 * Creates a new result graph with a single result path from the
+	 * given source vertex to the given target vertex.
+	 * <p>
+	 * Note: the created result graph is not meant to be written to.
+	 * @param vertexCount The vertex count for the result graph.
+	 * @param source The source vertex for the single result path.
+	 * @param target The target vertex for the single result path.
+	 * @return The newly constructed result graph.
+	 */
 	public static final ResultGraph single(int vertexCount, int source, int target){
 		return new ResultGraph(vertexCount, source, true, 0, 1, target);
 	}

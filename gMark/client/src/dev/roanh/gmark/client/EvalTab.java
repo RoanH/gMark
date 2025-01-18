@@ -167,7 +167,7 @@ public class EvalTab extends JPanel{
 					((QueryLanguage)lang.getSelectedItem()).parse(query.getText(), evaluator.getLabels()),
 					(int)target.getValue()
 				));
-			}catch(RuntimeException e1){
+			}catch(Exception e1){
 				e1.printStackTrace();
 				Dialog.showErrorDialog("Failed to parse query: " + e1.getMessage());
 			}

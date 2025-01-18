@@ -576,7 +576,9 @@ public final class Util{
 	 * @throws IOException When an IOException occurs.
 	 */
 	public static final IntGraph readGraph(Path file) throws IOException{
-		return readGraph(Files.newInputStream(file));
+		try(InputStream in = Files.newInputStream(file)){
+			return readGraph(in);
+		}
 	}
 
 	/**
@@ -597,33 +599,32 @@ public final class Util{
 	 * @throws IOException When an IOException occurs.
 	 */
 	public static final IntGraph readGraph(InputStream in) throws IOException{
-		try(BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))){
-			String header = reader.readLine();
-			if(header == null){
-				return null;
-			}
-			
-			String[] metadata = header.split(" ");
-			int vertices = Integer.parseInt(metadata[0]);
-			int labels = Integer.parseInt(metadata[2]);
-			IntGraph graph = new IntGraph(vertices, labels);
-			
-			String line;
-			while((line = reader.readLine()) != null){
-				String[] edge = line.split(" ");
-				if(edge.length == 0){
-					break;
-				}
-
-				int src = Integer.parseInt(edge[0]);
-				int trg = Integer.parseInt(edge[1]);
-				int lab = Integer.parseInt(edge[2]);
-
-				graph.addEdge(src, trg, lab);
-			}
-			
-			return graph;
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+		String header = reader.readLine();
+		if(header == null){
+			return null;
 		}
+
+		String[] metadata = header.split(" ");
+		int vertices = Integer.parseInt(metadata[0]);
+		int labels = Integer.parseInt(metadata[2]);
+		IntGraph graph = new IntGraph(vertices, labels);
+
+		String line;
+		while((line = reader.readLine()) != null){
+			String[] edge = line.split(" ");
+			if(edge.length == 0){
+				break;
+			}
+
+			int src = Integer.parseInt(edge[0]);
+			int trg = Integer.parseInt(edge[1]);
+			int lab = Integer.parseInt(edge[2]);
+
+			graph.addEdge(src, trg, lab);
+		}
+
+		return graph;
 	}
 
 	/**

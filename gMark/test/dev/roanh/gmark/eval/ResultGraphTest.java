@@ -33,18 +33,18 @@ public class ResultGraphTest{
 	
 	@Test
 	public void single1(){
-		ResultGraph single = ResultGraph.single(4, 1, true, 2, 4, 5);
-		assertArrayEquals(new int[]{5, 5, 8, 8, 8, 2, 4, 5}, single.getData());
-		assertEquals(4, single.getVertexCount());
+		ResultGraph single = ResultGraph.single(6, 1, true, 2, 4, 5);
+		assertArrayEquals(new int[]{7, 7, 10, 10, 10, 10, 10, 2, 4, 5}, single.getData());
+		assertEquals(6, single.getVertexCount());
 		assertEquals(3, single.getEdgeCount());
 	}
 	
 	@Test
 	public void single2(){
 		int[] data = new int[]{1, 1, 2, 4, 5, 1, 1};
-		ResultGraph single = ResultGraph.single(4, 1, true, 2, 5, data);
-		assertArrayEquals(new int[]{5, 5, 8, 8, 8, 2, 4, 5}, single.getData());
-		assertEquals(4, single.getVertexCount());
+		ResultGraph single = ResultGraph.single(6, 1, true, 2, 5, data);
+		assertArrayEquals(new int[]{7, 7, 10, 10, 10, 10, 10, 2, 4, 5}, single.getData());
+		assertEquals(6, single.getVertexCount());
 		assertEquals(3, single.getEdgeCount());
 	}
 

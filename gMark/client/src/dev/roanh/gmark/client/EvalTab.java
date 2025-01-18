@@ -219,7 +219,7 @@ public class EvalTab extends JPanel{
 	private void runQuery(PathQuery query){
 		run.setEnabled(false);
 		queryOutput.setText("Running query...");
-		executor.submit(()->{
+		executor.execute(()->{
 			try{
 				long start = System.nanoTime();
 				ResultGraph result = evaluator.evaluate(query);
@@ -249,7 +249,7 @@ public class EvalTab extends JPanel{
 		if(file != null){
 			JButton button = ((JButton)event.getSource());
 			button.setEnabled(false);
-			executor.submit(()->{
+			executor.execute(()->{
 				try{
 					IntGraph data = Util.readGraph(file);
 					DatabaseGraph db = new DatabaseGraph(data);

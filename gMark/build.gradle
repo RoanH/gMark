@@ -29,6 +29,7 @@ allprojects{
 	jacocoTestReport.reports.xml.required = true
 	sourceCompatibility = 1.17
 	javadoc.options.memberLevel = JavadocMemberLevel.PRIVATE
+	javadoc.options.encoding = 'UTF-8'
 
 	repositories{
 		//Local cache
@@ -260,5 +261,6 @@ task javadocAll(type: Javadoc, group: "documentation"){
 	})
 
 	options.memberLevel = JavadocMemberLevel.PRIVATE
+	options.encoding = 'UTF-8'
 	destinationDir = new File(buildDir, 'javadoc')
 }

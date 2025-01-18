@@ -18,9 +18,13 @@
  */
 package dev.roanh.gmark.util;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,6 +38,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -43,10 +48,13 @@ import java.util.stream.Stream;
 
 import dev.roanh.gmark.core.SelectivityClass;
 import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.eval.PathQuery;
+import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.UniqueGraph.GraphNode;
+import dev.roanh.gmark.util.graph.IntGraph;
 
 /**
  * Class providing various small utilities as well
@@ -548,5 +556,129 @@ public final class Util{
 			computeAllSubsets(items, offset + 1, max, set, consumer);
 			set.remove(set.size() - 1);
 		}
+	}
+	
+	/**
+	 * Reads a database graph from the file at the given path. The graph file is expected
+	 * to be encoded using UTF-8 and have the following format:
+	 * <ol>
+	 * <li>First a single header line containing the following three
+	 * integers in order separated by a single space:<br>
+	 * <pre>{@code <vertex count> <edge count> <label count>}</pre></li>
+	 * <li>Then a number of lines matching the header edge count,
+	 * each containing a single edge definition specified by three
+	 * integers separated by a single space in the following format:<br>
+	 * <pre>{@code <source vertex> <target vertex> <label>}</pre></li>
+	 * </ol>
+	 * Note: empty lines and comments are not permitted between edge definitions.
+	 * @param file The input file to read from.
+	 * @return The constructed database graph instance.
+	 * @throws IOException When an IOException occurs.
+	 */
+	public static final IntGraph readGraph(Path file) throws IOException{
+		try(InputStream in = Files.newInputStream(file)){
+			return readGraph(in);
+		}
+	}
+
+	/**
+	 * Reads a database graph from the given input stream. The graph file is expected
+	 * to be encoded using UTF-8 and have the following format:
+	 * <ol>
+	 * <li>First a single header line containing the following three
+	 * integers in order separated by a single space:<br>
+	 * <pre>{@code <vertex count> <edge count> <label count>}</pre></li>
+	 * <li>Then a number of lines matching the header edge count,
+	 * each containing a single edge definition specified by three
+	 * integers separated by a single space in the following format:<br>
+	 * <pre>{@code <source vertex> <target vertex> <label>}</pre></li>
+	 * </ol>
+	 * Note: empty lines and comments are not permitted between edge definitions.
+	 * @param in The input stream to read from.
+	 * @return The constructed database graph instance.
+	 * @throws IOException When an IOException occurs.
+	 */
+	public static final IntGraph readGraph(InputStream in) throws IOException{
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+		String header = reader.readLine();
+		if(header == null){
+			return null;
+		}
+
+		String[] metadata = header.split(" ");
+		int vertices = Integer.parseInt(metadata[0]);
+		int labels = Integer.parseInt(metadata[2]);
+		IntGraph graph = new IntGraph(vertices, labels);
+
+		String line;
+		while((line = reader.readLine()) != null){
+			String[] edge = line.split(" ");
+			if(edge.length == 0){
+				break;
+			}
+
+			int src = Integer.parseInt(edge[0]);
+			int trg = Integer.parseInt(edge[1]);
+			int lab = Integer.parseInt(edge[2]);
+
+			graph.addEdge(src, trg, lab);
+		}
+
+		return graph;
+	}
+
+	/**
+	 * Reads a query workload from the given file. The file is assumed to be encoded
+	 * using UTF-8 with at most one query per line in the following format:
+	 * <pre>{@code <source>, <query>, <target>}</pre>
+	 * Lines that do not contain a valid query definition are ignored. The source and
+	 * target vertex are expected to be given as integers, however, if unbound/free then
+	 * <code>*</code> has to be specified.
+	 * @param file The file to read from.
+	 * @param parser The parser to use to parse the query definition into a query instance.
+	 * @return A list with the parsed queries.
+	 * @throws IOException When an IOException occurs.
+	 */
+	public static final List<PathQuery> readWorkload(Path file, Function<String, QueryLanguageSyntax> parser) throws IOException{
+		try(InputStream in = Files.newInputStream(file)){
+			return readWorkload(in, parser);
+		}
+	}
+
+	/**
+	 * Reads a query workload from the given input stream. The input stream is assumed
+	 * to represent a text file encoded using UTF-8 with at most one query per line in
+	 * the following format:
+	 * <pre>{@code <source>, <query>, <target>}</pre>
+	 * Lines that do not contain a valid query definition are ignored. The source and
+	 * target vertex are expected to be given as integers, however, if unbound/free then
+	 * <code>*</code> has to be specified.
+	 * @param in The input stream to read from.
+	 * @param parser The parser to use to parse the query definition into a query instance.
+	 * @return A list with the parsed queries.
+	 * @throws IOException When an IOException occurs.
+	 */
+	public static final List<PathQuery> readWorkload(InputStream in, Function<String, QueryLanguageSyntax> parser) throws IOException{
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+		List<PathQuery> queries = new ArrayList<PathQuery>();
+
+		String line;
+		while((line = reader.readLine()) != null){
+			String[] args = line.split(",");
+			if(args.length != 3 || line.isBlank() || line.startsWith("#")){
+				continue;
+			}
+
+			String src = args[0].trim();
+			String trg = args[2].trim();
+
+			queries.add(new PathQuery(
+				src.equals("*") ? Optional.empty() : Optional.of(Integer.parseInt(src)),
+					parser.apply(args[1].trim()),
+					trg.equals("*") ? Optional.empty() : Optional.of(Integer.parseInt(trg))
+				));
+		}
+
+		return queries;
 	}
 }

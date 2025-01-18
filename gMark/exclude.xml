@@ -43,7 +43,12 @@
   </Match>
   
   <Match>
-    <Class name="dev.roanh.gmark.util.GraphPanel"/>
+    <!-- These should not be serialised -->
+    <Or>
+      <Class name="dev.roanh.gmark.util.GraphPanel"/>
+      <Class name="dev.roanh.gmark.client.QueryTab"/>
+      <Class name="dev.roanh.gmark.client.EvalTab"/>
+    </Or>
     <Bug pattern="SE_BAD_FIELD"/>
   </Match>
   
@@ -51,11 +56,6 @@
     <Class name="dev.roanh.gmark.util.GraphPanel"/>
     <Method name="paintComponent"/>
     <Bug pattern="BC_UNCONFIRMED_CAST"/>
-  </Match>
-  
-  <Match>
-    <Class name="dev.roanh.gmark.client.QueryTab"/>
-    <Bug pattern="SE_BAD_FIELD"/>
   </Match>
   
   <Match>
@@ -68,10 +68,20 @@
   </Match>
   
   <Match>
-	<!-- Intentional, just a sanity check -->
-	<Class name="dev.roanh.gmark.util.SimpleGraph$SimpleEdge"/>
-	<Method name="getTarget"/>
-	<Bug pattern="AA_ASSERTION_OF_ARGUMENTS"/>
+    <!-- Intentional, just a sanity check -->
+    <Class name="dev.roanh.gmark.util.SimpleGraph$SimpleEdge"/>
+    <Method name="getTarget"/>
+    <Bug pattern="AA_ASSERTION_OF_ARGUMENTS"/>
+  </Match>
+  
+  <Match>
+    <!-- Intentional, just sanity checks, and used by unit tests -->
+    <Or>
+      <Class name="dev.roanh.gmark.util.SimpleGraph$SimpleEdge"/>
+      <Class name="dev.roanh.gmark.eval.DatabaseGraph"/>
+      <Class name="dev.roanh.gmark.eval.ResultGraph"/>
+    </Or>
+    <Bug pattern="AA_ASSERTION_OF_ARGUMENTS"/>
   </Match>
   
 </FindBugsFilter>

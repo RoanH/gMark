@@ -24,7 +24,7 @@ import dev.roanh.gmark.util.IDable;
 
 /**
  * Represents a single type in a graph schema.
- * A type encoded information about the number
+ * A type encodes information about the number
  * of nodes of that specific type in a concrete
  * graph instance.
  * @author Roan

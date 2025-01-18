@@ -39,7 +39,7 @@ public class ConfigException extends Exception{
 	}
 	
 	/**
-	 * Construts a new configuration exception
+	 * Constructs a new configuration exception
 	 * with the given exception message.
 	 * @param msg The exception message.
 	 */

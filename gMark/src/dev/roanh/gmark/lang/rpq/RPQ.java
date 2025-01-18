@@ -48,6 +48,28 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 	public static RPQ kleene(RPQ rpq){
 		return new KleeneRPQ(rpq);
 	}
+	
+	/**
+	 * Returns an RPQ representing the transitive closure of the disjunction
+	 * of the given set of labels. 
+	 * @param labels The labels for the transitive closure.
+	 * @return The transitive closure of disjunction of the given labels.
+	 * @throws IllegalArgumentException When the array of labels is empty.
+	 */
+	public static RPQ kleene(Predicate... labels){
+		return labels.length == 1 ? kleene(label(labels[0])) : kleene(disjunct(labels));
+	}
+	
+	/**
+	 * Returns an RPQ representing the disjunction of the given labels
+	 * from left to right. For example {@code ((l1 ∪ l2) ∪ l3)}.
+	 * @param labels The labels for the disjunction.
+	 * @return The disjunction of the given labels.
+	 * @throws IllegalArgumentException When less than 2 labels are provided.
+	 */
+	public static RPQ disjunct(Predicate... labels){
+		return disjunct(Arrays.stream(labels).map(RPQ::label).toList());
+	}
 
 	/**
 	 * Returns an RPQ representing the disjunction of the given RPQs

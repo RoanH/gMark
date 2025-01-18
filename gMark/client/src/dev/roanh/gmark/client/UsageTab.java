@@ -19,24 +19,23 @@
 package dev.roanh.gmark.client;
 
 import java.awt.BorderLayout;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
-import org.apache.commons.cli.HelpFormatter;
-
-import dev.roanh.gmark.cli.Main;
+import dev.roanh.gmark.cli.CommandLineClient;
+import dev.roanh.gmark.cli.client.EvaluatorClient;
+import dev.roanh.gmark.cli.client.WorkloadClient;
 
 /**
  * Tab showing command line usage and an example configuration.
@@ -55,31 +54,64 @@ public class UsageTab extends JPanel{
 		super(new BorderLayout());
 		this.setBorder(BorderFactory.createTitledBorder("Usage"));
 		
-		//command line arguments
-		JPanel cli = new JPanel(new BorderLayout());
-		JTextArea usage = new JTextArea();
-		StringWriter writer = new StringWriter();
-		new HelpFormatter().printHelp(new PrintWriter(writer), 100, "gmark", "", Main.options, 1, 3, "", true);
-		usage.setText(writer.toString());
-		usage.setEditable(false);
-		cli.add(new JScrollPane(usage), BorderLayout.CENTER);
-		
-		//example gmark config
-		JPanel config = new JPanel(new BorderLayout());
-		JTextArea xml = new JTextArea();
-		try(BufferedReader example = new BufferedReader(new InputStreamReader(ClassLoader.getSystemResourceAsStream("example.xml"), StandardCharsets.UTF_8))){
-			xml.setText(example.lines().collect(Collectors.joining("\n")));
-		}catch(IOException ignore){
-			xml.setText("Failed to load example.");
-		}
-		xml.setEditable(false);
-		config.add(new JScrollPane(xml), BorderLayout.CENTER);
-		
 		JTabbedPane tabs = new JTabbedPane();
-		tabs.addTab("Command line arguments", cli);
-		tabs.addTab("Example configuration", config);
+		tabs.addTab("Evaluate Command Line Syntax", createHelpPanel(EvaluatorClient.INSTANCE));
+		tabs.addTab("Example Database Graph", createExampleConfigPanel("example.edge"));
+		tabs.addTab("Workload Command Line Syntax", createHelpPanel(WorkloadClient.INSTANCE));
+		tabs.addTab("Example Workload Configuration", createExampleConfigPanel("example.xml"));
 		
 		this.add(new JLabel("On this tab we display the command line arguments that can be used when running gmark as well as a complete example gMark configuration file."), BorderLayout.PAGE_START);
 		this.add(tabs, BorderLayout.CENTER);
+	}
+	
+	/**
+	 * Constructs a CLI help panel for the given client.
+	 * @param client The CLI client to create a help panel for.
+	 * @return A panel with CLI instructions for the given client.
+	 */
+	private static JPanel createHelpPanel(CommandLineClient client){
+		JTextArea usage = new JTextArea();
+		StringWriter writer = new StringWriter();
+		client.printHelp(new PrintWriter(writer));
+		usage.setText(writer.toString());
+		usage.setEditable(false);
+		return createScrollPanel(usage);
+	}
+	
+	/**
+	 * Creates a panel with an example configuration.
+	 * @param resource The configuration file to load.
+	 * @return A panel displaying the given configuration resource.
+	 */
+	private static JPanel createExampleConfigPanel(String resource){
+		JTextArea area = new JTextArea();
+		area.setText(readTextResource(resource));
+		area.setEditable(false);
+		return createScrollPanel(area);
+	}
+	
+	/**
+	 * Creates a scroll panel containing the given component.
+	 * @param content The component to make scrollable.
+	 * @return The newly created scrollable display panel.
+	 */
+	private static JPanel createScrollPanel(JComponent content){
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(new JScrollPane(content), BorderLayout.CENTER);
+		return panel;
+	}
+	
+	/**
+	 * Reads the text resource with the given name and returns it.
+	 * @param name The name of the resource to read.
+	 * @return The UTF-8 text content of the requested resource.
+	 */
+	private static String readTextResource(String name){
+		try(InputStream in = ClassLoader.getSystemResourceAsStream(name)){
+			return new String(in.readAllBytes(), StandardCharsets.UTF_8);
+		}catch(IOException ignore){
+			//not really possible given that this is an internal resource
+			return "Failed to load example.";
+		}
 	}
 }

@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.Stream.Builder;
 
@@ -94,13 +93,16 @@ public final class ConfigParser{
 	 */
 	public static final Configuration parse(InputStream in) throws ConfigException{
 		try{
-			Document xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+
+			Document xml = factory.newDocumentBuilder().parse(in);
 			xml.getDocumentElement().normalize();
 			Element root = xml.getDocumentElement();
 			
 			List<Integer> sizes = stream(root, "graph").map(n->{
 				return n.getElementsByTagName("nodes").item(0);
-			}).map(Node::getTextContent).map(Integer::parseInt).collect(Collectors.toList());
+			}).map(Node::getTextContent).map(Integer::parseInt).toList();
 			
 			List<Predicate> predicates = parsePredicates(getElement(root, "predicates"));
 			List<Type> types = parseTypes(getElement(root, "types"));

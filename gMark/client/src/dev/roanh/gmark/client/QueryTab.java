@@ -156,8 +156,8 @@ public class QueryTab extends JPanel{
 					details.add(new JLabel("Conjuncts: " + wl.getMinConjuncts() + " - " + wl.getMaxConjuncts()));
 					details.add(new JLabel("Arity: " + wl.getMinArity() + " - " + wl.getMaxArity()));
 					details.add(new JLabel("Multiplicity (star probablility): " + wl.getStarProbability()));
-					details.add(new JLabel("Selectivity: " + wl.getSelectivities().stream().map(Selectivity::getName).reduce((a, b)->a + ", " + b).get()));
-					details.add(new JLabel("Shapes: " + wl.getShapes().stream().map(QueryShape::getName).reduce((a, b)->a + ", " + b).get()));
+					details.add(new JLabel("Selectivity: " + wl.getSelectivities().stream().map(Selectivity::getName).reduce((a, b)->a + ", " + b).orElse("-")));
+					details.add(new JLabel("Shapes: " + wl.getShapes().stream().map(QueryShape::getName).reduce((a, b)->a + ", " + b).orElse("-")));
 					wlInfo.add(details, BorderLayout.CENTER);
 
 					JButton gen = new JButton("Generate queries");

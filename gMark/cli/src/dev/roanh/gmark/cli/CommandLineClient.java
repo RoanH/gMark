@@ -1,5 +1,5 @@
 /*
- * gMark: A domain- and query language-independent graph instance and query workload generator.
+ * gMark: A domain- and query language-independent query workload generator and query language utility library. 
  * Copyright (C) 2021  Roan Hofland (roan@roanh.dev).  All rights reserved.
  * GitHub Repository: https://github.com/RoanH/gMark
  *

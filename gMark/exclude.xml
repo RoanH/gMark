@@ -79,6 +79,7 @@
     <Or>
       <Class name="dev.roanh.gmark.util.SimpleGraph$SimpleEdge"/>
       <Class name="dev.roanh.gmark.eval.DatabaseGraph"/>
+      <Class name="dev.roanh.gmark.eval.ResultGraph"/>
     </Or>
     <Bug pattern="AA_ASSERTION_OF_ARGUMENTS"/>
   </Match>

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -751,7 +750,7 @@ public class QueryEvaluatorTest{
 	
 	@Test
 	public void syn1rpq21(){
-		assertEquals(new CardStat(6234, 37006, 4491), evaluate(syn1, kleene(l0, l1)));
+		assertEquals(new CardStat(6234, 37006, 4491), evaluate(syn1, RPQ.kleene(l0, l1)));
 	}
 	
 	@Test
@@ -776,7 +775,7 @@ public class QueryEvaluatorTest{
 	
 	@Test
 	public void syn1rpq26(){
-		assertEquals(new CardStat(7178, 185374, 5459), evaluate(syn1, kleene(l0, l1, l2)));
+		assertEquals(new CardStat(7178, 185374, 5459), evaluate(syn1, RPQ.kleene(l0, l1, l2)));
 	}
 
 	@Test
@@ -926,27 +925,27 @@ public class QueryEvaluatorTest{
 	
 	@Test
 	public void real1rpq20(){
-		assertEquals(new CardStat(1, 3, 3), evaluate(real1, 227, kleene(l1, l8)));
+		assertEquals(new CardStat(1, 3, 3), evaluate(real1, 227, RPQ.kleene(l1, l8)));
 	}
 	
 	@Test
 	public void real1rpq21(){
-		assertEquals(new CardStat(3935, 10010, 1328), evaluate(real1, kleene(l1, l8)));
+		assertEquals(new CardStat(3935, 10010, 1328), evaluate(real1, RPQ.kleene(l1, l8)));
 	}
 	
 	@Test
 	public void real1rpq22(){
-		assertEquals(new CardStat(2114, 5065, 1340), evaluate(real1, kleene(l0, l1, l2)));
+		assertEquals(new CardStat(2114, 5065, 1340), evaluate(real1, RPQ.kleene(l0, l1, l2)));
 	}
 	
 	@Test
 	public void real1rpq23(){
-		assertEquals(new CardStat(2164, 5167, 1389), evaluate(real1, kleene(l0, l1, l2, l3)));
+		assertEquals(new CardStat(2164, 5167, 1389), evaluate(real1, RPQ.kleene(l0, l1, l2, l3)));
 	}
 	
 	@Test
 	public void real1rpq24(){
-		assertEquals(new CardStat(4122, 9020, 1391), evaluate(real1, kleene(l0, l1, l2, l3, l4)));
+		assertEquals(new CardStat(4122, 9020, 1391), evaluate(real1, RPQ.kleene(l0, l1, l2, l3, l4)));
 	}
 	
 	@Test
@@ -1171,17 +1170,17 @@ public class QueryEvaluatorTest{
 	
 	@Test
 	public void real3rpq5(){
-		assertEquals(new CardStat(45351, 118371, 18098), evaluate(real3, kleene(l0, l1, l2)));
+		assertEquals(new CardStat(45351, 118371, 18098), evaluate(real3, RPQ.kleene(l0, l1, l2)));
 	}
 	
 	@Test
 	public void real3rpq6(){
-		assertEquals(new CardStat(58167, 841888, 36508), evaluate(real3, kleene(l0, l1, l2, l3)));
+		assertEquals(new CardStat(58167, 841888, 36508), evaluate(real3, RPQ.kleene(l0, l1, l2, l3)));
 	}
 	
 	@Test
 	public void real3rpq7(){
-		assertEquals(new CardStat(58635, 940640, 36594), evaluate(real3, kleene(l0, l1, l2, l3, l4)));
+		assertEquals(new CardStat(58635, 940640, 36594), evaluate(real3, RPQ.kleene(l0, l1, l2, l3, l4)));
 	}
 	
 	@Test
@@ -1226,17 +1225,17 @@ public class QueryEvaluatorTest{
 	
 	@Test
 	public void real4rpq1(){
-		assertEquals(new CardStat(19591, 49678, 8090), evaluate(real4, kleene(l0, l1, l2)));
+		assertEquals(new CardStat(19591, 49678, 8090), evaluate(real4, RPQ.kleene(l0, l1, l2)));
 	}
 	
 	@Test
 	public void real4rpq2(){
-		assertEquals(new CardStat(20133, 52278, 8518), evaluate(real4, kleene(l0, l1, l2, l3)));
+		assertEquals(new CardStat(20133, 52278, 8518), evaluate(real4, RPQ.kleene(l0, l1, l2, l3)));
 	}
 	
 	@Test
 	public void real4rpq3(){
-		assertEquals(new CardStat(59043, 99433, 30672), evaluate(real4, kleene(l0, l1, l2, l3, l4)));
+		assertEquals(new CardStat(59043, 99433, 30672), evaluate(real4, RPQ.kleene(l0, l1, l2, l3, l4)));
 	}
 	
 	@Test
@@ -1271,17 +1270,17 @@ public class QueryEvaluatorTest{
 	
 	@Test
 	public void real5rpq1(){
-		assertEquals(new CardStat(117599, 187448, 27431), evaluate(real5, kleene(l0, l1, l2)));
+		assertEquals(new CardStat(117599, 187448, 27431), evaluate(real5, RPQ.kleene(l0, l1, l2)));
 	}
 	
 	@Test
 	public void real5rpq2(){
-		assertEquals(new CardStat(132218, 240562, 32690), evaluate(real5, kleene(l0, l1, l2, l3)));
+		assertEquals(new CardStat(132218, 240562, 32690), evaluate(real5, RPQ.kleene(l0, l1, l2, l3)));
 	}
 	
 	@Test
 	public void real5rpq3(){
-		assertEquals(new CardStat(141187, 494784, 37545), evaluate(real5, kleene(l0, l1, l2, l3, l4)));
+		assertEquals(new CardStat(141187, 494784, 37545), evaluate(real5, RPQ.kleene(l0, l1, l2, l3, l4)));
 	}
 	
 	@Test
@@ -1380,9 +1379,5 @@ public class QueryEvaluatorTest{
 		graph.addEdge(12, 11, 0);
 		graph.addEdge(12, 13, 1);
 		return new DatabaseGraph(graph);
-	}
-	
-	private static RPQ kleene(Predicate... labels){
-		return RPQ.kleene(RPQ.disjunct(Arrays.stream(labels).map(RPQ::label).toList()));
 	}
 }

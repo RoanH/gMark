@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 
 import dev.roanh.gmark.data.CardStat;
 import dev.roanh.gmark.data.SourceTargetPair;
-import dev.roanh.gmark.util.SmartBitSet;
+import dev.roanh.gmark.util.RangeBitSet;
 
 /**
  * Result graph describing the result of a database operation
@@ -331,7 +331,7 @@ public class ResultGraph{
 		assert vertexCount == right.vertexCount;
 		
 		ResultGraph out = new ResultGraph(vertexCount, getEdgeCount() + right.getEdgeCount(), false);
-		SmartBitSet seen = new SmartBitSet(out.vertexCount);
+		RangeBitSet seen = new RangeBitSet(out.vertexCount);
 		
 		for(int source = 0; source < vertexCount; source++){
 			out.setActiveSource(source);
@@ -367,7 +367,7 @@ public class ResultGraph{
 	public ResultGraph transitiveClosure(){
 		ResultGraph out = new ResultGraph(this, vertexCount * 2, false);
 		Deque<Integer> stack = new ArrayDeque<Integer>(vertexCount);
-		SmartBitSet seen = new SmartBitSet(vertexCount);
+		RangeBitSet seen = new RangeBitSet(vertexCount);
 		
 		for(int source = 0; source < vertexCount; source++){
 			out.setActiveSource(source);
@@ -458,7 +458,7 @@ public class ResultGraph{
 		
 		ResultGraph out = new ResultGraph(this, vertexCount, false);
 		Deque<Integer> stack = new ArrayDeque<Integer>(vertexCount);
-		SmartBitSet seen = new SmartBitSet(vertexCount);
+		RangeBitSet seen = new RangeBitSet(vertexCount);
 		
 		sourceLoop: for(int source = 0; source < vertexCount; source++){
 			out.setActiveSource(source);

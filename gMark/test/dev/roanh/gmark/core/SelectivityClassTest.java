@@ -29,98 +29,98 @@ public class SelectivityClassTest{
 
 	@Test
 	public void oneOneConjunction(){
-		assertEquals(ONE_ONE.conjunction(ONE_ONE), ONE_ONE);
-		assertEquals(ONE_ONE.conjunction(ONE_N), ONE_N);
-		assertEquals(ONE_ONE.conjunction(N_ONE), ONE_ONE);
-		assertEquals(ONE_ONE.conjunction(EQUALS), ONE_N);
-		assertEquals(ONE_ONE.conjunction(LESS), ONE_N);
-		assertEquals(ONE_ONE.conjunction(GREATER), ONE_N);
-		assertEquals(ONE_ONE.conjunction(LESS_GREATER), ONE_N);
-		assertEquals(ONE_ONE.conjunction(CROSS), ONE_N);
+		assertEquals(ONE_ONE, ONE_ONE.conjunction(ONE_ONE));
+		assertEquals(ONE_N, ONE_ONE.conjunction(ONE_N));
+		assertEquals(ONE_ONE, ONE_ONE.conjunction(N_ONE));
+		assertEquals(ONE_N, ONE_ONE.conjunction(EQUALS));
+		assertEquals(ONE_N, ONE_ONE.conjunction(LESS));
+		assertEquals(ONE_N, ONE_ONE.conjunction(GREATER));
+		assertEquals(ONE_N, ONE_ONE.conjunction(LESS_GREATER));
+		assertEquals(ONE_N, ONE_ONE.conjunction(CROSS));
 	}
 	
 	@Test
 	public void oneNConjunction(){
-		assertEquals(ONE_N.conjunction(ONE_ONE), ONE_ONE);
-		assertEquals(ONE_N.conjunction(ONE_N), ONE_N);
-		assertEquals(ONE_N.conjunction(N_ONE), ONE_ONE);
-		assertEquals(ONE_N.conjunction(EQUALS), ONE_N);
-		assertEquals(ONE_N.conjunction(LESS), ONE_N);
-		assertEquals(ONE_N.conjunction(GREATER), ONE_N);
-		assertEquals(ONE_N.conjunction(LESS_GREATER), ONE_N);
-		assertEquals(ONE_N.conjunction(CROSS), ONE_N);
+		assertEquals(ONE_ONE, ONE_N.conjunction(ONE_ONE));
+		assertEquals(ONE_N, ONE_N.conjunction(ONE_N));
+		assertEquals(ONE_ONE, ONE_N.conjunction(N_ONE));
+		assertEquals(ONE_N, ONE_N.conjunction(EQUALS));
+		assertEquals(ONE_N, ONE_N.conjunction(LESS));
+		assertEquals(ONE_N, ONE_N.conjunction(GREATER));
+		assertEquals(ONE_N, ONE_N.conjunction(LESS_GREATER));
+		assertEquals(ONE_N, ONE_N.conjunction(CROSS));
 	}
 	
 	@Test
 	public void nOneConjunction(){
-		assertEquals(N_ONE.conjunction(ONE_ONE), N_ONE);
-		assertEquals(N_ONE.conjunction(ONE_N), CROSS);
-		assertEquals(N_ONE.conjunction(N_ONE), N_ONE);
-		assertEquals(N_ONE.conjunction(EQUALS), N_ONE);
-		assertEquals(N_ONE.conjunction(LESS), N_ONE);
-		assertEquals(N_ONE.conjunction(GREATER), N_ONE);
-		assertEquals(N_ONE.conjunction(LESS_GREATER), N_ONE);
-		assertEquals(N_ONE.conjunction(CROSS), N_ONE);
+		assertEquals(N_ONE, N_ONE.conjunction(ONE_ONE));
+		assertEquals(CROSS, N_ONE.conjunction(ONE_N));
+		assertEquals(N_ONE, N_ONE.conjunction(N_ONE));
+		assertEquals(N_ONE, N_ONE.conjunction(EQUALS));
+		assertEquals(N_ONE, N_ONE.conjunction(LESS));
+		assertEquals(N_ONE, N_ONE.conjunction(GREATER));
+		assertEquals(N_ONE, N_ONE.conjunction(LESS_GREATER));
+		assertEquals(N_ONE, N_ONE.conjunction(CROSS));
 	}
 	
 	@Test
 	public void equalsConjunction(){
-		assertEquals(EQUALS.conjunction(ONE_ONE), ONE_ONE);
-		assertEquals(EQUALS.conjunction(ONE_N), ONE_N);
-		assertEquals(EQUALS.conjunction(N_ONE), N_ONE);
-		assertEquals(EQUALS.conjunction(EQUALS), EQUALS);
-		assertEquals(EQUALS.conjunction(LESS), LESS);
-		assertEquals(EQUALS.conjunction(GREATER), GREATER);
-		assertEquals(EQUALS.conjunction(LESS_GREATER), LESS_GREATER);
-		assertEquals(EQUALS.conjunction(CROSS), CROSS);
+		assertEquals(ONE_ONE, EQUALS.conjunction(ONE_ONE));
+		assertEquals(ONE_N, EQUALS.conjunction(ONE_N));
+		assertEquals(N_ONE, EQUALS.conjunction(N_ONE));
+		assertEquals(EQUALS, EQUALS.conjunction(EQUALS));
+		assertEquals(LESS, EQUALS.conjunction(LESS));
+		assertEquals(GREATER, EQUALS.conjunction(GREATER));
+		assertEquals(LESS_GREATER, EQUALS.conjunction(LESS_GREATER));
+		assertEquals(CROSS, EQUALS.conjunction(CROSS));
 	}
 	
 	@Test
 	public void lessConjunction(){
-		assertEquals(LESS.conjunction(ONE_ONE), ONE_ONE);
-		assertEquals(LESS.conjunction(ONE_N), ONE_N);
-		assertEquals(LESS.conjunction(N_ONE), N_ONE);
-		assertEquals(LESS.conjunction(EQUALS), LESS);
-		assertEquals(LESS.conjunction(LESS), LESS);
-		assertEquals(LESS.conjunction(GREATER), LESS_GREATER);
-		assertEquals(LESS.conjunction(LESS_GREATER), LESS_GREATER);
-		assertEquals(LESS.conjunction(CROSS), CROSS);
+		assertEquals(ONE_ONE, LESS.conjunction(ONE_ONE));
+		assertEquals(ONE_N, LESS.conjunction(ONE_N));
+		assertEquals(N_ONE, LESS.conjunction(N_ONE));
+		assertEquals(LESS, LESS.conjunction(EQUALS));
+		assertEquals(LESS, LESS.conjunction(LESS));
+		assertEquals(LESS_GREATER, LESS.conjunction(GREATER));
+		assertEquals(LESS_GREATER, LESS.conjunction(LESS_GREATER));
+		assertEquals(CROSS, LESS.conjunction(CROSS));
 	}
 	
 	@Test
 	public void greaterConjunction(){
-		assertEquals(GREATER.conjunction(ONE_ONE), ONE_ONE);
-		assertEquals(GREATER.conjunction(ONE_N), ONE_N);
-		assertEquals(GREATER.conjunction(N_ONE), N_ONE);
-		assertEquals(GREATER.conjunction(EQUALS), GREATER);
-		assertEquals(GREATER.conjunction(LESS), CROSS);
-		assertEquals(GREATER.conjunction(GREATER), GREATER);
-		assertEquals(GREATER.conjunction(LESS_GREATER), CROSS);
-		assertEquals(GREATER.conjunction(CROSS), CROSS);
+		assertEquals(ONE_ONE, GREATER.conjunction(ONE_ONE));
+		assertEquals(ONE_N, GREATER.conjunction(ONE_N));
+		assertEquals(N_ONE, GREATER.conjunction(N_ONE));
+		assertEquals(GREATER, GREATER.conjunction(EQUALS));
+		assertEquals(CROSS, GREATER.conjunction(LESS));
+		assertEquals(GREATER, GREATER.conjunction(GREATER));
+		assertEquals(CROSS, GREATER.conjunction(LESS_GREATER));
+		assertEquals(CROSS, GREATER.conjunction(CROSS));
 	}
 
 	@Test
 	public void lessGreaterConjunction(){
-		assertEquals(LESS_GREATER.conjunction(ONE_ONE), ONE_ONE);
-		assertEquals(LESS_GREATER.conjunction(ONE_N), ONE_N);
-		assertEquals(LESS_GREATER.conjunction(N_ONE), N_ONE);
-		assertEquals(LESS_GREATER.conjunction(EQUALS), LESS_GREATER);
-		assertEquals(LESS_GREATER.conjunction(LESS), CROSS);
-		assertEquals(LESS_GREATER.conjunction(GREATER), LESS_GREATER);
-		assertEquals(LESS_GREATER.conjunction(LESS_GREATER), CROSS);
-		assertEquals(LESS_GREATER.conjunction(CROSS), CROSS);
+		assertEquals(ONE_ONE, LESS_GREATER.conjunction(ONE_ONE));
+		assertEquals(ONE_N, LESS_GREATER.conjunction(ONE_N));
+		assertEquals(N_ONE, LESS_GREATER.conjunction(N_ONE));
+		assertEquals(LESS_GREATER, LESS_GREATER.conjunction(EQUALS));
+		assertEquals(CROSS, LESS_GREATER.conjunction(LESS));
+		assertEquals(LESS_GREATER, LESS_GREATER.conjunction(GREATER));
+		assertEquals(CROSS, LESS_GREATER.conjunction(LESS_GREATER));
+		assertEquals(CROSS, LESS_GREATER.conjunction(CROSS));
 	}
 
 	@Test
 	public void crossConjunction(){
-		assertEquals(CROSS.conjunction(ONE_ONE), ONE_ONE);
-		assertEquals(CROSS.conjunction(ONE_N), ONE_N);
-		assertEquals(CROSS.conjunction(N_ONE), N_ONE);
-		assertEquals(CROSS.conjunction(EQUALS), CROSS);
-		assertEquals(CROSS.conjunction(LESS), CROSS);
-		assertEquals(CROSS.conjunction(GREATER), CROSS);
-		assertEquals(CROSS.conjunction(LESS_GREATER), CROSS);
-		assertEquals(CROSS.conjunction(CROSS), CROSS);
+		assertEquals(ONE_ONE, CROSS.conjunction(ONE_ONE));
+		assertEquals(ONE_N, CROSS.conjunction(ONE_N));
+		assertEquals(N_ONE, CROSS.conjunction(N_ONE));
+		assertEquals(CROSS, CROSS.conjunction(EQUALS));
+		assertEquals(CROSS, CROSS.conjunction(LESS));
+		assertEquals(CROSS, CROSS.conjunction(GREATER));
+		assertEquals(CROSS, CROSS.conjunction(LESS_GREATER));
+		assertEquals(CROSS, CROSS.conjunction(CROSS));
 	}
 	
 	@Test

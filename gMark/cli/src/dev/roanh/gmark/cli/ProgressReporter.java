@@ -18,7 +18,7 @@
  */
 package dev.roanh.gmark.cli;
 
-import dev.roanh.gmark.query.QueryGenerator.ProgressListener;
+import dev.roanh.gmark.gen.workload.QueryGenerator.ProgressListener;
 
 /**
  * Progress listener that report progress to

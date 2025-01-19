@@ -24,11 +24,11 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import dev.roanh.gmark.ast.OperationType;
-import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.cpq.ParserCPQ;
 import dev.roanh.gmark.lang.rpq.ParserRPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
+import dev.roanh.gmark.type.schema.Predicate;
 
 /**
  * Enum of implemented concrete query languages. A query language

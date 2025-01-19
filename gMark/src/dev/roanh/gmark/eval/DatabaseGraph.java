@@ -23,11 +23,11 @@ import java.util.Comparator;
 import java.util.List;
 
 import dev.roanh.gmark.ast.OperationType;
-import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.data.SourceLabelPair;
 import dev.roanh.gmark.data.TargetLabelPair;
+import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.Util;
-import dev.roanh.gmark.util.graph.IntGraph;
+import dev.roanh.gmark.util.graph.generic.IntGraph;
 
 /**
  * Graph specification used for the graph representing the database data.

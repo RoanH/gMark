@@ -22,8 +22,8 @@ import java.util.List;
 
 import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
-import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.util.graph.IntGraph;
+import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.graph.generic.IntGraph;
 
 /**
  * Implementation of a simple reachability query evaluator. Note that for simplicity

@@ -27,9 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.generic.GenericParser;
+import dev.roanh.gmark.type.schema.Predicate;
 
 /**
  * Parser for RPQs (Regular Path Queries).

@@ -18,8 +18,8 @@
  */
 package dev.roanh.gmark.lang.rpq;
 
-import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.generic.GenericEdge;
+import dev.roanh.gmark.type.schema.Predicate;
 
 /**
  * RPQ modelling a single label traversal.

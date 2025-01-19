@@ -36,11 +36,14 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.QueryGraphComponent;
-import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
-import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
+import dev.roanh.gmark.type.IDable;
+import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.graph.generic.SimpleGraph;
+import dev.roanh.gmark.util.graph.generic.Tree;
+import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleEdge;
+import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
 
 public class UtilTest{
 	private static final Predicate a = new Predicate(0, "a");

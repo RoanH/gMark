@@ -46,15 +46,20 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import dev.roanh.gmark.core.SelectivityClass;
-import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.eval.PathQuery;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
-import dev.roanh.gmark.util.SimpleGraph.SimpleEdge;
-import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
-import dev.roanh.gmark.util.UniqueGraph.GraphEdge;
-import dev.roanh.gmark.util.UniqueGraph.GraphNode;
-import dev.roanh.gmark.util.graph.IntGraph;
+import dev.roanh.gmark.type.IDable;
+import dev.roanh.gmark.type.SelectivityClass;
+import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.graph.generic.DataProxy;
+import dev.roanh.gmark.util.graph.generic.IntGraph;
+import dev.roanh.gmark.util.graph.generic.SimpleGraph;
+import dev.roanh.gmark.util.graph.generic.Tree;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph;
+import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleEdge;
+import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphNode;
 
 /**
  * Class providing various small utilities as well

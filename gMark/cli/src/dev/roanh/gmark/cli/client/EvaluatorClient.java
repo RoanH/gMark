@@ -32,15 +32,15 @@ import org.apache.commons.cli.Option;
 
 import dev.roanh.gmark.cli.CommandLineClient;
 import dev.roanh.gmark.cli.InputException;
-import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.data.SourceTargetPair;
 import dev.roanh.gmark.eval.DatabaseGraph;
 import dev.roanh.gmark.eval.PathQuery;
 import dev.roanh.gmark.eval.QueryEvaluator;
 import dev.roanh.gmark.eval.ResultGraph;
 import dev.roanh.gmark.lang.QueryLanguage;
+import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.Util;
-import dev.roanh.gmark.util.graph.IntGraph;
+import dev.roanh.gmark.util.graph.generic.IntGraph;
 
 /**
  * Command line client for query evaluation.

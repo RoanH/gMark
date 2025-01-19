@@ -53,7 +53,7 @@ import dev.roanh.gmark.eval.ResultGraph;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.util.Util;
-import dev.roanh.gmark.util.graph.IntGraph;
+import dev.roanh.gmark.util.graph.generic.IntGraph;
 import dev.roanh.util.Dialog;
 import dev.roanh.util.FileSelector;
 import dev.roanh.util.FileSelector.FileExtension;

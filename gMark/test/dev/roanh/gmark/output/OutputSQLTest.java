@@ -24,14 +24,14 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import dev.roanh.gmark.core.QueryShape;
-import dev.roanh.gmark.core.Selectivity;
-import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.gen.shape.QueryShape;
+import dev.roanh.gmark.gen.workload.cpq.ConjunctCPQ;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
 import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.Variable;
-import dev.roanh.gmark.query.conjunct.cpq.ConjunctCPQ;
+import dev.roanh.gmark.type.Selectivity;
+import dev.roanh.gmark.type.schema.Predicate;
 
 public class OutputSQLTest{
 	private static final Predicate pred0 = new Predicate(0, "0");

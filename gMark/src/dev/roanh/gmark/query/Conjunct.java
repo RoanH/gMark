@@ -18,7 +18,7 @@
  */
 package dev.roanh.gmark.query;
 
-import dev.roanh.gmark.core.WorkloadType;
+import dev.roanh.gmark.gen.workload.WorkloadType;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
 

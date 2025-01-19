@@ -29,17 +29,17 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 
-import dev.roanh.gmark.ConfigParser;
-import dev.roanh.gmark.OutputWriter;
 import dev.roanh.gmark.cli.CommandLineClient;
 import dev.roanh.gmark.cli.ProgressReporter;
-import dev.roanh.gmark.core.Configuration;
-import dev.roanh.gmark.core.Workload;
-import dev.roanh.gmark.core.WorkloadType;
 import dev.roanh.gmark.exception.ConfigException;
 import dev.roanh.gmark.exception.GenerationException;
+import dev.roanh.gmark.gen.workload.ConfigParser;
+import dev.roanh.gmark.gen.workload.Configuration;
+import dev.roanh.gmark.gen.workload.OutputWriter;
+import dev.roanh.gmark.gen.workload.QueryGenerator;
+import dev.roanh.gmark.gen.workload.Workload;
+import dev.roanh.gmark.gen.workload.WorkloadType;
 import dev.roanh.gmark.output.ConcreteSyntax;
-import dev.roanh.gmark.query.QueryGenerator;
 import dev.roanh.gmark.query.QuerySet;
 import dev.roanh.gmark.util.Util;
 

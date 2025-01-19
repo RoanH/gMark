@@ -29,14 +29,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.data.CardStat;
 import dev.roanh.gmark.data.SourceTargetPair;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
+import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.Util;
-import dev.roanh.gmark.util.graph.IntGraph;
+import dev.roanh.gmark.util.graph.generic.IntGraph;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class QueryEvaluatorTest{

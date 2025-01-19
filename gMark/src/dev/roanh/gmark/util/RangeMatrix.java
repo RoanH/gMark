@@ -20,6 +20,8 @@ package dev.roanh.gmark.util;
 
 import java.util.function.Supplier;
 
+import dev.roanh.gmark.type.IDable;
+
 /**
  * A matrix implementation backed by a
  * fixed size 2 dimensional array.

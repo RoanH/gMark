@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.ast.QueryTree;
-import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.type.schema.Predicate;
 
 /**
  * Interface for regular path queries (RPQs).

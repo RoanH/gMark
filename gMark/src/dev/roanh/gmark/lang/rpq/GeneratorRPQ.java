@@ -20,7 +20,7 @@ package dev.roanh.gmark.lang.rpq;
 
 import java.util.List;
 
-import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.Util;
 
 /**

@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import dev.roanh.gmark.core.graph.Predicate;
+import dev.roanh.gmark.type.schema.Predicate;
 
 /**
  * Class with generic query language parsing utilities.

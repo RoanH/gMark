@@ -38,14 +38,14 @@
   
   <Match>
     <!-- Unimplemented -->
-    <Class name="dev.roanh.gmark.query.conjunct.rpq.ConjunctGeneratorRPQ"/>
+    <Class name="dev.roanh.gmark.gen.workload.rpq.ConjunctGeneratorRPQ"/>
     <Bug pattern="URF_UNREAD_FIELD"/>
   </Match>
   
   <Match>
     <!-- These should not be serialised -->
     <Or>
-      <Class name="dev.roanh.gmark.util.GraphPanel"/>
+      <Class name="dev.roanh.gmark.util.graph.GraphPanel"/>
       <Class name="dev.roanh.gmark.client.QueryTab"/>
       <Class name="dev.roanh.gmark.client.EvalTab"/>
     </Or>
@@ -53,7 +53,7 @@
   </Match>
   
   <Match>
-    <Class name="dev.roanh.gmark.util.GraphPanel"/>
+    <Class name="dev.roanh.gmark.util.graph.GraphPanel"/>
     <Method name="paintComponent"/>
     <Bug pattern="BC_UNCONFIRMED_CAST"/>
   </Match>
@@ -61,15 +61,15 @@
   <Match>
     <Or>
       <Class name="dev.roanh.gmark.client.QueryTab"/>
-      <Class name="dev.roanh.gmark.util.EdgeGraph"/>
-      <Class name="dev.roanh.gmark.util.GraphPanel"/>
+      <Class name="dev.roanh.gmark.util.graph.specific.EdgeGraph"/>
+      <Class name="dev.roanh.gmark.util.graph.GraphPanel"/>
     </Or>
     <Bug pattern="MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
   </Match>
   
   <Match>
     <!-- Intentional, just a sanity check -->
-    <Class name="dev.roanh.gmark.util.SimpleGraph$SimpleEdge"/>
+    <Class name="dev.roanh.gmark.util.graph.generic.SimpleGraph$SimpleEdge"/>
     <Method name="getTarget"/>
     <Bug pattern="AA_ASSERTION_OF_ARGUMENTS"/>
   </Match>
@@ -77,7 +77,7 @@
   <Match>
     <!-- Intentional, just sanity checks, and used by unit tests -->
     <Or>
-      <Class name="dev.roanh.gmark.util.SimpleGraph$SimpleEdge"/>
+      <Class name="dev.roanh.gmark.util.graph.generic.SimpleGraph$SimpleEdge"/>
       <Class name="dev.roanh.gmark.eval.DatabaseGraph"/>
       <Class name="dev.roanh.gmark.eval.ResultGraph"/>
     </Or>

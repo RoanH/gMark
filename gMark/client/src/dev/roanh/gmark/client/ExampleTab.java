@@ -25,20 +25,20 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import dev.roanh.gmark.ConfigParser;
-import dev.roanh.gmark.core.Configuration;
-import dev.roanh.gmark.core.SelectivityClass;
-import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.core.graph.Type;
+import dev.roanh.gmark.data.SelectivityType;
 import dev.roanh.gmark.exception.ConfigException;
 import dev.roanh.gmark.exception.GenerationException;
-import dev.roanh.gmark.util.ConfigGraph;
-import dev.roanh.gmark.util.EdgeGraph;
-import dev.roanh.gmark.util.EdgeGraphData;
-import dev.roanh.gmark.util.GraphPanel;
-import dev.roanh.gmark.util.SchemaGraph;
-import dev.roanh.gmark.util.SelectivityGraph;
-import dev.roanh.gmark.util.SelectivityType;
+import dev.roanh.gmark.gen.workload.ConfigParser;
+import dev.roanh.gmark.gen.workload.Configuration;
+import dev.roanh.gmark.type.SelectivityClass;
+import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.type.schema.Type;
+import dev.roanh.gmark.util.graph.GraphPanel;
+import dev.roanh.gmark.util.graph.specific.ConfigGraph;
+import dev.roanh.gmark.util.graph.specific.EdgeGraph;
+import dev.roanh.gmark.util.graph.specific.EdgeGraphData;
+import dev.roanh.gmark.util.graph.specific.SchemaGraph;
+import dev.roanh.gmark.util.graph.specific.SelectivityGraph;
 
 /**
  * Example tab that shows some of the important structures in gMark.

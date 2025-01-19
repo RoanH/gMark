@@ -21,9 +21,9 @@ package dev.roanh.gmark.query;
 import java.util.List;
 import java.util.StringJoiner;
 
-import dev.roanh.gmark.core.QueryShape;
-import dev.roanh.gmark.core.Selectivity;
+import dev.roanh.gmark.gen.shape.QueryShape;
 import dev.roanh.gmark.output.OutputXML;
+import dev.roanh.gmark.type.Selectivity;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**

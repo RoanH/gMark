@@ -27,11 +27,11 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.Map.Entry;
 
-import dev.roanh.gmark.core.QueryShape;
-import dev.roanh.gmark.core.Selectivity;
+import dev.roanh.gmark.gen.shape.QueryShape;
 import dev.roanh.gmark.output.OutputFormal;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
+import dev.roanh.gmark.type.Selectivity;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**

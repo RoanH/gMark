@@ -26,9 +26,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.data.SourceTargetPair;
-import dev.roanh.gmark.util.graph.IntGraph;
+import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.graph.generic.IntGraph;
 
 public class DatabaseGraphTest{
 	private static final Predicate l0 = new Predicate(0, "0");

@@ -30,8 +30,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.type.schema.Predicate;
 
 public class GenericParserTest{
 

@@ -27,14 +27,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import dev.roanh.gmark.core.graph.Predicate;
-import dev.roanh.gmark.util.IDable;
+import dev.roanh.gmark.type.IDable;
+import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.RangeList;
-import dev.roanh.gmark.util.SimpleGraph;
-import dev.roanh.gmark.util.SimpleGraph.SimpleVertex;
-import dev.roanh.gmark.util.Tree;
-import dev.roanh.gmark.util.UniqueGraph;
 import dev.roanh.gmark.util.Util;
+import dev.roanh.gmark.util.graph.generic.SimpleGraph;
+import dev.roanh.gmark.util.graph.generic.Tree;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph;
+import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
 
 /**
  * Object representing the query graph of a CPQ. This is effectively a visual representation

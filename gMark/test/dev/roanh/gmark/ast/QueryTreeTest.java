@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
+import dev.roanh.gmark.type.schema.Predicate;
 
 public class QueryTreeTest{
 	private static final Predicate a = new Predicate(0, "a");

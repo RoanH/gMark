@@ -18,9 +18,9 @@
  */
 package dev.roanh.gmark.lang.cpq;
 
-import dev.roanh.gmark.core.graph.Predicate;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.lang.generic.GenericEdge;
+import dev.roanh.gmark.type.schema.Predicate;
 
 /**
  * CPQ modelling a single label traversal.

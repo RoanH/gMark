@@ -20,7 +20,7 @@ package dev.roanh.gmark.query;
 
 import java.util.Objects;
 
-import dev.roanh.gmark.util.IDable;
+import dev.roanh.gmark.type.IDable;
 
 /**
  * Represents a query variable.

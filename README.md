@@ -37,8 +37,8 @@ usage: gmark evaluate [-f] [-g <data>] [-h] [-l <query language>] [-o <file>] [-
  -q,--query <query>               The query to evaluate.
  -s,--source <source>             Optionally the bound source node for the query.
  -t,--target <target>             Optionally the bound target node for the query.
- -w,--workload <file>             The query workload to run, one query per line with format 'source,
-                                  query, target'.
+ -w,--workload <file>             The query workload to run, one query per line with format
+                                  'source, query, target'.
 ```
 
 The evaluator is intended to be used with either a single query to evaluate (`-s`/`-q`/`-t`) or with a complete workload of queries (`-w`). The database graph is expected to be provided in a simple text based graph format with on the first line the number of vertices, edges and labels, and a single edge definition following the `source target label` format on the remaining lines. Queries are expected to be either CPQs or RPQs and if provided as a single workload file a single query is allowed per line of the workload file following the `source,query,target` format, if the source/target is not bound `*` can be provided instead. Finally, note that vertices and labels are represented by integers. Various example graphs and query workloads can be found in the [workload](gMark/test/workload) folder.
@@ -55,7 +55,7 @@ Alternatively, an entire workload of queries can be evaluated using:
 gmark evaluate -l cpq -w ./queries.cpq -g ./graph.edge -o out.txt
 ```
 
-Note that only limited query evaluation output is written to the console, in particular, the result paths are only written the provided output file if any.
+Note that only limited query evaluation output is written to the console, in particular, the result paths are only written to the provided output file if any.
 
 #### Workload Generation
 When using gMark on the command line for workload generation the following arguments are supported:

@@ -1,5 +1,5 @@
 # gMark [![](https://img.shields.io/github/release/RoanH/gMark.svg)](https://github.com/RoanH/gMark/releases)
-gMark is a domain- and query language-independent query workload generator, as well as a general utility library for working with the CPQ (conjunctive path query) and RPQ (regular path query) query languages. This project was originally started as a rewrite of the original version of gMark available on GitHub at [gbagan/gmark](https://github.com/gbagan/gmark), with as goal to make gMark easier to extend and better documented. However, presently the focus of the project has shifted primarily towards query languages, notably CPQ. Graph generation is currently out of scope for this project, though full feature parity for query generation is still planned. Presently, most of the features available for RPQs in the original version of gMark are available for CPQs in this version, with the exception of some output formats. However, the utilities available within gMark for working with query languages in general are much more extensive than those available in the original version of gMark.
+gMark is a domain- and query language-independent query workload generator, as well as a general utility library for working with the CPQ (conjunctive path query) and RPQ (regular path query) query languages. gMark also includes a complete query evaluation pipeline for both of these query languages. This project was originally started as a rewrite of the original version of gMark available on GitHub at [gbagan/gmark](https://github.com/gbagan/gmark), with as goal to make gMark easier to extend and better documented. However, presently the focus of the project has shifted primarily towards query languages, notably CPQ. Graph generation is currently out of scope for this project, though full feature parity for query generation is still planned. Presently, most of the features available for RPQs in the original version of gMark are available for CPQs in this version, with the exception of some output formats. However, the utilities available within gMark for working with query languages in general are much more extensive than those available in the original version of gMark. In addition, this version of gMark also has a highly optimised evaluation pipeline for CPQ and RPQ queries.
 
 ## Documentation & Research
 The current state of the repository is the result of several research projects, each of these research items can be consulted for more information on a specific component in gMark:
@@ -21,23 +21,58 @@ To support a wide variety of of use cases gMark is a available in a number of di
 - [As a maven artifact](#maven-artifact-)
 
 ### Command line usage
-When using gMark on the command line the following arguments are supported:
+gMark can be used from the command line to either evaluate queries on a database graph, or to generate a workload of queries.
+
+#### Evaluating Queries
+When using gMark on the command line to evaluate queries the following arguments are supported.
 
 ```
-usage: gmark [-c <file>] [-f] [-g <size>] [-h] [-o <folder>] [-s <syntax>] [-w <file>]
- -c,--config <file>     The workload and graph configuration file
- -f,--force             Overwrite existing files if present
- -h,--help              Prints this help text
- -o,--output <folder>   The folder to write the generated output to
- -s,--syntax <syntax>   The concrete syntax(es) to output
- -w,--workload <file>   Triggers workload generation, a previously generated input workload can
-                        optionally be provided to generate concrete syntaxes for instead
+usage: gmark evaluate [-f] [-g <data>] [-h] [-l <query language>] [-o <file>] [-q <query>] [-s
+       <source>] [-t <target>] [-w <file>]
+ -f,--force                       Overwrite the output file if present.
+ -g,--graph <data>                The database graph file.
+ -h,--help                        Prints this help text.
+ -l,--language <query language>   The query language for the queries to execute (cpq or rpq).
+ -o,--output <file>               The file to write the query output to.
+ -q,--query <query>               The query to evaluate.
+ -s,--source <source>             Optionally the bound source node for the query.
+ -t,--target <target>             Optionally the bound target node for the query.
+ -w,--workload <file>             The query workload to run, one query per line with format
+                                  'source, query, target'.
+```
+
+The evaluator is intended to be used with either a single query to evaluate (`-s`/`-q`/`-t`) or with a complete workload of queries (`-w`). The database graph is expected to be provided in a simple text based graph format with on the first line the number of vertices, edges and labels, and a single edge definition following the `source target label` format on the remaining lines. Queries are expected to be either CPQs or RPQs and if provided as a single workload file a single query is allowed per line of the workload file following the `source,query,target` format, if the source/target is not bound `*` can be provided instead. Finally, note that vertices and labels are represented by integers. Various example graphs and query workloads can be found in the [workload](gMark/test/workload) folder.
+
+For example, a single CPQ query can be evaluated using:
+
+```sh
+gmark evaluate -l cpq -s 56 -q "a ◦ b" -t 5 -g ./graph.edge -o out.txt
+```
+
+Alternatively, an entire workload of queries can be evaluated using:
+
+```sh
+gmark evaluate -l cpq -w ./queries.cpq -g ./graph.edge -o out.txt
+```
+
+Note that only limited query evaluation output is written to the console, in particular, the result paths are only written to the provided output file if any.
+
+#### Workload Generation
+When using gMark on the command line for workload generation the following arguments are supported:
+
+```
+usage: gmark workload [-c <file>] [-f] [-h] [-o <folder>] [-s <syntax>]
+ -c,--config <file>     The workload and graph configuration file.
+ -f,--force             Overwrite existing files if present.
+ -h,--help              Prints this help text.
+ -o,--output <folder>   The folder to write the generated output to.
+ -s,--syntax <syntax>   The concrete syntax(es) to output (sql and/or formal).
 ```
 
 For example, a workload of queries in SQL format can be generated using:
 
 ```sh
-gmark -c config.xml -o ./output -s sql -w
+gmark workload -c config.xml -o ./output -s sql
 ```
 
 An example configuration XML file can be found both [in this repository](gMark/client/example.xml) and in the graphical interface of the standalone executable. The example RPQ workload configuration files included in the original gMark repository are also compatible and can be found [in the use-cases folder](https://github.com/gbagan/gmark/tree/master/use-cases).
@@ -52,16 +87,16 @@ All releases: [releases](https://github.com/RoanH/gMark/releases)
 GitHub repository: [RoanH/gMark](https://github.com/RoanH/gMark)
 
 #### Command line usage of the standalone executable
-The following commands show how to generate a workload of queries in SQL format using the standalone executable.
+The following commands show how to generate a workload of queries in SQL format using the standalone executable. Note that more detailed command line usage instructions are given in [command line usage](#command-line-usage). 
 
 ##### Windows executable
 ```bat
-./gMark.exe -c config.xml -o ./output -s sql -w
+./gMark.exe workload -c config.xml -o ./output -s sql
 ```
 
 ##### Runnable Java archive
 ```sh
-java -jar gMark.jar -c config.xml -o ./output -s sql -w
+java -jar gMark.jar workload -c config.xml -o ./output -s sql
 ```
 
 ### Docker image [![](https://img.shields.io/docker/v/roanh/gmark?sort=semver)](https://hub.docker.com/r/roanh/gmark)
@@ -71,10 +106,10 @@ gMark is available as a [docker image](https://hub.docker.com/r/roanh/gmark) on 
 docker pull roanh/gmark:latest
 ```
 
-Using the image then works much the same as the regular command line version of gMark. For example, we can generate the example workload of queries in SQL format using the following command:
+Using the image then works much the same as the regular [command line](#command-line-usage) version of gMark. For example, we can generate the example workload of queries in SQL format using the following command:
 
 ```sh
-docker run --rm -v "$PWD/data:/data" roanh/gmark:latest -c /data/config.xml -o /data/queries -s sql -w
+docker run --rm -v "$PWD/data:/data" roanh/gmark:latest workload -c /data/config.xml -o /data/queries -s sql
 ```
 
 Note that we mount a local folder called `data` into the container to pass our configuration file and to retrieve the generated queries.

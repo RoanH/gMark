@@ -205,7 +205,7 @@ public final class EvaluatorClient extends CommandLineClient{
 	
 	@Override
 	public String getHelpFooter(){
-		return "note: the evaluator is intended to be used either with a single query to evaluate (-s/-q/-t) or with a complete workload of queries (-w).";
+		return "note: the evaluator is intended to be used with either a single query to evaluate (-s/-q/-t) or with a complete workload of queries (-w).";
 	}
 	
 	/**

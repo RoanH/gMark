@@ -26,7 +26,6 @@ gMark can be used from the command line to either evaluate queries on a database
 #### Evaluating Queries
 When using gMark on the command line to evaluate queries the following arguments are supported.
 
-
 ```
 usage: gmark evaluate [-f] [-g <data>] [-h] [-l <query language>] [-o <file>] [-q <query>] [-s
        <source>] [-t <target>] [-w <file>]

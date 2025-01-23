@@ -72,7 +72,7 @@ usage: gmark workload [-c <file>] [-f] [-h] [-o <folder>] [-s <syntax>]
 For example, a workload of queries in SQL format can be generated using:
 
 ```sh
-gmark -c config.xml -o ./output -s sql
+gmark workload -c config.xml -o ./output -s sql
 ```
 
 An example configuration XML file can be found both [in this repository](gMark/client/example.xml) and in the graphical interface of the standalone executable. The example RPQ workload configuration files included in the original gMark repository are also compatible and can be found [in the use-cases folder](https://github.com/gbagan/gmark/tree/master/use-cases).

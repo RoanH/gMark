@@ -41,7 +41,7 @@ usage: gmark evaluate [-f] [-g <data>] [-h] [-l <query language>] [-o <file>] [-
                                   'source, query, target'.
 ```
 
-The evaluator is intended to be used with either a single query to evaluate (`-s`/`-q`/`-t`) or with a complete workload of queries (`-w`). The database graph is expected to be provided in a simple text based graph format with on the first line the number of vertices, edges and labels, and a single edge definition following the `source target label` format on the remaining lines. Queries are expected to be either CPQs or RPQs and if provided as a single workload file a single query is allowed per line of the workload file following the `source,query,target` format, if the source/target is not bound `*` can be provided instead. Finally, note that vertices and labels are represented by integers. Various example graphs and query workloads can be found in the [workload](gMark/test/workload) folder.
+The evaluator is intended to be used with either a single query to evaluate (`-s`/`-q`/`-t`) or with a complete workload of queries (`-w`). The database graph is expected to be provided in a simple text based graph format with on the first line the number of vertices, edges and labels, and a single edge definition following the `source target label` format on the remaining lines. Queries are expected to be either CPQs or RPQs and if provided as a workload file, a single query is allowed per line following the `source,query,target` format, if the source/target is not bound `*` can be provided instead. Finally, note that vertices and labels are represented by integers. Various example graphs and query workloads can be found in the [workload](gMark/test/workload) folder.
 
 For example, a single CPQ query can be evaluated using:
 
@@ -80,8 +80,8 @@ An example configuration XML file can be found both [in this repository](gMark/c
 ### Executable download
 gMark is available as a standalone portable executable that has both a graphical interface and a command line interface. The graphical interface will only be launched when no command line arguments are passed. This version of gMark requires Java 17 or higher to run.
    
-- [Windows executable download](https://github.com/RoanH/gMark/releases/download/v1.3/gMark-v1.3.exe)    
-- [Runnable Java archive (JAR) download](https://github.com/RoanH/gMark/releases/download/v1.3/gMark-v1.3.jar)
+- [Windows executable download](https://github.com/RoanH/gMark/releases/download/v2.0/gMark-v2.0.exe)    
+- [Runnable Java archive (JAR) download](https://github.com/RoanH/gMark/releases/download/v2.0/gMark-v2.0.jar)
 
 All releases: [releases](https://github.com/RoanH/gMark/releases)    
 GitHub repository: [RoanH/gMark](https://github.com/RoanH/gMark)
@@ -124,7 +124,7 @@ repositories{
 }
 
 dependencies{
-	implementation 'dev.roanh.gmark:gmark:1.3'
+	implementation 'dev.roanh.gmark:gmark:2.0'
 }
 ```
 
@@ -133,7 +133,7 @@ dependencies{
 <dependency>
 	<groupId>dev.roanh.gmark</groupId>
 	<artifactId>gmark</artifactId>
-	<version>1.3</version>
+	<version>2.0</version>
 </dependency>
 ```
 
@@ -172,7 +172,7 @@ String formal = query.toFormalSyntax();
 QueryTree ast = query.toAbstractSyntaxTree();
 ```
 
-Note that CPQ and RPQ can also be constructed from an AST, which can sometimes be used to convert between the two query languages:
+Note that CPQs and RPQs can also be constructed from an AST, which can sometimes be used to convert between the two query languages:
 
 ```java
 RPQ rpq = RPQ.parse("a ◦ a");

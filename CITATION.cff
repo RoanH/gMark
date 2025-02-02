@@ -77,6 +77,37 @@ references:
     type: article
     url: 'https://arxiv.org/abs/2003.03079'
     year: 2022
+  - title: "Querying Graphs"
+    authors:
+    - family-names: Bonifati
+      given-names: Angela
+      affiliation: "University Lyon 1"
+    - family-names: Fletcher
+      given-names: George
+      affiliation: "Eindhoven University of Technology"
+    - family-names: Voigt
+      given-names: Hannes
+      affiliation: "Neo4j / University of Dresden"
+    - family-names: Yakovets
+      given-names: Nikolay
+      affiliation: "Eindhoven University of Technology"
+    type: book
+    url: 'https://perso.liris.cnrs.fr/angela.bonifati/pubs/book-Bonifati-et-al-18.pdf'
+    year: 2018
+  - title: "Database System Concepts, Seventh Edition"
+    authors:
+    - family-names: Silberschatz
+      given-names: Avi
+      affiliation: "Yale University"
+    - family-names: Korth
+      given-names: Hank
+      affiliation: "Lehigh University"
+    - family-names: Sudarshan
+      given-names: Shashank
+      affiliation: "Indian Institute of Technology Bombay"
+    type: book
+    url: 'https://www.db-book.com/'
+    year: 2020
   - title: "gMark: Schema-Driven Generation of Graphs and Queries"
     authors:
     - family-names: Guillaume

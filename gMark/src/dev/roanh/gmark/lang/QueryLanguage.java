@@ -47,7 +47,8 @@ public enum QueryLanguage{
 	 * The language of Regular Path Queries.
 	 * @see RPQ
 	 */
-	RPQ(ParserRPQ::parse, ParserRPQ::parse);
+	RPQ(ParserRPQ::parse, ParserRPQ::parse),
+	CQ(null, null);//TODO
 	
 	/**
 	 * The function to use to parse a query without a given label set.

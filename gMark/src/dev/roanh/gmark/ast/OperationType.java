@@ -45,7 +45,7 @@ package dev.roanh.gmark.ast;
  */
 public enum OperationType{
 	/**
-	 * The <i>concatenation</i> or <i>join</i> operation is a binary operation
+	 * The <i>concatenation</i> or (limited) <i>join</i> operation is a binary operation
 	 * that joins its two input graphs at shared vertices such that paths from
 	 * the left input graph are extended with paths in the right input graph.
 	 * <p>
@@ -109,7 +109,8 @@ public enum OperationType{
 	 * and the right input graph contains the path <code>(b, c)</code>, then the output
 	 * contains both <code>(a, b)</code> and <code>(b, c)</code>.
 	 */
-	DISJUNCTION(2);
+	DISJUNCTION(2),
+	JOIN(-1);//TODO arity: any
 	
 	/**
 	 * The number of operands (inputs) required to execute this operation.

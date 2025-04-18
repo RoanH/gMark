@@ -36,11 +36,21 @@ public abstract interface CQ extends QueryLanguageSyntax{
 		return QueryLanguage.CQ;
 	}
 	
-	public static CQ label(Predicate label){
+	public static VarCQ free(){//projected
+		
+	}
+	
+	public static VarCQ bound(){//inner
+		
+	}
+	
+	public static CQ atom(QueryLanguageSyntax atom){//allowing RPQ in here technically makes these kinda interesting, also this allows CQ in here that cannot be a thing, has to be reachability
 		//TODO
 		return null;
 	}
 	
+	
+	//
 	
 	
 	

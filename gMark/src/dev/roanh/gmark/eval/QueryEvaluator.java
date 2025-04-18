@@ -37,7 +37,7 @@ import dev.roanh.gmark.util.graph.generic.IntGraph;
  * @see DatabaseGraph
  * @see ResultGraph
  */
-public class QueryEvaluator{
+public class QueryEvaluator{//reachability query evaluator?
 	/**
 	 * Constant used to indicate an unbound (free) query source and/or target vertex.
 	 */

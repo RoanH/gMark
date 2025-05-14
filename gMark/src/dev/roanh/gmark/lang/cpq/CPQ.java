@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.type.schema.Predicate;
 
@@ -37,7 +38,7 @@ import dev.roanh.gmark.type.schema.Predicate;
  *      Indexing Conjunctive Path Queries for Accelerated Query Evaluation, Section 2.2.2: Conjunctive Path Queries</a>
  * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
  */
-public abstract interface CPQ extends QueryLanguageSyntax{
+public abstract interface CPQ extends ReachabilityQueryLanguageSyntax{
 	/**
 	 * Constant for the special identity CPQ.
 	 */

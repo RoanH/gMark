@@ -53,18 +53,18 @@ public enum QueryLanguage{
 	/**
 	 * The function to use to parse a query without a given label set.
 	 */
-	private final Function<String, QueryLanguageSyntax> parseFun;
+	private final Function<String, ? extends QueryLanguageSyntax> parseFun;
 	/**
 	 * The function to use to parse a query with a given label set.
 	 */
-	private final BiFunction<String, List<Predicate>, QueryLanguageSyntax> parseLabelledFun;
+	private final BiFunction<String, List<Predicate>, ? extends QueryLanguageSyntax> parseLabelledFun;
 	
 	/**
 	 * Constructs a new query language with the given parsers.
 	 * @param parseFun The parser without a given label set.
 	 * @param parseLabelledFun The parser with a given label set.
 	 */
-	private QueryLanguage(Function<String, QueryLanguageSyntax> parseFun, BiFunction<String, List<Predicate>, QueryLanguageSyntax> parseLabelledFun){
+	private QueryLanguage(Function<String, ? extends QueryLanguageSyntax> parseFun, BiFunction<String, List<Predicate>, ? extends QueryLanguageSyntax> parseLabelledFun){
 		this.parseFun = parseFun;
 		this.parseLabelledFun = parseLabelledFun;
 	}

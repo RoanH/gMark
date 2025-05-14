@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
 import dev.roanh.gmark.type.schema.Predicate;
 
 /**
@@ -33,7 +34,7 @@ import dev.roanh.gmark.type.schema.Predicate;
  * @author Roan
  * @see <a href="https://en.wikipedia.org/wiki/Regular_path_query">Regular Path Query</a>
  */
-public abstract interface RPQ extends QueryLanguageSyntax{
+public abstract interface RPQ extends ReachabilityQueryLanguageSyntax{
 
 	@Override
 	public default QueryLanguage getQueryLanguage(){

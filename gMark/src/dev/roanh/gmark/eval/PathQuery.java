@@ -23,6 +23,7 @@ import java.util.Optional;
 import dev.roanh.gmark.data.SourceTargetPair;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
 
@@ -44,14 +45,14 @@ import dev.roanh.gmark.lang.rpq.RPQ;
  * @see QueryLanguage
  * @see SourceTargetPair
  */
-public record PathQuery(Optional<Integer> source, QueryLanguageSyntax query, Optional<Integer> target){
+public record PathQuery(Optional<Integer> source, ReachabilityQueryLanguageSyntax query, Optional<Integer> target){
 	
 	/**
 	 * Constructs a new {@link PathQuery} with a free source vertex and a free target vertex.
 	 * @param query The path querying defining the constraints matching paths need to satisfy to be returned.
 	 * @return The newly constructed path query.
 	 */
-	public static final PathQuery of(QueryLanguageSyntax query){
+	public static final PathQuery of(ReachabilityQueryLanguageSyntax query){
 		return new PathQuery(Optional.empty(), query, Optional.empty());
 	}
 
@@ -61,7 +62,7 @@ public record PathQuery(Optional<Integer> source, QueryLanguageSyntax query, Opt
 	 * @param target The target vertex all matched paths have to end at.
 	 * @return The newly constructed path query.
 	 */
-	public static final PathQuery of(QueryLanguageSyntax query, int target){
+	public static final PathQuery of(ReachabilityQueryLanguageSyntax query, int target){
 		return new PathQuery(Optional.empty(), query, ofVertex(target));
 	}
 
@@ -71,7 +72,7 @@ public record PathQuery(Optional<Integer> source, QueryLanguageSyntax query, Opt
 	 * @param query The path querying defining the constraints matching paths need to satisfy to be returned.
 	 * @return The newly constructed path query.
 	 */
-	public static final PathQuery of(int source, QueryLanguageSyntax query){
+	public static final PathQuery of(int source, ReachabilityQueryLanguageSyntax query){
 		return new PathQuery(ofVertex(source), query, Optional.empty());
 	}
 
@@ -82,7 +83,7 @@ public record PathQuery(Optional<Integer> source, QueryLanguageSyntax query, Opt
 	 * @param target The target vertex all matched paths have to end at.
 	 * @return The newly constructed path query.
 	 */
-	public static final PathQuery of(int source, QueryLanguageSyntax query, int target){
+	public static final PathQuery of(int source, ReachabilityQueryLanguageSyntax query, int target){
 		return new PathQuery(ofVertex(source), query, ofVertex(target));
 	}
 

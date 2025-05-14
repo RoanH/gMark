@@ -47,17 +47,17 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import dev.roanh.gmark.eval.PathQuery;
-import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
 import dev.roanh.gmark.type.IDable;
 import dev.roanh.gmark.type.SelectivityClass;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.graph.generic.DataProxy;
 import dev.roanh.gmark.util.graph.generic.IntGraph;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph;
-import dev.roanh.gmark.util.graph.generic.Tree;
-import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
+import dev.roanh.gmark.util.graph.generic.Tree;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphNode;
 
@@ -644,7 +644,7 @@ public final class Util{
 	 * @return A list with the parsed queries.
 	 * @throws IOException When an IOException occurs.
 	 */
-	public static final List<PathQuery> readWorkload(Path file, Function<String, QueryLanguageSyntax> parser) throws IOException{
+	public static final List<PathQuery> readWorkload(Path file, Function<String, ? extends ReachabilityQueryLanguageSyntax> parser) throws IOException{
 		try(InputStream in = Files.newInputStream(file)){
 			return readWorkload(in, parser);
 		}
@@ -663,7 +663,7 @@ public final class Util{
 	 * @return A list with the parsed queries.
 	 * @throws IOException When an IOException occurs.
 	 */
-	public static final List<PathQuery> readWorkload(InputStream in, Function<String, QueryLanguageSyntax> parser) throws IOException{
+	public static final List<PathQuery> readWorkload(InputStream in, Function<String, ? extends ReachabilityQueryLanguageSyntax> parser) throws IOException{
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 		List<PathQuery> queries = new ArrayList<PathQuery>();
 

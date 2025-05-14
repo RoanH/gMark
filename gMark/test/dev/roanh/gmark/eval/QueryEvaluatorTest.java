@@ -31,7 +31,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import dev.roanh.gmark.data.CardStat;
 import dev.roanh.gmark.data.SourceTargetPair;
-import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
 import dev.roanh.gmark.type.schema.Predicate;
@@ -1330,31 +1330,31 @@ public class QueryEvaluatorTest{
 		assertIterableEquals(expected, result.getSourceTargetPairs().stream().sorted().toList());
 	}
 	
-	private CardStat evaluate(DatabaseGraph graph, QueryLanguageSyntax query){
+	private CardStat evaluate(DatabaseGraph graph, ReachabilityQueryLanguageSyntax query){
 		return evaluate(graph, PathQuery.of(query)).computeCardinality();
 	}
 	
-	private CardStat evaluate(DatabaseGraph graph, int source, QueryLanguageSyntax query){
+	private CardStat evaluate(DatabaseGraph graph, int source, ReachabilityQueryLanguageSyntax query){
 		return evaluate(graph, PathQuery.of(source, query)).computeCardinality();
 	}
 	
-	private CardStat evaluate(DatabaseGraph graph, QueryLanguageSyntax query, int target){
+	private CardStat evaluate(DatabaseGraph graph, ReachabilityQueryLanguageSyntax query, int target){
 		return evaluate(graph, PathQuery.of(query, target)).computeCardinality();
 	}
 	
-	private ResultGraph evaluate(QueryLanguageSyntax query){
+	private ResultGraph evaluate(ReachabilityQueryLanguageSyntax query){
 		return evaluate(PathQuery.of(query));
 	}
 
-	private ResultGraph evaluate(QueryLanguageSyntax query, int target){
+	private ResultGraph evaluate(ReachabilityQueryLanguageSyntax query, int target){
 		return evaluate(PathQuery.of(query, target));
 	}
 
-	private ResultGraph evaluate(int source, QueryLanguageSyntax query){
+	private ResultGraph evaluate(int source, ReachabilityQueryLanguageSyntax query){
 		return evaluate(PathQuery.of(source, query));
 	}
 
-	private ResultGraph evaluate(int source, QueryLanguageSyntax query, int target){
+	private ResultGraph evaluate(int source, ReachabilityQueryLanguageSyntax query, int target){
 		return evaluate(PathQuery.of(source, query, target));
 	}
 	

@@ -43,6 +43,9 @@ import javax.swing.WindowConstants;
 
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ;
+import dev.roanh.gmark.lang.cq.CQ;
+import dev.roanh.gmark.lang.cq.QueryGraphCQ;
+import dev.roanh.gmark.lang.cq.VarCQ;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
@@ -269,12 +272,20 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		show(q.toQueryGraph());
 	}
 	
+	public static void show(CQ q){
+		show(q.toQueryGraph());
+	}
+	
 	/**
 	 * Utility subroutine to show the given CPQ query graph in a JFrame.
 	 * @param cpq The CPQ query graph to display.
 	 */
 	public static void show(QueryGraphCPQ cpq){
 		show(cpq.toUniqueGraph(), cpq::getVertexLabel, Predicate::getAlias);
+	}
+	
+	public static void show(QueryGraphCQ cq){
+		show(cq.toUniqueGraph(), VarCQ::getName, a->a.getLabel().getAlias());
 	}
 	
 	/**

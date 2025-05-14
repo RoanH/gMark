@@ -16,4 +16,9 @@ public class VarCQ{
 	public boolean isFree(){
 		return free;
 	}
+	
+	@Override
+	public String toString(){
+		return getName();
+	}
 }

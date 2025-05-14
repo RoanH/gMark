@@ -19,6 +19,7 @@
 package dev.roanh.gmark.lang.cq;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -26,8 +27,6 @@ import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
-import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
-import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -37,10 +36,17 @@ import dev.roanh.gmark.util.IndentWriter;
  * @a href="https://en.wikipedia.org/wiki/Conjunctive_query">Conjunctive Query</a>
  */
 public class CQ implements QueryLanguageSyntax{
-	private final List<VarCQ> variables = new ArrayList<VarCQ>(); 
-	private final List<AtomCQ> formulae = new ArrayList<AtomCQ>();
+	private final Collection<VarCQ> variables; 
+	private final Collection<AtomCQ> formulae;
 	
 	private CQ(){
+		variables = new ArrayList<VarCQ>(); 
+		formulae = new ArrayList<AtomCQ>();
+	}
+	
+	protected CQ(Collection<VarCQ> variables, Collection<AtomCQ> formulae){
+		this.variables = variables;
+		this.formulae = formulae;
 	}
 	
 	public VarCQ addFreeVariable(String name){//projected
@@ -56,12 +62,11 @@ public class CQ implements QueryLanguageSyntax{
 	}
 	
 	public void addAtom(VarCQ source, Predicate label, VarCQ target){
-		formulae.add(new AtomCQ(source, label, target));
+		formulae.add(new AtomCQ(source, label.isInverse() ? label.getInverse() : label, target));
 	}
 
 	public QueryGraphCQ toQueryGraph(){
-		//TODO
-		return null;
+		return new QueryGraphCQ(variables, formulae);
 	}
 	
 	@Override
@@ -103,13 +108,18 @@ public class CQ implements QueryLanguageSyntax{
 	@Override
 	public OperationType getOperationType(){
 		// TODO Auto-generated method stub
-		return null;
+		return null;//join? 'and'
 	}
 
 	@Override
 	public QueryTree toAbstractSyntaxTree(){
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public String toString(){
+		return toFormalSyntax();
 	}
 	
 	public static final CQ empty(){

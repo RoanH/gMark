@@ -86,10 +86,9 @@ public class CQ implements QueryLanguageSyntax{
 		}
 
 		//body
-		StringBuilder body = new StringBuilder();
-		body.append(head.toString());
+		StringJoiner body = new StringJoiner(", ", head.toString(), "");
 		for(AtomCQ atom : formulae){
-			body.append(atom);
+			body.add(atom.toString());
 		}
 		
 		return body.toString();

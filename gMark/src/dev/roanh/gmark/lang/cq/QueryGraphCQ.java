@@ -1,5 +1,23 @@
 package dev.roanh.gmark.lang.cq;
 
-public class QueryGraphCQ{
+import java.util.List;
 
+public class QueryGraphCQ{
+	
+	
+	
+	
+	
+	//a = free
+	//b = bound
+	//cq = CQ.atom(a, ?, b)
+	//
+	
+	
+	
+	
+	
+	public List<QueryGraphCQ> splitOnFreeVariables(){
+		return null;//TODO
+	}
 }

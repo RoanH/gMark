@@ -18,44 +18,102 @@
  */
 package dev.roanh.gmark.lang.cq;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
+
+import dev.roanh.gmark.ast.OperationType;
+import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
+import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.IndentWriter;
 
 /**
  * Interface for conjunctive queries (CQs).
  * @author Roan
  * @a href="https://en.wikipedia.org/wiki/Conjunctive_query">Conjunctive Query</a>
  */
-public abstract interface CQ extends QueryLanguageSyntax{
+public class CQ implements QueryLanguageSyntax{
+	private final List<VarCQ> variables = new ArrayList<VarCQ>(); 
+	private final List<AtomCQ> formulae = new ArrayList<AtomCQ>();
+	
+	private CQ(){
+	}
+	
+	public VarCQ addFreeVariable(String name){//projected
+		VarCQ v = new VarCQ(name, true);
+		variables.add(v);
+		return v;
+	}
+	
+	public VarCQ addBoundVariable(String name){//inner
+		VarCQ v = new VarCQ(name, false);
+		variables.add(v);
+		return v;
+	}
+	
+	public void addAtom(VarCQ source, Predicate label, VarCQ target){
+		formulae.add(new AtomCQ(source, label, target));
+	}
 
-	public abstract QueryGraphCQ toQueryGraph();
-	
-	@Override
-	public default QueryLanguage getQueryLanguage(){
-		return QueryLanguage.CQ;
-	}
-	
-	public static VarCQ free(){//projected
-		
-	}
-	
-	public static VarCQ bound(){//inner
-		
-	}
-	
-	public static CQ atom(QueryLanguageSyntax atom){//allowing RPQ in here technically makes these kinda interesting, also this allows CQ in here that cannot be a thing, has to be reachability
+	public QueryGraphCQ toQueryGraph(){
 		//TODO
 		return null;
 	}
 	
+	@Override
+	public QueryLanguage getQueryLanguage(){
+		return QueryLanguage.CQ;
+	}
+
+	@Override
+	public void writeSQL(IndentWriter writer){
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String toFormalSyntax(){
+		//free variables
+		StringJoiner head = new StringJoiner(", ", "(", ") ← ");
+		for(VarCQ v : variables){
+			if(v.isFree()){
+				head.add(v.getName());
+			}
+		}
+
+		//body
+		StringBuilder body = new StringBuilder();
+		body.append(head.toString());
+		for(AtomCQ atom : formulae){
+			body.append(atom);
+		}
+		
+		return body.toString();
+	}
+
+	@Override
+	public void writeXML(IndentWriter writer){
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public OperationType getOperationType(){
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public QueryTree toAbstractSyntaxTree(){
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
-	//
-	
-	
-	
-	
-	
-	
-	
+	public static final CQ empty(){
+		return new CQ();
+	}
 }

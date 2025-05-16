@@ -286,13 +286,13 @@ public abstract interface CPQ extends ReachabilityQueryLanguageSyntax{
 	public static CPQ parse(QueryTree ast) throws IllegalArgumentException{
 		switch(ast.getOperation()){
 		case CONCATENATION:
-			return concat(parse(ast.getLeft()), parse(ast.getRight()));
+			return concat(parse(ast.getOperand(0)), parse(ast.getOperand(1)));
 		case EDGE:
 			return label(ast.getPredicate());
 		case IDENTITY:
 			return id();
 		case INTERSECTION:
-			return intersect(parse(ast.getLeft()), parse(ast.getRight()));
+			return intersect(parse(ast.getOperand(0)), parse(ast.getOperand(1)));
 		default:
 			throw new IllegalArgumentException("The given AST contains operations that are not part of the CPQ query language.");
 		}

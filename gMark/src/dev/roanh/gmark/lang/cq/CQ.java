@@ -26,6 +26,7 @@ import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.lang.rpq.RPQ;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -132,6 +133,12 @@ public class CQ implements QueryLanguageSyntax{
 	@Override
 	public String toString(){
 		return toFormalSyntax();
+	}
+	
+	//TODO parse from string variants
+	
+	public static RPQ parse(QueryTree ast) throws IllegalArgumentException{
+		return null;//TODO
 	}
 	
 	public static final CQ empty(){

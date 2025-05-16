@@ -211,13 +211,13 @@ public abstract interface RPQ extends ReachabilityQueryLanguageSyntax{
 	public static RPQ parse(QueryTree ast) throws IllegalArgumentException{
 		switch(ast.getOperation()){
 		case CONCATENATION:
-			return concat(parse(ast.getLeft()), parse(ast.getRight()));
+			return concat(parse(ast.getOperand(0)), parse(ast.getOperand(1)));
 		case DISJUNCTION:
-			return disjunct(parse(ast.getLeft()), parse(ast.getLeft()));
+			return disjunct(parse(ast.getOperand(0)), parse(ast.getOperand(1)));
 		case EDGE:
 			return label(ast.getPredicate());
 		case KLEENE:
-			return kleene(parse(ast.getLeft()));
+			return kleene(parse(ast.getOperand(0)));
 		default:
 			throw new IllegalArgumentException("The given AST contains operations that are not part of the RPQ query language.");
 		}

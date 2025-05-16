@@ -37,7 +37,7 @@ import dev.roanh.gmark.util.graph.generic.IntGraph;
  * @see DatabaseGraph
  * @see ResultGraph
  */
-public class QueryEvaluator{//reachability query evaluator?
+public class ReachabilityQueryEvaluator{
 	/**
 	 * Constant used to indicate an unbound (free) query source and/or target vertex.
 	 */
@@ -51,7 +51,7 @@ public class QueryEvaluator{//reachability query evaluator?
 	 * Constructs a new query evaluator for the given database graph.
 	 * @param graph The database graph to evaluate queries on.
 	 */
-	public QueryEvaluator(IntGraph graph){
+	public ReachabilityQueryEvaluator(IntGraph graph){
 		this(new DatabaseGraph(graph));
 	}
 	
@@ -59,7 +59,7 @@ public class QueryEvaluator{//reachability query evaluator?
 	 * Constructs a new query evaluator for the given database graph.
 	 * @param graph The database graph to evaluate queries on.
 	 */
-	public QueryEvaluator(DatabaseGraph graph){
+	public ReachabilityQueryEvaluator(DatabaseGraph graph){
 		this.graph = graph;
 	}
 
@@ -101,9 +101,11 @@ public class QueryEvaluator{//reachability query evaluator?
 			return planIntersection(source, path, target);
 		case KLEENE:
 			return planTransitiveClosure(source, path, target);
+		case JOIN:
+			throw new IllegalArgumentException("This evaluator only support reachability queries.");
 		}
-
-		throw new IllegalArgumentException("Unsupported database operation.");
+		
+		throw new IllegalStateException("Unknown database operation.");
 	}
 	
 	/**

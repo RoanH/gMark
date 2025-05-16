@@ -39,7 +39,7 @@ import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.util.graph.generic.IntGraph;
 
 @TestInstance(Lifecycle.PER_CLASS)
-public class QueryEvaluatorTest{
+public class ReachabilityQueryEvaluatorTest{
 	private static final Predicate l0 = new Predicate(0, "0");//a
 	private static final Predicate l1 = new Predicate(1, "1");//b
 	private static final Predicate l2 = new Predicate(2, "2");
@@ -1363,7 +1363,7 @@ public class QueryEvaluatorTest{
 	}
 	
 	private ResultGraph evaluate(DatabaseGraph graph, PathQuery query){
-		return new QueryEvaluator(graph).evaluate(query);
+		return new ReachabilityQueryEvaluator(graph).evaluate(query);
 	}
 	
 	//see: https://research.roanh.dev/Indexing%20Conjunctive%20Path%20Queries%20for%20Accelerated%20Query%20Evaluation.pdf#subsubsection.5.2.1.1

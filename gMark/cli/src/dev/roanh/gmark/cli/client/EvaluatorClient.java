@@ -35,7 +35,7 @@ import dev.roanh.gmark.cli.InputException;
 import dev.roanh.gmark.data.SourceTargetPair;
 import dev.roanh.gmark.eval.DatabaseGraph;
 import dev.roanh.gmark.eval.PathQuery;
-import dev.roanh.gmark.eval.QueryEvaluator;
+import dev.roanh.gmark.eval.ReachabilityQueryEvaluator;
 import dev.roanh.gmark.eval.ResultGraph;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
@@ -187,7 +187,7 @@ public final class EvaluatorClient extends CommandLineClient{
 	 * @param output The writer to write detailed query results to (or null to not write detailed results).
 	 */
 	private void executeAndWriteQueries(DatabaseGraph graph, List<PathQuery> queries, PrintWriter output){
-		QueryEvaluator evaluator = new QueryEvaluator(graph);
+		ReachabilityQueryEvaluator evaluator = new ReachabilityQueryEvaluator(graph);
 		
 		for(PathQuery query : queries){
 			System.out.println("Evaluating query: " + query);

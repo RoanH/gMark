@@ -21,12 +21,17 @@ package dev.roanh.gmark.lang.cpq;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import dev.roanh.gmark.lang.cq.AtomCQ;
+import dev.roanh.gmark.lang.cq.QueryGraphCQ;
+import dev.roanh.gmark.lang.cq.VarCQ;
 import dev.roanh.gmark.type.IDable;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.RangeList;
@@ -196,12 +201,37 @@ public class QueryGraphCPQ{
 	 */
 	public UniqueGraph<Vertex, Predicate> toUniqueGraph(){
 		merge();
+		
 		UniqueGraph<Vertex, Predicate> graph = new UniqueGraph<Vertex, Predicate>();
 		vertices.forEach(graph::addUniqueNode);
 		for(Edge edge : edges){
 			graph.addUniqueEdge(edge.src, edge.trg, edge.label);
 		}
+		
 		return graph;
+	}
+	
+	public QueryGraphCQ toQueryGraphCQ(){
+		merge();
+		
+		int i = 0;
+		Map<Vertex, VarCQ> variables = new HashMap<Vertex, VarCQ>();
+		for(Vertex vertex : vertices){
+			if(vertex == source || vertex == target){
+				variables.put(vertex, new VarCQ(getVertexLabel(vertex), true));
+			}else{
+				variables.put(vertex, new VarCQ(String.valueOf(i++), false));
+			}
+		}
+		
+		return new QueryGraphCQ(
+			variables.values(),
+			edges.stream().map(edge->new AtomCQ(
+				variables.get(edge.src),
+				edge.label,
+				variables.get(edge.trg)
+			)).toList()
+		);
 	}
 	
 	/**
@@ -515,7 +545,7 @@ public class QueryGraphCPQ{
 			}
 		}
 		
-		///remove invalid candidates and return
+		//remove invalid candidates and return
 		data.matches = filterNull(product, nulls);
 		data.sort();
 	}

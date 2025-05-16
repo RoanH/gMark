@@ -29,6 +29,7 @@ import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
+import dev.roanh.gmark.lang.cq.CQ;
 import dev.roanh.gmark.type.schema.Predicate;
 
 /**
@@ -69,7 +70,7 @@ public abstract interface CPQ extends ReachabilityQueryLanguageSyntax{
 	 * Tests if the query graph for this CPQ is homomorphic
 	 * to the query graph for the given other CPQ.
 	 * @param other The other CPQ to test against.
-	 * @return True if this CPQ is homorphic to the other CPQ.
+	 * @return True if this CPQ is homomorphic to the other CPQ.
 	 * @see #toQueryGraph()
 	 * @see QueryGraphCPQ#isHomomorphicTo(QueryGraphCPQ)
 	 */
@@ -77,6 +78,10 @@ public abstract interface CPQ extends ReachabilityQueryLanguageSyntax{
 		return toQueryGraph().isHomomorphicTo(other.toQueryGraph());
 	}
 
+	public default CQ toCQ(){
+		return toQueryGraph().toQueryGraphCQ().toCQ();
+	}
+	
 	@Override
 	public default QueryLanguage getQueryLanguage(){
 		return QueryLanguage.CPQ;

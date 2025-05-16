@@ -53,4 +53,12 @@ public class CPQTest{
 	public void dia5(){
 		assertEquals(0, CPQ.parse("id").getDiameter());
 	}
+	
+	@Test
+	public void CPQtoCQ(){
+		assertEquals(
+			"(src, trg) ← a(src, 0), b(0, trg), c(src, trg)",
+			CPQ.parse("(a◦b) ∩ c").toQueryGraph().toQueryGraphCQ().toCQ().toFormalSyntax()
+		);
+	}
 }

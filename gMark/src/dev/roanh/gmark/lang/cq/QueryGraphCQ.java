@@ -16,7 +16,7 @@ public class QueryGraphCQ{
 	private final Collection<VarCQ> variables; 
 	private final Collection<AtomCQ> edges;
 	
-	protected QueryGraphCQ(Collection<VarCQ> variables, Collection<AtomCQ> edges){
+	public QueryGraphCQ(Collection<VarCQ> variables, Collection<AtomCQ> edges){
 		this.variables = variables;
 		this.edges = edges;
 	}

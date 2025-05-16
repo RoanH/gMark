@@ -33,7 +33,7 @@ import dev.roanh.gmark.util.IndentWriter;
 /**
  * Interface for conjunctive queries (CQs).
  * @author Roan
- * @a href="https://en.wikipedia.org/wiki/Conjunctive_query">Conjunctive Query</a>
+ * @see <a href="https://en.wikipedia.org/wiki/Conjunctive_query">Conjunctive Query</a>
  */
 public class CQ implements QueryLanguageSyntax{
 	private final Collection<VarCQ> variables; 

@@ -147,7 +147,7 @@ public class EvalTab extends JPanel{
 		targetPanel.add(target);
 		
 		JPanel langPanel = new JPanel(new GridLayout(2, 1));
-		JComboBox<QueryLanguage> lang = new JComboBox<QueryLanguage>(new QueryLanguage[]{QueryLanguage.CPQ, QueryLanguage.RPQ});
+		JComboBox<QueryLanguage> lang = new JComboBox<QueryLanguage>(QueryLanguage.streamReachabilityQueryLanguages().toArray(QueryLanguage[]::new));
 		langPanel.add(new JLabel("Language"));
 		langPanel.add(lang);
 		

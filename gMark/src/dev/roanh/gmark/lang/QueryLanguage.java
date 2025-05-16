@@ -18,10 +18,12 @@
  */
 package dev.roanh.gmark.lang;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.lang.cpq.CPQ;
@@ -69,7 +71,7 @@ public enum QueryLanguage{
 		this.parseLabelledFun = parseLabelledFun;
 	}
 	
-	public boolean isReachabilityQuery(){
+	public boolean isReachabilityQueryLanguage(){
 		return this == CPQ || this == RPQ;
 	}
 	
@@ -109,5 +111,9 @@ public enum QueryLanguage{
 		}
 		
 		return Optional.empty();
+	}
+	
+	public static final Stream<QueryLanguage> streamReachabilityQueryLanguages(){
+		return Arrays.stream(values()).filter(QueryLanguage::isReachabilityQueryLanguage);
 	}
 }

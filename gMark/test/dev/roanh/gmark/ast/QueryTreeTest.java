@@ -36,10 +36,10 @@ public class QueryTreeTest{
 		
 		QueryTree ast = query.toAbstractSyntaxTree();
 		assertEquals(OperationType.CONCATENATION, ast.getOperation());
-		assertEquals(OperationType.EDGE, ast.getLeft().getOperation());
-		assertEquals(a, ast.getLeft().getPredicate());
-		assertEquals(OperationType.EDGE, ast.getRight().getOperation());
-		assertEquals(b, ast.getRight().getPredicate());
+		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
+		assertEquals(a, ast.getOperand(0).getPredicate());
+		assertEquals(OperationType.EDGE, ast.getOperand(1).getOperation());
+		assertEquals(b, ast.getOperand(1).getPredicate());
 	}
 	
 	@Test
@@ -48,14 +48,14 @@ public class QueryTreeTest{
 		
 		QueryTree ast = query.toAbstractSyntaxTree();
 		assertEquals(OperationType.INTERSECTION, ast.getOperation());
-		assertEquals(OperationType.EDGE, ast.getLeft().getOperation());
-		assertEquals(a, ast.getLeft().getPredicate());
-		assertEquals(OperationType.INTERSECTION, ast.getRight().getOperation());
+		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
+		assertEquals(a, ast.getOperand(0).getPredicate());
+		assertEquals(OperationType.INTERSECTION, ast.getOperand(1).getOperation());
 		
-		ast = ast.getRight();
-		assertEquals(OperationType.EDGE, ast.getLeft().getOperation());
-		assertEquals(b, ast.getLeft().getPredicate());
-		assertEquals(OperationType.IDENTITY, ast.getRight().getOperation());
+		ast = ast.getOperand(1);
+		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
+		assertEquals(b, ast.getOperand(0).getPredicate());
+		assertEquals(OperationType.IDENTITY, ast.getOperand(1).getOperation());
 	}
 
 	@Test
@@ -64,10 +64,10 @@ public class QueryTreeTest{
 		
 		QueryTree ast = query.toAbstractSyntaxTree();
 		assertEquals(OperationType.CONCATENATION, ast.getOperation());
-		assertEquals(OperationType.EDGE, ast.getLeft().getOperation());
-		assertEquals(a, ast.getLeft().getPredicate());
-		assertEquals(OperationType.EDGE, ast.getRight().getOperation());
-		assertEquals(b, ast.getRight().getPredicate());
+		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
+		assertEquals(a, ast.getOperand(0).getPredicate());
+		assertEquals(OperationType.EDGE, ast.getOperand(1).getOperation());
+		assertEquals(b, ast.getOperand(1).getPredicate());
 	}
 	
 	@Test
@@ -76,17 +76,17 @@ public class QueryTreeTest{
 		
 		QueryTree ast = query.toAbstractSyntaxTree();
 		assertEquals(OperationType.DISJUNCTION, ast.getOperation());
-		assertEquals(OperationType.EDGE, ast.getLeft().getOperation());
-		assertEquals(a, ast.getLeft().getPredicate());
-		assertEquals(OperationType.DISJUNCTION, ast.getRight().getOperation());
+		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
+		assertEquals(a, ast.getOperand(0).getPredicate());
+		assertEquals(OperationType.DISJUNCTION, ast.getOperand(1).getOperation());
 		
-		ast = ast.getRight();
-		assertEquals(OperationType.EDGE, ast.getLeft().getOperation());
-		assertEquals(b, ast.getLeft().getPredicate());
-		assertEquals(OperationType.KLEENE, ast.getRight().getOperation());
+		ast = ast.getOperand(1);
+		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
+		assertEquals(b, ast.getOperand(0).getPredicate());
+		assertEquals(OperationType.KLEENE, ast.getOperand(1).getOperation());
 		
-		ast = ast.getRight();
-		assertEquals(OperationType.EDGE, ast.getLeft().getOperation());
-		assertEquals(a, ast.getLeft().getPredicate());
+		ast = ast.getOperand(1);
+		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
+		assertEquals(a, ast.getOperand(0).getPredicate());
 	}
 }

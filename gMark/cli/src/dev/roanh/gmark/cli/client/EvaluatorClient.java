@@ -79,7 +79,7 @@ public final class EvaluatorClient extends CommandLineClient{
 		QueryLanguage language = QueryLanguage.fromName(cli.getOptionValue('l')).orElse(null);
 		if(language == null){
 			throw new InputException("No query language specified.");
-		}else if(!language.isReachabilityQuery()){
+		}else if(!language.isReachabilityQueryLanguage()){
 			throw new InputException("Only evaluation of reachability queries is supported currently.");
 		}
 		

@@ -110,7 +110,12 @@ public enum OperationType{
 	 * contains both <code>(a, b)</code> and <code>(b, c)</code>.
 	 */
 	DISJUNCTION(2),
-	JOIN(-1);//TODO arity: any
+	/**
+	 * The <join> operation is an operation of variable arity that joins its operands on
+	 * all the shared vertices between them. It is the general case of the {@link #CONCATENATION}
+	 * operation, which is limited to just two operands.
+	 */
+	JOIN(-1);
 	
 	/**
 	 * The number of operands (inputs) required to execute this operation.
@@ -165,6 +170,11 @@ public enum OperationType{
 		return operands;
 	}
 	
+	/**
+	 * Checks if the arity of this operation is fixed.
+	 * @return True if this operation has a fixed arity, false if it
+	 *         is variable (i.e., the operation accepts any number of inputs).
+	 */
 	public boolean hasBoundedArity(){
 		return operands != -1;
 	}

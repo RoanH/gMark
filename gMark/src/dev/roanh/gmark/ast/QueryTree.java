@@ -67,11 +67,10 @@ public class QueryTree{
 	
 	/**
 	 * Checks if the operation for this AST node is a unary operation, meaning it takes
-	 * exactly one operand and has exactly one child node in the query AST. The child
-	 * node of the input for the operation in this node is given by {@link #getLeft()}.
+	 * exactly one operand and has exactly one child node in the query AST.
 	 * @return True if the operation for this AST node is unary.
 	 * @see OperationType#isUnary()
-	 * @see #getLeft()
+	 * @see #getArity()
 	 */
 	public boolean isUnary(){
 		return getOperation().isUnary();
@@ -79,16 +78,26 @@ public class QueryTree{
 	
 	/**
 	 * Checks if the operation for this AST node is a binary operation, meaning it takes
-	 * exactly two operands and has exactly two child nodes in the query AST. The two
-	 * inputs for the operation in this node are given in order by {@link #getLeft()}
-	 * and {@link #getRight()}.
+	 * exactly two operands and has exactly two child nodes in the query AST.
 	 * @return True if the operation for this AST node is binary.
 	 * @see OperationType#isBinary()
-	 * @see #getLeft()
-	 * @see #getRight()
+	 * @see #getArity()
 	 */
 	public boolean isBinary(){
 		return getOperation().isBinary();
+	}
+	
+	/**
+	 * Gets the number of provided input operands for the operation at this tree node.
+	 * <p>
+	 * Note: this function provides the actual arity, which may differ from the arity
+	 * of the operation for this AST node, in particular when the operation does not
+	 * have a fixed arity (e.g., {@link OperationType#JOIN}.
+	 * @return The number of operands for the operation of this node (arity).
+	 * @see OperationType#getArity()
+	 */
+	public int getArity(){
+		return operands.size();
 	}
 	
 	/**

@@ -83,7 +83,7 @@ public class QueryGraphCQTest{
 		query.addAtom(f1, l0, b2);
 		query.addAtom(b2, l1, b2);
 		query.addAtom(f2, l0, b2);
-		query.addAtom(b1, l1, b2);
+		query.addAtom(b1, l1, f2);
 		
 		//l0       l1
 		//o        o
@@ -100,7 +100,7 @@ public class QueryGraphCQTest{
 		components.sort(Comparator.comparing(QueryGraphCQ::getEdgeCount).thenComparing(QueryGraphCQ::getVertexCount));
 		assertEquals("(f1) ← zero(f1, f1)", components.get(0).toCQ().toFormalSyntax());
 		assertEquals("(f1, f2) ← one(f1, f2)", components.get(1).toCQ().toFormalSyntax());
-		assertEquals("(f1, f2) ← zero(f1, b1), one(b1, f2)", components.get(2).toCQ().toFormalSyntax());
-		assertEquals("(f1, f2) ← zero(f1, b2), one(b2, b2), zero(f2, b2)", components.get(2).toCQ().toFormalSyntax());
+		assertEquals("(f1, f2) ← one(b1, f2), zero(f1, b1)", components.get(2).toCQ().toFormalSyntax());
+		assertEquals("(f1, f2) ← one(b2, b2), zero(f1, b2), zero(f2, b2)", components.get(3).toCQ().toFormalSyntax());
 	}
 }

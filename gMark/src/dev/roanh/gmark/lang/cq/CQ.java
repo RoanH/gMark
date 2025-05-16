@@ -20,7 +20,6 @@ package dev.roanh.gmark.lang.cq;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.StringJoiner;
 
 import dev.roanh.gmark.ast.OperationType;
@@ -84,17 +83,11 @@ public class CQ implements QueryLanguageSyntax{
 	public String toFormalSyntax(){
 		//free variables
 		StringJoiner head = new StringJoiner(", ", "(", ") ← ");
-		for(VarCQ v : variables){
-			if(v.isFree()){
-				head.add(v.getName());
-			}
-		}
+		variables.stream().filter(VarCQ::isFree).map(VarCQ::getName).sorted().forEach(head::add);
 
 		//body
 		StringJoiner body = new StringJoiner(", ", head.toString(), "");
-		for(AtomCQ atom : formulae){
-			body.add(atom.toString());
-		}
+		formulae.stream().map(AtomCQ::toString).sorted().forEach(body::add);
 		
 		return body.toString();
 	}

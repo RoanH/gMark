@@ -39,6 +39,6 @@ public class CQTest{
 		query.addAtom(f1, l0, b1);
 		query.addAtom(b1, l1, f2);
 
-		assertEquals("(f1, f2) ← zero(f1, b1), one(b1, f2)", query.toFormalSyntax());
+		assertEquals("(f1, f2) ← one(b1, f2), zero(f1, b1)", query.toFormalSyntax());
 	}
 }

@@ -159,9 +159,13 @@ public enum OperationType{
 	
 	/**
 	 * Gets the arity of this operator, that is, the number of arguments or operands it takes.
-	 * @return The arity of this operator.
+	 * @return The arity of this operator, will be -1 the operator can be applied to any number of inputs.
 	 */
 	public int getArity(){
 		return operands;
+	}
+	
+	public boolean hasBoundedArity(){
+		return operands != -1;
 	}
 }

@@ -69,6 +69,10 @@ public enum QueryLanguage{
 		this.parseLabelledFun = parseLabelledFun;
 	}
 	
+	public boolean isReachabilityQuery(){
+		return this == CPQ || this == RPQ;
+	}
+	
 	/**
 	 * Parses the given query into an instance of this query language
 	 * and created the required label set on the fly as new symbols are discovered.

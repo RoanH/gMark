@@ -75,7 +75,21 @@ public class CQ implements QueryLanguageSyntax{
 
 	@Override
 	public void writeSQL(IndentWriter writer){
+		
+		
+		
 		// TODO Auto-generated method stub
+		
+		/*
+		 * SELECT a,b,c
+		 * FROM edge
+		 * WHERE
+		 * a = b AND b = c AND ...
+		 * 
+		 * 
+		 * 
+		 * 
+		 */
 		
 	}
 
@@ -94,14 +108,19 @@ public class CQ implements QueryLanguageSyntax{
 
 	@Override
 	public void writeXML(IndentWriter writer){
-		// TODO Auto-generated method stub
+		writer.println("<cq>", 2);
 		
+		//vars
+		
+		//atoms
+		
+		writer.println(2, "</cq>");
 	}
 
 	@Override
 	public OperationType getOperationType(){
 		// TODO Auto-generated method stub
-		return null;//join? 'and'
+		return OperationType.JOIN;//join? 'and'
 	}
 
 	@Override

@@ -124,6 +124,7 @@ public final class Util{
 				}
 			}
 		}
+		
 		return null;
 	}
 	
@@ -679,9 +680,9 @@ public final class Util{
 
 			queries.add(new PathQuery(
 				src.equals("*") ? Optional.empty() : Optional.of(Integer.parseInt(src)),
-					parser.apply(args[1].trim()),
-					trg.equals("*") ? Optional.empty() : Optional.of(Integer.parseInt(trg))
-				));
+				parser.apply(args[1].trim()),
+				trg.equals("*") ? Optional.empty() : Optional.of(Integer.parseInt(trg))
+			));
 		}
 
 		return queries;

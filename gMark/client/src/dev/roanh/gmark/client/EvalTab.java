@@ -52,6 +52,7 @@ import dev.roanh.gmark.eval.QueryEvaluator;
 import dev.roanh.gmark.eval.ResultGraph;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
 import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.util.graph.generic.IntGraph;
 import dev.roanh.util.Dialog;
@@ -146,7 +147,7 @@ public class EvalTab extends JPanel{
 		targetPanel.add(target);
 		
 		JPanel langPanel = new JPanel(new GridLayout(2, 1));
-		JComboBox<QueryLanguage> lang = new JComboBox<QueryLanguage>(QueryLanguage.values());
+		JComboBox<QueryLanguage> lang = new JComboBox<QueryLanguage>(new QueryLanguage[]{QueryLanguage.CPQ, QueryLanguage.RPQ});
 		langPanel.add(new JLabel("Language"));
 		langPanel.add(lang);
 		
@@ -164,7 +165,7 @@ public class EvalTab extends JPanel{
 
 				runQuery(PathQuery.of(
 					(int)source.getValue(),
-					((QueryLanguage)lang.getSelectedItem()).parse(query.getText(), evaluator.getLabels()),
+					(ReachabilityQueryLanguageSyntax)((QueryLanguage)lang.getSelectedItem()).parse(query.getText(), evaluator.getLabels()),
 					(int)target.getValue()
 				));
 			}catch(Exception e1){

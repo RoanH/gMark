@@ -38,6 +38,7 @@ import dev.roanh.gmark.eval.PathQuery;
 import dev.roanh.gmark.eval.QueryEvaluator;
 import dev.roanh.gmark.eval.ResultGraph;
 import dev.roanh.gmark.lang.QueryLanguage;
+import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.util.graph.generic.IntGraph;
@@ -78,6 +79,8 @@ public final class EvaluatorClient extends CommandLineClient{
 		QueryLanguage language = QueryLanguage.fromName(cli.getOptionValue('l')).orElse(null);
 		if(language == null){
 			throw new InputException("No query language specified.");
+		}else if(!language.isReachabilityQuery()){
+			throw new InputException("Only evaluation of reachability queries is supported currently.");
 		}
 		
 		DatabaseGraph graph = readDatabaseGraph(cli);
@@ -104,14 +107,14 @@ public final class EvaluatorClient extends CommandLineClient{
 		if(hasSingleQuery){
 			return List.of(new PathQuery(
 				Optional.ofNullable(cli.getOptionValue('s')).map(Integer::parseInt),
-				language.parse(cli.getOptionValue('q')),
+				(ReachabilityQueryLanguageSyntax)language.parse(cli.getOptionValue('q')),
 				Optional.ofNullable(cli.getOptionValue('t')).map(Integer::parseInt)
 			));
 		}else{
 			try{
 				System.out.println("Reading query workload...");
 				final List<Predicate> labels = graph.getLabels();
-				return Util.readWorkload(Paths.get(cli.getOptionValue('w')), q->language.parse(q, labels));
+				return Util.readWorkload(Paths.get(cli.getOptionValue('w')), q->(ReachabilityQueryLanguageSyntax)language.parse(q, labels));
 			}catch(IOException e){
 				e.printStackTrace();
 				throw new InputException("Failed to read the provided workload file.");

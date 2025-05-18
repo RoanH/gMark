@@ -41,7 +41,7 @@ public class ParserCPQTest{
 	
 	@Test
 	public void parse2(){
-		assertEquals("(a ∩ b ∩ c)", CPQ.parse("a ∩ b ∩ c").toString());
+		assertEquals("(a ∩ b ∩ c)", CPQ.parse("a∩b∩c").toString());
 	}
 	
 	@Test

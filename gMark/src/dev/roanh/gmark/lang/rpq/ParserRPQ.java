@@ -109,7 +109,7 @@ public final class ParserRPQ extends GenericParser{
 	 * @throws IllegalArgumentException When the given string is not a valid RPQ.
 	 * @see #parse(String)
 	 */
-	public static RPQ parse(String query, Map<String, Predicate> labels, char join, char disjunct, char kleene, char inverse) throws IllegalArgumentException{
+	private static RPQ parse(String query, Map<String, Predicate> labels, char join, char disjunct, char kleene, char inverse) throws IllegalArgumentException{
 		List<String> parts = split(query, join);
 		if(parts.size() > 1){
 			return RPQ.concat(parts.stream().map(part->{

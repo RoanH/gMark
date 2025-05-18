@@ -20,13 +20,13 @@ package dev.roanh.gmark.lang.cq;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.StringJoiner;
 
 import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
-import dev.roanh.gmark.lang.rpq.RPQ;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -97,7 +97,7 @@ public class CQ implements QueryLanguageSyntax{
 	@Override
 	public String toFormalSyntax(){
 		//free variables
-		StringJoiner head = new StringJoiner(", ", "(", ") ← ");
+		StringJoiner head = new StringJoiner(", ", "(", ") " + QueryLanguageSyntax.CHAR_ASSIGN + " ");
 		variables.stream().filter(VarCQ::isFree).map(VarCQ::getName).sorted().forEach(head::add);
 
 		//body
@@ -135,9 +135,15 @@ public class CQ implements QueryLanguageSyntax{
 		return toFormalSyntax();
 	}
 	
-	//TODO parse from string variants
+	public static CQ parse(String query) throws IllegalArgumentException{
+		return ParserCQ.parse(query);
+	}
 	
-	public static RPQ parse(QueryTree ast) throws IllegalArgumentException{
+	public static CQ parse(String query, List<Predicate> labels) throws IllegalArgumentException{
+		return ParserCQ.parse(query, labels);
+	}
+	
+	public static CQ parse(QueryTree ast) throws IllegalArgumentException{
 		return null;//TODO
 	}
 	

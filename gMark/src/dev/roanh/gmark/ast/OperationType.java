@@ -111,7 +111,7 @@ public enum OperationType{
 	 */
 	DISJUNCTION(2),
 	/**
-	 * The <join> operation is an operation of variable arity that joins its operands on
+	 * The <i>join</i> operation is an operation of variable arity that joins its operands on
 	 * all the shared vertices between them. It is the general case of the {@link #CONCATENATION}
 	 * operation, which is limited to just two operands.
 	 */

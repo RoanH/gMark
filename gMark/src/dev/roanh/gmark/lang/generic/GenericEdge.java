@@ -18,9 +18,10 @@
  */
 package dev.roanh.gmark.lang.generic;
 
+import dev.roanh.gmark.ast.EdgeAtom;
 import dev.roanh.gmark.ast.OperationType;
-import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.ast.QueryFragment;
+import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.output.OutputFormal;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
@@ -33,7 +34,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * in inverse direction from target to source.
  * @author Roan
  */
-public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML, QueryFragment{
+public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML, QueryFragment, EdgeAtom{
 	/**
 	 * The label traversed by this query.
 	 */
@@ -47,10 +48,7 @@ public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML,
 		this.symbol = symbol;
 	}
 	
-	/**
-	 * Gets the label (symbol) for this edge.
-	 * @return The label for this edge.
-	 */
+	@Override
 	public Predicate getLabel(){
 		return symbol;
 	}

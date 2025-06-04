@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
-import dev.roanh.gmark.lang.generic.GenericEdge;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -47,7 +46,7 @@ public class QueryTree{
 	
 	/**
 	 * Constructs a new query tree from the given input.
-	 * @param operands The input arguments, the list size corresponds to the operation arity. 
+	 * @param operands The input arguments, the list size corresponds to the operation arity.
 	 * @param fragment The query fragment this AST node was derived from.
 	 */
 	private QueryTree(List<QueryTree> operands, QueryFragment fragment){
@@ -92,7 +91,7 @@ public class QueryTree{
 	 * <p>
 	 * Note: this function provides the actual arity, which may differ from the arity
 	 * of the operation for this AST node, in particular when the operation does not
-	 * have a fixed arity (e.g., {@link OperationType#JOIN}.
+	 * have a fixed arity (e.g., {@link OperationType#JOIN}).
 	 * @return The number of operands for the operation of this node (arity).
 	 * @see OperationType#getArity()
 	 */
@@ -124,7 +123,7 @@ public class QueryTree{
 			throw new IllegalStateException("Query fragment is not an AST edge leaf.");
 		}
 		
-		return ((GenericEdge)fragment).getLabel();
+		return ((EdgeAtom)fragment).getLabel();
 	}
 	
 	/**
@@ -214,5 +213,9 @@ public class QueryTree{
 	 */
 	public static QueryTree ofBinary(QueryTree left, QueryTree right, QueryFragment fragment){
 		return new QueryTree(List.of(left, right), fragment);
+	}
+	
+	public static QueryTree ofNAry(List<QueryTree> inputs, QueryFragment fragment){
+		return new QueryTree(inputs, fragment);
 	}
 }

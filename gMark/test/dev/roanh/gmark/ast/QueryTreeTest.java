@@ -20,9 +20,12 @@ package dev.roanh.gmark.ast;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.lang.cpq.CPQ;
+import dev.roanh.gmark.lang.cq.CQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
 import dev.roanh.gmark.type.schema.Predicate;
 
@@ -88,5 +91,23 @@ public class QueryTreeTest{
 		ast = ast.getOperand(1);
 		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
 		assertEquals(a, ast.getOperand(0).getPredicate());
+	}
+	
+	@Test
+	public void ast4(){
+		CQ query = CQ.parse("(f1, f2) ← a(b2, b2), b(f1, b2), b(f2, b2)", List.of(a, b));
+		
+		QueryTree ast = query.toAbstractSyntaxTree();
+		assertEquals(3, ast.getArity());
+		assertEquals(OperationType.JOIN, ast.getOperation());
+		
+		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
+		assertEquals(a, ast.getOperand(0).getPredicate());
+		
+		assertEquals(OperationType.EDGE, ast.getOperand(1).getOperation());
+		assertEquals(b, ast.getOperand(1).getPredicate());
+		
+		assertEquals(OperationType.EDGE, ast.getOperand(2).getOperation());
+		assertEquals(b, ast.getOperand(2).getPredicate());
 	}
 }

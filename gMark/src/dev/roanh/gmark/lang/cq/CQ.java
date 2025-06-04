@@ -36,11 +36,11 @@ import dev.roanh.gmark.util.IndentWriter;
  * @see <a href="https://en.wikipedia.org/wiki/Conjunctive_query">Conjunctive Query</a>
  */
 public class CQ implements QueryLanguageSyntax{
-	private final Collection<VarCQ> variables; 
+	private final Collection<VarCQ> variables;
 	private final Collection<AtomCQ> formulae;
 	
 	private CQ(){
-		variables = new ArrayList<VarCQ>(); 
+		variables = new ArrayList<VarCQ>();
 		formulae = new ArrayList<AtomCQ>();
 	}
 	
@@ -120,14 +120,15 @@ public class CQ implements QueryLanguageSyntax{
 
 	@Override
 	public OperationType getOperationType(){
-		// TODO Auto-generated method stub
-		return OperationType.JOIN;//join? 'and'
+		return OperationType.JOIN;
 	}
 
 	@Override
 	public QueryTree toAbstractSyntaxTree(){
-		// TODO Auto-generated method stub
-		return null;
+		return QueryTree.ofNAry(
+			formulae.stream().map(AtomCQ::toAbstractSyntaxTree).toList(),
+			this
+		);
 	}
 	
 	@Override

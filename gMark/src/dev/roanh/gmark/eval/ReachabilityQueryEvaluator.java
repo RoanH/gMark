@@ -110,7 +110,7 @@ public class ReachabilityQueryEvaluator{
 		case KLEENE:
 			return planTransitiveClosure(source, path, target);
 		case JOIN:
-			throw new IllegalArgumentException("This evaluator only support reachability queries.");
+			throw new IllegalArgumentException("This evaluator only supports reachability queries.");
 		}
 		
 		throw new IllegalStateException("Unknown database operation.");

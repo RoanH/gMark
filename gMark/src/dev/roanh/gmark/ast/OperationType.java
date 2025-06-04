@@ -164,7 +164,7 @@ public enum OperationType{
 	
 	/**
 	 * Gets the arity of this operator, that is, the number of arguments or operands it takes.
-	 * @return The arity of this operator, will be -1 the operator can be applied to any number of inputs.
+	 * @return The arity of this operator, will be -1 the operator can be applied to any number of inputs (n-ary).
 	 */
 	public int getArity(){
 		return operands;

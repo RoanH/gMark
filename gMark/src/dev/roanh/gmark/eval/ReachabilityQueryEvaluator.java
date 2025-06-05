@@ -102,7 +102,7 @@ public class ReachabilityQueryEvaluator{
 		case DISJUNCTION:
 			return evaluate(source, path.getOperand(FIRST), target).union(evaluate(source, path.getOperand(SECOND), target));
 		case EDGE:
-			return selectEdge(source, path.getPredicate(), target);
+			return selectEdge(source, path.getEdgeAtom().getLabel(), target);
 		case IDENTITY:
 			return selectIdentity(source, target);
 		case INTERSECTION:

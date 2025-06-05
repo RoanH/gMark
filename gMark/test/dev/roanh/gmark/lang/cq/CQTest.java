@@ -41,4 +41,6 @@ public class CQTest{
 
 		assertEquals("(f1, f2) ← one(b1, f2), zero(f1, b1)", query.toFormalSyntax());
 	}
+	
+	//TODO AST to CQ test
 }

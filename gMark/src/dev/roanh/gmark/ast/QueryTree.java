@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
-import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
@@ -108,22 +107,34 @@ public class QueryTree{
 		return fragment.getOperationType();
 	}
 	
-	/**
-	 * If the operation for this AST node is {@link OperationType#EDGE},
-	 * returns the edge label or predicate associated with edge at this AST node.
-	 * @return The label at this AST node.
-	 * @throws IllegalStateException When the operation for this AST node
-	 *         is not equal to {@link OperationType#EDGE}.
-	 * @see Predicate
-	 * @see OperationType#EDGE
-	 * @see #getOperation()
-	 */
-	public Predicate getPredicate() throws IllegalStateException{
+//	/**
+//	 * If the operation for this AST node is {@link OperationType#EDGE},
+//	 * returns the edge label or predicate associated with edge at this AST node.
+//	 * @return The label at this AST node.
+//	 * @throws IllegalStateException When the operation for this AST node
+//	 *         is not equal to {@link OperationType#EDGE}.
+//	 * @see Predicate
+//	 * @see OperationType#EDGE
+//	 * @see #getOperation()
+//	 */
+//	public Predicate getPredicate() throws IllegalStateException{
+//		return getEdgeAtom().getLabel();
+//	}
+	
+	public EdgeAtom getEdgeAtom() throws IllegalStateException{
 		if(getOperation() != OperationType.EDGE){
 			throw new IllegalStateException("Query fragment is not an AST edge leaf.");
 		}
 		
-		return ((EdgeAtom)fragment).getLabel();
+		return ((EdgeAtom)fragment);
+	}
+	
+	public Atom getAtom() throws IllegalStateException{
+		if(fragment instanceof Atom atom){
+			return atom;
+		}else{
+			throw new IllegalStateException("Query fragment is not an AST leaf.");
+		}
 	}
 	
 	/**
@@ -188,7 +199,7 @@ public class QueryTree{
 	 * @return The AST for the given query fragment.
 	 * @see OperationType#isAtom()
 	 */
-	public static QueryTree ofAtom(QueryFragment fragment){
+	public static QueryTree ofAtom(Atom fragment){
 		return new QueryTree(List.of(), fragment);
 	}
 	

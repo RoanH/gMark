@@ -2,7 +2,6 @@ package dev.roanh.gmark.lang.cq;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
@@ -13,10 +12,10 @@ import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphNode;
 
 public class QueryGraphCQ{
-	private final Collection<VarCQ> variables; 
-	private final Collection<AtomCQ> edges;
+	private final Set<VarCQ> variables;
+	private final Set<AtomCQ> edges;
 	
-	public QueryGraphCQ(Collection<VarCQ> variables, Collection<AtomCQ> edges){
+	public QueryGraphCQ(Set<VarCQ> variables, Set<AtomCQ> edges){
 		this.variables = variables;
 		this.edges = edges;
 	}
@@ -63,7 +62,7 @@ public class QueryGraphCQ{
 		currentEdges.add(graph.getEdges().get(0));
 		
 		Set<VarCQ> componentVars = new HashSet<VarCQ>();
-		List<AtomCQ> componentAtoms = new ArrayList<AtomCQ>();
+		Set<AtomCQ> componentAtoms = new HashSet<AtomCQ>();
 		List<QueryGraphCQ> components = new ArrayList<QueryGraphCQ>();
 		
 		while(!nextEdges.isEmpty() || !currentEdges.isEmpty()){
@@ -100,7 +99,7 @@ public class QueryGraphCQ{
 				if(!componentAtoms.isEmpty()){
 					components.add(new QueryGraphCQ(componentVars, componentAtoms));
 					componentVars = new HashSet<VarCQ>();
-					componentAtoms = new ArrayList<AtomCQ>();
+					componentAtoms = new HashSet<AtomCQ>();
 				}
 				
 				currentEdges.add(nextEdges.removeFirst());

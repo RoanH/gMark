@@ -18,11 +18,12 @@
  */
 package dev.roanh.gmark.lang.cq;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 
+import dev.roanh.gmark.ast.EdgeAtom;
 import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.lang.QueryLanguage;
@@ -36,15 +37,15 @@ import dev.roanh.gmark.util.IndentWriter;
  * @see <a href="https://en.wikipedia.org/wiki/Conjunctive_query">Conjunctive Query</a>
  */
 public class CQ implements QueryLanguageSyntax{
-	private final Collection<VarCQ> variables;
-	private final Collection<AtomCQ> formulae;
+	private final Set<VarCQ> variables;
+	private final Set<AtomCQ> formulae;
 	
 	private CQ(){
-		variables = new ArrayList<VarCQ>();
-		formulae = new ArrayList<AtomCQ>();
+		variables = new HashSet<VarCQ>();
+		formulae = new HashSet<AtomCQ>();
 	}
 	
-	protected CQ(Collection<VarCQ> variables, Collection<AtomCQ> formulae){
+	protected CQ(Set<VarCQ> variables, Set<AtomCQ> formulae){
 		this.variables = variables;
 		this.formulae = formulae;
 	}
@@ -145,7 +146,27 @@ public class CQ implements QueryLanguageSyntax{
 	}
 	
 	public static CQ parse(QueryTree ast) throws IllegalArgumentException{
-		return null;//TODO
+		if(ast.getOperation() != OperationType.JOIN){
+			throw new IllegalArgumentException("The given AST contains operations that are not part of the CQ query language.");
+		}
+
+		Set<VarCQ> variables = new HashSet<VarCQ>();
+		Set<AtomCQ> formulae = new HashSet<AtomCQ>();
+		for(int i = 0; i < ast.getArity(); i++){
+			QueryTree op = ast.getOperand(i);
+			if(op.getOperation() != OperationType.EDGE){
+				throw new IllegalArgumentException("The given AST contains operations that are not part of the CQ query language.");
+			}
+
+			EdgeAtom atom = op.getEdgeAtom();
+			VarCQ source = new VarCQ(atom.getSource());
+			VarCQ target = new VarCQ(atom.getTarget());
+			variables.add(source);
+			variables.add(target);
+			formulae.add(new AtomCQ(source, atom.getLabel(), target));
+		}
+		
+		return new CQ(variables, formulae);
 	}
 	
 	public static final CQ empty(){

@@ -288,7 +288,7 @@ public abstract interface CPQ extends ReachabilityQueryLanguageSyntax{
 		case CONCATENATION:
 			return concat(parse(ast.getOperand(0)), parse(ast.getOperand(1)));
 		case EDGE:
-			return label(ast.getPredicate());
+			return label(ast.getEdgeAtom().getLabel());
 		case IDENTITY:
 			return id();
 		case INTERSECTION:

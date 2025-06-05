@@ -19,6 +19,8 @@
 package dev.roanh.gmark.ast;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -34,67 +36,67 @@ public class QueryTreeTest{
 	private static final Predicate b = new Predicate(1, "b");
 
 	@Test
-	public void ast0(){
+	public void cpq0(){
 		CPQ query = CPQ.labels(a, b);
 		
 		QueryTree ast = query.toAbstractSyntaxTree();
 		assertEquals(OperationType.CONCATENATION, ast.getOperation());
 		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
-		assertEquals(a, ast.getOperand(0).getPredicate());
+		assertEquals(a, ast.getOperand(0).getEdgeAtom().getLabel());
 		assertEquals(OperationType.EDGE, ast.getOperand(1).getOperation());
-		assertEquals(b, ast.getOperand(1).getPredicate());
+		assertEquals(b, ast.getOperand(1).getEdgeAtom().getLabel());
 	}
 	
 	@Test
-	public void ast1(){
+	public void cpq1(){
 		CPQ query = CPQ.intersect(CPQ.label(a), CPQ.label(b), CPQ.id());
 		
 		QueryTree ast = query.toAbstractSyntaxTree();
 		assertEquals(OperationType.INTERSECTION, ast.getOperation());
 		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
-		assertEquals(a, ast.getOperand(0).getPredicate());
+		assertEquals(a, ast.getOperand(0).getEdgeAtom().getLabel());
 		assertEquals(OperationType.INTERSECTION, ast.getOperand(1).getOperation());
 		
 		ast = ast.getOperand(1);
 		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
-		assertEquals(b, ast.getOperand(0).getPredicate());
+		assertEquals(b, ast.getOperand(0).getEdgeAtom().getLabel());
 		assertEquals(OperationType.IDENTITY, ast.getOperand(1).getOperation());
 	}
 
 	@Test
-	public void ast2(){
+	public void rpq0(){
 		RPQ query = RPQ.labels(a, b);
 		
 		QueryTree ast = query.toAbstractSyntaxTree();
 		assertEquals(OperationType.CONCATENATION, ast.getOperation());
 		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
-		assertEquals(a, ast.getOperand(0).getPredicate());
+		assertEquals(a, ast.getOperand(0).getEdgeAtom().getLabel());
 		assertEquals(OperationType.EDGE, ast.getOperand(1).getOperation());
-		assertEquals(b, ast.getOperand(1).getPredicate());
+		assertEquals(b, ast.getOperand(1).getEdgeAtom().getLabel());
 	}
 	
 	@Test
-	public void ast3(){
+	public void rpq1(){
 		RPQ query = RPQ.disjunct(RPQ.label(a), RPQ.label(b), RPQ.kleene(RPQ.label(a)));
 		
 		QueryTree ast = query.toAbstractSyntaxTree();
 		assertEquals(OperationType.DISJUNCTION, ast.getOperation());
 		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
-		assertEquals(a, ast.getOperand(0).getPredicate());
+		assertEquals(a, ast.getOperand(0).getEdgeAtom().getLabel());
 		assertEquals(OperationType.DISJUNCTION, ast.getOperand(1).getOperation());
 		
 		ast = ast.getOperand(1);
 		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
-		assertEquals(b, ast.getOperand(0).getPredicate());
+		assertEquals(b, ast.getOperand(0).getEdgeAtom().getLabel());
 		assertEquals(OperationType.KLEENE, ast.getOperand(1).getOperation());
 		
 		ast = ast.getOperand(1);
 		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
-		assertEquals(a, ast.getOperand(0).getPredicate());
+		assertEquals(a, ast.getOperand(0).getEdgeAtom().getLabel());
 	}
 	
 	@Test
-	public void ast4(){
+	public void cq0(){
 		CQ query = CQ.parse("(f1, f2) ← a(b2, b2), b(f1, b2), b(f2, b2)", List.of(a, b));
 		
 		QueryTree ast = query.toAbstractSyntaxTree();
@@ -102,12 +104,24 @@ public class QueryTreeTest{
 		assertEquals(OperationType.JOIN, ast.getOperation());
 		
 		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
-		assertEquals(a, ast.getOperand(0).getPredicate());
+		assertEquals(a, ast.getOperand(0).getEdgeAtom().getLabel());
+		assertEquals("b2", ast.getOperand(0).getAtom().getSource().getName());
+		assertFalse(ast.getOperand(0).getAtom().getSource().isFree());
+		assertEquals("b2", ast.getOperand(0).getAtom().getTarget().getName());
+		assertFalse(ast.getOperand(0).getAtom().getTarget().isFree());
 		
 		assertEquals(OperationType.EDGE, ast.getOperand(1).getOperation());
-		assertEquals(b, ast.getOperand(1).getPredicate());
+		assertEquals(b, ast.getOperand(1).getEdgeAtom().getLabel());
+		assertEquals("f1", ast.getOperand(1).getAtom().getSource().getName());
+		assertTrue(ast.getOperand(1).getAtom().getSource().isFree());
+		assertEquals("b2", ast.getOperand(1).getAtom().getTarget().getName());
+		assertFalse(ast.getOperand(1).getAtom().getTarget().isFree());
 		
 		assertEquals(OperationType.EDGE, ast.getOperand(2).getOperation());
-		assertEquals(b, ast.getOperand(2).getPredicate());
+		assertEquals(b, ast.getOperand(2).getEdgeAtom().getLabel());
+		assertEquals("f2", ast.getOperand(2).getAtom().getSource().getName());
+		assertTrue(ast.getOperand(2).getAtom().getSource().isFree());
+		assertEquals("b2", ast.getOperand(2).getAtom().getTarget().getName());
+		assertFalse(ast.getOperand(2).getAtom().getTarget().isFree());
 	}
 }

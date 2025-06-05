@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import dev.roanh.gmark.lang.cq.AtomCQ;
 import dev.roanh.gmark.lang.cq.QueryGraphCQ;
@@ -37,9 +38,9 @@ import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.RangeList;
 import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph;
+import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.graph.generic.Tree;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
-import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
 
 /**
  * Object representing the query graph of a CPQ. This is effectively a visual representation
@@ -160,7 +161,7 @@ public class QueryGraphCPQ{
 	 * edge and identity sets. Note that this method
 	 * does not create a new query graph and instead
 	 * updates this graph with the data from the given
-	 * other graph. 
+	 * other graph.
 	 * @param other The graph to merge with.
 	 * @return The computed union graph (equal to this graph).
 	 */
@@ -225,12 +226,12 @@ public class QueryGraphCPQ{
 		}
 		
 		return new QueryGraphCQ(
-			variables.values(),
+			new HashSet<VarCQ>(variables.values()),
 			edges.stream().map(edge->new AtomCQ(
 				variables.get(edge.src),
 				edge.label,
 				variables.get(edge.trg)
-			)).toList()
+			)).collect(Collectors.toSet())
 		);
 	}
 	
@@ -510,7 +511,7 @@ public class QueryGraphCPQ{
 					Edge edge = (Edge)obj;
 
 					//check if referenced nodes match and the loop status matches
-					if((ref[0] >= 0 && !head.get(ref[0]).equals(edge.src)) || (ref[1] >= 0 && !head.get(ref[1]).equals(edge.trg)) || (ref[1] == -2 && !edge.src.equals(edge.trg))){						
+					if((ref[0] >= 0 && !head.get(ref[0]).equals(edge.src)) || (ref[1] >= 0 && !head.get(ref[1]).equals(edge.trg)) || (ref[1] == -2 && !edge.src.equals(edge.trg))){
 						//if not these candidates are invalid
 						for(int i = 0; i < size; i++){
 							product[idx++] = null;

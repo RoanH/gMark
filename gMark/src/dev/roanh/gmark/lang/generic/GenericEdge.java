@@ -19,9 +19,7 @@
 package dev.roanh.gmark.lang.generic;
 
 import dev.roanh.gmark.ast.EdgeAtom;
-import dev.roanh.gmark.ast.OperationType;
-import dev.roanh.gmark.ast.QueryFragment;
-import dev.roanh.gmark.ast.QueryTree;
+import dev.roanh.gmark.ast.Variable;
 import dev.roanh.gmark.output.OutputFormal;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
@@ -34,7 +32,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * in inverse direction from target to source.
  * @author Roan
  */
-public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML, QueryFragment, EdgeAtom{
+public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML, EdgeAtom{
 	/**
 	 * The label traversed by this query.
 	 */
@@ -46,6 +44,16 @@ public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML,
 	 */
 	protected GenericEdge(Predicate symbol){
 		this.symbol = symbol;
+	}
+	
+	@Override
+	public Variable getSource(){
+		return GenericVariable.SRC;
+	}
+	
+	@Override
+	public Variable getTarget(){
+		return GenericVariable.TRG;
 	}
 	
 	@Override
@@ -75,15 +83,5 @@ public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML,
 	@Override
 	public void writeXML(IndentWriter writer){
 		symbol.writeXML(writer);
-	}
-	
-	@Override
-	public OperationType getOperationType(){
-		return OperationType.EDGE;
-	}
-	
-	@Override
-	public QueryTree toAbstractSyntaxTree(){
-		return QueryTree.ofAtom(this);
 	}
 }

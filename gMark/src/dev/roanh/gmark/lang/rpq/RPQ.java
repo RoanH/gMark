@@ -52,7 +52,7 @@ public abstract interface RPQ extends ReachabilityQueryLanguageSyntax{
 	
 	/**
 	 * Returns an RPQ representing the transitive closure of the disjunction
-	 * of the given set of labels. 
+	 * of the given set of labels.
 	 * @param labels The labels for the transitive closure.
 	 * @return The transitive closure of disjunction of the given labels.
 	 * @throws IllegalArgumentException When the array of labels is empty.
@@ -215,7 +215,7 @@ public abstract interface RPQ extends ReachabilityQueryLanguageSyntax{
 		case DISJUNCTION:
 			return disjunct(parse(ast.getOperand(0)), parse(ast.getOperand(1)));
 		case EDGE:
-			return label(ast.getPredicate());
+			return label(ast.getEdgeAtom().getLabel());
 		case KLEENE:
 			return kleene(parse(ast.getOperand(0)));
 		default:

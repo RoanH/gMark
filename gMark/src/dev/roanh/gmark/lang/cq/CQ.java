@@ -18,6 +18,8 @@
  */
 package dev.roanh.gmark.lang.cq;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,14 +40,14 @@ import dev.roanh.gmark.util.IndentWriter;
  */
 public class CQ implements QueryLanguageSyntax{
 	private final Set<VarCQ> variables;
-	private final Set<AtomCQ> formulae;
+	private final Collection<AtomCQ> formulae;
 	
 	private CQ(){
 		variables = new HashSet<VarCQ>();
-		formulae = new HashSet<AtomCQ>();
+		formulae = new ArrayList<AtomCQ>();
 	}
 	
-	protected CQ(Set<VarCQ> variables, Set<AtomCQ> formulae){
+	protected CQ(Set<VarCQ> variables, Collection<AtomCQ> formulae){
 		this.variables = variables;
 		this.formulae = formulae;
 	}
@@ -151,7 +153,7 @@ public class CQ implements QueryLanguageSyntax{
 		}
 
 		Set<VarCQ> variables = new HashSet<VarCQ>();
-		Set<AtomCQ> formulae = new HashSet<AtomCQ>();
+		List<AtomCQ> formulae = new ArrayList<AtomCQ>();
 		for(int i = 0; i < ast.getArity(); i++){
 			QueryTree op = ast.getOperand(i);
 			if(op.getOperation() != OperationType.EDGE){

@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import dev.roanh.gmark.lang.cq.AtomCQ;
 import dev.roanh.gmark.lang.cq.QueryGraphCQ;
@@ -231,7 +230,7 @@ public class QueryGraphCPQ{
 				variables.get(edge.src),
 				edge.label,
 				variables.get(edge.trg)
-			)).collect(Collectors.toSet())
+			)).toList()
 		);
 	}
 	

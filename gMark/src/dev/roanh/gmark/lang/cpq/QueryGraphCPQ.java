@@ -211,6 +211,10 @@ public class QueryGraphCPQ{
 		return graph;
 	}
 	
+	/**
+	 * Converts this CPQ query graph to an equivalent CQ query graph.
+	 * @return The constructed CQ query graph.
+	 */
 	public QueryGraphCQ toQueryGraphCQ(){
 		merge();
 		

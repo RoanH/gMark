@@ -5,6 +5,9 @@ import java.util.Objects;
 import dev.roanh.gmark.ast.QueryVariable;
 
 public class VarCQ implements QueryVariable{
+	/**
+	 * The display name of this variable.
+	 */
 	private final String name;
 	/**
 	 * True if this is a free variable, free variables
@@ -38,7 +41,7 @@ public class VarCQ implements QueryVariable{
 	
 	@Override
 	public boolean equals(Object obj){
-		return obj instanceof VarCQ v && Objects.equals(v.name, name) && v.free == free;
+		return obj instanceof VarCQ v && Objects.equals(v.name, name);
 	}
 	
 	@Override

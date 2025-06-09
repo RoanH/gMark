@@ -2,7 +2,6 @@ package dev.roanh.gmark.lang.cq;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
@@ -14,9 +13,9 @@ import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphNode;
 
 public class QueryGraphCQ{
 	private final Set<VarCQ> variables;
-	private final Collection<AtomCQ> edges;
+	private final List<AtomCQ> edges;
 	
-	public QueryGraphCQ(Set<VarCQ> variables, Collection<AtomCQ> edges){
+	public QueryGraphCQ(Set<VarCQ> variables, List<AtomCQ> edges){
 		this.variables = variables;
 		this.edges = edges;
 	}
@@ -54,6 +53,7 @@ public class QueryGraphCQ{
 		return graph;
 	}
 	
+	//TODO move to generic util that takes in the split vars
 	public List<QueryGraphCQ> splitOnFreeVariables(){
 		UniqueGraph<VarCQ, AtomCQ> graph = toUniqueGraph();
 		

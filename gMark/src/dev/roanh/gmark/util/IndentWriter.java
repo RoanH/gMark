@@ -44,6 +44,7 @@ public class IndentWriter{
 	 * be prefixed with spaces.
 	 */
 	private boolean newLine = true;
+	private int mark = -1;
 	
 	/**
 	 * Constructs a new indent writer
@@ -164,6 +165,18 @@ public class IndentWriter{
 	 */
 	public void print(int i){
 		print(String.valueOf(i));
+	}
+	
+	public void mark(){
+		mark = content.length();
+	}
+
+	public void deleteFromMark(int n){
+		content.delete(mark, mark + n);
+	}
+	
+	public void deleteAllFromMark(){
+		content.delete(mark, content.length());
 	}
 	
 	@Override

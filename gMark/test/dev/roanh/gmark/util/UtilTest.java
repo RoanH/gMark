@@ -41,9 +41,9 @@ import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.QueryGraphComponent;
 import dev.roanh.gmark.type.IDable;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph;
-import dev.roanh.gmark.util.graph.generic.Tree;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
+import dev.roanh.gmark.util.graph.generic.Tree;
 
 public class UtilTest{
 	private static final Predicate a = new Predicate(0, "a");
@@ -476,7 +476,7 @@ public class UtilTest{
 		
 		//2. All edges are in a bag
 		outer: for(SimpleEdge<T, M> e : edges){
-			for(List<T> bag : decomp.stream().map(Tree::getData).collect(Collectors.toList())){
+			for(List<T> bag : decomp.stream().map(Tree::getData).toList()){
 				if(bag.contains(e.getFirstVertex().getData()) && bag.contains(e.getSecondVertex().getData())){
 					continue outer;
 				}

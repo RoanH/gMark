@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import dev.roanh.gmark.gen.shape.QueryShape;
 import dev.roanh.gmark.gen.workload.cpq.ConjunctCPQ;
 import dev.roanh.gmark.lang.cpq.CPQ;
+import dev.roanh.gmark.lang.cq.CQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
 import dev.roanh.gmark.query.Query;
 import dev.roanh.gmark.query.Variable;
@@ -34,8 +35,8 @@ import dev.roanh.gmark.type.Selectivity;
 import dev.roanh.gmark.type.schema.Predicate;
 
 public class OutputSQLTest{
-	private static final Predicate pred0 = new Predicate(0, "0");
-	private static final Predicate pred1 = new Predicate(1, "1");
+	private static final Predicate pred0 = new Predicate(0, "zero");
+	private static final Predicate pred1 = new Predicate(1, "one");
 	private static final CPQ label0 = CPQ.label(pred0);
 	private static final CPQ label1 = CPQ.label(pred1);
 	private static final CPQ label1i = CPQ.label(pred1.getInverse());
@@ -221,7 +222,7 @@ public class OutputSQLTest{
 	}
 	
 	@Test
-	public void disjuctToSQL0(){
+	public void disjunctToSQL0(){
 		assertEquals(
 			"""
 			SELECT src, trg FROM (
@@ -339,6 +340,45 @@ public class OutputSQLTest{
 			WHERE s0.trg = s1.src
 			""".trim(),
 			RPQ.concat(RPQ.label(pred0), RPQ.kleene(RPQ.kleene(RPQ.label(pred0)))).toSQL()
+		);
+	}
+	
+	@Test
+	public void cqToSQL(){
+		assertEquals(
+			"""
+			SELECT
+			  edge1.src AS f1,
+			  edge2.src AS f2,
+			  edge3.trg AS f3,
+			  edge4.src AS f4,
+			  edge4.trg AS f5
+			FROM
+			  edge edge0,
+			  edge edge1,
+			  edge edge2,
+			  edge edge3,
+			  edge edge4
+			WHERE
+			  edge0.label = 1
+			  AND
+			  edge1.label = 0
+			  AND
+			  edge2.label = 0
+			  AND
+			  edge3.label = 1
+			  AND
+			  edge4.label = 1
+			  AND
+			  edge1.src = edge3.src
+			  AND
+			  edge0.src = edge0.trg
+			  AND
+			  edge0.src = edge1.trg
+			  AND
+			  edge0.src = edge2.trg
+			""".trim(),
+			CQ.parse("(f1, f2, f3, f4, f5) ← one(b2, b2), zero(f1, b2), zero(f2, b2), one(f1, f3), one(f4, f5)", List.of(pred0, pred1)).toSQL()
 		);
 	}
 }

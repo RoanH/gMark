@@ -85,8 +85,6 @@ public final class CQ implements QueryLanguageSyntax{
 		return new QueryGraphCQ(variables, formulae);
 	}
 	
-	
-	
 	@Override
 	public QueryLanguage getQueryLanguage(){
 		return QueryLanguage.CQ;
@@ -94,6 +92,11 @@ public final class CQ implements QueryLanguageSyntax{
 
 	@Override
 	public void writeSQL(IndentWriter writer){
+		if(formulae.isEmpty()){
+			throw new IllegalStateException("Cannot convert a CQ without formulae to SQL.");
+		}
+			
+		//general setup
 		Map<VarCQ, List<AtomCQ>> atomsForVariable = new HashMap<VarCQ, List<AtomCQ>>();
 		Map<AtomCQ, Integer> atomId = new LinkedHashMap<AtomCQ, Integer>();
 		int id = 0;
@@ -112,8 +115,6 @@ public final class CQ implements QueryLanguageSyntax{
 				).add(atom);
 			}
 		}
-		
-		//TODO handle a CQ without formulae
 		
 		//head
 		writer.println("SELECT", 2);

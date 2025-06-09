@@ -19,6 +19,7 @@
 package dev.roanh.gmark.output;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 
@@ -380,5 +381,11 @@ public class OutputSQLTest{
 			""".trim(),
 			CQ.parse("(f1, f2, f3, f4, f5) ← one(b2, b2), zero(f1, b2), zero(f2, b2), one(f1, f3), one(f4, f5)", List.of(pred0, pred1)).toSQL()
 		);
+	}
+	
+	@Test
+	public void cqToSQLThrows(){
+		CQ cq = CQ.empty();
+		assertThrows(IllegalStateException.class, cq::toSQL);
 	}
 }

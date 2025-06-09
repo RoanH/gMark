@@ -82,6 +82,7 @@ public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML,
 	
 	@Override
 	public void writeXML(IndentWriter writer){
+		//TODO validate
 		symbol.writeXML(writer);
 	}
 }

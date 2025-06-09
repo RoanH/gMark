@@ -21,7 +21,6 @@ package dev.roanh.gmark.lang.cpq;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.ast.QueryTree;
@@ -268,7 +267,7 @@ public abstract interface CPQ extends ReachabilityQueryLanguageSyntax{
 	 *        if labels are found in the input that are not covered by the given list.
 	 * @return The parsed CPQ.
 	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
-	 * @see ParserCPQ#parse(String, Map, char, char, char)
+	 * @see ParserCPQ#parse(String, List, char, char, char)
 	 * @see QueryLanguageSyntax
 	 */
 	public static CPQ parse(String query, List<Predicate> labels) throws IllegalArgumentException{

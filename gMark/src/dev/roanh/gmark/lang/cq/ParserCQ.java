@@ -40,7 +40,11 @@ public final class ParserCQ extends GenericParser{
 	}
 	
 	public static CQ parse(String query, List<Predicate> labels) throws IllegalArgumentException{
-		return parse(query, mapPredicates(labels), CHAR_ASSIGN);
+		return parse(query, labels, CHAR_ASSIGN);
+	}
+	
+	public static CQ parse(String query, List<Predicate> labels, char assign) throws IllegalArgumentException{
+		return parse(query, mapPredicates(labels), assign);
 	}
 	
 	public static CQ parse(String query, char assign) throws IllegalArgumentException{

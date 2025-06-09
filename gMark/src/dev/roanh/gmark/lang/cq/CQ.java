@@ -160,7 +160,7 @@ public class CQ implements QueryLanguageSyntax{
 				throw new IllegalArgumentException("The given AST contains operations that are not part of the CQ query language.");
 			}
 
-			EdgeQueryAtom atom = op.getEdgeAtom();//TODO maybe just an empty CQ and private add atom?
+			EdgeQueryAtom atom = op.getEdgeAtom();
 			VarCQ source = new VarCQ(atom.getSource());
 			VarCQ target = new VarCQ(atom.getTarget());
 			variables.add(source);

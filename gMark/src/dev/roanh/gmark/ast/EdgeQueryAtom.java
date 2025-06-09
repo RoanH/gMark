@@ -20,6 +20,11 @@ package dev.roanh.gmark.ast;
 
 import dev.roanh.gmark.type.schema.Predicate;
 
+/**
+ * Representation of an edge operation query atom.
+ * @author Roan
+ * @see OperationType#EDGE
+ */
 public abstract interface EdgeQueryAtom extends QueryAtom{
 
 	/**

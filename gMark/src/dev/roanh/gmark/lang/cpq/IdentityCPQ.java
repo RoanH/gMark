@@ -85,11 +85,11 @@ public final class IdentityCPQ implements CPQ, QueryAtom{
 
 	@Override
 	public QueryVariable getSource(){
-		return GenericVariable.SRC;
+		return GenericVariable.SOURCE;
 	}
 
 	@Override
 	public QueryVariable getTarget(){
-		return GenericVariable.TRG;
+		return GenericVariable.TARGET;
 	}
 }

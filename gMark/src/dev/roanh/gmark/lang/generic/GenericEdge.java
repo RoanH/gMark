@@ -48,12 +48,12 @@ public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML,
 	
 	@Override
 	public QueryVariable getSource(){
-		return GenericVariable.SRC;
+		return GenericVariable.SOURCE;
 	}
 	
 	@Override
 	public QueryVariable getTarget(){
-		return GenericVariable.TRG;
+		return GenericVariable.TARGET;
 	}
 	
 	@Override

@@ -77,6 +77,11 @@ public abstract interface CPQ extends ReachabilityQueryLanguageSyntax{
 		return toQueryGraph().isHomomorphicTo(other.toQueryGraph());
 	}
 
+	/**
+	 * Converts this CPQ to an equivalent CQ query.
+	 * @return The CQ form of this CPQ.
+	 * @see QueryGraphCPQ#toQueryGraphCQ()
+	 */
 	public default CQ toCQ(){
 		return toQueryGraph().toQueryGraphCQ().toCQ();
 	}

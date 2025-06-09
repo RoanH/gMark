@@ -2,9 +2,9 @@ package dev.roanh.gmark.lang.cq;
 
 import java.util.Objects;
 
-import dev.roanh.gmark.ast.Variable;
+import dev.roanh.gmark.ast.QueryVariable;
 
-public class VarCQ implements Variable{
+public class VarCQ implements QueryVariable{
 	private final String name;
 	/**
 	 * True if this is a free variable, free variables
@@ -12,7 +12,7 @@ public class VarCQ implements Variable{
 	 */
 	private final boolean free;
 	
-	public VarCQ(Variable variable){
+	public VarCQ(QueryVariable variable){
 		this(variable.getName(), variable.isFree());
 	}
 	

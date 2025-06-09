@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
-import dev.roanh.gmark.ast.EdgeAtom;
+import dev.roanh.gmark.ast.EdgeQueryAtom;
 import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.lang.QueryLanguage;
@@ -160,7 +160,7 @@ public class CQ implements QueryLanguageSyntax{
 				throw new IllegalArgumentException("The given AST contains operations that are not part of the CQ query language.");
 			}
 
-			EdgeAtom atom = op.getEdgeAtom();
+			EdgeQueryAtom atom = op.getEdgeAtom();//TODO maybe just an empty CQ and private add atom?
 			VarCQ source = new VarCQ(atom.getSource());
 			VarCQ target = new VarCQ(atom.getTarget());
 			variables.add(source);

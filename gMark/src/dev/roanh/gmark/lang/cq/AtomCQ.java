@@ -2,10 +2,10 @@ package dev.roanh.gmark.lang.cq;
 
 import java.util.Objects;
 
-import dev.roanh.gmark.ast.EdgeAtom;
+import dev.roanh.gmark.ast.EdgeQueryAtom;
 import dev.roanh.gmark.type.schema.Predicate;
 
-public class AtomCQ implements EdgeAtom{
+public class AtomCQ implements EdgeQueryAtom{
 	private final VarCQ source;
 	private final Predicate label;
 	private final VarCQ target;

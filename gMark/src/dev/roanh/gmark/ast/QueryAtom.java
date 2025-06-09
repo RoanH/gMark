@@ -18,18 +18,18 @@
  */
 package dev.roanh.gmark.ast;
 
-import dev.roanh.gmark.type.schema.Predicate;
+/**
+ * Representation of the smallest atomic unit in a query.
+ * @author Roan
+ */
+public abstract interface QueryAtom extends QueryFragment{
 
-public abstract interface EdgeAtom extends Atom{
-
-	/**
-	 * Gets the label (symbol) for this edge.
-	 * @return The label for this edge.
-	 */
-	public abstract Predicate getLabel();
+	public abstract QueryVariable getSource();
 	
+	public abstract QueryVariable getTarget();
+
 	@Override
-	public default OperationType getOperationType(){
-		return OperationType.EDGE;
+	public default QueryTree toAbstractSyntaxTree(){
+		return QueryTree.ofAtom(this);
 	}
 }

@@ -18,14 +18,35 @@
  */
 package dev.roanh.gmark.ast;
 
-public abstract interface Atom extends QueryFragment{
-
-	public abstract Variable getSource();
+/**
+ * Representation of a variable in a query definition.
+ * @author Roan
+ */
+public abstract interface QueryVariable{
 	
-	public abstract Variable getTarget();
+	/**
+	 * Gets the display name of this variable.
+	 * @return The display name of this variable.
+	 */
+	public abstract String getName();
+	
+	/**
+	 * Gets whether this is a free variable in the query.
+	 * Free variables appear in the output (head) of the query
+	 * and will be projected in the query result.
+	 * @return True if this is a free variable.
+	 * @see #isBound()
+	 */
+	public abstract boolean isFree();
 
-	@Override
-	public default QueryTree toAbstractSyntaxTree(){
-		return QueryTree.ofAtom(this);
+	/**
+	 * Gets whether this is a bound variable in the query.
+	 * Bounds variables only appear internally in the body of a query
+	 * and are not projected in the query result.
+	 * @return True if this is a bound variable.
+	 * @see #isFree()
+	 */
+	public default boolean isBound(){
+		return !isFree();
 	}
 }

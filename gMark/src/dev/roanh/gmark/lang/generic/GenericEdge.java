@@ -18,8 +18,8 @@
  */
 package dev.roanh.gmark.lang.generic;
 
-import dev.roanh.gmark.ast.EdgeAtom;
-import dev.roanh.gmark.ast.Variable;
+import dev.roanh.gmark.ast.EdgeQueryAtom;
+import dev.roanh.gmark.ast.QueryVariable;
 import dev.roanh.gmark.output.OutputFormal;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
@@ -32,7 +32,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * in inverse direction from target to source.
  * @author Roan
  */
-public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML, EdgeAtom{
+public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML, EdgeQueryAtom{
 	/**
 	 * The label traversed by this query.
 	 */
@@ -47,12 +47,12 @@ public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML,
 	}
 	
 	@Override
-	public Variable getSource(){
+	public QueryVariable getSource(){
 		return GenericVariable.SRC;
 	}
 	
 	@Override
-	public Variable getTarget(){
+	public QueryVariable getTarget(){
 		return GenericVariable.TRG;
 	}
 	

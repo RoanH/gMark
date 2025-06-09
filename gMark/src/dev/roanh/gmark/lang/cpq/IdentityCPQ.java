@@ -18,9 +18,9 @@
  */
 package dev.roanh.gmark.lang.cpq;
 
-import dev.roanh.gmark.ast.Atom;
+import dev.roanh.gmark.ast.QueryAtom;
 import dev.roanh.gmark.ast.OperationType;
-import dev.roanh.gmark.ast.Variable;
+import dev.roanh.gmark.ast.QueryVariable;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.lang.generic.GenericVariable;
 import dev.roanh.gmark.util.IndentWriter;
@@ -30,7 +30,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * as a singleton via {@link CPQ#IDENTITY}.
  * @author Roan
  */
-public final class IdentityCPQ implements CPQ, Atom{
+public final class IdentityCPQ implements CPQ, QueryAtom{
 	
 	/**
 	 * Prevent outside construction.
@@ -84,12 +84,12 @@ public final class IdentityCPQ implements CPQ, Atom{
 	}
 
 	@Override
-	public Variable getSource(){
+	public QueryVariable getSource(){
 		return GenericVariable.SRC;
 	}
 
 	@Override
-	public Variable getTarget(){
+	public QueryVariable getTarget(){
 		return GenericVariable.TRG;
 	}
 }

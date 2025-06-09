@@ -107,30 +107,29 @@ public class QueryTree{
 		return fragment.getOperationType();
 	}
 	
-//	/**
-//	 * If the operation for this AST node is {@link OperationType#EDGE},
-//	 * returns the edge label or predicate associated with edge at this AST node.
-//	 * @return The label at this AST node.
-//	 * @throws IllegalStateException When the operation for this AST node
-//	 *         is not equal to {@link OperationType#EDGE}.
-//	 * @see Predicate
-//	 * @see OperationType#EDGE
-//	 * @see #getOperation()
-//	 */
-//	public Predicate getPredicate() throws IllegalStateException{
-//		return getEdgeAtom().getLabel();
-//	}
-	
-	public EdgeAtom getEdgeAtom() throws IllegalStateException{
+	/**
+	 * If the operation for this AST node is {@link OperationType#EDGE}, returns
+	 * the atomic edge query operation associated with this AST node.
+	 * @return The atomic edge operation at this AST leaf.
+	 * @throws IllegalStateException When the operation for this AST node
+	 *         is not equal to {@link OperationType#EDGE}.
+	 */
+	public EdgeQueryAtom getEdgeAtom() throws IllegalStateException{
 		if(getOperation() != OperationType.EDGE){
 			throw new IllegalStateException("Query fragment is not an AST edge leaf.");
 		}
 		
-		return ((EdgeAtom)fragment);
+		return ((EdgeQueryAtom)fragment);
 	}
 	
-	public Atom getAtom() throws IllegalStateException{
-		if(fragment instanceof Atom atom){
+	/**
+	 * If this AST node corresponds to a leaf of the AST, gets the
+	 * atomic query operation associated with this AST node.
+	 * @return The atomic operation at this AST leaf.
+	 * @throws IllegalStateException When this AST node is not a leaf node.
+	 */
+	public QueryAtom getAtom() throws IllegalStateException{
+		if(fragment instanceof QueryAtom atom){
 			return atom;
 		}else{
 			throw new IllegalStateException("Query fragment is not an AST leaf.");
@@ -199,7 +198,7 @@ public class QueryTree{
 	 * @return The AST for the given query fragment.
 	 * @see OperationType#isAtom()
 	 */
-	public static QueryTree ofAtom(Atom fragment){
+	public static QueryTree ofAtom(QueryAtom fragment){
 		return new QueryTree(List.of(), fragment);
 	}
 	
@@ -226,6 +225,12 @@ public class QueryTree{
 		return new QueryTree(List.of(left, right), fragment);
 	}
 	
+	/**
+	 * Constructs an AST node for a query fragment representing an n-ary operation.
+	 * @param inputs The child nodes of this AST nodes, these are the inputs for the n-ary operation.
+	 * @param fragment The query fragment.
+	 * @return The AST for the given query fragment.
+	 */
 	public static QueryTree ofNAry(List<QueryTree> inputs, QueryFragment fragment){
 		return new QueryTree(inputs, fragment);
 	}

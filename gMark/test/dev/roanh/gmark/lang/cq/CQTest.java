@@ -19,11 +19,16 @@
 package dev.roanh.gmark.lang.cq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import dev.roanh.gmark.ast.OperationType;
+import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.type.schema.Predicate;
 
 public class CQTest{
@@ -70,6 +75,81 @@ public class CQTest{
 			""",
 			CQ.parse("(f1, f2) ← one(b1, f2), zero(f1, b1)", List.of(l0, l1)).toXML()
 		);
+	}
+	
+	@Test
+	public void cqToSQL(){
+		assertEquals(
+			"""
+			SELECT
+			  edge1.src AS f1,
+			  edge2.src AS f2,
+			  edge3.trg AS f3,
+			  edge4.src AS f4,
+			  edge4.trg AS f5
+			FROM
+			  edge edge0,
+			  edge edge1,
+			  edge edge2,
+			  edge edge3,
+			  edge edge4
+			WHERE
+			  edge0.label = 1
+			  AND
+			  edge1.label = 0
+			  AND
+			  edge2.label = 0
+			  AND
+			  edge3.label = 1
+			  AND
+			  edge4.label = 1
+			  AND
+			  edge1.src = edge3.src
+			  AND
+			  edge0.src = edge0.trg
+			  AND
+			  edge0.src = edge1.trg
+			  AND
+			  edge0.src = edge2.trg
+			""".trim(),
+			CQ.parse("(f1, f2, f3, f4, f5) ← one(b2, b2), zero(f1, b2), zero(f2, b2), one(f1, f3), one(f4, f5)", List.of(l0, l1)).toSQL()
+		);
+	}
+	
+	@Test
+	public void cqToSQLThrows(){
+		CQ cq = CQ.empty();
+		assertThrows(IllegalStateException.class, cq::toSQL);
+	}
+	
+	@Test
+	public void cq0(){
+		CQ query = CQ.parse("(f1, f2) ← l0(b2, b2), l1(f1, b2), l1(f2, b2)", List.of(l0, l1));
+		
+		QueryTree ast = query.toAbstractSyntaxTree();
+		assertEquals(3, ast.getArity());
+		assertEquals(OperationType.JOIN, ast.getOperation());
+		
+		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
+		assertEquals(l0, ast.getOperand(0).getEdgeAtom().getLabel());
+		assertEquals("b2", ast.getOperand(0).getAtom().getSource().getName());
+		assertFalse(ast.getOperand(0).getAtom().getSource().isFree());
+		assertEquals("b2", ast.getOperand(0).getAtom().getTarget().getName());
+		assertFalse(ast.getOperand(0).getAtom().getTarget().isFree());
+		
+		assertEquals(OperationType.EDGE, ast.getOperand(1).getOperation());
+		assertEquals(l1, ast.getOperand(1).getEdgeAtom().getLabel());
+		assertEquals("f1", ast.getOperand(1).getAtom().getSource().getName());
+		assertTrue(ast.getOperand(1).getAtom().getSource().isFree());
+		assertEquals("b2", ast.getOperand(1).getAtom().getTarget().getName());
+		assertFalse(ast.getOperand(1).getAtom().getTarget().isFree());
+		
+		assertEquals(OperationType.EDGE, ast.getOperand(2).getOperation());
+		assertEquals(l1, ast.getOperand(2).getEdgeAtom().getLabel());
+		assertEquals("f2", ast.getOperand(2).getAtom().getSource().getName());
+		assertTrue(ast.getOperand(2).getAtom().getSource().isFree());
+		assertEquals("b2", ast.getOperand(2).getAtom().getTarget().getName());
+		assertFalse(ast.getOperand(2).getAtom().getTarget().isFree());
 	}
 	
 	//TODO AST to CQ test

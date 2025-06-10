@@ -581,7 +581,7 @@ public final class Util{
 	 * @return The constructed database graph instance.
 	 * @throws IOException When an IOException occurs.
 	 */
-	public static final IntGraph readGraph(Path file) throws IOException{
+	public static IntGraph readGraph(Path file) throws IOException{
 		try(InputStream in = Files.newInputStream(file)){
 			return readGraph(in);
 		}
@@ -604,7 +604,7 @@ public final class Util{
 	 * @return The constructed database graph instance.
 	 * @throws IOException When an IOException occurs.
 	 */
-	public static final IntGraph readGraph(InputStream in) throws IOException{
+	public static IntGraph readGraph(InputStream in) throws IOException{
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 		String header = reader.readLine();
 		if(header == null){
@@ -645,7 +645,7 @@ public final class Util{
 	 * @return A list with the parsed queries.
 	 * @throws IOException When an IOException occurs.
 	 */
-	public static final List<PathQuery> readWorkload(Path file, Function<String, ? extends ReachabilityQueryLanguageSyntax> parser) throws IOException{
+	public static List<PathQuery> readWorkload(Path file, Function<String, ? extends ReachabilityQueryLanguageSyntax> parser) throws IOException{
 		try(InputStream in = Files.newInputStream(file)){
 			return readWorkload(in, parser);
 		}
@@ -664,7 +664,7 @@ public final class Util{
 	 * @return A list with the parsed queries.
 	 * @throws IOException When an IOException occurs.
 	 */
-	public static final List<PathQuery> readWorkload(InputStream in, Function<String, ? extends ReachabilityQueryLanguageSyntax> parser) throws IOException{
+	public static List<PathQuery> readWorkload(InputStream in, Function<String, ? extends ReachabilityQueryLanguageSyntax> parser) throws IOException{
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 		List<PathQuery> queries = new ArrayList<PathQuery>();
 

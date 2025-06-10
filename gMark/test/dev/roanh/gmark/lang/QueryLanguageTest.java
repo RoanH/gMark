@@ -18,14 +18,24 @@
  */
 package dev.roanh.gmark.lang;
 
-/**
- * More restrictive class of query language specifications for
- * reachability queries. These query are used to discover if a
- * path that adheres to specific constraints exists between two
- * nodes. Therefore, by definition the query has two output variables,
- * the source and target, which respectively represent the source
- * and target vertex of a path that adheres to the query constraints.
- * @author Roan
- */
-public abstract interface ReachabilityQueryLanguageSyntax extends QueryLanguageSyntax{
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import org.junit.jupiter.api.Test;
+
+public class QueryLanguageTest{
+
+	@Test
+	public void validateReachabilityAssumptions(){
+		for(QueryLanguage language : QueryLanguage.values()){
+			if(language == QueryLanguage.CPQ || language == QueryLanguage.RPQ){
+				assertTrue(language.isReachabilityQueryLanguage());
+			}else if(language == QueryLanguage.CQ){
+				assertFalse(language.isReachabilityQueryLanguage());
+			}else{
+				fail("Unknown query language");
+			}
+		}
+	}
 }

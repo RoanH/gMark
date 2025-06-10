@@ -124,7 +124,7 @@ public class CQTest{
 	
 	@Test
 	public void cq0(){
-		CQ query = CQ.parse("(f1, f2) ← l0(b2, b2), l1(f1, b2), l1(f2, b2)", List.of(l0, l1));
+		CQ query = CQ.parse("(f1, f2) ← zero(b2, b2), one(f1, b2), one(f2, b2)", List.of(l0, l1));
 		
 		QueryTree ast = query.toAbstractSyntaxTree();
 		assertEquals(3, ast.getArity());

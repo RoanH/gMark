@@ -48,6 +48,9 @@ public abstract interface QueryLanguageSyntax extends OutputSQL, OutputFormal, O
 	 * The character used to denote negated predicates/labels.
 	 */
 	public static final char CHAR_INVERSE = '⁻';
+	/**
+	 * The character used to denote query output assignment.
+	 */
 	public static final char CHAR_ASSIGN = '←';
 	
 	/**

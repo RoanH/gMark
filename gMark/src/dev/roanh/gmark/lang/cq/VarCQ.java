@@ -6,6 +6,10 @@ import dev.roanh.gmark.ast.QueryVariable;
 import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.util.IndentWriter;
 
+/**
+ * Representation of a variable in a CQ.
+ * @author Roan
+ */
 public class VarCQ implements QueryVariable, OutputXML{
 	/**
 	 * The display name of this variable.
@@ -17,10 +21,19 @@ public class VarCQ implements QueryVariable, OutputXML{
 	 */
 	private final boolean free;
 	
+	/**
+	 * Constructs a new CQ variable based on the given variable.
+	 * @param variable The variable to use as a template.
+	 */
 	public VarCQ(QueryVariable variable){
 		this(variable.getName(), variable.isFree());
 	}
 	
+	/**
+	 * Constructs a new CQ variable.
+	 * @param name The name of this variable.
+	 * @param free True if this is a projected free variable.
+	 */
 	public VarCQ(String name, boolean free){
 		this.name = name;
 		this.free = free;

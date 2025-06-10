@@ -55,10 +55,6 @@ public class AtomCQ implements EdgeQueryAtom, OutputXML{
 		this.target = target;
 	}
 	
-	public boolean contains(VarCQ v){
-		return source.equals(v) || target.equals(v);
-	}
-	
 	@Override
 	public VarCQ getSource(){
 		return source;

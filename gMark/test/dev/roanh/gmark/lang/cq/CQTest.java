@@ -20,6 +20,8 @@ package dev.roanh.gmark.lang.cq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.type.schema.Predicate;
@@ -40,6 +42,34 @@ public class CQTest{
 		query.addAtom(b1, l1, f2);
 
 		assertEquals("(f1, f2) ← one(b1, f2), zero(f1, b1)", query.toFormalSyntax());
+	}
+	
+	@Test
+	public void xml0(){
+		assertEquals(
+			"""
+			<cq>
+			  <variables>
+			    <var free=false>b1</var>
+			    <var free=true>f1</var>
+			    <var free=true>f2</var>
+			  </variables>
+			  <formulae>
+			    <atom>
+			      <source>b1</source>
+			      <symbol>1</symbol>
+			      <target>f2</target>
+			    </atom>
+			    <atom>
+			      <source>f1</source>
+			      <symbol>0</symbol>
+			      <target>b1</target>
+			    </atom>
+			  </formulae>
+			</cq>
+			""",
+			CQ.parse("(f1, f2) ← one(b1, f2), zero(f1, b1)", List.of(l0, l1)).toXML()
+		);
 	}
 	
 	//TODO AST to CQ test

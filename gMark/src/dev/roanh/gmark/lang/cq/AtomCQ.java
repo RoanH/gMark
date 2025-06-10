@@ -88,9 +88,13 @@ public class AtomCQ implements EdgeQueryAtom, OutputXML{
 	@Override
 	public void writeXML(IndentWriter writer){
 		writer.println("<atom>", 2);
-		source.writeXML(writer);
+		writer.print("<source>");
+		writer.print(source.getName());
+		writer.println("</source>");
 		label.writeXML(writer);
-		target.writeXML(writer);
+		writer.print("<target>");
+		writer.print(target.getName());
+		writer.println("</target>");
 		writer.println(2, "</atom>");
 	}
 }

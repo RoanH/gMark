@@ -212,7 +212,7 @@ public final class CQ implements QueryLanguageSyntax{
 	public void writeXML(IndentWriter writer){
 		writer.println("<cq>", 2);
 		writer.println("<variables>", 2);
-		variables.forEach(v->v.writeXML(writer));
+		variables.stream().sorted(Comparator.comparing(VarCQ::getName)).forEach(v->v.writeXML(writer));
 		writer.println(2, "</variables>");
 		writer.println("<formulae>", 2);
 		formulae.forEach(atom->atom.writeXML(writer));

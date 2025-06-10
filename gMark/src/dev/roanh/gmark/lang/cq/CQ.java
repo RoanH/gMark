@@ -211,11 +211,12 @@ public final class CQ implements QueryLanguageSyntax{
 	@Override
 	public void writeXML(IndentWriter writer){
 		writer.println("<cq>", 2);
-		
-		//vars
-		
-		//atoms
-		
+		writer.println("<variables>", 2);
+		variables.forEach(v->v.writeXML(writer));
+		writer.println(2, "</variables>");
+		writer.println("<formulae>", 2);
+		formulae.forEach(atom->atom.writeXML(writer));
+		writer.println(2, "</formulae>");
 		writer.println(2, "</cq>");
 	}
 

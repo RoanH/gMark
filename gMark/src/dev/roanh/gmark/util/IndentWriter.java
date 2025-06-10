@@ -167,6 +167,10 @@ public class IndentWriter{
 		print(String.valueOf(i));
 	}
 	
+	public void print(boolean value){
+		print(String.valueOf(value));
+	}
+	
 	public void mark(){
 		mark = content.length();
 	}

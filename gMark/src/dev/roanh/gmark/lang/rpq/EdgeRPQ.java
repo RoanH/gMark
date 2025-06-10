@@ -20,6 +20,7 @@ package dev.roanh.gmark.lang.rpq;
 
 import dev.roanh.gmark.lang.generic.GenericEdge;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.IndentWriter;
 
 /**
  * RPQ modelling a single label traversal.
@@ -34,5 +35,12 @@ public class EdgeRPQ extends GenericEdge implements RPQ{
 	 */
 	protected EdgeRPQ(Predicate symbol){
 		super(symbol);
+	}
+	
+	@Override
+	public void writeXML(IndentWriter writer){
+		writer.println("<rpq type=\"edge\">", 2);
+		symbol.writeXML(writer);
+		writer.println(2, "</rpq>");
 	}
 }

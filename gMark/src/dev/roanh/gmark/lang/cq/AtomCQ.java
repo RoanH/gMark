@@ -21,13 +21,15 @@ package dev.roanh.gmark.lang.cq;
 import java.util.Objects;
 
 import dev.roanh.gmark.ast.EdgeQueryAtom;
+import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.IndentWriter;
 
 /**
  * CQ query language atom, i.e., the selection of single graph edges.
  * @author Roan
  */
-public class AtomCQ implements EdgeQueryAtom{
+public class AtomCQ implements EdgeQueryAtom, OutputXML{
 	/**
 	 * The edge source vertex result variable.
 	 */
@@ -85,5 +87,14 @@ public class AtomCQ implements EdgeQueryAtom{
 	@Override
 	public int hashCode(){
 		return Objects.hash(source, label, target);
+	}
+	
+	@Override
+	public void writeXML(IndentWriter writer){
+		writer.println("<atom>", 2);
+		source.writeXML(writer);
+		label.writeXML(writer);
+		target.writeXML(writer);
+		writer.println(2, "</atom>");
 	}
 }

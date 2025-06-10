@@ -22,7 +22,6 @@ import dev.roanh.gmark.ast.EdgeQueryAtom;
 import dev.roanh.gmark.ast.QueryVariable;
 import dev.roanh.gmark.output.OutputFormal;
 import dev.roanh.gmark.output.OutputSQL;
-import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -32,7 +31,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * in inverse direction from target to source.
  * @author Roan
  */
-public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML, EdgeQueryAtom{
+public abstract class GenericEdge implements OutputSQL, OutputFormal, EdgeQueryAtom{
 	/**
 	 * The label traversed by this query.
 	 */
@@ -78,11 +77,5 @@ public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML,
 		}else{
 			writer.print("SELECT src, trg FROM edge WHERE label = " + symbol.getID());
 		}
-	}
-	
-	@Override
-	public void writeXML(IndentWriter writer){
-		//TODO validate
-		symbol.writeXML(writer);
 	}
 }

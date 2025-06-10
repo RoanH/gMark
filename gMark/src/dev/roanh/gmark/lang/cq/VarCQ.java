@@ -3,8 +3,10 @@ package dev.roanh.gmark.lang.cq;
 import java.util.Objects;
 
 import dev.roanh.gmark.ast.QueryVariable;
+import dev.roanh.gmark.output.OutputXML;
+import dev.roanh.gmark.util.IndentWriter;
 
-public class VarCQ implements QueryVariable{
+public class VarCQ implements QueryVariable, OutputXML{
 	/**
 	 * The display name of this variable.
 	 */
@@ -47,5 +49,14 @@ public class VarCQ implements QueryVariable{
 	@Override
 	public int hashCode(){
 		return Objects.hash(name, free);
+	}
+	
+	@Override
+	public void writeXML(IndentWriter writer){
+		writer.print("<var free=");
+		writer.print(free);
+		writer.print(">");
+		writer.print(name);
+		writer.println("</var>");
 	}
 }

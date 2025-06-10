@@ -21,6 +21,7 @@ package dev.roanh.gmark.lang.cpq;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.lang.generic.GenericEdge;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.IndentWriter;
 
 /**
  * CPQ modelling a single label traversal.
@@ -50,5 +51,12 @@ public class EdgeCPQ extends GenericEdge implements CPQ{
 	@Override
 	public boolean isLoop(){
 		return false;
+	}
+	
+	@Override
+	public void writeXML(IndentWriter writer){
+		writer.println("<cpq type=\"edge\">", 2);
+		symbol.writeXML(writer);
+		writer.println(2, "</cpq>");
 	}
 }

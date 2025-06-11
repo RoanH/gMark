@@ -473,7 +473,7 @@ public class UtilTest{
 
 		query.addAtom(b1, a, f1);
 
-		//b1 --l0-> f1
+		//b1 --a-> f1
 		//comp 1
 
 		List<UniqueGraph<VarCQ, AtomCQ>> components = Util.splitOnNodes(query.toQueryGraph().toUniqueGraph(), query.getFreeVariable());
@@ -499,13 +499,13 @@ public class UtilTest{
 	public void splitOnNodes3(){
 		CQ query = CQ.parse("(f1, f2) ← b(b2, b2), a(f1, b2), a(f2, b2), b(b1, f2), a(f1, b1), b(f1, f2), a(f1, f1)");
 
-		//l0       l1
-		//o        o
-		//f1 -l0-> b2
-		//| \       ^
-		//l0  l1    l0
+		//a         b
+		//o         o
+		//f1 --a-> b2
+		//|  \      ^
+		//a    b    a
 		//v      \v |
-		//b1 -l1-> f2
+		//b1 --b-> f2
 
 		List<UniqueGraph<VarCQ, AtomCQ>> components = Util.splitOnNodes(query.toQueryGraph().toUniqueGraph(), query.getFreeVariable());
 		assertEquals(4, components.size());

@@ -456,7 +456,7 @@ public class UtilTest{
 		//b1 --a-> f1 --b-> b2 <-a-- b3
 		//comp 1    | comp 2
 		
-		List<UniqueGraph<VarCQ, AtomCQ>> components = Util.splitOnNodes(query.toQueryGraph().toUniqueGraph(), query.getFreeVariable());
+		List<UniqueGraph<VarCQ, AtomCQ>> components = Util.splitOnNodes(query.toQueryGraph().toUniqueGraph(), query.getFreeVariables());
 		assertEquals(2, components.size());
 		
 		components.sort(Comparator.comparingInt(UniqueGraph::getNodeCount));
@@ -476,7 +476,7 @@ public class UtilTest{
 		//b1 --a-> f1
 		//comp 1
 
-		List<UniqueGraph<VarCQ, AtomCQ>> components = Util.splitOnNodes(query.toQueryGraph().toUniqueGraph(), query.getFreeVariable());
+		List<UniqueGraph<VarCQ, AtomCQ>> components = Util.splitOnNodes(query.toQueryGraph().toUniqueGraph(), query.getFreeVariables());
 		assertEquals(1, components.size());
 		assertEquals("(f1) ← a(b1, f1)", CQ.of(components.get(0)).toFormalSyntax());
 	}
@@ -490,7 +490,7 @@ public class UtilTest{
 
 		//self loop on f1, one component
 
-		List<UniqueGraph<VarCQ, AtomCQ>> components = Util.splitOnNodes(query.toQueryGraph().toUniqueGraph(), query.getFreeVariable());
+		List<UniqueGraph<VarCQ, AtomCQ>> components = Util.splitOnNodes(query.toQueryGraph().toUniqueGraph(), query.getFreeVariables());
 		assertEquals(1, components.size());
 		assertEquals("(f1) ← a(f1, f1)", CQ.of(components.get(0)).toFormalSyntax());
 	}
@@ -507,7 +507,7 @@ public class UtilTest{
 		//v      \v |
 		//b1 --b-> f2
 
-		List<UniqueGraph<VarCQ, AtomCQ>> components = Util.splitOnNodes(query.toQueryGraph().toUniqueGraph(), query.getFreeVariable());
+		List<UniqueGraph<VarCQ, AtomCQ>> components = Util.splitOnNodes(query.toQueryGraph().toUniqueGraph(), query.getFreeVariables());
 		assertEquals(4, components.size());
 
 		components.sort(Comparator.<UniqueGraph<VarCQ, AtomCQ>>comparingInt(UniqueGraph::getEdgeCount).thenComparingInt(UniqueGraph::getNodeCount));

@@ -87,11 +87,11 @@ public final class CQ implements QueryLanguageSyntax{
 		return new QueryGraphCQ(variables, formulae);
 	}
 	
-	public Set<VarCQ> getFreeVariable(){
+	public Set<VarCQ> getFreeVariables(){
 		return variables.stream().filter(VarCQ::isFree).collect(Collectors.toSet());
 	}
 	
-	public Set<VarCQ> getBoundVariable(){
+	public Set<VarCQ> getBoundVariables(){
 		return variables.stream().filter(VarCQ::isBound).collect(Collectors.toSet());
 	}
 	

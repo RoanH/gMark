@@ -687,4 +687,62 @@ public final class Util{
 
 		return queries;
 	}
+	
+	public static <V, E> List<UniqueGraph<V, E>> splitOnNodes(UniqueGraph<V, E> graph, Set<V> splitVertices){
+		Set<E> seen = new HashSet<E>();
+		Deque<GraphEdge<V, E>> currentEdges = new ArrayDeque<GraphEdge<V, E>>();
+		Deque<GraphEdge<V, E>> nextEdges = new ArrayDeque<GraphEdge<V, E>>();
+		currentEdges.add(graph.getEdges().get(0));
+
+		Set<V> componentVars = new HashSet<V>();
+		UniqueGraph<V, E> component = new UniqueGraph<V, E>();
+		List<UniqueGraph<V, E>> components = new ArrayList<UniqueGraph<V, E>>();
+
+		while(!nextEdges.isEmpty() || !currentEdges.isEmpty()){
+			if(!currentEdges.isEmpty()){
+				GraphEdge<V, E> edge = currentEdges.removeFirst();
+				if(seen.add(edge.getData())){
+					GraphNode<V, E> sourceNode = edge.getSourceNode();
+					V source = sourceNode.getData();
+					if(componentVars.add(source)){
+						if(splitVertices.contains(source)){
+							nextEdges.addAll(sourceNode.getOutEdges());
+							nextEdges.addAll(sourceNode.getInEdges());
+						}else{
+							currentEdges.addAll(sourceNode.getOutEdges());
+							currentEdges.addAll(sourceNode.getInEdges());
+						}
+					}
+
+					GraphNode<V, E> targetNode = edge.getTargetNode();
+					V target = targetNode.getData();
+					if(componentVars.add(target)){
+						if(splitVertices.contains(target)){
+							nextEdges.addAll(targetNode.getOutEdges());
+							nextEdges.addAll(targetNode.getInEdges());
+						}else{
+							currentEdges.addAll(targetNode.getOutEdges());
+							currentEdges.addAll(targetNode.getInEdges());
+						}
+					}
+
+					component.addUniqueEdge(
+						component.addUniqueNode(source),
+						component.addUniqueNode(target),
+						edge.getData()
+					);
+				}
+			}else{
+				if(component.getEdgeCount() > 0){
+					components.add(component);
+					component = new UniqueGraph<V, E>();
+					componentVars = new HashSet<V>();
+				}
+
+				currentEdges.add(nextEdges.removeFirst());
+			}
+		}
+
+		return components;
+	}
 }

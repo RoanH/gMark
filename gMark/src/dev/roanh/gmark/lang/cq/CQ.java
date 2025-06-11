@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import dev.roanh.gmark.ast.EdgeQueryAtom;
 import dev.roanh.gmark.ast.OperationType;
@@ -36,6 +37,7 @@ import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.IndentWriter;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 
 /**
  * Interface for conjunctive queries (CQs).
@@ -83,6 +85,14 @@ public final class CQ implements QueryLanguageSyntax{
 
 	public QueryGraphCQ toQueryGraph(){
 		return new QueryGraphCQ(variables, formulae);
+	}
+	
+	public Set<VarCQ> getFreeVariable(){
+		return variables.stream().filter(VarCQ::isFree).collect(Collectors.toSet());
+	}
+	
+	public Set<VarCQ> getBoundVariable(){
+		return variables.stream().filter(VarCQ::isBound).collect(Collectors.toSet());
 	}
 	
 	@Override
@@ -270,7 +280,11 @@ public final class CQ implements QueryLanguageSyntax{
 		return new CQ(variables, formulae);
 	}
 	
-	public static final CQ empty(){
+	public static CQ of(UniqueGraph<VarCQ, AtomCQ> graph){
+		return new QueryGraphCQ(graph).toCQ();
+	}
+	
+	public static CQ empty(){
 		return new CQ();
 	}
 }

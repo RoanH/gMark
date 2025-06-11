@@ -18,12 +18,9 @@
  */
 package dev.roanh.gmark.lang.cq;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
@@ -36,6 +33,13 @@ public class QueryGraphCQ{
 	public QueryGraphCQ(Set<VarCQ> variables, List<AtomCQ> edges){
 		this.variables = variables;
 		this.edges = edges;
+	}
+	
+	public QueryGraphCQ(UniqueGraph<VarCQ, AtomCQ> graph){
+		this(
+			graph.getNodes().stream().map(GraphNode::getData).collect(Collectors.toSet()),
+			graph.getEdges().stream().map(GraphEdge::getData).toList()
+		);
 	}
 	
 	public CQ toCQ(){
@@ -62,63 +66,6 @@ public class QueryGraphCQ{
 		}
 		
 		return graph;
-	}
-	
-	//TODO move to generic util that takes in the split vars
-	public List<QueryGraphCQ> splitOnFreeVariables(){
-		UniqueGraph<VarCQ, AtomCQ> graph = toUniqueGraph();
-		
-		Set<AtomCQ> seen = new HashSet<AtomCQ>();
-		Deque<GraphEdge<VarCQ, AtomCQ>> currentEdges = new ArrayDeque<GraphEdge<VarCQ, AtomCQ>>();
-		Deque<GraphEdge<VarCQ, AtomCQ>> nextEdges = new ArrayDeque<GraphEdge<VarCQ, AtomCQ>>();
-		currentEdges.add(graph.getEdges().get(0));
-		
-		Set<VarCQ> componentVars = new HashSet<VarCQ>();
-		List<AtomCQ> componentAtoms = new ArrayList<AtomCQ>();
-		List<QueryGraphCQ> components = new ArrayList<QueryGraphCQ>();
-		
-		while(!nextEdges.isEmpty() || !currentEdges.isEmpty()){
-			if(!currentEdges.isEmpty()){
-				GraphEdge<VarCQ, AtomCQ> edge = currentEdges.removeFirst();
-				if(seen.add(edge.getData())){
-					componentAtoms.add(edge.getData());
-					
-					GraphNode<VarCQ, AtomCQ> sourceNode = edge.getSourceNode();
-					VarCQ source = sourceNode.getData();
-					if(componentVars.add(source)){
-						if(source.isFree()){
-							nextEdges.addAll(sourceNode.getOutEdges());
-							nextEdges.addAll(sourceNode.getInEdges());
-						}else{
-							currentEdges.addAll(sourceNode.getOutEdges());
-							currentEdges.addAll(sourceNode.getInEdges());
-						}
-					}
-					
-					GraphNode<VarCQ, AtomCQ> targetNode = edge.getTargetNode();
-					VarCQ target = targetNode.getData();
-					if(componentVars.add(target)){
-						if(target.isFree()){
-							nextEdges.addAll(targetNode.getOutEdges());
-							nextEdges.addAll(targetNode.getInEdges());
-						}else{
-							currentEdges.addAll(targetNode.getOutEdges());
-							currentEdges.addAll(targetNode.getInEdges());
-						}
-					}
-				}
-			}else{
-				if(!componentAtoms.isEmpty()){
-					components.add(new QueryGraphCQ(componentVars, componentAtoms));
-					componentVars = new HashSet<VarCQ>();
-					componentAtoms = new ArrayList<AtomCQ>();
-				}
-				
-				currentEdges.add(nextEdges.removeFirst());
-			}
-		}
-		
-		return components;
 	}
 	
 	@Override

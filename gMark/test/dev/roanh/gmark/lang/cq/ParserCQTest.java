@@ -19,6 +19,7 @@
 package dev.roanh.gmark.lang.cq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,5 +30,58 @@ public class ParserCQTest{
 		assertEquals("(f1, f2) ← one(b2, b2), zero(f1, b2), zero(f2, b2)", CQ.parse("(f1, f2) ← one(b2, b2), zero(f1, b2), zero(f2, b2)").toString());
 	}
 	
-	//TODO more tests
+	@Test
+	public void parse1(){
+		assertEquals("(f1) ← zero(f1, b1)", CQ.parse("(f1) ← zero(f1, b1)").toString());
+	}
+	
+	@Test
+	public void parse2(){
+		assertThrows(IllegalArgumentException.class, ()->CQ.parse("(f1) ← "));
+	}
+	
+	@Test
+	public void parse3(){
+		assertThrows(IllegalArgumentException.class, ()->CQ.parse(" ← zero(f1, b1)"));
+	}
+	
+	@Test
+	public void parse4(){
+		assertThrows(IllegalArgumentException.class, ()->CQ.parse("(f1)  zero(f1, b1)"));
+	}
+	
+	@Test
+	public void parse5(){
+		assertThrows(IllegalArgumentException.class, ()->CQ.parse("(f1 ← zero(f1, b1)"));
+	}
+	
+	@Test
+	public void parse6(){
+		assertThrows(IllegalArgumentException.class, ()->CQ.parse("f1) ← zero(f1, b1)"));
+	}
+	
+	@Test
+	public void parse7(){
+		assertThrows(IllegalArgumentException.class, ()->CQ.parse("(f1) ← zero(f1, b1)a"));
+	}
+	
+	@Test
+	public void parse8(){
+		assertThrows(IllegalArgumentException.class, ()->CQ.parse("(f1) ← zero f1, b1)"));
+	}
+	
+	@Test
+	public void parse9(){
+		assertThrows(IllegalArgumentException.class, ()->CQ.parse("(f1) ← zero(f1, b1, b2)"));
+	}
+	
+	@Test
+	public void parse10(){
+		assertThrows(IllegalArgumentException.class, ()->CQ.parse("(f1) ← zero(f1)"));
+	}
+	
+	@Test
+	public void parse11(){
+		assertThrows(IllegalArgumentException.class, ()->CQ.parse("(f1) ← zero()"));
+	}
 }

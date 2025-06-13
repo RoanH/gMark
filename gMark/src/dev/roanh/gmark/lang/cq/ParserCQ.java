@@ -54,6 +54,7 @@ public final class ParserCQ extends GenericParser{
 	private static CQ parse(String query, Map<String, Predicate> labels, char assign) throws IllegalArgumentException{
 		CQ cq = CQ.empty();
 		
+		query = query.trim();
 		int assignIdx = query.indexOf(assign);
 		if(assignIdx == -1 || assignIdx == query.length() - 1){
 			throw new IllegalArgumentException("Invalid CQ, head or body absent.");

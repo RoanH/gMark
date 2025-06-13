@@ -24,9 +24,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.generic.GenericParser;
 import dev.roanh.gmark.type.schema.Predicate;
 
+/**
+ * Parser for CQs (Conjunctive Queries)
+ * @author Roan
+ * @see CQ
+ */
 public final class ParserCQ extends GenericParser{
 	
 	/**
@@ -35,22 +41,66 @@ public final class ParserCQ extends GenericParser{
 	private ParserCQ(){
 	}
 	
+	/**
+	 * Parses the given CQ in string from to a CQ instance. The input is assumed
+	 * to use {@value QueryLanguageSyntax#CHAR_ASSIGN} to separate the head and
+	 * body of the query.
+	 * @param query The CQ to parse.
+	 * @return The parsed CQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CQ.
+	 * @see QueryLanguageSyntax
+	 */
 	public static CQ parse(String query) throws IllegalArgumentException{
 		return parse(query, CHAR_ASSIGN);
 	}
 	
+	/**
+	 * Parses the given CQ in string from to a CQ instance. The input is assumed
+	 * to use {@value QueryLanguageSyntax#CHAR_ASSIGN} to separate the head and
+	 * body of the query.
+	 * @param query The CQ to parse.
+	 * @param labels The variable set to use, new labels will <b>not</b> be created
+	 *        if labels are found in the input that are not covered by the given list.
+	 * @return The parsed CQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CQ or contains unknown labels.
+	 * @see QueryLanguageSyntax
+	 */
 	public static CQ parse(String query, List<Predicate> labels) throws IllegalArgumentException{
 		return parse(query, labels, CHAR_ASSIGN);
 	}
 	
-	public static CQ parse(String query, List<Predicate> labels, char assign) throws IllegalArgumentException{
-		return parse(query, mapPredicates(labels), assign);
-	}
-	
+	/**
+	 * Parses the given CQ in string from to a CQ instance using the given syntax symbols.
+	 * @param query The CQ to parse.
+	 * @param assign The symbol to use to separate the head and body of the query.
+	 * @return The parsed CQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CQ.
+	 */
 	public static CQ parse(String query, char assign) throws IllegalArgumentException{
 		return parse(query, new HashMap<String, Predicate>(), assign);
 	}
 	
+	/**
+	 * Parses the given CQ in string from to a CQ instance using the given syntax symbols.
+	 * @param query The CQ to parse.
+	 * @param labels The variable set to use, new labels will <b>not</b> be created
+	 *        if labels are found in the input that are not covered by the given list.
+	 * @param assign The symbol to use to separate the head and body of the query.
+	 * @return The parsed CQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CQ or contains unknown labels.
+	 */
+	public static CQ parse(String query, List<Predicate> labels, char assign) throws IllegalArgumentException{
+		return parse(query, mapPredicates(labels), assign);
+	}
+	
+	/**
+	 * Parses the given CQ in string from to a CQ instance using the given syntax symbols.
+	 * @param query The CQ to parse.
+	 * @param labels A map with predicates found so far.
+	 * @param assign The symbol to use to separate the head and body of the query.
+	 * @return The parsed CQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CQ.
+	 */
 	private static CQ parse(String query, Map<String, Predicate> labels, char assign) throws IllegalArgumentException{
 		CQ cq = CQ.empty();
 		

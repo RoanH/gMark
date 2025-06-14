@@ -43,6 +43,8 @@ import dev.roanh.gmark.util.graph.generic.UniqueGraph;
  * Interface for conjunctive queries (CQs).
  * @author Roan
  * @see <a href="https://en.wikipedia.org/wiki/Conjunctive_query">Conjunctive Query</a>
+ * @see VarCQ
+ * @see AtomCQ
  */
 public final class CQ implements QueryLanguageSyntax{
 	/**
@@ -50,7 +52,7 @@ public final class CQ implements QueryLanguageSyntax{
 	 */
 	private final Set<VarCQ> variables;
 	/**
-	 * Set of formulae that appear in the CQ, these correspond to graph edges.
+	 * List of formulae that appear in the CQ, these correspond to graph edges.
 	 */
 	private final List<AtomCQ> formulae;
 	
@@ -62,35 +64,73 @@ public final class CQ implements QueryLanguageSyntax{
 		formulae = new ArrayList<AtomCQ>();
 	}
 	
+	/**
+	 * Constructs a new CQ with the given set of variables and formulae.
+	 * @param variables The variables that appear in the CQ.
+	 * @param formulae The formulae corresponding to graph edges.
+	 */
 	protected CQ(Set<VarCQ> variables, List<AtomCQ> formulae){
 		this.variables = variables;
 		this.formulae = formulae;
 	}
 	
-	public VarCQ addFreeVariable(String name){//projected
+	/**
+	 * Adds a new free (projected) variable to this CQ.
+	 * @param name The name of the variable.
+	 * @return The newly added variable.
+	 * @see VarCQ
+	 */
+	public VarCQ addFreeVariable(String name){
 		VarCQ v = new VarCQ(name, true);
 		variables.add(v);
 		return v;
 	}
 	
-	public VarCQ addBoundVariable(String name){//inner
+	/**
+	 * Adds a new bound (body only) variable to this CQ.
+	 * @param name The name of the variable.
+	 * @return The newly added variable.
+	 * @see VarCQ
+	 */
+	public VarCQ addBoundVariable(String name){
 		VarCQ v = new VarCQ(name, false);
 		variables.add(v);
 		return v;
 	}
 	
+	/**
+	 * Adds a new atom (edge) to this CQ.
+	 * @param source The source node/variable of the edge represented by the atom.
+	 * @param label The label on the edge matched by the atom.
+	 * @param target The target node/variable of the edge represented by the atom.
+	 */
 	public void addAtom(VarCQ source, Predicate label, VarCQ target){
 		formulae.add(new AtomCQ(source, label.isInverse() ? label.getInverse() : label, target));
 	}
 
+	/**
+	 * Computes and returns the query graph for this CQ.
+	 * @return The query graph for this CQ.
+	 * @see QueryGraphCQ
+	 */
 	public QueryGraphCQ toQueryGraph(){
 		return new QueryGraphCQ(variables, formulae);
 	}
 	
+	/**
+	 * Gets the set of free (projected) variables for this CQ.
+	 * @return The set of free variables for this CQ.
+	 * @see VarCQ
+	 */
 	public Set<VarCQ> getFreeVariables(){
 		return variables.stream().filter(VarCQ::isFree).collect(Collectors.toSet());
 	}
 	
+	/**
+	 * Gets the set of bound (body only) variables for this CQ.
+	 * @return The set of bound variables for this CQ.
+	 * @see VarCQ
+	 */
 	public Set<VarCQ> getBoundVariables(){
 		return variables.stream().filter(VarCQ::isBound).collect(Collectors.toSet());
 	}
@@ -248,14 +288,44 @@ public final class CQ implements QueryLanguageSyntax{
 		return toFormalSyntax();
 	}
 	
+	/**
+	 * Parses the given CQ in string from to a CQ instance. The input is assumed
+	 * to use {@value QueryLanguageSyntax#CHAR_ASSIGN} to separate the head and
+	 * body of the query.
+	 * @param query The CQ to parse.
+	 * @return The parsed CQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CQ.
+	 * @see QueryLanguageSyntax
+	 * @see ParserCQ#parse(String, char)
+	 */
 	public static CQ parse(String query) throws IllegalArgumentException{
 		return ParserCQ.parse(query);
 	}
 	
+	/**
+	 * Parses the given CQ in string from to a CQ instance. The input is assumed
+	 * to use {@value QueryLanguageSyntax#CHAR_ASSIGN} to separate the head and
+	 * body of the query.
+	 * @param query The CQ to parse.
+	 * @param labels The variable set to use, new labels will <b>not</b> be created
+	 *        if labels are found in the input that are not covered by the given list.
+	 * @return The parsed CQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CQ or contains unknown labels.
+	 * @see QueryLanguageSyntax
+	 * @see ParserCQ#parse(String, List, char)
+	 */
 	public static CQ parse(String query, List<Predicate> labels) throws IllegalArgumentException{
 		return ParserCQ.parse(query, labels);
 	}
 	
+	/**
+	 * Attempts to parse the given AST to a CQ.
+	 * @param ast The AST to parse to a CQ.
+	 * @return The CQ represented by the given AST.
+	 * @throws IllegalArgumentException When the given AST does
+	 *         not represent a valid CQ.
+	 * @see QueryTree
+	 */
 	public static CQ parse(QueryTree ast) throws IllegalArgumentException{
 		if(ast.getOperation() != OperationType.JOIN){
 			throw new IllegalArgumentException("The given AST contains operations that are not part of the CQ query language.");
@@ -280,10 +350,19 @@ public final class CQ implements QueryLanguageSyntax{
 		return new CQ(variables, formulae);
 	}
 	
+	/**
+	 * Constructs a new CQ from the given graph.
+	 * @param graph The graph to parse.
+	 * @return The constructed CQ.
+	 */
 	public static CQ of(UniqueGraph<VarCQ, AtomCQ> graph){
 		return new QueryGraphCQ(graph).toCQ();
 	}
 	
+	/**
+	 * Constructs a new completely empty CQ without and variables or formulae.
+	 * @return The newly created CQ.
+	 */
 	public static CQ empty(){
 		return new CQ();
 	}

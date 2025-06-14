@@ -152,5 +152,9 @@ public class CQTest{
 		assertFalse(ast.getOperand(2).getAtom().getTarget().isFree());
 	}
 	
-	//TODO AST to CQ test
+	@Test
+	public void astParse(){
+		String query = "(f1, f2) ← one(f1, b2), one(f2, b2), zero(b2, b2)";
+		assertEquals(query, CQ.parse(CQ.parse(query).toAbstractSyntaxTree()).toString());
+	}
 }

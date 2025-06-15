@@ -16,47 +16,37 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.lang.cpq;
-
-import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
-import dev.roanh.gmark.lang.generic.GenericEdge;
-import dev.roanh.gmark.type.schema.Predicate;
-import dev.roanh.gmark.util.IndentWriter;
+package dev.roanh.gmark.ast;
 
 /**
- * CPQ modelling a single label traversal.
+ * Representation of a variable in a query definition.
  * @author Roan
  */
-public class EdgeCPQ extends GenericEdge implements CPQ{
+public abstract interface QueryVariable{
 	
 	/**
-	 * Constructs a new edge CPQ with the
-	 * given label to traverse.
-	 * @param symbol The label to traverse.
+	 * Gets the display name of this variable.
+	 * @return The display name of this variable.
 	 */
-	public EdgeCPQ(Predicate symbol){
-		super(symbol);
-	}
+	public abstract String getName();
 	
-	@Override
-	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-		return new QueryGraphCPQ(symbol, source, target);
-	}
+	/**
+	 * Gets whether this is a free variable in the query.
+	 * Free variables appear in the output (head) of the query
+	 * and will be projected in the query result.
+	 * @return True if this is a free variable.
+	 * @see #isBound()
+	 */
+	public abstract boolean isFree();
 
-	@Override
-	public int getDiameter(){
-		return 1;
-	}
-
-	@Override
-	public boolean isLoop(){
-		return false;
-	}
-	
-	@Override
-	public void writeXML(IndentWriter writer){
-		writer.println("<cpq type=\"edge\">", 2);
-		symbol.writeXML(writer);
-		writer.println(2, "</cpq>");
+	/**
+	 * Gets whether this is a bound variable in the query.
+	 * Bounds variables only appear internally in the body of a query
+	 * and are not projected in the query result.
+	 * @return True if this is a bound variable.
+	 * @see #isFree()
+	 */
+	public default boolean isBound(){
+		return !isFree();
 	}
 }

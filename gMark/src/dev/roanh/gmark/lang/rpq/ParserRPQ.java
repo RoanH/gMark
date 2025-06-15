@@ -53,7 +53,6 @@ public final class ParserRPQ extends GenericParser{
 	 * @param query The RPQ to parse.
 	 * @return The parsed RPQ.
 	 * @throws IllegalArgumentException When the given string is not a valid RPQ.
-	 * @see ParserRPQ#parse(String, char, char, char, char)
 	 * @see QueryLanguageSyntax
 	 */
 	public static RPQ parse(String query) throws IllegalArgumentException{
@@ -67,21 +66,34 @@ public final class ParserRPQ extends GenericParser{
 	 * '{@value QueryLanguageSyntax#CHAR_INVERSE}' symbols to denote operations.
 	 * Example input: {@code (0◦(((1◦0) ∪ (1◦1))◦1⁻))}.
 	 * @param query The RPQ to parse.
-	 * @param labels The label set to use, new labels will be created if labels are found in the
+	 * @param labels The label set to use, new labels will be <b>not</b> created if labels are found in the
 	 *        input that are not covered by the given list.
 	 * @return The parsed RPQ.
-	 * @throws IllegalArgumentException When the given string is not a valid RPQ.
-	 * @see ParserRPQ#parse(String, char, char, char, char)
+	 * @throws IllegalArgumentException When the given string is not a valid RPQ or contains unknown labels.
 	 * @see QueryLanguageSyntax
 	 */
 	public static RPQ parse(String query, List<Predicate> labels) throws IllegalArgumentException{
-		return parse(query, mapPredicates(labels), CHAR_JOIN, CHAR_DISJUNCTION, CHAR_KLEENE, CHAR_INVERSE);
+		return parse(query, labels, CHAR_JOIN, CHAR_DISJUNCTION, CHAR_KLEENE, CHAR_INVERSE);
 	}
 	
 	/**
-	 * Parses the given RPQ in string form to an RPQ instance. Unlike
-	 * {@link #parse(String)} this subroutine allows custom symbols
-	 * to be used to input the RPQ.
+	 * Parses the given RPQ in string form to an RPQ instance using the given syntax symbols.
+	 * @param query The RPQ to parse.
+	 * @param labels The label set to use, new labels will be <b>not</b> created if labels are found in the
+	 *        input that are not covered by the given list.
+	 * @param join The symbol to use for the join/concatenation operation.
+	 * @param disjunct The symbol to use for the disjunction operation.
+	 * @param kleene The symbol to use for the kleene/transitive closure operation.
+	 * @param inverse The symbol to use for the inverse edge label operation.
+	 * @return The parsed RPQ.
+	 * @throws IllegalArgumentException When the given string is not a valid RPQ or contains unknown labels.
+	 */
+	public static RPQ parse(String query, List<Predicate> labels, char join, char disjunct, char kleene, char inverse) throws IllegalArgumentException{
+		return parse(query, mapPredicates(labels), join, disjunct, kleene, inverse);
+	}
+	
+	/**
+	 * Parses the given RPQ in string form to an RPQ instance using the given syntax symbols.
 	 * @param query The RPQ to parse.
 	 * @param join The symbol to use for the join/concatenation operation.
 	 * @param disjunct The symbol to use for the disjunction operation.
@@ -89,7 +101,6 @@ public final class ParserRPQ extends GenericParser{
 	 * @param inverse The symbol to use for the inverse edge label operation.
 	 * @return The parsed RPQ.
 	 * @throws IllegalArgumentException When the given string is not a valid RPQ.
-	 * @see #parse(String)
 	 */
 	public static RPQ parse(String query, char join, char disjunct, char kleene, char inverse) throws IllegalArgumentException{
 		return parse(query, new HashMap<String, Predicate>(), join, disjunct, kleene, inverse);
@@ -109,7 +120,7 @@ public final class ParserRPQ extends GenericParser{
 	 * @throws IllegalArgumentException When the given string is not a valid RPQ.
 	 * @see #parse(String)
 	 */
-	public static RPQ parse(String query, Map<String, Predicate> labels, char join, char disjunct, char kleene, char inverse) throws IllegalArgumentException{
+	private static RPQ parse(String query, Map<String, Predicate> labels, char join, char disjunct, char kleene, char inverse) throws IllegalArgumentException{
 		List<String> parts = split(query, join);
 		if(parts.size() > 1){
 			return RPQ.concat(parts.stream().map(part->{

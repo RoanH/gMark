@@ -47,17 +47,17 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import dev.roanh.gmark.eval.PathQuery;
-import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
 import dev.roanh.gmark.type.IDable;
 import dev.roanh.gmark.type.SelectivityClass;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.graph.generic.DataProxy;
 import dev.roanh.gmark.util.graph.generic.IntGraph;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph;
-import dev.roanh.gmark.util.graph.generic.Tree;
-import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
+import dev.roanh.gmark.util.graph.generic.Tree;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphNode;
 
@@ -124,6 +124,7 @@ public final class Util{
 				}
 			}
 		}
+		
 		return null;
 	}
 	
@@ -580,7 +581,7 @@ public final class Util{
 	 * @return The constructed database graph instance.
 	 * @throws IOException When an IOException occurs.
 	 */
-	public static final IntGraph readGraph(Path file) throws IOException{
+	public static IntGraph readGraph(Path file) throws IOException{
 		try(InputStream in = Files.newInputStream(file)){
 			return readGraph(in);
 		}
@@ -603,7 +604,7 @@ public final class Util{
 	 * @return The constructed database graph instance.
 	 * @throws IOException When an IOException occurs.
 	 */
-	public static final IntGraph readGraph(InputStream in) throws IOException{
+	public static IntGraph readGraph(InputStream in) throws IOException{
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 		String header = reader.readLine();
 		if(header == null){
@@ -644,7 +645,7 @@ public final class Util{
 	 * @return A list with the parsed queries.
 	 * @throws IOException When an IOException occurs.
 	 */
-	public static final List<PathQuery> readWorkload(Path file, Function<String, QueryLanguageSyntax> parser) throws IOException{
+	public static List<PathQuery> readWorkload(Path file, Function<String, ? extends ReachabilityQueryLanguageSyntax> parser) throws IOException{
 		try(InputStream in = Files.newInputStream(file)){
 			return readWorkload(in, parser);
 		}
@@ -663,7 +664,7 @@ public final class Util{
 	 * @return A list with the parsed queries.
 	 * @throws IOException When an IOException occurs.
 	 */
-	public static final List<PathQuery> readWorkload(InputStream in, Function<String, QueryLanguageSyntax> parser) throws IOException{
+	public static List<PathQuery> readWorkload(InputStream in, Function<String, ? extends ReachabilityQueryLanguageSyntax> parser) throws IOException{
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 		List<PathQuery> queries = new ArrayList<PathQuery>();
 
@@ -679,11 +680,83 @@ public final class Util{
 
 			queries.add(new PathQuery(
 				src.equals("*") ? Optional.empty() : Optional.of(Integer.parseInt(src)),
-					parser.apply(args[1].trim()),
-					trg.equals("*") ? Optional.empty() : Optional.of(Integer.parseInt(trg))
-				));
+				parser.apply(args[1].trim()),
+				trg.equals("*") ? Optional.empty() : Optional.of(Integer.parseInt(trg))
+			));
 		}
 
 		return queries;
+	}
+	
+	/**
+	 * Splits the given graph into sub-graphs on the indicated nodes. Effectively this will remove all of the
+	 * indicated vertices from the graph. Each remaining connected component together with the indicated split
+	 * vertices it has edges then form a single component. A different way of thinking about this algorithm is
+	 * to run a graph search from any edge in the graph, all edges and vertices that can be reached without passing
+	 * through one of the provided split vertices together form a single component.
+	 * <p>
+	 * Note that this means that the indicated split vertices can be part of multiple components.
+	 * @param <V> The vertex data type.
+	 * @param <E> The edge data type.
+	 * @param graph The graph to split.
+	 * @param splitVertices The vertices in the graph to split on.
+	 * @return A list of sub-graph representing the components the original graph was split into.
+	 */
+	public static <V, E> List<UniqueGraph<V, E>> splitOnNodes(UniqueGraph<V, E> graph, Set<V> splitVertices){
+		Set<E> seen = new HashSet<E>();
+		Deque<GraphEdge<V, E>> currentEdges = new ArrayDeque<GraphEdge<V, E>>();
+		Deque<GraphEdge<V, E>> nextEdges = new ArrayDeque<GraphEdge<V, E>>();
+		currentEdges.add(graph.getEdges().get(0));
+
+		Set<V> componentVars = new HashSet<V>();
+		UniqueGraph<V, E> component = new UniqueGraph<V, E>();
+		List<UniqueGraph<V, E>> components = new ArrayList<UniqueGraph<V, E>>();
+
+		while(!nextEdges.isEmpty() || !currentEdges.isEmpty()){
+			if(!currentEdges.isEmpty()){
+				GraphEdge<V, E> edge = currentEdges.removeFirst();
+				if(seen.add(edge.getData())){
+					GraphNode<V, E> sourceNode = edge.getSourceNode();
+					V source = sourceNode.getData();
+					if(componentVars.add(source)){
+						if(splitVertices.contains(source)){
+							nextEdges.addAll(sourceNode.getOutEdges());
+							nextEdges.addAll(sourceNode.getInEdges());
+						}else{
+							currentEdges.addAll(sourceNode.getOutEdges());
+							currentEdges.addAll(sourceNode.getInEdges());
+						}
+					}
+
+					GraphNode<V, E> targetNode = edge.getTargetNode();
+					V target = targetNode.getData();
+					if(componentVars.add(target)){
+						if(splitVertices.contains(target)){
+							nextEdges.addAll(targetNode.getOutEdges());
+							nextEdges.addAll(targetNode.getInEdges());
+						}else{
+							currentEdges.addAll(targetNode.getOutEdges());
+							currentEdges.addAll(targetNode.getInEdges());
+						}
+					}
+
+					component.addUniqueEdge(
+						component.addUniqueNode(source),
+						component.addUniqueNode(target),
+						edge.getData()
+					);
+				}
+			}else{
+				if(component.getEdgeCount() > 0){
+					components.add(component);
+					component = new UniqueGraph<V, E>();
+					componentVars = new HashSet<V>();
+				}
+
+				currentEdges.add(nextEdges.removeFirst());
+			}
+		}
+
+		return components;
 	}
 }

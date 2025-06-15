@@ -16,47 +16,45 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.lang.cpq;
+package dev.roanh.gmark.lang.generic;
 
-import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
-import dev.roanh.gmark.lang.generic.GenericEdge;
-import dev.roanh.gmark.type.schema.Predicate;
-import dev.roanh.gmark.util.IndentWriter;
+import dev.roanh.gmark.ast.QueryVariable;
 
 /**
- * CPQ modelling a single label traversal.
+ * Generic variables for reachability queries.
  * @author Roan
+ * @see #SOURCE
+ * @see #TARGET
  */
-public class EdgeCPQ extends GenericEdge implements CPQ{
+public final class GenericVariable implements QueryVariable{
+	/**
+	 * Generic reachability query source variable.
+	 */
+	public static final QueryVariable SOURCE = new GenericVariable("src");
+	/**
+	 * Generic reachability query target variable.
+	 */
+	public static final QueryVariable TARGET = new GenericVariable("trg");
+	/**
+	 * The display name of this variable.
+	 */
+	private final String name;
 	
 	/**
-	 * Constructs a new edge CPQ with the
-	 * given label to traverse.
-	 * @param symbol The label to traverse.
+	 * Constructs a new generic variable with the given name.
+	 * @param name The display name for this variable.
 	 */
-	public EdgeCPQ(Predicate symbol){
-		super(symbol);
+	private GenericVariable(String name){
+		this.name = name;
 	}
 	
 	@Override
-	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-		return new QueryGraphCPQ(symbol, source, target);
+	public String getName(){
+		return name;
 	}
 
 	@Override
-	public int getDiameter(){
-		return 1;
-	}
-
-	@Override
-	public boolean isLoop(){
-		return false;
-	}
-	
-	@Override
-	public void writeXML(IndentWriter writer){
-		writer.println("<cpq type=\"edge\">", 2);
-		symbol.writeXML(writer);
-		writer.println(2, "</cpq>");
+	public boolean isFree(){
+		return true;
 	}
 }

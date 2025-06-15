@@ -16,47 +16,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.lang.cpq;
-
-import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
-import dev.roanh.gmark.lang.generic.GenericEdge;
-import dev.roanh.gmark.type.schema.Predicate;
-import dev.roanh.gmark.util.IndentWriter;
+package dev.roanh.gmark.lang;
 
 /**
- * CPQ modelling a single label traversal.
+ * More restrictive class of query language specifications for
+ * reachability queries. These query are used to discover if a
+ * path that adheres to specific constraints exists between two
+ * nodes. Therefore, by definition the query has two output variables,
+ * the source and target, which respectively represent the source
+ * and target vertex of a path that adheres to the query constraints.
  * @author Roan
  */
-public class EdgeCPQ extends GenericEdge implements CPQ{
-	
-	/**
-	 * Constructs a new edge CPQ with the
-	 * given label to traverse.
-	 * @param symbol The label to traverse.
-	 */
-	public EdgeCPQ(Predicate symbol){
-		super(symbol);
-	}
-	
-	@Override
-	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-		return new QueryGraphCPQ(symbol, source, target);
-	}
-
-	@Override
-	public int getDiameter(){
-		return 1;
-	}
-
-	@Override
-	public boolean isLoop(){
-		return false;
-	}
-	
-	@Override
-	public void writeXML(IndentWriter writer){
-		writer.println("<cpq type=\"edge\">", 2);
-		symbol.writeXML(writer);
-		writer.println(2, "</cpq>");
-	}
+public abstract interface ReachabilityQueryLanguageSyntax extends QueryLanguageSyntax{
 }

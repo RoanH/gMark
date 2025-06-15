@@ -19,10 +19,8 @@
 package dev.roanh.gmark.util;
 
 /**
- * Writes that prefixes all lines with
- * a configurable number of spaces and
- * can be converted to a string once all
- * content has been written.
+ * Writes that prefixes all lines with a configurable number of spaces
+ * and can be converted to a string once all content has been written.
  * @author Roan
  */
 public class IndentWriter{
@@ -39,11 +37,14 @@ public class IndentWriter{
 	 */
 	private int indent;
 	/**
-	 * True if the next write call is the
-	 * start of a new line and should thus
-	 * be prefixed with spaces.
+	 * True if the next write call is the start of a
+	 * new line and should thus be prefixed with spaces.
 	 */
 	private boolean newLine = true;
+	/**
+	 * The position of the current mark in the buffer.
+	 */
+	private int mark = -1;
 	
 	/**
 	 * Constructs a new indent writer
@@ -164,6 +165,40 @@ public class IndentWriter{
 	 */
 	public void print(int i){
 		print(String.valueOf(i));
+	}
+	
+	/**
+	 * Adds the given boolean to this writer.
+	 * @param value The boolean to print.
+	 */
+	public void print(boolean value){
+		print(String.valueOf(value));
+	}
+	
+	/**
+	 * Marks the current end of the buffer for later use.
+	 * @see #deleteFromMark(int)
+	 * @see #deleteAllFromMark()
+	 */
+	public void mark(){
+		mark = content.length();
+	}
+
+	/**
+	 * Deletes the give number of characters starting from the marked position.
+	 * @param n The number of characters to delete.
+	 * @see #mark()
+	 */
+	public void deleteFromMark(int n){
+		content.delete(mark, mark + n);
+	}
+	
+	/**
+	 * Deletes all content written after the mark was set.
+	 * @see #mark()
+	 */
+	public void deleteAllFromMark(){
+		content.delete(mark, content.length());
 	}
 	
 	@Override

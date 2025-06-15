@@ -24,10 +24,11 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringJoiner;
 import java.util.Map.Entry;
+import java.util.StringJoiner;
 
 import dev.roanh.gmark.gen.shape.QueryShape;
+import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.output.OutputFormal;
 import dev.roanh.gmark.output.OutputSQL;
 import dev.roanh.gmark.output.OutputXML;
@@ -130,7 +131,9 @@ public class Query implements OutputSQL, OutputFormal, OutputXML{
 		
 		StringBuilder buffer = new StringBuilder();
 		buffer.append(lhs.toString());
-		buffer.append(" ← ");
+		buffer.append(" ");
+		buffer.append(QueryLanguageSyntax.CHAR_ASSIGN);
+		buffer.append(" ");
 		buffer.append(body.toString());
 		return buffer.toString();
 	}
@@ -142,7 +145,7 @@ public class Query implements OutputSQL, OutputFormal, OutputXML{
 	
 	@Override
 	public void writeXML(IndentWriter writer){
-		writer.println("<query>", 2);		
+		writer.println("<query>", 2);
 		
 		writer.println("<head>", 2);
 		variables.forEach(v->{

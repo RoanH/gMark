@@ -48,10 +48,11 @@ import javax.swing.text.BadLocationException;
 import dev.roanh.gmark.cli.client.EvaluatorClient;
 import dev.roanh.gmark.eval.DatabaseGraph;
 import dev.roanh.gmark.eval.PathQuery;
-import dev.roanh.gmark.eval.QueryEvaluator;
+import dev.roanh.gmark.eval.ReachabilityQueryEvaluator;
 import dev.roanh.gmark.eval.ResultGraph;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
 import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.util.graph.generic.IntGraph;
 import dev.roanh.util.Dialog;
@@ -61,7 +62,7 @@ import dev.roanh.util.FileSelector.FileExtension;
 /**
  * Tab where you can evaluate queries on a database graph.
  * @author Roan
- * @see QueryEvaluator
+ * @see ReachabilityQueryEvaluator
  */
 public class EvalTab extends JPanel{
 	/**
@@ -95,7 +96,7 @@ public class EvalTab extends JPanel{
 	/**
 	 * The current evaluator used to evaluate queries.
 	 */
-	private QueryEvaluator evaluator = null;
+	private ReachabilityQueryEvaluator evaluator = null;
 
 	/**
 	 * Constructs a new query evaluation tab.
@@ -146,7 +147,7 @@ public class EvalTab extends JPanel{
 		targetPanel.add(target);
 		
 		JPanel langPanel = new JPanel(new GridLayout(2, 1));
-		JComboBox<QueryLanguage> lang = new JComboBox<QueryLanguage>(QueryLanguage.values());
+		JComboBox<QueryLanguage> lang = new JComboBox<QueryLanguage>(QueryLanguage.streamReachabilityQueryLanguages().toArray(QueryLanguage[]::new));
 		langPanel.add(new JLabel("Language"));
 		langPanel.add(lang);
 		
@@ -164,7 +165,7 @@ public class EvalTab extends JPanel{
 
 				runQuery(PathQuery.of(
 					(int)source.getValue(),
-					((QueryLanguage)lang.getSelectedItem()).parse(query.getText(), evaluator.getLabels()),
+					(ReachabilityQueryLanguageSyntax)((QueryLanguage)lang.getSelectedItem()).parse(query.getText(), evaluator.getLabels()),
 					(int)target.getValue()
 				));
 			}catch(Exception e1){
@@ -253,7 +254,7 @@ public class EvalTab extends JPanel{
 				try{
 					IntGraph data = Util.readGraph(file);
 					DatabaseGraph db = new DatabaseGraph(data);
-					evaluator = new QueryEvaluator(db);
+					evaluator = new ReachabilityQueryEvaluator(db);
 					graphInfo.setText("Vertices: %d, Edges: %d (%d unique), Labels: %d".formatted(data.getVertexCount(), data.getEdgeCount(), db.getEdgeCount(), data.getLabelCount()));
 				}catch(IOException e){
 					Dialog.showErrorDialog("Failed to read the database graph: " + e.getMessage());

@@ -18,12 +18,11 @@
  */
 package dev.roanh.gmark.ast;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
-import dev.roanh.gmark.lang.generic.GenericEdge;
-import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.IndentWriter;
 
 /**
@@ -36,13 +35,9 @@ import dev.roanh.gmark.util.IndentWriter;
  */
 public class QueryTree{
 	/**
-	 * For unary and binary operations the left input argument, for atoms null.
+	 * Operands for this operation, the number of operands equals the arity.
 	 */
-	private final QueryTree left;
-	/**
-	 * For binary operations the right input argument, for unary operations and atoms null.
-	 */
-	private final QueryTree right;
+	private final List<QueryTree> operands;
 	/**
 	 * The query fragment this query tree node was derived from.
 	 */
@@ -50,13 +45,11 @@ public class QueryTree{
 	
 	/**
 	 * Constructs a new query tree from the given input.
-	 * @param left The left input argument for unary and binary operations.
-	 * @param right The right input argument binary operations.
+	 * @param operands The input arguments, the list size corresponds to the operation arity.
 	 * @param fragment The query fragment this AST node was derived from.
 	 */
-	private QueryTree(QueryTree left, QueryTree right, QueryFragment fragment){
-		this.left = left;
-		this.right = right;
+	private QueryTree(List<QueryTree> operands, QueryFragment fragment){
+		this.operands = operands;
 		this.fragment = fragment;
 	}
 	
@@ -67,16 +60,15 @@ public class QueryTree{
 	 * @see OperationType#isAtom()
 	 */
 	public boolean isLeaf(){
-		return left == null && right == null;
+		return operands.isEmpty();
 	}
 	
 	/**
 	 * Checks if the operation for this AST node is a unary operation, meaning it takes
-	 * exactly one operand and has exactly one child node in the query AST. The child
-	 * node of the input for the operation in this node is given by {@link #getLeft()}.
+	 * exactly one operand and has exactly one child node in the query AST.
 	 * @return True if the operation for this AST node is unary.
 	 * @see OperationType#isUnary()
-	 * @see #getLeft()
+	 * @see #getArity()
 	 */
 	public boolean isUnary(){
 		return getOperation().isUnary();
@@ -84,16 +76,26 @@ public class QueryTree{
 	
 	/**
 	 * Checks if the operation for this AST node is a binary operation, meaning it takes
-	 * exactly two operands and has exactly two child nodes in the query AST. The two
-	 * inputs for the operation in this node are given in order by {@link #getLeft()}
-	 * and {@link #getRight()}.
+	 * exactly two operands and has exactly two child nodes in the query AST.
 	 * @return True if the operation for this AST node is binary.
 	 * @see OperationType#isBinary()
-	 * @see #getLeft()
-	 * @see #getRight()
+	 * @see #getArity()
 	 */
 	public boolean isBinary(){
 		return getOperation().isBinary();
+	}
+	
+	/**
+	 * Gets the number of provided input operands for the operation at this tree node.
+	 * <p>
+	 * Note: this function provides the actual arity, which may differ from the arity
+	 * of the operation for this AST node, in particular when the operation does not
+	 * have a fixed arity (e.g., {@link OperationType#JOIN}).
+	 * @return The number of operands for the operation of this node (arity).
+	 * @see OperationType#getArity()
+	 */
+	public int getArity(){
+		return operands.size();
 	}
 	
 	/**
@@ -106,43 +108,45 @@ public class QueryTree{
 	}
 	
 	/**
-	 * If the operation for this AST node is {@link OperationType#EDGE},
-	 * returns the edge label or predicate associated with edge at this AST node.
-	 * @return The label at this AST node.
+	 * If the operation for this AST node is {@link OperationType#EDGE}, returns
+	 * the atomic edge query operation associated with this AST node.
+	 * @return The atomic edge operation at this AST leaf.
 	 * @throws IllegalStateException When the operation for this AST node
 	 *         is not equal to {@link OperationType#EDGE}.
-	 * @see Predicate
-	 * @see OperationType#EDGE
-	 * @see #getOperation()
 	 */
-	public Predicate getPredicate() throws IllegalStateException{
+	public EdgeQueryAtom getEdgeAtom() throws IllegalStateException{
 		if(getOperation() != OperationType.EDGE){
 			throw new IllegalStateException("Query fragment is not an AST edge leaf.");
 		}
 		
-		return ((GenericEdge)fragment).getLabel();
+		return ((EdgeQueryAtom)fragment);
 	}
 	
 	/**
-	 * Gets the left child node of this AST node if any. This child node is
-	 * only present if the operation for this AST node is unary or binary
-	 * and for binary operation represents the first input argument.
+	 * If this AST node corresponds to a leaf of the AST, gets the
+	 * atomic query operation associated with this AST node.
+	 * @return The atomic operation at this AST leaf.
+	 * @throws IllegalStateException When this AST node is not a leaf node.
+	 */
+	public QueryAtom getAtom() throws IllegalStateException{
+		if(fragment instanceof QueryAtom atom){
+			return atom;
+		}else{
+			throw new IllegalStateException("Query fragment is not an AST leaf.");
+		}
+	}
+	
+	/**
+	 * Gets the n-th child node of this AST node if any. This child node is
+	 * only present if the operation for this AST node has an arity less than
+	 * the given value of n.
+	 * @param n The n-th operand to get, 0-based offset, i.e., the only operand
+	 *        for an operation of arity 1 is at index 0.
 	 * @return The left child node of this AST node or null if this node is a leaf.
 	 * @see OperationType
 	 */
-	public QueryTree getLeft(){
-		return left;
-	}
-	
-	/**
-	 * Gets the right child node of this AST node if any. This child node is
-	 * only present if the operation for this AST node is binary and represents
-	 * the second input argument.
-	 * @return The right child node of this AST node of null if the operation for this node is not binary.
-	 * @see OperationType
-	 */
-	public QueryTree getRight(){
-		return right;
+	public QueryTree getOperand(int n){
+		return operands.get(n);
 	}
 	
 	/**
@@ -154,12 +158,11 @@ public class QueryTree{
 	public Stream<QueryTree> stream(){
 		Stream<QueryTree> stream = Stream.of(this);
 		
-		int arity = getOperation().getArity();
-		if(arity > 0){
-			stream = Stream.concat(stream, left.stream());
+		for(QueryTree child : operands){
+			stream = Stream.concat(stream, child.stream());
 		}
 		
-		return arity > 1 ? Stream.concat(stream, right.stream()) : stream;
+		return stream;
 	}
 	
 	/**
@@ -172,9 +175,9 @@ public class QueryTree{
 			writer.println(fragment.toString());
 		}else{
 			writer.println("- " + getOperation(), 2);
-			left.writeAST(writer);
-			if(right != null){
-				right.writeAST(writer);
+			
+			for(QueryTree child : operands){
+				child.writeAST(writer);
 			}
 			
 			writer.decreaseIndent(2);
@@ -195,8 +198,8 @@ public class QueryTree{
 	 * @return The AST for the given query fragment.
 	 * @see OperationType#isAtom()
 	 */
-	public static QueryTree ofAtom(QueryFragment fragment){
-		return new QueryTree(null, null, fragment);
+	public static QueryTree ofAtom(QueryAtom fragment){
+		return new QueryTree(List.of(), fragment);
 	}
 	
 	/**
@@ -207,7 +210,7 @@ public class QueryTree{
 	 * @see OperationType#isUnary()
 	 */
 	public static QueryTree ofUnary(QueryTree left, QueryFragment fragment){
-		return new QueryTree(left, null, fragment);
+		return new QueryTree(List.of(left), fragment);
 	}
 
 	/**
@@ -219,6 +222,16 @@ public class QueryTree{
 	 * @see OperationType#isBinary()
 	 */
 	public static QueryTree ofBinary(QueryTree left, QueryTree right, QueryFragment fragment){
-		return new QueryTree(left, right, fragment);
+		return new QueryTree(List.of(left, right), fragment);
+	}
+	
+	/**
+	 * Constructs an AST node for a query fragment representing an n-ary operation.
+	 * @param inputs The child nodes of this AST nodes, these are the inputs for the n-ary operation.
+	 * @param fragment The query fragment.
+	 * @return The AST for the given query fragment.
+	 */
+	public static QueryTree ofNAry(List<QueryTree> inputs, QueryFragment fragment){
+		return new QueryTree(inputs, fragment);
 	}
 }

@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
+import dev.roanh.gmark.ast.EdgeQueryAtom;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.type.schema.Predicate;
 
@@ -41,7 +42,7 @@ public class ParserCPQTest{
 	
 	@Test
 	public void parse2(){
-		assertEquals("(a ∩ b ∩ c)", CPQ.parse("a ∩ b ∩ c").toString());
+		assertEquals("(a ∩ b ∩ c)", CPQ.parse("a∩b∩c").toString());
 	}
 	
 	@Test
@@ -66,6 +67,9 @@ public class ParserCPQTest{
 	
 	@Test
 	public void predicates(){
-		assertArrayEquals(new int[]{0, 1, 2}, CPQ.parse("a ∩ b ∩ c").toAbstractSyntaxTree().stream().filter(QueryTree::isLeaf).map(QueryTree::getPredicate).mapToInt(Predicate::getID).distinct().sorted().toArray());
+		assertArrayEquals(
+			new int[]{0, 1, 2},
+			CPQ.parse("a ∩ b ∩ c").toAbstractSyntaxTree().stream().filter(QueryTree::isLeaf).map(QueryTree::getEdgeAtom).map(EdgeQueryAtom::getLabel).mapToInt(Predicate::getID).distinct().sorted().toArray()
+		);
 	}
 }

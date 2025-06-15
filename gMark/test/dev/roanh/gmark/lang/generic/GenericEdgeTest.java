@@ -16,47 +16,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.lang.cpq;
+package dev.roanh.gmark.lang.generic;
 
-import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
-import dev.roanh.gmark.lang.generic.GenericEdge;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
+import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.type.schema.Predicate;
-import dev.roanh.gmark.util.IndentWriter;
 
-/**
- * CPQ modelling a single label traversal.
- * @author Roan
- */
-public class EdgeCPQ extends GenericEdge implements CPQ{
+public class GenericEdgeTest{
+	private static final Predicate pred0 = new Predicate(0, "zero");
+	private static final Predicate pred1 = new Predicate(1, "one");
+	private static final CPQ label0 = CPQ.label(pred0);
+	private static final CPQ label1 = CPQ.label(pred1);
+	private static final CPQ label1i = CPQ.label(pred1.getInverse());
 	
-	/**
-	 * Constructs a new edge CPQ with the
-	 * given label to traverse.
-	 * @param symbol The label to traverse.
-	 */
-	public EdgeCPQ(Predicate symbol){
-		super(symbol);
+	@Test
+	public void labelToSQL0(){
+		assertEquals("SELECT src, trg FROM edge WHERE label = 0", label0.toSQL());
 	}
 	
-	@Override
-	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-		return new QueryGraphCPQ(symbol, source, target);
-	}
-
-	@Override
-	public int getDiameter(){
-		return 1;
-	}
-
-	@Override
-	public boolean isLoop(){
-		return false;
+	@Test
+	public void labelToSQL1(){
+		assertEquals("SELECT src, trg FROM edge WHERE label = 1", label1.toSQL());
 	}
 	
-	@Override
-	public void writeXML(IndentWriter writer){
-		writer.println("<cpq type=\"edge\">", 2);
-		symbol.writeXML(writer);
-		writer.println(2, "</cpq>");
+	@Test
+	public void inverseLabelToSQL(){
+		assertEquals("SELECT trg AS src, src AS trg FROM edge WHERE label = 1", label1i.toSQL());
 	}
 }

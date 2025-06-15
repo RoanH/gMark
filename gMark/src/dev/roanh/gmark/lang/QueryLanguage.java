@@ -18,14 +18,18 @@
  */
 package dev.roanh.gmark.lang;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.cpq.ParserCPQ;
+import dev.roanh.gmark.lang.cq.CQ;
+import dev.roanh.gmark.lang.cq.ParserCQ;
 import dev.roanh.gmark.lang.rpq.ParserRPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
 import dev.roanh.gmark.type.schema.Predicate;
@@ -47,25 +51,39 @@ public enum QueryLanguage{
 	 * The language of Regular Path Queries.
 	 * @see RPQ
 	 */
-	RPQ(ParserRPQ::parse, ParserRPQ::parse);
+	RPQ(ParserRPQ::parse, ParserRPQ::parse),
+	/**
+	 * The language of Conjunctive Queries.
+	 * @see CQ
+	 */
+	CQ(ParserCQ::parse, ParserCQ::parse);
 	
 	/**
 	 * The function to use to parse a query without a given label set.
 	 */
-	private final Function<String, QueryLanguageSyntax> parseFun;
+	private final Function<String, ? extends QueryLanguageSyntax> parseFun;
 	/**
 	 * The function to use to parse a query with a given label set.
 	 */
-	private final BiFunction<String, List<Predicate>, QueryLanguageSyntax> parseLabelledFun;
+	private final BiFunction<String, List<Predicate>, ? extends QueryLanguageSyntax> parseLabelledFun;
 	
 	/**
 	 * Constructs a new query language with the given parsers.
 	 * @param parseFun The parser without a given label set.
 	 * @param parseLabelledFun The parser with a given label set.
 	 */
-	private QueryLanguage(Function<String, QueryLanguageSyntax> parseFun, BiFunction<String, List<Predicate>, QueryLanguageSyntax> parseLabelledFun){
+	private QueryLanguage(Function<String, ? extends QueryLanguageSyntax> parseFun, BiFunction<String, List<Predicate>, ? extends QueryLanguageSyntax> parseLabelledFun){
 		this.parseFun = parseFun;
 		this.parseLabelledFun = parseLabelledFun;
+	}
+	
+	/**
+	 * Checks if this query language is a reachability query language.
+	 * @return True if this query language is a reachability query language.
+	 * @see ReachabilityQueryLanguageSyntax
+	 */
+	public boolean isReachabilityQueryLanguage(){
+		return this == CPQ || this == RPQ;
 	}
 	
 	/**
@@ -104,5 +122,22 @@ public enum QueryLanguage{
 		}
 		
 		return Optional.empty();
+	}
+	
+	/**
+	 * Returns a stream over all the query languages in this enum.
+	 * @return All query languages.
+	 */
+	public static final Stream<QueryLanguage> stream(){
+		return Arrays.stream(values());
+	}
+	
+	/**
+	 * Returns a stream over all reachability query languages in this enum.
+	 * @return All reachability query languages.
+	 * @see ReachabilityQueryLanguageSyntax
+	 */
+	public static final Stream<QueryLanguage> streamReachabilityQueryLanguages(){
+		return stream().filter(QueryLanguage::isReachabilityQueryLanguage);
 	}
 }

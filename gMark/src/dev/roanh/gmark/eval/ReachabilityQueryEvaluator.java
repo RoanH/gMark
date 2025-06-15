@@ -37,11 +37,19 @@ import dev.roanh.gmark.util.graph.generic.IntGraph;
  * @see DatabaseGraph
  * @see ResultGraph
  */
-public class QueryEvaluator{
+public class ReachabilityQueryEvaluator{
 	/**
 	 * Constant used to indicate an unbound (free) query source and/or target vertex.
 	 */
 	private static final int UNBOUND = -1;
+	/**
+	 * First input operand/argument for an operation.
+	 */
+	private static final int FIRST = 0;
+	/**
+	 * Second input operand/argument for an operation.
+	 */
+	private static final int SECOND = 1;
 	/**
 	 * The main database graph.
 	 */
@@ -51,7 +59,7 @@ public class QueryEvaluator{
 	 * Constructs a new query evaluator for the given database graph.
 	 * @param graph The database graph to evaluate queries on.
 	 */
-	public QueryEvaluator(IntGraph graph){
+	public ReachabilityQueryEvaluator(IntGraph graph){
 		this(new DatabaseGraph(graph));
 	}
 	
@@ -59,7 +67,7 @@ public class QueryEvaluator{
 	 * Constructs a new query evaluator for the given database graph.
 	 * @param graph The database graph to evaluate queries on.
 	 */
-	public QueryEvaluator(DatabaseGraph graph){
+	public ReachabilityQueryEvaluator(DatabaseGraph graph){
 		this.graph = graph;
 	}
 
@@ -90,20 +98,22 @@ public class QueryEvaluator{
 	private ResultGraph evaluate(int source, QueryTree path, int target){
 		switch(path.getOperation()){
 		case CONCATENATION:
-			return evaluate(source, path.getLeft(), UNBOUND).join(evaluate(UNBOUND, path.getRight(), target));
+			return evaluate(source, path.getOperand(FIRST), UNBOUND).join(evaluate(UNBOUND, path.getOperand(SECOND), target));
 		case DISJUNCTION:
-			return evaluate(source, path.getLeft(), target).union(evaluate(source, path.getRight(), target));
+			return evaluate(source, path.getOperand(FIRST), target).union(evaluate(source, path.getOperand(SECOND), target));
 		case EDGE:
-			return selectEdge(source, path.getPredicate(), target);
+			return selectEdge(source, path.getEdgeAtom().getLabel(), target);
 		case IDENTITY:
 			return selectIdentity(source, target);
 		case INTERSECTION:
 			return planIntersection(source, path, target);
 		case KLEENE:
 			return planTransitiveClosure(source, path, target);
+		case JOIN:
+			throw new IllegalArgumentException("This evaluator only supports reachability queries.");
 		}
-
-		throw new IllegalArgumentException("Unsupported database operation.");
+		
+		throw new IllegalStateException("Unknown database operation.");
 	}
 	
 	/**
@@ -121,12 +131,12 @@ public class QueryEvaluator{
 	 * @see ResultGraph#intersection(ResultGraph)
 	 */
 	private ResultGraph planIntersection(int source, QueryTree path, int target){
-		if(path.getLeft().getOperation() == OperationType.IDENTITY){
-			return evaluate(source, path.getRight(), target).selectIdentity();
-		}else if(path.getRight().getOperation() == OperationType.IDENTITY){
-			return evaluate(source, path.getLeft(), target).selectIdentity();
+		if(path.getOperand(FIRST).getOperation() == OperationType.IDENTITY){
+			return evaluate(source, path.getOperand(SECOND), target).selectIdentity();
+		}else if(path.getOperand(SECOND).getOperation() == OperationType.IDENTITY){
+			return evaluate(source, path.getOperand(FIRST), target).selectIdentity();
 		}else{
-			return evaluate(source, path.getLeft(), target).intersection(evaluate(source, path.getRight(), target));
+			return evaluate(source, path.getOperand(FIRST), target).intersection(evaluate(source, path.getOperand(SECOND), target));
 		}
 	}
 	
@@ -142,7 +152,7 @@ public class QueryEvaluator{
 	 * @see ResultGraph#transitiveClosure()
 	 */
 	private ResultGraph planTransitiveClosure(int source, QueryTree path, int target){
-		ResultGraph base = evaluate(UNBOUND, path.getLeft(), UNBOUND);
+		ResultGraph base = evaluate(UNBOUND, path.getOperand(FIRST), UNBOUND);
 		
 		if(source == UNBOUND){
 			return target == UNBOUND ? base.transitiveClosure() : base.transitiveClosureTo(target);

@@ -29,21 +29,25 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.QueryGraphComponent;
+import dev.roanh.gmark.lang.cq.AtomCQ;
+import dev.roanh.gmark.lang.cq.CQ;
+import dev.roanh.gmark.lang.cq.VarCQ;
 import dev.roanh.gmark.type.IDable;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph;
-import dev.roanh.gmark.util.graph.generic.Tree;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
+import dev.roanh.gmark.util.graph.generic.Tree;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 
 public class UtilTest{
 	private static final Predicate a = new Predicate(0, "a");
@@ -57,55 +61,55 @@ public class UtilTest{
 
 	@Test
 	public void matching0(){
-		SimpleGraph<Predicate, Void> g = new SimpleGraph<Predicate, Void>(4);
+		SimpleGraph<Predicate, Void> graph = new SimpleGraph<Predicate, Void>(4);
 		
-		g.addVertex(a);
-		g.addVertex(b);
-		g.addVertex(c);
-		g.addVertex(d);
+		graph.addVertex(a);
+		graph.addVertex(b);
+		graph.addVertex(c);
+		graph.addVertex(d);
 		
-		g.addEdge(a, b);
-		g.addEdge(b, c);
-		g.addEdge(c, d);
-		g.addEdge(d, a);
+		graph.addEdge(a, b);
+		graph.addEdge(b, c);
+		graph.addEdge(c, d);
+		graph.addEdge(d, a);
 		
-		List<SimpleEdge<Predicate, Void>> matching = Util.findMaximalMatching(g);
+		List<SimpleEdge<Predicate, Void>> matching = Util.findMaximalMatching(graph);
 		assertEquals(2, matching.size());
 	}
 	
 	@Test
 	public void decomp0(){
-		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> g = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(5);
+		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> graph = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(5);
 		
 		List<Predicate> vertices = Arrays.asList(a, b, c, d, e);
-		vertices.forEach(g::addVertex);
+		vertices.forEach(graph::addVertex);
 		
-		g.addEdge(a, b);
-		g.addEdge(a, c);
-		g.addEdge(c, e);
-		g.addEdge(e, d);
-		g.addEdge(d, b);
-		List<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>> edges = new ArrayList<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>>(g.getEdges());
+		graph.addEdge(a, b);
+		graph.addEdge(a, c);
+		graph.addEdge(c, e);
+		graph.addEdge(e, d);
+		graph.addEdge(d, b);
+		List<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>> edges = new ArrayList<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>>(graph.getEdges());
 		
-		Tree<List<Predicate>> decomp = Util.computeTreeDecompositionWidth2(g);
+		Tree<List<Predicate>> decomp = Util.computeTreeDecompositionWidth2(graph);
 		assertValidTreeDecomposition(decomp, vertices, edges);
 	}
 	
 	@Test
 	public void decomp1(){
-		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> g = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(5);
+		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> graph = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(5);
 		
 		List<Predicate> vertices = Arrays.asList(a, b, c, d, e);
-		vertices.forEach(g::addVertex);
+		vertices.forEach(graph::addVertex);
 		
-		g.addEdge(a, e);
-		g.addEdge(e, d);
-		g.addEdge(d, b);
-		g.addEdge(b, a);
-		g.addEdge(c, b);
-		List<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>> edges = new ArrayList<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>>(g.getEdges());
+		graph.addEdge(a, e);
+		graph.addEdge(e, d);
+		graph.addEdge(d, b);
+		graph.addEdge(b, a);
+		graph.addEdge(c, b);
+		List<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>> edges = new ArrayList<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>>(graph.getEdges());
 		
-		Tree<List<Predicate>> decomp = Util.computeTreeDecompositionWidth2(g);
+		Tree<List<Predicate>> decomp = Util.computeTreeDecompositionWidth2(graph);
 		assertValidTreeDecomposition(decomp, vertices, edges);
 	}
 	
@@ -132,38 +136,38 @@ public class UtilTest{
 	
 	@Test
 	public void decomp3(){
-		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> g = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(6);
+		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> graph = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(6);
 		
 		List<Predicate> vertices = Arrays.asList(a, b, c, d, e, f);
-		vertices.forEach(g::addVertex);
+		vertices.forEach(graph::addVertex);
 		
-		g.addEdge(a, b);
-		g.addEdge(b, c);
-		g.addEdge(c, d);
-		g.addEdge(d, e);
-		g.addEdge(e, f);
-		List<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>> edges = new ArrayList<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>>(g.getEdges());
+		graph.addEdge(a, b);
+		graph.addEdge(b, c);
+		graph.addEdge(c, d);
+		graph.addEdge(d, e);
+		graph.addEdge(e, f);
+		List<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>> edges = new ArrayList<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>>(graph.getEdges());
 		
-		Tree<List<Predicate>> decomp = Util.computeTreeDecompositionWidth2(g);
+		Tree<List<Predicate>> decomp = Util.computeTreeDecompositionWidth2(graph);
 		assertValidTreeDecomposition(decomp, vertices, edges);
 	}
 	
 	@Test
 	public void decomp4(){
-		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> g = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(6);
+		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> graph = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(6);
 		
 		List<Predicate> vertices = Arrays.asList(a, b, c, d, e, f);
-		vertices.forEach(g::addVertex);
+		vertices.forEach(graph::addVertex);
 		
-		g.addEdge(a, b);
-		g.addEdge(a, c);
-		g.addEdge(c, d);
-		g.addEdge(e, b);
-		g.addEdge(d, e);
-		g.addEdge(f, c);
-		List<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>> edges = new ArrayList<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>>(g.getEdges());
+		graph.addEdge(a, b);
+		graph.addEdge(a, c);
+		graph.addEdge(c, d);
+		graph.addEdge(e, b);
+		graph.addEdge(d, e);
+		graph.addEdge(f, c);
+		List<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>> edges = new ArrayList<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>>(graph.getEdges());
 		
-		Tree<List<Predicate>> decomp = Util.computeTreeDecompositionWidth2(g);
+		Tree<List<Predicate>> decomp = Util.computeTreeDecompositionWidth2(graph);
 		assertValidTreeDecomposition(decomp, vertices, edges);
 	}
 	
@@ -193,108 +197,90 @@ public class UtilTest{
 	
 	@Test
 	public void decomp6(){
-		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> g = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(6);
+		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> graph = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(6);
 		
-		Arrays.asList(a, b, c, d, e, f).forEach(g::addVertex);
+		Arrays.asList(a, b, c, d, e, f).forEach(graph::addVertex);
 		
-		g.addEdge(a, b);
-		g.addEdge(b, c);
-		g.addEdge(d, e);
-		g.addEdge(e, f);
+		graph.addEdge(a, b);
+		graph.addEdge(b, c);
+		graph.addEdge(d, e);
+		graph.addEdge(e, f);
 		
-		assertThrows(IllegalArgumentException.class, ()->Util.computeTreeDecompositionWidth2(g));
+		assertThrows(IllegalArgumentException.class, ()->Util.computeTreeDecompositionWidth2(graph));
 	}
 	
 	@Test
 	public void decomp7(){
-		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> g = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(4);
+		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> graph = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(4);
 		
-		Arrays.asList(a, b, c, d).forEach(g::addVertex);
+		Arrays.asList(a, b, c, d).forEach(graph::addVertex);
 		
-		g.addEdge(a, b);
-		g.addEdge(a, c);
-		g.addEdge(a, d);
-		g.addEdge(b, c);
-		g.addEdge(b, d);
-		g.addEdge(c, d);
+		graph.addEdge(a, b);
+		graph.addEdge(a, c);
+		graph.addEdge(a, d);
+		graph.addEdge(b, c);
+		graph.addEdge(b, d);
+		graph.addEdge(c, d);
 
-		assertThrows(IllegalArgumentException.class, ()->Util.computeTreeDecompositionWidth2(g));
+		assertThrows(IllegalArgumentException.class, ()->Util.computeTreeDecompositionWidth2(graph));
 	}
 	
 	@Test
 	public void decomp8(){
-		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> g = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(5);
+		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> graph = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(5);
 		
-		Arrays.asList(a, b, c, d, e).forEach(g::addVertex);
+		Arrays.asList(a, b, c, d, e).forEach(graph::addVertex);
 		
-		g.addEdge(a, b);
-		g.addEdge(a, c);
-		g.addEdge(a, d);
-		g.addEdge(b, c);
-		g.addEdge(b, d);
-		g.addEdge(c, d);
-		g.addEdge(d, e);
+		graph.addEdge(a, b);
+		graph.addEdge(a, c);
+		graph.addEdge(a, d);
+		graph.addEdge(b, c);
+		graph.addEdge(b, d);
+		graph.addEdge(c, d);
+		graph.addEdge(d, e);
 
-		assertThrows(IllegalArgumentException.class, ()->Util.computeTreeDecompositionWidth2(g));
+		assertThrows(IllegalArgumentException.class, ()->Util.computeTreeDecompositionWidth2(graph));
 	}
 	
 	@Test
 	public void decomp9(){
-		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> g = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(6);
+		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> graph = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(6);
 		
 		List<Predicate> vertices = Arrays.asList(a, c, b, d, e, f);
-		vertices.forEach(g::addVertex);
+		vertices.forEach(graph::addVertex);
 		
-		g.addEdge(a, b);
-		g.addEdge(b, c);
-		g.addEdge(c, d);
-		g.addEdge(d, e);
-		g.addEdge(e, f);
-		List<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>> edges = new ArrayList<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>>(g.getEdges());
+		graph.addEdge(a, b);
+		graph.addEdge(b, c);
+		graph.addEdge(c, d);
+		graph.addEdge(d, e);
+		graph.addEdge(e, f);
+		List<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>> edges = new ArrayList<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>>(graph.getEdges());
 		
-		Tree<List<Predicate>> decomp = Util.computeTreeDecompositionWidth2(g);
+		Tree<List<Predicate>> decomp = Util.computeTreeDecompositionWidth2(graph);
 		assertValidTreeDecomposition(decomp, vertices, edges);
 	}
 	
 	@Test
 	public void decomp10(){
-		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> g = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(2);
+		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> graph = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(2);
 		
 		List<Predicate> vertices = Arrays.asList(a, b);
-		vertices.forEach(g::addVertex);
+		vertices.forEach(graph::addVertex);
 		
-		g.addEdge(a, b);
-		List<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>> edges = new ArrayList<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>>(g.getEdges());
+		graph.addEdge(a, b);
+		List<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>> edges = new ArrayList<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>>(graph.getEdges());
 		
-		Tree<List<Predicate>> decomp = Util.computeTreeDecompositionWidth2(g);
+		Tree<List<Predicate>> decomp = Util.computeTreeDecompositionWidth2(graph);
 		assertValidTreeDecomposition(decomp, vertices, edges);
 	}
 	
 	@Test
 	public void decomp11(){
-		SimpleGraph<Predicate, List<Tree<List<Predicate>>>> g = new SimpleGraph<Predicate, List<Tree<List<Predicate>>>>(6);
-		
-		List<Predicate> vertices = Arrays.asList(a, c, b, d, e, f);
-		vertices.forEach(g::addVertex);
-		
-		g.addEdge(a, b);
-		g.addEdge(b, c);
-		g.addEdge(c, d);
-		g.addEdge(d, e);
-		g.addEdge(e, f);
-		List<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>> edges = new ArrayList<SimpleEdge<Predicate, List<Tree<List<Predicate>>>>>(g.getEdges());
-		
-		Tree<List<Predicate>> decomp = Util.computeTreeDecompositionWidth2(g);
-		assertValidTreeDecomposition(decomp, vertices, edges);
-	}
-	
-	@Test
-	public void decomp12(){
-		SimpleGraph<QueryGraphComponent, List<Tree<List<QueryGraphComponent>>>> g = CPQ.parse("((0⁻ ∩ 0)◦(0⁻◦0))").toQueryGraph().toIncidenceGraph();
-		List<QueryGraphComponent> vertices = g.getVertices().stream().map(SimpleVertex::getData).collect(Collectors.toList());
-		List<SimpleEdge<QueryGraphComponent, List<Tree<List<QueryGraphComponent>>>>> edges = new ArrayList<SimpleEdge<QueryGraphComponent, List<Tree<List<QueryGraphComponent>>>>>(g.getEdges());
+		SimpleGraph<QueryGraphComponent, List<Tree<List<QueryGraphComponent>>>> graph = CPQ.parse("((0⁻ ∩ 0)◦(0⁻◦0))").toQueryGraph().toIncidenceGraph();
+		List<QueryGraphComponent> vertices = graph.getVertices().stream().map(SimpleVertex::getData).toList();
+		List<SimpleEdge<QueryGraphComponent, List<Tree<List<QueryGraphComponent>>>>> edges = new ArrayList<SimpleEdge<QueryGraphComponent, List<Tree<List<QueryGraphComponent>>>>>(graph.getEdges());
 		assertValidTreeDecomposition(
-			Util.computeTreeDecompositionWidth2(g),
+			Util.computeTreeDecompositionWidth2(graph),
 			vertices,
 			edges
 		);
@@ -463,6 +449,74 @@ public class UtilTest{
 		assertFalse(Util.isEmpty(Files.createTempFile(null, null).getParent()));
 	}
 	
+	@Test
+	public void splitOnNodes0(){
+		CQ query = CQ.parse("(f1) ← b(f1, b2), a(b1, f1), a(b3, b2)");
+		
+		//b1 --a-> f1 --b-> b2 <-a-- b3
+		//comp 1    | comp 2
+		
+		List<UniqueGraph<VarCQ, AtomCQ>> components = Util.splitOnNodes(query.toQueryGraph().toUniqueGraph(), query.getFreeVariables());
+		assertEquals(2, components.size());
+		
+		components.sort(Comparator.comparingInt(UniqueGraph::getNodeCount));
+		assertEquals("(f1) ← a(b1, f1)", CQ.of(components.get(0)).toFormalSyntax());
+		assertEquals("(f1) ← a(b3, b2), b(f1, b2)", CQ.of(components.get(1)).toFormalSyntax());
+	}
+	
+	@Test
+	public void splitOnNodes1(){
+		CQ query = CQ.empty();
+
+		VarCQ b1 = query.addBoundVariable("b1");
+		VarCQ f1 = query.addFreeVariable("f1");
+
+		query.addAtom(b1, a, f1);
+
+		//b1 --a-> f1
+		//comp 1
+
+		List<UniqueGraph<VarCQ, AtomCQ>> components = Util.splitOnNodes(query.toQueryGraph().toUniqueGraph(), query.getFreeVariables());
+		assertEquals(1, components.size());
+		assertEquals("(f1) ← a(b1, f1)", CQ.of(components.get(0)).toFormalSyntax());
+	}
+
+	@Test
+	public void splitOnNodes2(){
+		CQ query = CQ.empty();
+
+		VarCQ f1 = query.addFreeVariable("f1");
+		query.addAtom(f1, a, f1);
+
+		//self loop on f1, one component
+
+		List<UniqueGraph<VarCQ, AtomCQ>> components = Util.splitOnNodes(query.toQueryGraph().toUniqueGraph(), query.getFreeVariables());
+		assertEquals(1, components.size());
+		assertEquals("(f1) ← a(f1, f1)", CQ.of(components.get(0)).toFormalSyntax());
+	}
+
+	@Test
+	public void splitOnNodes3(){
+		CQ query = CQ.parse("(f1, f2) ← b(b2, b2), a(f1, b2), a(f2, b2), b(b1, f2), a(f1, b1), b(f1, f2), a(f1, f1)");
+
+		//a         b
+		//o         o
+		//f1 --a-> b2
+		//|  \      ^
+		//a    b    a
+		//v      \v |
+		//b1 --b-> f2
+
+		List<UniqueGraph<VarCQ, AtomCQ>> components = Util.splitOnNodes(query.toQueryGraph().toUniqueGraph(), query.getFreeVariables());
+		assertEquals(4, components.size());
+
+		components.sort(Comparator.<UniqueGraph<VarCQ, AtomCQ>>comparingInt(UniqueGraph::getEdgeCount).thenComparingInt(UniqueGraph::getNodeCount));
+		assertEquals("(f1) ← a(f1, f1)", CQ.of(components.get(0)).toFormalSyntax());
+		assertEquals("(f1, f2) ← b(f1, f2)", CQ.of(components.get(1)).toFormalSyntax());
+		assertEquals("(f1, f2) ← a(f1, b1), b(b1, f2)", CQ.of(components.get(2)).toFormalSyntax());
+		assertEquals("(f1, f2) ← a(f1, b2), a(f2, b2), b(b2, b2)", CQ.of(components.get(3)).toFormalSyntax());
+	}
+	
 	public static <T extends IDable, M> void assertValidTreeDecomposition(Tree<List<T>> decomp, List<T> vertices, List<SimpleEdge<T, M>> edges){
 		//1. All vertices are in the decomposition
 		Set<T> found = new HashSet<T>();
@@ -476,7 +530,7 @@ public class UtilTest{
 		
 		//2. All edges are in a bag
 		outer: for(SimpleEdge<T, M> e : edges){
-			for(List<T> bag : decomp.stream().map(Tree::getData).collect(Collectors.toList())){
+			for(List<T> bag : decomp.stream().map(Tree::getData).toList()){
 				if(bag.contains(e.getFirstVertex().getData()) && bag.contains(e.getSecondVertex().getData())){
 					continue outer;
 				}

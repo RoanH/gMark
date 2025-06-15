@@ -151,11 +151,7 @@ public class Predicate implements OutputXML, Comparable<Predicate>, IDable{
 	
 	@Override
 	public boolean equals(Object other){
-		if(other instanceof Predicate p){
-			return p.id == id && p.isInverse == isInverse;
-		}else{
-			return false;
-		}
+		return other instanceof Predicate p && p.id == id && p.isInverse == isInverse;
 	}
 	
 	@Override

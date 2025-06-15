@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.lang.cpq;
+package dev.roanh.gmark.lang.rpq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -26,51 +26,13 @@ import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.type.schema.Predicate;
 
-public class CPQTest{
+public class RPQTest{
 	private static final Predicate a = new Predicate(0, "a");
 	private static final Predicate b = new Predicate(1, "b");
 
 	@Test
-	public void dia0(){
-		assertEquals(3, CPQ.parse("((a◦(b ∩ id)◦c) ∩ id)").getDiameter());
-	}
-	
-	@Test
-	public void dia1(){
-		assertEquals(1, CPQ.parse("a").getDiameter());
-	}
-	
-	@Test
-	public void dia2(){
-		assertEquals(3, CPQ.parse("(a◦a◦a)").getDiameter());
-	}
-	
-	@Test
-	public void dia3(){
-		assertEquals(3, CPQ.parse("(a◦a◦a) ∩ (a◦a)").getDiameter());
-	}
-	
-	@Test
-	public void dia4(){
-		assertEquals(1, CPQ.parse("a⁻").getDiameter());
-	}
-	
-	@Test
-	public void dia5(){
-		assertEquals(0, CPQ.parse("id").getDiameter());
-	}
-	
-	@Test
-	public void CPQtoCQ(){
-		assertEquals(
-			"(src, trg) ← a(src, 0), b(0, trg), c(src, trg)",
-			CPQ.parse("(a◦b) ∩ c").toQueryGraph().toQueryGraphCQ().toCQ().toFormalSyntax()
-		);
-	}
-
-	@Test
-	public void cpq0(){
-		CPQ query = CPQ.labels(a, b);
+	public void rpq0(){
+		RPQ query = RPQ.labels(a, b);
 		
 		QueryTree ast = query.toAbstractSyntaxTree();
 		assertEquals(OperationType.CONCATENATION, ast.getOperation());
@@ -81,18 +43,22 @@ public class CPQTest{
 	}
 	
 	@Test
-	public void cpq1(){
-		CPQ query = CPQ.intersect(CPQ.label(a), CPQ.label(b), CPQ.id());
+	public void rpq1(){
+		RPQ query = RPQ.disjunct(RPQ.label(a), RPQ.label(b), RPQ.kleene(RPQ.label(a)));
 		
 		QueryTree ast = query.toAbstractSyntaxTree();
-		assertEquals(OperationType.INTERSECTION, ast.getOperation());
+		assertEquals(OperationType.DISJUNCTION, ast.getOperation());
 		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
 		assertEquals(a, ast.getOperand(0).getEdgeAtom().getLabel());
-		assertEquals(OperationType.INTERSECTION, ast.getOperand(1).getOperation());
+		assertEquals(OperationType.DISJUNCTION, ast.getOperand(1).getOperation());
 		
 		ast = ast.getOperand(1);
 		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
 		assertEquals(b, ast.getOperand(0).getEdgeAtom().getLabel());
-		assertEquals(OperationType.IDENTITY, ast.getOperand(1).getOperation());
+		assertEquals(OperationType.KLEENE, ast.getOperand(1).getOperation());
+		
+		ast = ast.getOperand(1);
+		assertEquals(OperationType.EDGE, ast.getOperand(0).getOperation());
+		assertEquals(a, ast.getOperand(0).getEdgeAtom().getLabel());
 	}
 }

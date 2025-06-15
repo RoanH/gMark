@@ -18,12 +18,10 @@
  */
 package dev.roanh.gmark.lang.generic;
 
-import dev.roanh.gmark.ast.OperationType;
-import dev.roanh.gmark.ast.QueryTree;
-import dev.roanh.gmark.ast.QueryFragment;
+import dev.roanh.gmark.ast.EdgeQueryAtom;
+import dev.roanh.gmark.ast.QueryVariable;
 import dev.roanh.gmark.output.OutputFormal;
 import dev.roanh.gmark.output.OutputSQL;
-import dev.roanh.gmark.output.OutputXML;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.IndentWriter;
 
@@ -33,7 +31,7 @@ import dev.roanh.gmark.util.IndentWriter;
  * in inverse direction from target to source.
  * @author Roan
  */
-public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML, QueryFragment{
+public abstract class GenericEdge implements OutputSQL, OutputFormal, EdgeQueryAtom{
 	/**
 	 * The label traversed by this query.
 	 */
@@ -47,10 +45,17 @@ public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML,
 		this.symbol = symbol;
 	}
 	
-	/**
-	 * Gets the label (symbol) for this edge.
-	 * @return The label for this edge.
-	 */
+	@Override
+	public QueryVariable getSource(){
+		return GenericVariable.SOURCE;
+	}
+	
+	@Override
+	public QueryVariable getTarget(){
+		return GenericVariable.TARGET;
+	}
+	
+	@Override
 	public Predicate getLabel(){
 		return symbol;
 	}
@@ -72,20 +77,5 @@ public abstract class GenericEdge implements OutputSQL, OutputFormal, OutputXML,
 		}else{
 			writer.print("SELECT src, trg FROM edge WHERE label = " + symbol.getID());
 		}
-	}
-	
-	@Override
-	public void writeXML(IndentWriter writer){
-		symbol.writeXML(writer);
-	}
-	
-	@Override
-	public OperationType getOperationType(){
-		return OperationType.EDGE;
-	}
-	
-	@Override
-	public QueryTree toAbstractSyntaxTree(){
-		return QueryTree.ofAtom(this);
 	}
 }

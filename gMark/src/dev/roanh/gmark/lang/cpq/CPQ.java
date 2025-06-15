@@ -21,13 +21,14 @@ package dev.roanh.gmark.lang.cpq;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
+import dev.roanh.gmark.lang.cq.CQ;
 import dev.roanh.gmark.type.schema.Predicate;
 
 /**
@@ -37,7 +38,7 @@ import dev.roanh.gmark.type.schema.Predicate;
  *      Indexing Conjunctive Path Queries for Accelerated Query Evaluation, Section 2.2.2: Conjunctive Path Queries</a>
  * @see <a href="https://cpqkeys.roanh.dev/notes/cpq_definition">CPQ Definition</a>
  */
-public abstract interface CPQ extends QueryLanguageSyntax{
+public abstract interface CPQ extends ReachabilityQueryLanguageSyntax{
 	/**
 	 * Constant for the special identity CPQ.
 	 */
@@ -68,7 +69,7 @@ public abstract interface CPQ extends QueryLanguageSyntax{
 	 * Tests if the query graph for this CPQ is homomorphic
 	 * to the query graph for the given other CPQ.
 	 * @param other The other CPQ to test against.
-	 * @return True if this CPQ is homorphic to the other CPQ.
+	 * @return True if this CPQ is homomorphic to the other CPQ.
 	 * @see #toQueryGraph()
 	 * @see QueryGraphCPQ#isHomomorphicTo(QueryGraphCPQ)
 	 */
@@ -76,6 +77,15 @@ public abstract interface CPQ extends QueryLanguageSyntax{
 		return toQueryGraph().isHomomorphicTo(other.toQueryGraph());
 	}
 
+	/**
+	 * Converts this CPQ to an equivalent CQ query.
+	 * @return The CQ form of this CPQ.
+	 * @see QueryGraphCPQ#toQueryGraphCQ()
+	 */
+	public default CQ toCQ(){
+		return toQueryGraph().toQueryGraphCQ().toCQ();
+	}
+	
 	@Override
 	public default QueryLanguage getQueryLanguage(){
 		return QueryLanguage.CPQ;
@@ -262,7 +272,7 @@ public abstract interface CPQ extends QueryLanguageSyntax{
 	 *        if labels are found in the input that are not covered by the given list.
 	 * @return The parsed CPQ.
 	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
-	 * @see ParserCPQ#parse(String, Map, char, char, char)
+	 * @see ParserCPQ#parse(String, List, char, char, char)
 	 * @see QueryLanguageSyntax
 	 */
 	public static CPQ parse(String query, List<Predicate> labels) throws IllegalArgumentException{
@@ -280,13 +290,13 @@ public abstract interface CPQ extends QueryLanguageSyntax{
 	public static CPQ parse(QueryTree ast) throws IllegalArgumentException{
 		switch(ast.getOperation()){
 		case CONCATENATION:
-			return concat(parse(ast.getLeft()), parse(ast.getRight()));
+			return concat(parse(ast.getOperand(0)), parse(ast.getOperand(1)));
 		case EDGE:
-			return label(ast.getPredicate());
+			return label(ast.getEdgeAtom().getLabel());
 		case IDENTITY:
 			return id();
 		case INTERSECTION:
-			return intersect(parse(ast.getLeft()), parse(ast.getRight()));
+			return intersect(parse(ast.getOperand(0)), parse(ast.getOperand(1)));
 		default:
 			throw new IllegalArgumentException("The given AST contains operations that are not part of the CPQ query language.");
 		}

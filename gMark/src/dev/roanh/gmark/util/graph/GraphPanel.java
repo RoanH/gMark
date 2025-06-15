@@ -43,6 +43,9 @@ import javax.swing.WindowConstants;
 
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ;
+import dev.roanh.gmark.lang.cq.CQ;
+import dev.roanh.gmark.lang.cq.QueryGraphCQ;
+import dev.roanh.gmark.lang.cq.VarCQ;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
@@ -263,10 +266,18 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	
 	/**
 	 * Utility subroutine to show the query graph of the given CPQ in a JFrame.
-	 * @param q The CPQ to display.
+	 * @param query The CPQ to display.
 	 */
-	public static void show(CPQ q){
-		show(q.toQueryGraph());
+	public static void show(CPQ query){
+		show(query.toQueryGraph());
+	}
+	
+	/**
+	 * Utility subroutine to show the query graph of the given CQ in a JFrame.
+	 * @param query The CQ to display.
+	 */
+	public static void show(CQ query){
+		show(query.toQueryGraph());
 	}
 	
 	/**
@@ -275,6 +286,14 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 	 */
 	public static void show(QueryGraphCPQ cpq){
 		show(cpq.toUniqueGraph(), cpq::getVertexLabel, Predicate::getAlias);
+	}
+	
+	/**
+	 * Utility subroutine to show the given CQ query graph in a JFrame.
+	 * @param cq The CQ query graph to display.
+	 */
+	public static void show(QueryGraphCQ cq){
+		show(cq.toUniqueGraph(), VarCQ::getName, a->a.getLabel().getAlias());
 	}
 	
 	/**

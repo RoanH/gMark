@@ -45,7 +45,7 @@ package dev.roanh.gmark.ast;
  */
 public enum OperationType{
 	/**
-	 * The <i>concatenation</i> or <i>join</i> operation is a binary operation
+	 * The <i>concatenation</i> or (limited) <i>join</i> operation is a binary operation
 	 * that joins its two input graphs at shared vertices such that paths from
 	 * the left input graph are extended with paths in the right input graph.
 	 * <p>
@@ -109,7 +109,13 @@ public enum OperationType{
 	 * and the right input graph contains the path <code>(b, c)</code>, then the output
 	 * contains both <code>(a, b)</code> and <code>(b, c)</code>.
 	 */
-	DISJUNCTION(2);
+	DISJUNCTION(2),
+	/**
+	 * The <i>join</i> operation is an operation of variable arity that joins its operands on
+	 * all the shared vertices between them. It is the general case of the {@link #CONCATENATION}
+	 * operation, which is limited to just two operands.
+	 */
+	JOIN(-1);
 	
 	/**
 	 * The number of operands (inputs) required to execute this operation.
@@ -158,9 +164,18 @@ public enum OperationType{
 	
 	/**
 	 * Gets the arity of this operator, that is, the number of arguments or operands it takes.
-	 * @return The arity of this operator.
+	 * @return The arity of this operator, will be -1 the operator can be applied to any number of inputs (n-ary).
 	 */
 	public int getArity(){
 		return operands;
+	}
+	
+	/**
+	 * Checks if the arity of this operation is fixed.
+	 * @return True if this operation has a fixed arity, false if it
+	 *         is variable (i.e., the operation accepts any number of inputs).
+	 */
+	public boolean hasBoundedArity(){
+		return operands != -1;
 	}
 }

@@ -16,47 +16,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.lang.cpq;
-
-import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
-import dev.roanh.gmark.lang.generic.GenericEdge;
-import dev.roanh.gmark.type.schema.Predicate;
-import dev.roanh.gmark.util.IndentWriter;
+package dev.roanh.gmark.ast;
 
 /**
- * CPQ modelling a single label traversal.
+ * Representation of the smallest atomic unit in a query.
+ * By choice these atoms always have two result outputs,
+ * the source and target variables, which can be identical.
+ * The variables returned here bind to the same vertex for
+ * all directly children of a parent node in the AST.
  * @author Roan
  */
-public class EdgeCPQ extends GenericEdge implements CPQ{
+public abstract interface QueryAtom extends QueryFragment{
+
+	/**
+	 * The source variable for this atom.
+	 * @return The source variable.
+	 */
+	public abstract QueryVariable getSource();
 	
 	/**
-	 * Constructs a new edge CPQ with the
-	 * given label to traverse.
-	 * @param symbol The label to traverse.
+	 * The target variable for this atom.
+	 * @return The target variable.
 	 */
-	public EdgeCPQ(Predicate symbol){
-		super(symbol);
-	}
-	
-	@Override
-	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-		return new QueryGraphCPQ(symbol, source, target);
-	}
+	public abstract QueryVariable getTarget();
 
 	@Override
-	public int getDiameter(){
-		return 1;
-	}
-
-	@Override
-	public boolean isLoop(){
-		return false;
-	}
-	
-	@Override
-	public void writeXML(IndentWriter writer){
-		writer.println("<cpq type=\"edge\">", 2);
-		symbol.writeXML(writer);
-		writer.println(2, "</cpq>");
+	public default QueryTree toAbstractSyntaxTree(){
+		return QueryTree.ofAtom(this);
 	}
 }

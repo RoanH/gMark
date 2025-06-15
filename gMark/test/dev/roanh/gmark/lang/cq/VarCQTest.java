@@ -16,31 +16,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.lang.rpq;
+package dev.roanh.gmark.lang.cq;
 
-import dev.roanh.gmark.lang.generic.GenericEdge;
-import dev.roanh.gmark.type.schema.Predicate;
-import dev.roanh.gmark.util.IndentWriter;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-/**
- * RPQ modelling a single label traversal.
- * @author Roan
- */
-public class EdgeRPQ extends GenericEdge implements RPQ{
+import org.junit.jupiter.api.Test;
 
-	/**
-	 * Constructs a new edge RPQ with the
-	 * given label to traverse.
-	 * @param symbol The label to traverse.
-	 */
-	protected EdgeRPQ(Predicate symbol){
-		super(symbol);
+public class VarCQTest{
+
+	@Test
+	public void name(){
+		VarCQ v = new VarCQ("test", false);
+		assertEquals("test", v.getName());
+		assertEquals("test", v.toString());
 	}
 	
-	@Override
-	public void writeXML(IndentWriter writer){
-		writer.println("<rpq type=\"edge\">", 2);
-		symbol.writeXML(writer);
-		writer.println(2, "</rpq>");
+	@Test
+	public void equals(){
+		VarCQ v = new VarCQ("test", false);
+		assertEquals(v, new VarCQ("test", false));
+		assertEquals(v, new VarCQ("test", true));//a CQ cannot contain two distinct variables with the same name but one being free while the other is not
+		assertNotEquals(v, new VarCQ("nope", false));
+		assertNotEquals(v, new VarCQ("nope", true));
 	}
 }

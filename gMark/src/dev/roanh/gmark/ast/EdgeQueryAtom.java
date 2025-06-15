@@ -16,47 +16,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.gmark.lang.cpq;
+package dev.roanh.gmark.ast;
 
-import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
-import dev.roanh.gmark.lang.generic.GenericEdge;
 import dev.roanh.gmark.type.schema.Predicate;
-import dev.roanh.gmark.util.IndentWriter;
 
 /**
- * CPQ modelling a single label traversal.
+ * Representation of an edge operation query atom.
  * @author Roan
+ * @see OperationType#EDGE
  */
-public class EdgeCPQ extends GenericEdge implements CPQ{
-	
+public abstract interface EdgeQueryAtom extends QueryAtom{
+
 	/**
-	 * Constructs a new edge CPQ with the
-	 * given label to traverse.
-	 * @param symbol The label to traverse.
+	 * Gets the label (symbol) for this edge.
+	 * @return The label for this edge.
 	 */
-	public EdgeCPQ(Predicate symbol){
-		super(symbol);
-	}
+	public abstract Predicate getLabel();
 	
 	@Override
-	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-		return new QueryGraphCPQ(symbol, source, target);
-	}
-
-	@Override
-	public int getDiameter(){
-		return 1;
-	}
-
-	@Override
-	public boolean isLoop(){
-		return false;
-	}
-	
-	@Override
-	public void writeXML(IndentWriter writer){
-		writer.println("<cpq type=\"edge\">", 2);
-		symbol.writeXML(writer);
-		writer.println(2, "</cpq>");
+	public default OperationType getOperationType(){
+		return OperationType.EDGE;
 	}
 }

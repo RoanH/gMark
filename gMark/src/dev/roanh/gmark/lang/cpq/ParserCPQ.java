@@ -51,7 +51,6 @@ public final class ParserCPQ extends GenericParser{
 	 * @param query The CPQ to parse.
 	 * @return The parsed CPQ.
 	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
-	 * @see #parse(String, char, char, char)
 	 * @see QueryLanguageSyntax
 	 */
 	public static CPQ parse(String query) throws IllegalArgumentException{
@@ -64,37 +63,46 @@ public final class ParserCPQ extends GenericParser{
 	 * '{@value QueryLanguageSyntax#CHAR_INTERSECTION}' and '{@value QueryLanguageSyntax#CHAR_INVERSE}' symbols to denote
 	 * operations. Example input: {@code (0◦(((1◦0) ∩ (1◦1))◦1⁻))}.
 	 * @param query The CPQ to parse.
-	 * @param labels The label set to use, new labels will be created if labels are found in the
+	 * @param labels The label set to use, new labels will <b>not</b> be created if labels are found in the
 	 *        input that are not covered by the given list.
 	 * @return The parsed CPQ.
-	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
-	 * @see #parse(String, Map, char, char, char)
+	 * @throws IllegalArgumentException When the given string is not a valid CPQ or contains unknown labels.
 	 * @see QueryLanguageSyntax
 	 */
 	public static CPQ parse(String query, List<Predicate> labels) throws IllegalArgumentException{
-		return parse(query, mapPredicates(labels), CHAR_JOIN, CHAR_INTERSECTION, CHAR_INVERSE);
+		return parse(query, labels, CHAR_JOIN, CHAR_INTERSECTION, CHAR_INVERSE);
 	}
 	
 	/**
-	 * Parses the given CPQ in string form to a CPQ instance. Unlike
-	 * {@link #parse(String)} this subroutine allows custom symbols
-	 * to be used to input the CPQ.
+	 * Parses the given CPQ in string form to a CPQ instance using the given syntax symbols.
 	 * @param query The CPQ to parse.
 	 * @param join The symbol to use for the join/concatenation operation.
 	 * @param intersect The symbol to use for the intersection/conjunction operation.
 	 * @param inverse The symbol to use for the inverse edge label operation.
 	 * @return The parsed CPQ.
 	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
-	 * @see #parse(String)
 	 */
 	public static CPQ parse(String query, char join, char intersect, char inverse) throws IllegalArgumentException{
 		return parse(query, new HashMap<String, Predicate>(), join, intersect, inverse);
 	}
 	
 	/**
-	 * Parses the given CPQ in string form to a CPQ instance. Unlike
-	 * {@link #parse(String)} this subroutine allows custom symbols
-	 * to be used to input the CPQ.
+	 * Parses the given CPQ in string form to a CPQ instance using the given syntax symbols.
+	 * @param query The CPQ to parse.
+	 * @param labels The label set to use, new labels will <b>not</b> be created if labels are found in the
+	 *        input that are not covered by the given list.
+	 * @param join The symbol to use for the join/concatenation operation.
+	 * @param intersect The symbol to use for the intersection/conjunction operation.
+	 * @param inverse The symbol to use for the inverse edge label operation.
+	 * @return The parsed CPQ.
+	 * @throws IllegalArgumentException When the given string is not a valid CPQ or contains unknown labels.
+	 */
+	public static CPQ parse(String query, List<Predicate> labels, char join, char intersect, char inverse) throws IllegalArgumentException{
+		return parse(query, mapPredicates(labels), join, intersect, inverse);
+	}
+	
+	/**
+	 * Parses the given CPQ in string form to a CPQ instance using the given syntax symbols.
 	 * @param query The CPQ to parse.
 	 * @param labels A map with predicates found so far.
 	 * @param join The symbol to use for the join/concatenation operation.
@@ -103,7 +111,7 @@ public final class ParserCPQ extends GenericParser{
 	 * @return The parsed CPQ.
 	 * @throws IllegalArgumentException When the given string is not a valid CPQ.
 	 */
-	public static CPQ parse(String query, Map<String, Predicate> labels, char join, char intersect, char inverse) throws IllegalArgumentException{
+	private static CPQ parse(String query, Map<String, Predicate> labels, char join, char intersect, char inverse) throws IllegalArgumentException{
 		List<String> parts = split(query, join);
 		if(parts.size() > 1){
 			return CPQ.concat(parts.stream().map(part->{

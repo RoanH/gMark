@@ -18,45 +18,23 @@
  */
 package dev.roanh.gmark.lang.cpq;
 
-import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
-import dev.roanh.gmark.lang.generic.GenericEdge;
-import dev.roanh.gmark.type.schema.Predicate;
-import dev.roanh.gmark.util.IndentWriter;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * CPQ modelling a single label traversal.
- * @author Roan
- */
-public class EdgeCPQ extends GenericEdge implements CPQ{
-	
-	/**
-	 * Constructs a new edge CPQ with the
-	 * given label to traverse.
-	 * @param symbol The label to traverse.
-	 */
-	public EdgeCPQ(Predicate symbol){
-		super(symbol);
-	}
-	
-	@Override
-	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
-		return new QueryGraphCPQ(symbol, source, target);
-	}
+import org.junit.jupiter.api.Test;
 
-	@Override
-	public int getDiameter(){
-		return 1;
-	}
-
-	@Override
-	public boolean isLoop(){
-		return false;
-	}
+public class IdentityCPQTest{
 	
-	@Override
-	public void writeXML(IndentWriter writer){
-		writer.println("<cpq type=\"edge\">", 2);
-		symbol.writeXML(writer);
-		writer.println(2, "</cpq>");
+	@Test
+	public void identityToSQL(){
+		assertEquals(
+			"""
+			SELECT src, trg FROM (
+			  SELECT src, src AS trg FROM edge
+			  UNION
+			  SELECT trg AS src, trg FROM edge
+			)
+			""".trim(),
+			CPQ.IDENTITY.toSQL()
+		);
 	}
 }

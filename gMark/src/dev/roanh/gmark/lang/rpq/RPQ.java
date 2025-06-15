@@ -20,12 +20,12 @@ package dev.roanh.gmark.lang.rpq;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.lang.QueryLanguage;
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
+import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
 import dev.roanh.gmark.type.schema.Predicate;
 
 /**
@@ -33,7 +33,7 @@ import dev.roanh.gmark.type.schema.Predicate;
  * @author Roan
  * @see <a href="https://en.wikipedia.org/wiki/Regular_path_query">Regular Path Query</a>
  */
-public abstract interface RPQ extends QueryLanguageSyntax{
+public abstract interface RPQ extends ReachabilityQueryLanguageSyntax{
 
 	@Override
 	public default QueryLanguage getQueryLanguage(){
@@ -51,7 +51,7 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 	
 	/**
 	 * Returns an RPQ representing the transitive closure of the disjunction
-	 * of the given set of labels. 
+	 * of the given set of labels.
 	 * @param labels The labels for the transitive closure.
 	 * @return The transitive closure of disjunction of the given labels.
 	 * @throws IllegalArgumentException When the array of labels is empty.
@@ -192,7 +192,7 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 	 *        input that are not covered by the given list.
 	 * @return The parsed RPQ.
 	 * @throws IllegalArgumentException When the given string is not a valid RPQ.
-	 * @see ParserRPQ#parse(String, Map, char, char, char, char)
+	 * @see ParserRPQ#parse(String, List, char, char, char, char)
 	 * @see QueryLanguageSyntax
 	 */
 	public static RPQ parse(String query, List<Predicate> labels) throws IllegalArgumentException{
@@ -210,13 +210,13 @@ public abstract interface RPQ extends QueryLanguageSyntax{
 	public static RPQ parse(QueryTree ast) throws IllegalArgumentException{
 		switch(ast.getOperation()){
 		case CONCATENATION:
-			return concat(parse(ast.getLeft()), parse(ast.getRight()));
+			return concat(parse(ast.getOperand(0)), parse(ast.getOperand(1)));
 		case DISJUNCTION:
-			return disjunct(parse(ast.getLeft()), parse(ast.getLeft()));
+			return disjunct(parse(ast.getOperand(0)), parse(ast.getOperand(1)));
 		case EDGE:
-			return label(ast.getPredicate());
+			return label(ast.getEdgeAtom().getLabel());
 		case KLEENE:
-			return kleene(parse(ast.getLeft()));
+			return kleene(parse(ast.getOperand(0)));
 		default:
 			throw new IllegalArgumentException("The given AST contains operations that are not part of the RPQ query language.");
 		}

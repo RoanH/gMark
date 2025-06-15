@@ -79,7 +79,7 @@ public class VarCQ implements QueryVariable, OutputXML{
 	
 	@Override
 	public int hashCode(){
-		return Objects.hash(name, free);
+		return Objects.hash(name);
 	}
 	
 	@Override

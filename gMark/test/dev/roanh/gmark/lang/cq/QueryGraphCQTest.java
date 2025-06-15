@@ -36,27 +36,32 @@ public class QueryGraphCQTest{
 
 	@Test
 	public void cqToQueryGraph(){
-		UniqueGraph<VarCQ, AtomCQ> graph = CQ.parse("(f1, f2) ← zero(b2, b2), one(f1, b2), one(f2, b2)", List.of(l0, l1)).toQueryGraph().toUniqueGraph();
+		QueryGraphCQ queryGraph = CQ.parse("(f1, f2) ← zero(b2, b2), one(f1, b2), one(f2, b1)", List.of(l0, l1)).toQueryGraph();
+		UniqueGraph<VarCQ, AtomCQ> graph = queryGraph.toUniqueGraph();
 		
+		assertEquals("(f1, f2) ← one(f1, b2), one(f2, b1), zero(b2, b2)", queryGraph.toString());
+		assertEquals(3, queryGraph.getEdgeCount());
+		assertEquals(4, queryGraph.getVertexCount());
 		assertEquals(3, graph.getEdgeCount());
-		assertEquals(3, graph.getNodeCount());
+		assertEquals(4, graph.getNodeCount());
 		
 		List<VarCQ> variables = graph.getNodes().stream().map(GraphNode::getData).sorted(Comparator.comparing(VarCQ::getName)).toList();
-		assertEquals("b2", variables.get(0).getName());
-		assertEquals("f1", variables.get(1).getName());
-		assertEquals("f2", variables.get(2).getName());
+		assertEquals("b1", variables.get(1).getName());
+		assertEquals("b2", variables.get(2).getName());
+		assertEquals("f1", variables.get(3).getName());
+		assertEquals("f2", variables.get(4).getName());
 
 		List<AtomCQ> atoms = graph.getEdges().stream().map(GraphEdge::getData).sorted(Comparator.comparing(e->e.getSource().getName())).toList();
 		
-		assertEquals(variables.get(0), atoms.get(0).getSource());
+		assertEquals(variables.get(1), atoms.get(0).getSource());
 		assertEquals(l0, atoms.get(0).getLabel());
-		assertEquals(variables.get(0), atoms.get(0).getTarget());
+		assertEquals(variables.get(1), atoms.get(0).getTarget());
 		
-		assertEquals(variables.get(1), atoms.get(1).getSource());
+		assertEquals(variables.get(2), atoms.get(1).getSource());
 		assertEquals(l1, atoms.get(1).getLabel());
-		assertEquals(variables.get(0), atoms.get(1).getTarget());
+		assertEquals(variables.get(1), atoms.get(1).getTarget());
 		
-		assertEquals(variables.get(2), atoms.get(2).getSource());
+		assertEquals(variables.get(3), atoms.get(2).getSource());
 		assertEquals(l1, atoms.get(2).getLabel());
 		assertEquals(variables.get(0), atoms.get(2).getTarget());
 	}

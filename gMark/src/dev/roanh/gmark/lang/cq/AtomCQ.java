@@ -51,7 +51,7 @@ public class AtomCQ implements EdgeQueryAtom, OutputXML{
 	 */
 	public AtomCQ(VarCQ source, Predicate label, VarCQ target){
 		this.source = source;
-		this.label = label;
+		this.label = label.isInverse() ? label.getInverse() : label;
 		this.target = target;
 	}
 	

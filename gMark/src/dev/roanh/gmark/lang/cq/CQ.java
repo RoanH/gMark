@@ -105,7 +105,7 @@ public final class CQ implements QueryLanguageSyntax{
 	 * @param target The target node/variable of the edge represented by the atom.
 	 */
 	public void addAtom(VarCQ source, Predicate label, VarCQ target){
-		formulae.add(new AtomCQ(source, label.isInverse() ? label.getInverse() : label, target));
+		formulae.add(new AtomCQ(source, label, target));
 	}
 
 	/**

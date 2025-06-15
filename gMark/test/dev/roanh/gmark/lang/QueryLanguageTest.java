@@ -18,11 +18,18 @@
  */
 package dev.roanh.gmark.lang;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
+
+import dev.roanh.gmark.type.schema.Predicate;
 
 public class QueryLanguageTest{
 
@@ -36,6 +43,22 @@ public class QueryLanguageTest{
 			}else{
 				fail("Unknown query language");
 			}
+		}
+	}
+	
+	@Test
+	public void validateLinking(){
+		Map<QueryLanguage, String> queries = Map.of(
+			QueryLanguage.CPQ, "id",
+			QueryLanguage.RPQ, "a",
+			QueryLanguage.CQ, "(f1) ← a(f1, f1)"
+		);
+		
+		for(String name : Arrays.stream(QueryLanguage.values()).map(QueryLanguage::name).toList()){
+			QueryLanguage lang = QueryLanguage.fromName(name).orElseThrow();
+			assertTrue(queries.containsKey(lang));
+			assertEquals(lang, lang.parse(queries.get(lang)).getQueryLanguage());
+			assertEquals(lang, lang.parse(queries.get(lang), List.of(new Predicate(0, "a"))).getQueryLanguage());
 		}
 	}
 }

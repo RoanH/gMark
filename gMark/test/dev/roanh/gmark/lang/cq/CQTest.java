@@ -20,15 +20,18 @@ package dev.roanh.gmark.lang.cq;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.ast.OperationType;
 import dev.roanh.gmark.ast.QueryTree;
+import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.type.schema.Predicate;
 
 public class CQTest{
@@ -153,8 +156,27 @@ public class CQTest{
 	}
 	
 	@Test
+	public void cq1(){
+		QueryTree ast = CPQ.IDENTITY.toAbstractSyntaxTree();
+		assertThrows(IllegalArgumentException.class, ()->CQ.parse(ast));
+	}
+	
+	@Test
+	public void cq2(){
+		QueryTree ast = QueryTree.ofUnary(CPQ.IDENTITY.toAbstractSyntaxTree(), CQ.empty());
+		assertThrows(IllegalArgumentException.class, ()->CQ.parse(ast));
+	}
+	
+	@Test
 	public void astParse(){
 		String query = "(f1, f2) ← one(f1, b2), one(f2, b2), zero(b2, b2)";
 		assertEquals(query, CQ.parse(CQ.parse(query).toAbstractSyntaxTree()).toString());
+	}
+	
+	@Test
+	public void variables(){
+		CQ cq = CQ.parse("(f1, f2) ← one(f1, b2), one(f2, b2), zero(b2, b2)");
+		assertIterableEquals(Set.of(new VarCQ("f1", true), new VarCQ("f2", true)), cq.getFreeVariables());
+		assertIterableEquals(Set.of(new VarCQ("b2", false)), cq.getBoundVariables());
 	}
 }

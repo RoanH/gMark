@@ -1,5 +1,3 @@
-package dev.roanh.gmark.lang.cpq;
-
 /*
  * gMark: A domain- and query language-independent query workload generator and query language utility library.
  * Copyright (C) 2021  Roan Hofland (roan@roanh.dev).  All rights reserved.
@@ -18,6 +16,8 @@ package dev.roanh.gmark.lang.cpq;
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package dev.roanh.gmark.lang.cpq;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;

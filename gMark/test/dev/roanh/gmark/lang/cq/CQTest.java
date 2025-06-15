@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -176,7 +177,7 @@ public class CQTest{
 	@Test
 	public void variables(){
 		CQ cq = CQ.parse("(f1, f2) ← one(f1, b2), one(f2, b2), zero(b2, b2)");
-		assertIterableEquals(Set.of(new VarCQ("f1", true), new VarCQ("f2", true)), cq.getFreeVariables());
+		assertIterableEquals(List.of(new VarCQ("f1", true), new VarCQ("f2", true)), cq.getFreeVariables().stream().sorted(Comparator.comparing(VarCQ::getName)).toList());
 		assertIterableEquals(Set.of(new VarCQ("b2", false)), cq.getBoundVariables());
 	}
 }

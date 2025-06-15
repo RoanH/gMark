@@ -46,10 +46,10 @@ public class QueryGraphCQTest{
 		assertEquals(4, graph.getNodeCount());
 		
 		List<VarCQ> variables = graph.getNodes().stream().map(GraphNode::getData).sorted(Comparator.comparing(VarCQ::getName)).toList();
-		assertEquals("b1", variables.get(1).getName());
-		assertEquals("b2", variables.get(2).getName());
-		assertEquals("f1", variables.get(3).getName());
-		assertEquals("f2", variables.get(4).getName());
+		assertEquals("b1", variables.get(0).getName());
+		assertEquals("b2", variables.get(1).getName());
+		assertEquals("f1", variables.get(2).getName());
+		assertEquals("f2", variables.get(3).getName());
 
 		List<AtomCQ> atoms = graph.getEdges().stream().map(GraphEdge::getData).sorted(Comparator.comparing(e->e.getSource().getName())).toList();
 		

@@ -33,7 +33,7 @@ public class AtomCQTest{
 		AtomCQ atom = new AtomCQ(new VarCQ("s", false), new Predicate(0, "l"), new VarCQ("t", true));
 		assertEquals(atom, new AtomCQ(new VarCQ("s", false), new Predicate(0, "l"), new VarCQ("t", true)));
 		assertNotEquals(atom, new AtomCQ(new VarCQ("X", false), new Predicate(0, "l"), new VarCQ("t", true)));
-		assertNotEquals(atom, new AtomCQ(new VarCQ("s", false), new Predicate(0, "X"), new VarCQ("t", true)));
+		assertNotEquals(atom, new AtomCQ(new VarCQ("s", false), new Predicate(1, "l"), new VarCQ("t", true)));
 		assertNotEquals(atom, new AtomCQ(new VarCQ("s", false), new Predicate(0, "l"), new VarCQ("X", true)));
 	}
 	

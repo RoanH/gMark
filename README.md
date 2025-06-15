@@ -152,6 +152,7 @@ RPQ query = RPQ.disjunct(RPQ.concat(a, a), a);
 RPQ query = RPQ.generateRandomRPQ(4, 1);
 
 CQ query = CQ.parse("(f1, f2) ← one(b1, f2), zero(f1, b1)");
+CQ query = CPQ.parse("a ∩ a").toCQ();
 CQ query = CQ.empty();
 query.addAtom(
 	query.addFreeVariable("f1"),
@@ -170,7 +171,7 @@ QueryGraphCPQ core = query.toQueryGraph().computeCore();
 QueryGraphCPQ core = query.computeCore();
 ```
 
-For CQs query graph can be constructed using:
+For CQs query graphs can be constructed using:
 
 ```java
 CQ query = ...;
@@ -193,6 +194,7 @@ Note that CPQs, RPQs, and CQs can also be constructed from an AST, which can som
 ```java
 RPQ rpq = RPQ.parse("a ◦ a");
 CPQ cpq = CPQ.parse(rpq.toAbstractSyntaxTree());
+CQ cq = cpq.toCQ();
 ```
 
 All more general utilities can be found under the `dev.roanh.gmark.util` package.

@@ -788,7 +788,7 @@ public class QueryGraphCPQ{
 		 * @return True if this is an edge.
 		 * @see Edge
 		 */
-		public abstract  boolean isEdge();
+		public abstract boolean isEdge();
 		
 		@Override
 		public int compareTo(QueryGraphComponent other){

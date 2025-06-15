@@ -356,7 +356,7 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 		 *         within this node.
 		 */
 		private boolean contains(Point point){
-			return shape.contains(point.x - location.x, point.y - location.y);
+			return shape.contains((point.x - location.x), (point.y - location.y));
 		}
 		
 		/**
@@ -453,15 +453,15 @@ public class GraphPanel<V, E> extends JPanel implements MouseListener, MouseMoti
 						AffineTransform transform = g.getTransform();
 						
 						g.translate(source.location.x, source.location.y);
-						double rad = Math.atan2(target.location.y - source.location.y, target.location.x - source.location.x);
+						double rad = Math.atan2((target.location.y - source.location.y), (target.location.x - source.location.x));
 						g.rotate(rad);
-						int dist = (int)Math.hypot(target.location.x - source.location.x, target.location.y - source.location.y);
+						int dist = (int)Math.hypot((target.location.x - source.location.x), (target.location.y - source.location.y));
 						g.drawArc(0, -Node.RADIUS, dist, Node.RADIUS * 2, 0, 360);
 						
 						double x = dist / 4.0D - Node.RADIUS + UNIT;
 						int y = (int)Math.sqrt(Node.RADIUS * Node.RADIUS - (x * x * Node.RADIUS * Node.RADIUS) / ((dist / 4.0D) * (dist / 4.0D)));
 						drawArrowHead(g, Node.RADIUS, y, 0, 0);
-						drawArrowHead(g, dist - Node.RADIUS, -y, dist, 0);
+						drawArrowHead(g, (dist - Node.RADIUS), -y, dist, 0);
 						g.setTransform(transform);
 						
 						E meta = data.getData();

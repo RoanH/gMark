@@ -80,8 +80,8 @@ An example configuration XML file can be found both [in this repository](gMark/c
 ### Executable download
 gMark is available as a standalone portable executable that has both a graphical interface and a command line interface. The graphical interface will only be launched when no command line arguments are passed. This version of gMark requires Java 21 or higher to run.
    
-- [Windows executable download](https://github.com/RoanH/gMark/releases/download/v2.0/gMark-v2.0.exe)    
-- [Runnable Java archive (JAR) download](https://github.com/RoanH/gMark/releases/download/v2.0/gMark-v2.0.jar)
+- [Windows executable download](https://github.com/RoanH/gMark/releases/download/v2.1/gMark-v2.1.exe)    
+- [Runnable Java archive (JAR) download](https://github.com/RoanH/gMark/releases/download/v2.1/gMark-v2.1.jar)
 
 All releases: [releases](https://github.com/RoanH/gMark/releases)    
 GitHub repository: [RoanH/gMark](https://github.com/RoanH/gMark)
@@ -124,7 +124,7 @@ repositories{
 }
 
 dependencies{
-	implementation 'dev.roanh.gmark:gmark:2.0'
+	implementation 'dev.roanh.gmark:gmark:2.1'
 }
 ```
 
@@ -133,7 +133,7 @@ dependencies{
 <dependency>
 	<groupId>dev.roanh.gmark</groupId>
 	<artifactId>gmark</artifactId>
-	<version>2.0</version>
+	<version>2.1</version>
 </dependency>
 ```
 

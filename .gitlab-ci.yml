@@ -1,4 +1,4 @@
-image: eclipse-temurin:17
+image: eclipse-temurin:21
 
 variables:
   SUFFIX: ${CI_PIPELINE_ID}-${CI_COMMIT_REF_NAME}

@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 ARG version=0.0
 
-FROM eclipse-temurin:17 AS compile
+FROM eclipse-temurin:21 AS compile
 LABEL maintainer="roan@roanh.dev"
 ARG version
 WORKDIR /gMark
@@ -14,7 +14,7 @@ ADD gMark/cli/src/ gMark/cli/src/
 RUN chmod -R 755 ./
 RUN ./gradlew -PrefName=v$version cli:shadowJar
 
-FROM eclipse-temurin:17
+FROM eclipse-temurin:21
 LABEL maintainer="roan@roanh.dev"
 ARG version
 WORKDIR /gMark

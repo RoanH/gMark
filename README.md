@@ -1,5 +1,5 @@
 # gMark [![](https://img.shields.io/github/release/RoanH/gMark.svg)](https://github.com/RoanH/gMark/releases)
-gMark is a domain- and query language-independent query workload generator, as well as a general utility library for working with the CPQ (conjunctive path query) and RPQ (regular path query) query languages. gMark also includes a complete query evaluation pipeline for both of these query languages. This project was originally started as a rewrite of the original version of gMark available on GitHub at [gbagan/gmark](https://github.com/gbagan/gmark), with as goal to make gMark easier to extend and better documented. However, presently the focus of the project has shifted primarily towards query languages, notably CPQ. Graph generation is currently out of scope for this project, though full feature parity for query generation is still planned. Presently, most of the features available for RPQs in the original version of gMark are available for CPQs in this version, with the exception of some output formats. However, the utilities available within gMark for working with query languages in general are much more extensive than those available in the original version of gMark. In addition, this version of gMark also has a highly optimised evaluation pipeline for CPQ and RPQ queries.
+gMark is a domain- and query language-independent query workload generator, as well as a general utility library for working with the CPQ (conjunctive path query), RPQ (regular path query), and CQ (conjunctive query) query languages. gMark also includes a complete query evaluation pipeline for the CPQ and RPQ query languages. This project was originally started as a rewrite of the original version of gMark available on GitHub at [gbagan/gmark](https://github.com/gbagan/gmark), with as goal to make gMark easier to extend and better documented. However, presently the focus of the project has shifted primarily towards query languages, notably CPQ. Graph generation is currently out of scope for this project, though full feature parity for query generation is still planned. Presently, most of the features available for RPQs in the original version of gMark are available for CPQs in this version, with the exception of some output formats. However, the utilities available within gMark for working with query languages in general are much more extensive than those available in the original version of gMark. In addition, this version of gMark also has a highly optimised evaluation pipeline for CPQ and RPQ queries.
 
 ## Documentation & Research
 The current state of the repository is the result of several research projects, each of these research items can be consulted for more information on a specific component in gMark:
@@ -138,7 +138,7 @@ dependencies{
 ```
 
 ## Query Language API
-Most of the query language API is accessible directly via the [CPQ](https://gmark.docs.roanh.dev/dev/roanh/gmark/lang/cpq/CPQ.html) and [RPQ](https://gmark.docs.roanh.dev/dev/roanh/gmark/lang/rpq/RPQ.html) classes. For example, queries can be constructed using:
+Most of the query language API is accessible directly via the [CPQ](https://gmark.docs.roanh.dev/dev/roanh/gmark/lang/cpq/CPQ.html), [RPQ](https://gmark.docs.roanh.dev/dev/roanh/gmark/lang/rpq/RPQ.html), and [CQ](https://gmark.docs.roanh.dev/dev/roanh/gmark/lang/cq/CQ.html) classes. For example, queries can be constructed using:
 
 ```java
 Predicate a = new Predicate(0, "a");
@@ -150,6 +150,14 @@ CPQ query = CPQ.generateRandomCPQ(4, 1);
 RPQ query = RPQ.parse("a ◦ a");
 RPQ query = RPQ.disjunct(RPQ.concat(a, a), a);
 RPQ query = RPQ.generateRandomRPQ(4, 1);
+
+CQ query = CQ.parse("(f1, f2) ← one(b1, f2), zero(f1, b1)");
+CQ query = CQ.empty();
+query.addAtom(
+	query.addFreeVariable("f1"),
+	a,
+	query.addBoundVariable("b1")
+);
 ```
 
 For CPQs query graphs and cores can be constructed using:
@@ -162,7 +170,15 @@ QueryGraphCPQ core = query.toQueryGraph().computeCore();
 QueryGraphCPQ core = query.computeCore();
 ```
 
-Other notable utilities for CPQ and RPQ are:
+For CQs query graph can be constructed using:
+
+```java
+CQ query = ...;
+
+QueryGraphCQ graph = query.toQueryGraph();
+```
+
+Other notable utilities for CPQ, RPQ, and CQ are:
 
 ```java
 CPQ query = ...;
@@ -172,14 +188,14 @@ String formal = query.toFormalSyntax();
 QueryTree ast = query.toAbstractSyntaxTree();
 ```
 
-Note that CPQs and RPQs can also be constructed from an AST, which can sometimes be used to convert between the two query languages:
+Note that CPQs, RPQs, and CQs can also be constructed from an AST, which can sometimes be used to convert between query languages:
 
 ```java
 RPQ rpq = RPQ.parse("a ◦ a");
 CPQ cpq = CPQ.parse(rpq.toAbstractSyntaxTree());
 ```
 
-All more general utilities can be found in the `dev.roanh.gmark.util` package.
+All more general utilities can be found under the `dev.roanh.gmark.util` package.
 
 ## Development of gMark
 This repository contain an [Eclipse](https://www.eclipse.org/) & [Gradle](https://gradle.org/) project with [Util](https://github.com/RoanH/Util) and [Apache Commons CLI](https://commons.apache.org/proper/commons-cli/introduction.html) as the only dependencies. Development work can be done using the Eclipse IDE or using any other Gradle compatible IDE. Continuous integration will check that all source files use Unix style line endings (LF) and that all functions and fields have valid documentation. Unit testing is employed to test core functionality, CI will also check for regressions using these tests. A hosted version of the javadoc for gMark can be found at [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/). Compiling the runnable Java archive (JAR) release of gMark using Gradle can be done using the following command in the `gMark` directory:

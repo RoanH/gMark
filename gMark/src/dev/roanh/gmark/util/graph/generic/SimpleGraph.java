@@ -19,8 +19,10 @@
 package dev.roanh.gmark.util.graph.generic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -43,7 +45,7 @@ public class SimpleGraph<T extends IDable, M>{
 	/**
 	 * Set of all edges in the graph.
 	 */
-	private final Set<SimpleEdge<T, M>> edges = new HashSet<SimpleEdge<T, M>>();
+	private final Map<SimpleEdge<T, M>, SimpleEdge<T, M>> edges = new HashMap<SimpleEdge<T, M>, SimpleEdge<T, M>>();
 	/**
 	 * The total number of vertices in this graph.
 	 */
@@ -86,7 +88,7 @@ public class SimpleGraph<T extends IDable, M>{
 	 * @return All the edges in this graph.
 	 */
 	public Set<SimpleEdge<T, M>> getEdges(){
-		return edges;
+		return edges.keySet();
 	}
 	
 	/**
@@ -108,37 +110,41 @@ public class SimpleGraph<T extends IDable, M>{
 	}
 	
 	/**
-	 * Adds a new edge to this graph between the vertices identified by the given pieces of data.
+	 * Adds an edge to this graph between the vertices identified by the given pieces of data.
 	 * @param a The data uniquely identifying the first vertex.
 	 * @param b The data uniquely identifying the second vertex.
-	 * @return The newly added edge.
+	 * @return The newly added edge or the already existing edge.
 	 */
 	public SimpleEdge<T, M> addEdge(T a, T b){
 		return addEdge(vertexMap.get(a), b);
 	}
 	
 	/**
-	 * Adds a new edge to this graph between the given vertex and the vertex associated with the given data.
+	 * Adds an edge to this graph between the given vertex and the vertex associated with the given data.
 	 * @param a The first vertex
 	 * @param b The data uniquely identifying the second vertex.
-	 * @return The newly added edge.
+	 * @return The newly added edge or the already existing edge.
 	 */
 	public SimpleEdge<T, M> addEdge(SimpleVertex<T, M> a, T b){
 		return addEdge(a, vertexMap.get(b));
 	}
 	
 	/**
-	 * Adds a new edge to this graph between the given two vertices.
+	 * Adds an edge to this graph between the given two vertices.
 	 * @param a The first vertex.
 	 * @param b The second vertex.
-	 * @return The newly added edge.
+	 * @return The newly added edge or the already existing edge.
 	 */
 	public SimpleEdge<T, M> addEdge(SimpleVertex<T, M> a, SimpleVertex<T, M> b){
 		SimpleEdge<T, M> edge = new SimpleEdge<T, M>(a, b);
-		b.edges.add(edge);
-		a.edges.add(edge);
-		edges.add(edge);
-		return edge;
+		SimpleEdge<T, M> current = edges.putIfAbsent(edge, edge);
+		if(current == null){
+			b.edges.add(edge);
+			a.edges.add(edge);
+			return edge;
+		}else{
+			return current;
+		}
 	}
 	
 	/**
@@ -177,7 +183,7 @@ public class SimpleGraph<T extends IDable, M>{
 		UniqueGraph<T, Void> g = new UniqueGraph<T, Void>();
 		
 		vertexMap.forEachNonNull(v->g.addUniqueNode(v.getData()));
-		for(SimpleEdge<T, M> edge : edges){
+		for(SimpleEdge<T, M> edge : edges.keySet()){
 			g.addUniqueEdge(edge.getFirstVertex().getData(), edge.getSecondVertex().getData());
 			g.addUniqueEdge(edge.getSecondVertex().getData(), edge.getFirstVertex().getData());
 		}
@@ -215,7 +221,7 @@ public class SimpleGraph<T extends IDable, M>{
 		/**
 		 * The cached hashcode for this edge.
 		 */
-		private int hashcode;
+		private final int hashcode;
 		
 		/**
 		 * Constructs a new edge between the given two vertices.

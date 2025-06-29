@@ -300,6 +300,26 @@ public class UniqueGraph<V, E>{
 	}
 	
 	/**
+	 * Converts this graph to a simple graph. This is a lossy conversion
+	 * where information about edge direction and parallel edges is lost.
+	 * @param <M> The metadata data type.
+	 * @return The constructed simple graph.
+	 */
+	public <M> SimpleGraph<GraphNode<V, E>, M> toSimpleGraph(){
+		SimpleGraph<GraphNode<V, E>, M> graph = new SimpleGraph<GraphNode<V, E>, M>(nodes.stream().mapToInt(n->n.getID() + 1).max().orElse(0));
+		
+		for(GraphNode<V, E> node : nodes){
+			graph.addVertex(node);
+		}
+		
+		for(GraphEdge<V, E> edge : edges){
+			graph.addEdge(edge.getSourceNode(), edge.getTargetNode());
+		}
+			
+		return graph;
+	}
+	
+	/**
 	 * Represents a single node in the graph that is
 	 * uniquely identifiable by some data.
 	 * @author Roan
@@ -627,7 +647,7 @@ public class UniqueGraph<V, E>{
 		}
 		
 		/**
-		 * If this edge was previously removed from the 
+		 * If this edge was previously removed from the
 		 * graph using {@link #remove()} this method can
 		 * be used to add the edge back to the graph. If
 		 * an equivalent edge was added in the mean time

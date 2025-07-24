@@ -61,6 +61,10 @@ public class SimpleGraph<T extends IDable, M>{
 		vertexMap = new RangeList<SimpleVertex<T, M>>(vertexCount);
 	}
 	
+	public int getVertexCapacity(){
+		return vertexMap.size();
+	}
+	
 	/**
 	 * Deletes the given vertex from the graph.
 	 * @param vertex The vertex to delete

@@ -517,6 +517,33 @@ public class UtilTest{
 		assertEquals("(f1, f2) ← a(f1, b2), a(f2, b2), b(b2, b2)", CQ.of(components.get(3)).toFormalSyntax());
 	}
 	
+	@Test
+	public void articulationPoints0(){
+		UniqueGraph<String, Integer> graph = new UniqueGraph<String, Integer>();
+		
+		graph.addUniqueNode("a");
+		graph.addUniqueNode("b");
+		graph.addUniqueNode("c");
+		graph.addUniqueNode("d");
+		graph.addUniqueNode("e");
+		graph.addUniqueNode("f");
+		
+		graph.addUniqueEdge("a", "b", 1);
+		graph.addUniqueEdge("a", "c", 2);
+		graph.addUniqueEdge("b", "d", 3);
+		graph.addUniqueEdge("c", "d", 4);
+		graph.addUniqueEdge("d", "e", 5);
+		graph.addUniqueEdge("d", "f", 6);
+		graph.addUniqueEdge("e", "f", 7);
+		
+		Util.computeArticulationPoints(graph);
+		
+		
+		//TODO asserts
+		
+		
+	}
+	
 	public static <T extends IDable, M> void assertValidTreeDecomposition(Tree<List<T>> decomp, List<T> vertices, List<SimpleEdge<T, M>> edges){
 		//1. All vertices are in the decomposition
 		Set<T> found = new HashSet<T>();

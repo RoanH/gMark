@@ -33,15 +33,25 @@ import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
 /**
  * Depth-First Search Spanning Tree implementation with low link information
  * to determine articulation points in the input graph. The implementation is
- * iterative instead of recursive to avoid stack overflows.
+ * iterative instead of recursive to avoid stack overflows but based on the
+ * DFS algorithm by John Hopcroft and Robert Tarjan and still runs in linear time.
  * @author Roan
  * @param <V> The vertex data type.
  * @param <M> The metadata type.
  * @see SimpleGraph
+ * @see <a href="https://en.wikipedia.org/wiki/Biconnected_component">Wikipedia article on computing Articulation Points</a>
  */
 public class SpanningTreeDFS<V extends IDable, M>{
+	/**
+	 * The vertices in the spanning tree.
+	 */
 	private final List<Vertex> vertices;
 	
+	/**
+	 * Computes a DFS spanning tree for the given graph.
+	 * @param graph The graph to compute a spanning tree for.
+	 * @throws IllegalArgumentException When the given graph is not connected.
+	 */
 	public SpanningTreeDFS(SimpleGraph<V, M> graph) throws IllegalArgumentException{
 		vertices = new ArrayList<Vertex>(graph.getVertexCount());
 		if(graph.getVertexCount() == 0){
@@ -105,18 +115,55 @@ public class SpanningTreeDFS<V extends IDable, M>{
 		}
 	}
 	
+	/**
+	 * Gets a list of all the articulation points (cut-vertices) found in the graph.
+	 * @return A list of articulation points.
+	 */
 	public List<SimpleVertex<V, M>> getArticulationPoints(){
 		return vertices.stream().filter(v->v.isArticulationPoint).map(v->v.original).toList();
 	}
 	
+	/**
+	 * DFS vertex state information.
+	 * @author Roan
+	 */
 	private class Vertex{
+		/**
+		 * The original input graph vertex.
+		 */
 		private final SimpleVertex<V, M> original;
+		/**
+		 * DFS discovery time for this vertex.
+		 */
 		private int discovery;
+		/**
+		 * DFS back link information, used to detect alternative paths to a node.
+		 */
 		private int lowlink;
+		/**
+		 * The DFS spanning tree parent of this vertex.
+		 */
 		private Vertex parent;
+		/**
+		 * DFS state and iterator over the yet to be visited children of this vertex in DFS.
+		 */
 		private Iterator<SimpleEdge<V, M>> childIterator;
+		/**
+		 * Flag set when this vertex is an articulation point, this is set when:
+		 * <ol>
+		 *   <li>The vertex is the DFS root and has at least 2 child nodes in the DFS spanning tree.</li>
+		 *   <li>The vertex is not the DFS root and one of its child nodes has a lowlink value lower than
+		 *   the discovery time of the vertex itself.</li>
+		 * </ol>
+		 */
 		private boolean isArticulationPoint = false;
 		
+		/**
+		 * Constructs a new DFS spanning tree vertex.
+		 * @param vertex The original graph vertex.
+		 * @param parent The DFS spanning tree parent vertex, or null if the root.
+		 * @param discovery The DFS discovery time of this vertex.
+		 */
 		private Vertex(SimpleVertex<V, M> vertex, Vertex parent, int discovery){
 			this.original = vertex;
 			this.discovery = discovery;
@@ -125,14 +172,26 @@ public class SpanningTreeDFS<V extends IDable, M>{
 			childIterator = vertex.getEdges().iterator();
 		}
 		
+		/**
+		 * Checks if there are any children remaining in the iterator for this vertex.
+		 * @return True if unvisited child vertices remain.
+		 */
 		public boolean hasNext(){
 			return childIterator.hasNext();
 		}
 		
+		/**
+		 * Gets the next unvisited child node of this vertex.
+		 * @return The next child vertex.
+		 */
 		public SimpleVertex<V, M> nextChild(){
 			return childIterator.next().getTarget(original);
 		}
 		
+		/**
+		 * Updates the lowlink value for this vertex if it is higher than the given value.
+		 * @param lowlink The new lowlink value, if lower.
+		 */
 		public void updateLowLink(int lowlink){
 			this.lowlink = Math.min(this.lowlink, lowlink);
 		}

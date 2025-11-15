@@ -34,8 +34,8 @@ import dev.roanh.gmark.util.RangeList;
  * Parallel edges are not supported, but self loops are allowed. Vertices in the
  * graph are uniquely identified by some piece of data.
  * @author Roan
- * @param <T> The vertex data type
- * @param <M> The metadata data type
+ * @param <T> The vertex data type (ID type).
+ * @param <M> The metadata data type.
  */
 public class SimpleGraph<T extends IDable, M>{
 	/**
@@ -61,6 +61,10 @@ public class SimpleGraph<T extends IDable, M>{
 		vertexMap = new RangeList<SimpleVertex<T, M>>(vertexCount);
 	}
 	
+	/**
+	 * Gets the largest vertex ID supported by this graph.
+	 * @return The maximum vertex ID.
+	 */
 	public int getVertexCapacity(){
 		return vertexMap.size();
 	}

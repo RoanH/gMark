@@ -41,12 +41,10 @@ import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
  */
 public class SpanningTreeDFS<V extends IDable, M>{
 	private final List<Vertex> vertices;
-	private final Vertex root;
 	
 	public SpanningTreeDFS(SimpleGraph<V, M> graph) throws IllegalArgumentException{
 		vertices = new ArrayList<Vertex>(graph.getVertexCount());
 		if(graph.getVertexCount() == 0){
-			root = null;
 			return;
 		}
 		
@@ -54,7 +52,7 @@ public class SpanningTreeDFS<V extends IDable, M>{
 		int rootChildren = 0;
 		
 		SimpleVertex<V, M> first = graph.getVertices().getFirst();
-		root = new Vertex(first, null, depth++);
+		Vertex root = new Vertex(first, null, depth++);
 		vertices.add(root);
 		
 		RangeList<Vertex> vertexMap = new RangeList<Vertex>(graph.getVertexCapacity());

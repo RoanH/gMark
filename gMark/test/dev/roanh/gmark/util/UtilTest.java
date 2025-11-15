@@ -48,7 +48,6 @@ import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.graph.generic.Tree;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
-import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphNode;
 
 public class UtilTest{
 	private static final Predicate a = new Predicate(0, "a");
@@ -515,45 +514,6 @@ public class UtilTest{
 		assertEquals("(f1, f2) ← b(f1, f2)", CQ.of(components.get(1)).toFormalSyntax());
 		assertEquals("(f1, f2) ← a(f1, b1), b(b1, f2)", CQ.of(components.get(2)).toFormalSyntax());
 		assertEquals("(f1, f2) ← a(f1, b2), a(f2, b2), b(b2, b2)", CQ.of(components.get(3)).toFormalSyntax());
-	}
-	
-	//TODO move test and add an other
-	@Test
-	public void articulationPoints0(){
-		UniqueGraph<String, Integer> graph = new UniqueGraph<String, Integer>();
-		
-		//     a
-		//    / \
-		//  (1) (2)
-		//  /     \
-		// b       c
-		//  \     /
-		//  (3) (4)
-		//    \ /
-		//     d
-		//    / \
-		//  (5) (6)
-		//  /     \
-		// e ----- f
-		//    (7)
-		
-		graph.addUniqueNode("a");
-		graph.addUniqueNode("b");
-		graph.addUniqueNode("c");
-		graph.addUniqueNode("d");
-		graph.addUniqueNode("e");
-		graph.addUniqueNode("f");
-		
-		graph.addUniqueEdge("a", "b", 1);
-		graph.addUniqueEdge("a", "c", 2);
-		graph.addUniqueEdge("b", "d", 3);
-		graph.addUniqueEdge("c", "d", 4);
-		graph.addUniqueEdge("d", "e", 5);
-		graph.addUniqueEdge("d", "f", 6);
-		graph.addUniqueEdge("e", "f", 7);
-		
-		List<String> points = Util.computeArticulationPoints(graph).stream().map(GraphNode::getData).sorted().toList();
-		assertIterableEquals(List.of("d"), points);
 	}
 	
 	public static <T extends IDable, M> void assertValidTreeDecomposition(Tree<List<T>> decomp, List<T> vertices, List<SimpleEdge<T, M>> edges){

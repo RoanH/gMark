@@ -351,7 +351,6 @@ public class UtilTest{
 		for(Set<String> set : found){
 			assertTrue(set.size() >= 1);
 			assertTrue(set.size() <= 4);
-			System.out.println(set);
 		}
 		
 		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a"))));

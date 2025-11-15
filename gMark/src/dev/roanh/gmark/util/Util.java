@@ -60,6 +60,7 @@ import dev.roanh.gmark.util.graph.generic.Tree;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphNode;
+import dev.roanh.gmark.util.graph.specific.SpanningTreeDFS;
 
 /**
  * Class providing various small utilities as well
@@ -758,5 +759,32 @@ public final class Util{
 		}
 
 		return components;
+	}
+	
+	/**
+	 * Computes all the articulation points (cut-vertices) in the given graph.
+	 * Note that the direction of graph edges is not taken into account, i.e.,
+	 * a graph where not all vertices are reachable from every other vertex may
+	 * not have any articulation points.
+	 * @param <V> The graph vertex data type.
+	 * @param <E> The graph edge data type.
+	 * @param graph The graph to compute articulation points for.
+	 * @return The computed articulation vertices, if any.
+	 * @throws IllegalArgumentException When the given graph is not connected.
+	 */
+	public static <V, E> List<GraphNode<V, E>> computeArticulationPoints(UniqueGraph<V, E> graph) throws IllegalArgumentException{
+		return computeArticulationPoints(graph.toSimpleGraph()).stream().map(SimpleVertex::getData).toList();
+	}
+
+	/**
+	 * Computes all the articulation points (cut-vertices) in the given graph.
+	 * @param <V> The graph vertex data type.
+	 * @param <M> The graph vertex metadata type.
+	 * @param graph The graph to compute articulation points for.
+	 * @return The computed articulation vertices, if any.
+	 * @throws IllegalArgumentException When the given graph is not connected.
+	 */
+	public static <V extends IDable, M> List<SimpleVertex<V, M>> computeArticulationPoints(SimpleGraph<V, M> graph) throws IllegalArgumentException{
+		return new SpanningTreeDFS<V, M>(graph).getArticulationPoints();
 	}
 }

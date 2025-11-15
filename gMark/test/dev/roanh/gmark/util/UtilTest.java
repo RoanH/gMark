@@ -48,6 +48,7 @@ import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleEdge;
 import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.graph.generic.Tree;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphNode;
 
 public class UtilTest{
 	private static final Predicate a = new Predicate(0, "a");
@@ -351,7 +352,6 @@ public class UtilTest{
 		for(Set<String> set : found){
 			assertTrue(set.size() >= 1);
 			assertTrue(set.size() <= 4);
-			System.out.println(set);
 		}
 		
 		assertTrue(found.contains(new HashSet<String>(Arrays.asList("a"))));
@@ -517,9 +517,25 @@ public class UtilTest{
 		assertEquals("(f1, f2) ← a(f1, b2), a(f2, b2), b(b2, b2)", CQ.of(components.get(3)).toFormalSyntax());
 	}
 	
+	//TODO move test and add an other
 	@Test
 	public void articulationPoints0(){
 		UniqueGraph<String, Integer> graph = new UniqueGraph<String, Integer>();
+		
+		//     a
+		//    / \
+		//  (1) (2)
+		//  /     \
+		// b       c
+		//  \     /
+		//  (3) (4)
+		//    \ /
+		//     d
+		//    / \
+		//  (5) (6)
+		//  /     \
+		// e ----- f
+		//    (7)
 		
 		graph.addUniqueNode("a");
 		graph.addUniqueNode("b");
@@ -536,12 +552,8 @@ public class UtilTest{
 		graph.addUniqueEdge("d", "f", 6);
 		graph.addUniqueEdge("e", "f", 7);
 		
-		Util.computeArticulationPoints(graph);
-		
-		
-		//TODO asserts
-		
-		
+		List<String> points = Util.computeArticulationPoints(graph).stream().map(GraphNode::getData).sorted().toList();
+		assertIterableEquals(List.of("d"), points);
 	}
 	
 	public static <T extends IDable, M> void assertValidTreeDecomposition(Tree<List<T>> decomp, List<T> vertices, List<SimpleEdge<T, M>> edges){

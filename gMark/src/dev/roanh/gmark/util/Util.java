@@ -31,7 +31,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.EnumMap;
@@ -61,6 +60,7 @@ import dev.roanh.gmark.util.graph.generic.Tree;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphNode;
+import dev.roanh.gmark.util.graph.specific.SpanningTreeDFS;
 
 /**
  * Class providing various small utilities as well
@@ -765,49 +765,7 @@ public final class Util{
 		return computeArticulationPoints(graph.toSimpleGraph()).stream().map(SimpleVertex::getData).toList();
 	}
 
-	//boolean include self loop vertices? or maybe just keep that separate
 	public static <V extends IDable, M> List<SimpleVertex<V, M>> computeArticulationPoints(SimpleGraph<V, M> graph){
-		if(graph.getVertices().isEmpty()){
-			return List.of();
-		}
-		
-		BitSet seen = new BitSet(graph.getVertexCapacity());
-		Deque<SimpleVertex<V, M>> stack = new ArrayDeque<SimpleVertex<V, M>>();
-		stack.push(graph.getVertices().getFirst());
-
-		RangeList<Integer> depthMap = new RangeList<Integer>(graph.getVertexCapacity());
-		
-		
-		int depth = 1;
-		while(!stack.isEmpty()){
-			SimpleVertex<V, M> source = stack.pop();
-			
-			if(!seen.get(source.getID())){
-				for(SimpleEdge<V, M> edge : source.getEdges()){
-					SimpleVertex<V, M> target = edge.getTarget(source);
-					depthMap.set(target, depth++);
-					seen.set(target.getID());
-					stack.push(target);
-				}
-			}
-
-			
-			
-		}
-		
-		
-		for(int i = 0; i < depthMap.size(); i++){
-			System.out.println(graph.getVertices().get(i).getData() + ": " + depthMap.get(i));
-		}
-		
-		
-		
-		
-		
-		
-		
-		
-		//TODO
-		return List.of();
+		return new SpanningTreeDFS<V, M>(graph).getArticulationPoints();
 	}
 }

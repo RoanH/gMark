@@ -21,8 +21,11 @@ package dev.roanh.gmark.util.graph.specific;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import dev.roanh.gmark.type.IDable;
 import dev.roanh.gmark.util.RangeList;
@@ -42,10 +45,8 @@ import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
  * @see <a href="https://en.wikipedia.org/wiki/Biconnected_component">Wikipedia article on computing Articulation Points</a>
  */
 public class SpanningTreeDFS<V extends IDable, M>{
-	/**
-	 * The vertices in the spanning tree.
-	 */
-	private final List<Vertex> vertices;
+	private final SimpleGraph<V, M> graph;
+	private final Set<SimpleVertex<V, M>> ignored = new HashSet<SimpleVertex<V, M>>();
 	
 	/**
 	 * Computes a DFS spanning tree for the given graph.
@@ -53,20 +54,32 @@ public class SpanningTreeDFS<V extends IDable, M>{
 	 * @throws IllegalArgumentException When the given graph is not connected.
 	 */
 	public SpanningTreeDFS(SimpleGraph<V, M> graph) throws IllegalArgumentException{
-		vertices = new ArrayList<Vertex>(graph.getVertexCount());
+		this.graph = graph;
+	}
+	
+	public void addForcedLeaf(SimpleVertex<V, M> vertex){
+		ignored.add(vertex);
+	}
+	
+	private List<Vertex> computeSpanningTree(){
+		List<Vertex> vertices = new ArrayList<Vertex>(graph.getVertexCount());
 		if(graph.getVertexCount() == 0){
-			return;
+			return vertices;
+		}
+		
+		Optional<SimpleVertex<V, M>> first = graph.getVertices().stream().filter(v->!ignored.contains(v)).findAny();
+		if(first.isEmpty()){
+			return vertices;
 		}
 		
 		int depth = 1;
 		int rootChildren = 0;
 		
-		SimpleVertex<V, M> first = graph.getVertices().getFirst();
-		Vertex root = new Vertex(first, null, depth++);
+		Vertex root = new Vertex(first.get(), null, depth++);
 		vertices.add(root);
 		
 		RangeList<Vertex> vertexMap = new RangeList<Vertex>(graph.getVertexCapacity());
-		vertexMap.set(first, root);
+		vertexMap.set(first.get(), root);
 		
 		Deque<Vertex> stack = new ArrayDeque<Vertex>();
 		stack.push(root);
@@ -113,6 +126,8 @@ public class SpanningTreeDFS<V extends IDable, M>{
 		if(vertices.size() != graph.getVertexCount()){
 			throw new IllegalArgumentException("Input was not a connected graph.");
 		}
+		
+		return vertices;
 	}
 	
 	/**
@@ -120,7 +135,7 @@ public class SpanningTreeDFS<V extends IDable, M>{
 	 * @return A list of articulation points.
 	 */
 	public List<SimpleVertex<V, M>> getArticulationPoints(){
-		return vertices.stream().filter(v->v.isArticulationPoint).map(v->v.original).toList();
+		return computeSpanningTree().stream().filter(v->v.isArticulationPoint).map(v->v.original).toList();
 	}
 	
 	/**
@@ -169,7 +184,7 @@ public class SpanningTreeDFS<V extends IDable, M>{
 			this.discovery = discovery;
 			this.parent = parent;
 			lowlink = discovery;
-			childIterator = vertex.getEdges().iterator();
+			childIterator = ignored.contains(vertex) ? null : vertex.getEdges().iterator();
 		}
 		
 		/**
@@ -177,7 +192,7 @@ public class SpanningTreeDFS<V extends IDable, M>{
 		 * @return True if unvisited child vertices remain.
 		 */
 		public boolean hasNext(){
-			return childIterator.hasNext();
+			return childIterator != null && childIterator.hasNext();
 		}
 		
 		/**

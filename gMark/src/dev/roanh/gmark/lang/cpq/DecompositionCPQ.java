@@ -8,12 +8,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import dev.roanh.gmark.util.Util;
-import dev.roanh.gmark.util.graph.generic.SimpleGraph;
-import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphNode;
-import dev.roanh.gmark.util.graph.specific.SpanningTreeDFS;
 
 public class DecompositionCPQ{
 
@@ -69,15 +66,17 @@ public class DecompositionCPQ{
 //			return decomposeComponentSplits(graph, overloaded);
 //		}
 		
-		SimpleGraph<GraphNode<Vertex, E>, Void> simple = graph.toSimpleGraph();
-		SpanningTreeDFS<GraphNode<Vertex, E>, Void> dfs = new SpanningTreeDFS<GraphNode<Vertex, E>, Void>(simple);
-		for(GraphNode<Vertex, E> free : projected){
+//		SimpleGraph<GraphNode<Vertex, E>, Void> simple = graph.toSimpleGraph();
+//		SpanningTreeDFS<GraphNode<Vertex, E>, Void> dfs = new SpanningTreeDFS<GraphNode<Vertex, E>, Void>(simple);
+//		for(GraphNode<Vertex, E> free : projected){
 //			dfs.addForcedLeaf(simple.getVertex(free));
-			//TODO the above doesn't appear to work entirely yet
-		}
+//			//TODO the above doesn't appear to work entirely yet -- nor can it ever
+//		}
 		
-		List<GraphNode<Vertex, E>> merges = dfs.getArticulationPoints().stream().map(SimpleVertex::getData).toList();
-		System.out.println("ap: " + merges);
+//		projected.forEach(v->v.remove());
+//		List<GraphNode<Vertex, E>> merges = Util.computeArticulationPoints(graph);
+//		projected.forEach(v->v.);
+//		System.out.println("ap: " + merges);
 		
 		
 		

@@ -46,7 +46,7 @@ import dev.roanh.gmark.util.graph.generic.SimpleGraph.SimpleVertex;
  */
 public class SpanningTreeDFS<V extends IDable, M>{
 	private final SimpleGraph<V, M> graph;
-	private final Set<SimpleVertex<V, M>> ignored = new HashSet<SimpleVertex<V, M>>();
+	private final Set<SimpleVertex<V, M>> ignored = new HashSet<SimpleVertex<V, M>>();//TODO remove, this can never work correctly.
 	
 	/**
 	 * Computes a DFS spanning tree for the given graph.
@@ -58,13 +58,21 @@ public class SpanningTreeDFS<V extends IDable, M>{
 	}
 	
 	public void addForcedLeaf(SimpleVertex<V, M> vertex){
-		ignored.add(vertex);
+//		ignored.add(vertex);
 	}
 	
 	private List<Vertex> computeSpanningTree(){
 		List<Vertex> vertices = new ArrayList<Vertex>(graph.getVertexCount());
 		if(graph.getVertexCount() == 0){
 			return vertices;
+		}
+		
+		RangeList<Vertex> vertexMap = new RangeList<Vertex>(graph.getVertexCapacity());
+
+		for(SimpleVertex<V, M> leaf : ignored){
+			Vertex vertex = new Vertex(leaf);
+			vertexMap.set(leaf, vertex);
+			vertices.add(vertex);
 		}
 		
 		Optional<SimpleVertex<V, M>> first = graph.getVertices().stream().filter(v->!ignored.contains(v)).findAny();
@@ -77,9 +85,7 @@ public class SpanningTreeDFS<V extends IDable, M>{
 		
 		Vertex root = new Vertex(first.get(), null, depth++);
 		vertices.add(root);
-		
-		RangeList<Vertex> vertexMap = new RangeList<Vertex>(graph.getVertexCapacity());
-		vertexMap.set(first.get(), root);
+		vertexMap.set(root.original, root);
 		
 		Deque<Vertex> stack = new ArrayDeque<Vertex>();
 		stack.push(root);
@@ -184,7 +190,13 @@ public class SpanningTreeDFS<V extends IDable, M>{
 			this.discovery = discovery;
 			this.parent = parent;
 			lowlink = discovery;
-			childIterator = ignored.contains(vertex) ? null : vertex.getEdges().iterator();
+			childIterator = vertex.getEdges().iterator();
+		}
+		
+		private Vertex(SimpleVertex<V, M> vertex){
+			original = vertex;
+			discovery = Integer.MAX_VALUE;
+			lowlink = Integer.MAX_VALUE;
 		}
 		
 		/**

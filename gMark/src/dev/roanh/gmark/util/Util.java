@@ -704,7 +704,7 @@ public final class Util{
 	 * @return A list of sub-graph representing the components the original graph was split into.
 	 */
 	public static <V, E> List<UniqueGraph<V, E>> splitOnNodes(UniqueGraph<V, E> graph, Set<V> splitVertices){
-		Set<E> seen = new HashSet<E>();
+		Set<GraphEdge<V, E>> seen = new HashSet<GraphEdge<V, E>>();
 		Deque<GraphEdge<V, E>> currentEdges = new ArrayDeque<GraphEdge<V, E>>();
 		Deque<GraphEdge<V, E>> nextEdges = new ArrayDeque<GraphEdge<V, E>>();
 		currentEdges.add(graph.getEdges().get(0));
@@ -716,7 +716,7 @@ public final class Util{
 		while(!nextEdges.isEmpty() || !currentEdges.isEmpty()){
 			if(!currentEdges.isEmpty()){
 				GraphEdge<V, E> edge = currentEdges.removeFirst();
-				if(seen.add(edge.getData())){
+				if(seen.add(edge)){
 					GraphNode<V, E> sourceNode = edge.getSourceNode();
 					V source = sourceNode.getData();
 					if(componentVars.add(source)){

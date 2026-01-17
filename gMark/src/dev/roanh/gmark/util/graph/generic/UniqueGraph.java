@@ -94,6 +94,10 @@ public class UniqueGraph<V, E>{
 		return edges;
 	}
 	
+	public boolean containsNode(V data){
+		return nodeMap.containsKey(data);
+	}
+	
 	/**
 	 * Gets a single node from this graph by the
 	 * data that is stored at the node to find.
@@ -287,24 +291,27 @@ public class UniqueGraph<V, E>{
 	 * @return The copy of this graph.
 	 */
 	public UniqueGraph<V, E> copy(){
-		return copy(Function.identity());
+		return copy(Function.identity(), Function.identity());
 	}
 	
 	/**
 	 * Makes a structurally equivalent deep copy of this graph with transformed vertices.
-	 * @param transform The transform to use to construct the new graph nodes, this function
+	 * @param nodeTransform The transform to use to construct the new graph nodes, this function
 	 *        must generate unique values for distinct input vertices.
+	 * @param edgeTransform The transform to use to construct the new graph edges.
 	 * @param <T> The transformed graph vertex type.
+	 * @param <U> The transformed graph edge type.
 	 * @return The copy of this graph.
-	 * @throws IllegalArgumentException When the given transformation function does
+	 * @throws IllegalArgumentException When the given node transformation function does
 	 *         not preserve the uniqueness of the graph nodes.
+	 * @see Function#identity()
 	 */
-	public <T> UniqueGraph<T, E> copy(Function<V, T> transform) throws IllegalArgumentException{
-		UniqueGraph<T, E> copy = new UniqueGraph<T, E>();
+	public <T, U> UniqueGraph<T, U> copy(Function<V, T> nodeTransform, Function<E, U> edgeTransform) throws IllegalArgumentException{
+		UniqueGraph<T, U> copy = new UniqueGraph<T, U>();
 		
 		Map<V, T> index = new HashMap<V, T>();
 		for(GraphNode<V, E> node : nodes){
-			T vertex = transform.apply(node.getData());
+			T vertex = nodeTransform.apply(node.getData());
 			copy.addUniqueNode(vertex);
 			if(index.put(node.getData(), vertex) != null){
 				throw new IllegalArgumentException("The given node transform does not preserve node uniqueness.");
@@ -312,7 +319,7 @@ public class UniqueGraph<V, E>{
 		}
 		
 		for(GraphEdge<V, E> edge : edges){
-			copy.addUniqueEdge(index.get(edge.getSource()), index.get(edge.getTarget()), edge.getData());
+			copy.addUniqueEdge(index.get(edge.getSource()), index.get(edge.getTarget()), edgeTransform.apply(edge.getData()));
 		}
 		
 		return copy;

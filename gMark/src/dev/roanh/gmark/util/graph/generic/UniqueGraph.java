@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import dev.roanh.gmark.type.IDable;
@@ -286,14 +287,32 @@ public class UniqueGraph<V, E>{
 	 * @return The copy of this graph.
 	 */
 	public UniqueGraph<V, E> copy(){
-		UniqueGraph<V, E> copy = new UniqueGraph<V, E>();
+		return copy(Function.identity());
+	}
+	
+	/**
+	 * Makes a structurally equivalent deep copy of this graph with transformed vertices.
+	 * @param transform The transform to use to construct the new graph nodes, this function
+	 *        must generate unique values for distinct input vertices.
+	 * @param <T> The transformed graph vertex type.
+	 * @return The copy of this graph.
+	 * @throws IllegalArgumentException When the given transformation function does
+	 *         not preserve the uniqueness of the graph nodes.
+	 */
+	public <T> UniqueGraph<T, E> copy(Function<V, T> transform) throws IllegalArgumentException{
+		UniqueGraph<T, E> copy = new UniqueGraph<T, E>();
 		
+		Map<V, T> index = new HashMap<V, T>();
 		for(GraphNode<V, E> node : nodes){
-			copy.addUniqueNode(node.getData());
+			T vertex = transform.apply(node.getData());
+			copy.addUniqueNode(vertex);
+			if(index.put(node.getData(), vertex) != null){
+				throw new IllegalArgumentException("The given node transform does not preserve node uniqueness.");
+			}
 		}
 		
 		for(GraphEdge<V, E> edge : edges){
-			copy.addUniqueEdge(edge.getSource(), edge.getTarget(), edge.getData());
+			copy.addUniqueEdge(index.get(edge.getSource()), index.get(edge.getTarget()), edge.getData());
 		}
 		
 		return copy;

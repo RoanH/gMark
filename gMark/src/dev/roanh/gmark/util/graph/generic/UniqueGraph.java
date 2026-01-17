@@ -491,6 +491,22 @@ public class UniqueGraph<V, E>{
 			return null;
 		}
 		
+		public boolean hasSelfLoop(){
+			for(GraphEdge<V, E> edge : out){
+				if(edge.target.equals(this)){
+					return true;
+				}
+			}
+			
+			for(GraphEdge<V, E> edge : in){
+				if(edge.source.equals(this)){
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
 		/**
 		 * Gets the total number of outgoing edges this node has.
 		 * @return The total number of outgoing edges this node has.

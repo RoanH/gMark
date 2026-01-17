@@ -22,13 +22,25 @@ import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_INTERSECTION;
 import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_INVERSE;
 import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_JOIN;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.generic.GenericParser;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.Util;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphNode;
 
 /**
  * Parser for CPQs (Conjunctive Path Queries).
@@ -139,5 +151,226 @@ public final class ParserCPQ extends GenericParser{
 		}
 
 		throw new IllegalArgumentException("Invalid CPQ.");
+	}
+	
+	
+	
+	
+	public static <V> CPQ parse(UniqueGraph<V, Predicate> queryGraph, V sourceVertex, V targetVertex){
+		UniqueGraph<Vertex<V>, Edge> graph = queryGraph.copy(Vertex::new, Edge::new);
+		List<GraphNode<Vertex<V>, Edge>> cuts = Util.computeArticulationPoints(graph);
+		Vertex<V> source = graph.getNodes().stream().filter(n->n.getData().data.equals(sourceVertex)).findAny().orElseThrow().getData();
+		Vertex<V> target = graph.getNodes().stream().filter(n->n.getData().data.equals(targetVertex)).findAny().orElseThrow().getData();
+		
+		Set<Vertex<V>> splits = new HashSet<Vertex<V>>();
+		cuts.forEach(v->splits.add(v.getData()));
+		System.out.println("cuts: " + cuts);
+		splits.add(source);
+		splits.add(target);
+//		splits.remove(source);//TODO probably optional?
+//		splits.remove(target);
+		List<GraphNode<Vertex<V>, Edge>> loops = graph.getNodes().stream().filter(GraphNode::hasSelfLoop).toList();
+		System.out.println("loops: " + loops);
+		loops.forEach(v->splits.add(v.getData()));
+		
+		List<UniqueGraph<Vertex<V>, Edge>> components = Util.splitOnNodes(graph, splits);
+		for(UniqueGraph<Vertex<V>, Edge> component : components){
+			System.out.println(component.getNodes().stream().map(GraphNode::getData).toList());
+		}
+		
+		for(UniqueGraph<Vertex<V>, Edge> component : components){
+			for(GraphNode<Vertex<V>, Edge> vertex : component.getNodes()){
+				vertex.getData().components.add(new Component<V>(component));
+			}
+		}
+		
+		discoverEdges(source, target, graph, Edge::updateSourceDiscovery);
+		discoverEdges(target, source, graph, Edge::updateTargetDiscovery);
+		System.out.println("---");
+		for(Vertex<V> split : splits){
+			split.contractLoops();
+		}
+		
+		CPQ paths = traversePaths(source, target, splits);
+		if(source.equals(target)){
+			//add the outermost intersection with ID we ignored
+			paths = CPQ.intersect(paths, CPQ.id());
+		}
+		
+		return paths;
+	}
+	
+	private static <V> void discoverEdges(Vertex<V> source, Vertex<V> sink, UniqueGraph<Vertex<V>, Edge> graph, BiConsumer<Edge, Integer> discovery){
+		HashSet<Vertex<V>> seen = new HashSet<Vertex<V>>();
+		seen.add(source);
+		seen.add(sink);
+		
+		Deque<GraphEdge<Vertex<V>, Edge>> edges = new ArrayDeque<GraphEdge<Vertex<V>, Edge>>();
+		edges.addAll(graph.getNode(source).getOutEdges());
+		edges.addAll(graph.getNode(source).getInEdges());
+		
+		int num = 0;
+		while(!edges.isEmpty()){
+			GraphEdge<Vertex<V>, Edge> edge = edges.removeFirst();
+			discovery.accept(edge.getData(), num++);
+			
+			GraphNode<Vertex<V>, Edge> src = edge.getSourceNode();
+			if(seen.add(src.getData())){
+				edges.addAll(src.getInEdges());
+				edges.addAll(src.getOutEdges());
+			}
+			
+			GraphNode<Vertex<V>, Edge> trg = edge.getTargetNode();
+			if(seen.add(trg.getData())){
+				edges.addAll(trg.getInEdges());
+				edges.addAll(trg.getOutEdges());
+			}
+		}
+	}
+	
+	//(source loops) intersect (paths) intersect (target loops) intersect identity
+	private static <V> CPQ traverseLoops(V sourceTarget, Map<V, List<UniqueGraph<V, Predicate>>> componentMap){
+		List<UniqueGraph<V, Predicate>> subComponents = componentMap.get(sourceTarget);
+		if(subComponents.size() <= 1){
+			//wasn't an articulation point, or there was only one component
+			subComponents = Util.splitOnNodes(subComponents.getFirst(), Set.of(sourceTarget));
+		}
+		
+		CPQ cpq = CPQ.id();
+		for(UniqueGraph<V, Predicate> component : subComponents){
+			cpq = CPQ.intersect(cpq, )
+		}
+		
+		
+		
+		
+		return null;
+	}
+		
+	//(source loops) concat (paths) concat (target loops)
+	private static <V> CPQ traversePaths(Vertex<V> source, Vertex<V> target, Set<Vertex<V>> splits){
+		for(Component<V> component : source.components){
+			if(component.graph.containsNode(target)){
+				
+			}else{
+				
+			}
+		}
+
+		
+		
+		
+		
+		
+		
+		
+		return null;
+	}
+	
+//	private static CPQ addLoops(List<UniqueGraph<V, Predicate>>)
+	
+	
+	
+	
+	
+	
+	
+	
+	private static class Vertex<V>{
+		private final V data;
+		private final List<Component<V>> components = new ArrayList<Component<V>>();
+		private CPQ loops;
+		
+		private Vertex(V data){
+			this.data = data;
+		}
+		
+		public void contractLoops(){
+			System.out.println(data + " is in components:");
+			for(Component<V> component : components){
+				System.out.println("- " + component.graph.getNodes().stream().map(GraphNode::getData).toList() + " with entry " + component.getInEdge().getSource() + "-" + component.getInEdge().getTarget() + " and exit " + component.getOutEdge().getSource() + "-" + component.getOutEdge().getTarget());
+			}
+			
+			//TODO entry/exit is probably mostly relevant for vertices
+		}
+
+		@Override
+		public boolean equals(Object obj){
+			return obj instanceof Vertex<?> v && data.equals(v.data);
+		}
+		
+		@Override
+		public int hashCode(){
+			return data.hashCode();
+		}
+		
+		@Override
+		public String toString(){
+			return data.toString();
+		}
+	}
+	
+	private static class Component<V>{
+		private final UniqueGraph<Vertex<V>, Edge> graph;
+		
+		private Component(UniqueGraph<Vertex<V>, Edge> graph){
+			this.graph = graph;
+		}
+		
+		public CPQ loopOn(Vertex<V> vertex){
+			
+		}
+		
+		public GraphEdge<Vertex<V>, Edge> getInEdge(){
+			GraphEdge<Vertex<V>, Edge> min = null;
+			for(GraphEdge<Vertex<V>, Edge> edge : graph.getEdges()){
+				if(min == null || min.getData().srcDisc > edge.getData().srcDisc){
+					min = edge;
+				}
+			}
+			
+			
+			return min;
+		}
+		
+		public GraphEdge<Vertex<V>, Edge> getOutEdge(){
+			GraphEdge<Vertex<V>, Edge> min = null;
+			for(GraphEdge<Vertex<V>, Edge> edge : graph.getEdges()){
+				if(min == null || min.getData().trgDisc > edge.getData().trgDisc){
+					min = edge;
+				}
+			}
+			
+			
+			return min;
+		}
+	}
+	
+	private static class Edge{
+		private final Predicate predicate;
+		private int srcDisc = -1;
+		private int trgDisc = -1;
+		
+		private Edge(Predicate predicate){
+			this.predicate = predicate;
+		}
+		
+		public void updateSourceDiscovery(int num){
+			if(srcDisc == -1){
+				srcDisc = num;
+			}
+		}
+		
+		public void updateTargetDiscovery(int num){
+			if(trgDisc == -1){
+				trgDisc = num;
+			}
+		}
+		
+		@Override
+		public String toString(){
+			// TODO Auto-generated method stub
+			return super.toString();
+		}
 	}
 }

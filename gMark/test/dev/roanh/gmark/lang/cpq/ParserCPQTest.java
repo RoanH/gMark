@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import dev.roanh.gmark.ast.EdgeQueryAtom;
 import dev.roanh.gmark.ast.QueryTree;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 
 public class ParserCPQTest{
 
@@ -72,4 +73,87 @@ public class ParserCPQTest{
 			CPQ.parse("a ∩ b ∩ c").toAbstractSyntaxTree().stream().filter(QueryTree::isLeaf).map(QueryTree::getEdgeAtom).map(EdgeQueryAtom::getLabel).mapToInt(Predicate::getID).distinct().sorted().toArray()
 		);
 	}
+	
+	
+	@Test
+	public void parseGraph0(){
+		UniqueGraph<String, Predicate> graph = new UniqueGraph<String, Predicate>();
+		Predicate l1 = new Predicate(1, "1");
+		Predicate l2 = new Predicate(2, "2");
+
+		graph.addUniqueNode("1s");
+		graph.addUniqueNode("2");
+		graph.addUniqueNode("3");
+		graph.addUniqueNode("4");
+		graph.addUniqueNode("5");
+		graph.addUniqueNode("6");
+		graph.addUniqueNode("7");
+		graph.addUniqueNode("8");
+		graph.addUniqueNode("9");
+		graph.addUniqueNode("10");
+		graph.addUniqueNode("11");
+		graph.addUniqueNode("12");
+		graph.addUniqueNode("13");
+		graph.addUniqueNode("14");
+		graph.addUniqueNode("15t");
+
+		graph.addUniqueEdge("1s", "1s", l1);
+		graph.addUniqueEdge("1s", "2", l1);
+		graph.addUniqueEdge("1s", "3", l1);
+		graph.addUniqueEdge("1s", "4", l1);
+		graph.addUniqueEdge("2", "8", l1);
+		graph.addUniqueEdge("2", "9", l1);
+		graph.addUniqueEdge("3", "11", l1);
+		graph.addUniqueEdge("4", "5", l1);
+		graph.addUniqueEdge("4", "5", l2);
+		graph.addUniqueEdge("5", "15t", l1);
+		graph.addUniqueEdge("6", "7", l1);
+		graph.addUniqueEdge("6", "8", l1);
+		graph.addUniqueEdge("7", "8", l1);
+		graph.addUniqueEdge("8", "10", l1);
+		graph.addUniqueEdge("9", "10", l1);
+		graph.addUniqueEdge("10", "15t", l1);
+		graph.addUniqueEdge("11", "14", l1);
+		graph.addUniqueEdge("11", "15t", l1);
+		graph.addUniqueEdge("12", "13", l1);
+		graph.addUniqueEdge("12", "14", l1);
+		graph.addUniqueEdge("13", "13", l1);
+		graph.addUniqueEdge("13", "14", l1);
+		graph.addUniqueEdge("15t", "15t", l1);
+
+		//       6 --- 7
+		//        \   /
+		//         \ /
+		//      --- 8 ---
+		//     /         \
+		//    2 --- 9 --- 10
+		//   /              \
+		//  /                \
+		// 1s (loop)  (loop) /15t--\
+		// |\               /      |
+		// | \3 --------- 11       |
+		// |               \       |
+		// 4                \      |
+		// |\          12 -- 14    |
+		// | |           \  /      |
+		// |/             \/       |
+		// 5       (loop) 13       |
+		// |                       |
+		// \-----------------------/
+
+
+		
+		
+		
+		ParserCPQ.parse(graph, "1s", "15t");
+		
+		
+		
+		//TODO
+
+	}
+	
+	//TODO recog test with top level loop
+
+	//TODO random -> graph -> parse -> equals
 }

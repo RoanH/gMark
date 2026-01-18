@@ -111,6 +111,7 @@ public class ParserCPQTest{
 		graph.addUniqueEdge("6", "8", l1);
 		graph.addUniqueEdge("7", "8", l1);
 		graph.addUniqueEdge("8", "10", l1);
+		graph.addUniqueEdge("8", "10", l2);
 		graph.addUniqueEdge("9", "10", l1);
 		graph.addUniqueEdge("10", "15t", l1);
 		graph.addUniqueEdge("11", "14", l1);
@@ -123,9 +124,9 @@ public class ParserCPQTest{
 
 		//       6 --- 7
 		//        \   /
-		//         \ /
-		//      --- 8 ---
-		//     /         \
+		//         \ / /---\
+		//      --- 8 /--  |
+		//     /         \ |
 		//    2 --- 9 --- 10
 		//   /              \
 		//  /                \

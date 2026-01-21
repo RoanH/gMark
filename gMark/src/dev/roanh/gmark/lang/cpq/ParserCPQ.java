@@ -212,7 +212,7 @@ public final class ParserCPQ extends GenericParser{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		if(source.equals(target)){//TODO have a loop variant anyway maybe?
+		if(source.equals(target)){//TODO have a loop variant anyway maybe? -- should current path version does not handle loops at all
 			//add the outermost intersection with ID we ignored
 			paths = CPQ.intersect(paths, CPQ.id());
 		}
@@ -279,17 +279,17 @@ public final class ParserCPQ extends GenericParser{
 	//TODO probably ignore src/trg loops here they'll be handled by the caller so not all paralel
 	//(source loops) concat (paths) concat (target loops)
 	private static <V> CPQ traversePaths(Vertex<V> source, Vertex<V> target){
-		CPQ cpq = CPQ.id();
+		CPQ cpq = null;
 		
 		while(!source.equals(target)){
 			assert !source.canReachTrg.isEmpty();
 			if(source.canReachTrg.size() == 1){
 				GraphEdge<Vertex<V>, Edge> edge = source.canReachTrg.iterator().next();
-				cpq = CPQ.concat(CPQ.label(edge.getData().predicate));
+				cpq = cpq == null ? edge.getData().toCPQ() : CPQ.concat(cpq, edge.getData().toCPQ());
 				source = edge.getTarget();
 			}else{
 				MergePath<V> path = traverseToMerge(source);
-				cpq = CPQ.concat(path.paths());
+				cpq = cpq == null ? path.paths() : CPQ.concat(cpq, path.paths());
 				source = path.mergeNode();
 			}
 		}
@@ -336,6 +336,7 @@ public final class ParserCPQ extends GenericParser{
 						MergePath<V> path = traverseToMerge(iter.head);
 						iter.path = CPQ.concat(iter.path, path.paths());
 						iter.head = path.mergeNode;
+						iter.head.contractLoops();//TODO
 						iter.merged = true;
 					}
 				}
@@ -356,13 +357,15 @@ public final class ParserCPQ extends GenericParser{
 		private PathIterator(Vertex<V> source, GraphEdge<Vertex<V>, Edge> edge){
 			path = CPQ.label(edge.getData().predicate);
 			head = source.equals(edge.getSource()) ? edge.getTarget() : edge.getSource();
+			head.contractLoops();//TODO
 		}
 		
 		private void advance(){
 			while(!isMergeNode() && !isSplitNode() && !isTargetNode()){
 				GraphEdge<Vertex<V>, Edge> edge = head.canReachTrg.iterator().next();
-				path = CPQ.concat(path, CPQ.label(edge.getData().predicate));
+				path = CPQ.concat(path, CPQ.label(edge.getData().predicate));//TODO incorporate loops
 				head = getTo(edge);
+				head.contractLoops();//TODO
 			}
 		}
 		
@@ -406,6 +409,7 @@ public final class ParserCPQ extends GenericParser{
 		private final Set<GraphEdge<Vertex<V>, Edge>> canReachSrc = new HashSet<GraphEdge<Vertex<V>, Edge>>();
 		private final Set<GraphEdge<Vertex<V>, Edge>> canReachTrg = new HashSet<GraphEdge<Vertex<V>, Edge>>();
 		private GraphNode<Vertex<V>, Edge> node;
+		
 		private CPQ loops;
 		@Deprecated
 		private int arrivals = 0;
@@ -414,7 +418,25 @@ public final class ParserCPQ extends GenericParser{
 			this.data = data;
 		}
 		
-		public void contractLoops(){
+		public CPQ contractLoops(){
+			System.out.println("ctrl: " + data);
+			for(GraphEdge<Vertex<V>, Edge> edge : node.getInEdges()){
+				if(!canReachSrc.contains(edge) && !canReachTrg.contains(edge)){
+					loops = traversePaths(node.getData(), node.getData());
+					System.out.println("find loop on: " + data + " as " + loops);
+				}
+			}
+			
+			for(GraphEdge<Vertex<V>, Edge> edge : node.getOutEdges()){//TODO maybe just add a getEdges... (also would eliminate duplicates, i.e., self loop)
+				if(!canReachSrc.contains(edge) && !canReachTrg.contains(edge)){
+					loops = traversePaths(node.getData(), node.getData());
+					System.out.println("find loop on: " + data + " as " + loops);
+				}
+			}
+			
+			
+			return null;
+			
 //			System.out.println(
 //				data +
 //				" has entry " + getInEdge().getSource() + "-" + getInEdge().getTarget() + " (" + getInEdge().getData().predicate.getAlias() + ")" +
@@ -500,6 +522,10 @@ public final class ParserCPQ extends GenericParser{
 		
 		private Edge(Predicate predicate){
 			this.predicate = predicate;
+		}
+		
+		public CPQ toCPQ(){
+			return CPQ.label(predicate);
 		}
 		
 //		public void updateSourceDiscovery(int num){

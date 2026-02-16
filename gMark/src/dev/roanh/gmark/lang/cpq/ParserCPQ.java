@@ -304,6 +304,7 @@ public final class ParserCPQ extends GenericParser{
 	//if we cannot cover its not a CPQ. So basically just apply my original flood mechanism of extending to
 	//all nodes and only advancing when a single exit remains, or if no exists remaing then reverse the complete
 	//graph from that node
+	//actually no, the last path at the final node returns via the intersection of the others
 	private static <V> CPQ floodGraph(UniqueGraph<V, Predicate> subgraph, Vertex<V> source){
 		CPQ cpq = null;
 		

@@ -195,7 +195,7 @@ public final class ParserCPQ extends GenericParser{
 			System.out.println(
 				v.getData() +
 				" has entries " + v.getData().canReachSrc.stream().map(ParserCPQ::edgeToString).toList() +
-				" and exists " + v.getData().canReachTrg.stream().map(ParserCPQ::edgeToString).toList());
+				" and exits " + v.getData().canReachTrg.stream().map(ParserCPQ::edgeToString).toList());
 		}
 		
 		System.out.println("---");
@@ -275,6 +275,8 @@ public final class ParserCPQ extends GenericParser{
 		
 		return null;
 	}
+	
+	
 		
 	//TODO probably ignore src/trg loops here they'll be handled by the caller so not all paralel
 	//(source loops) concat (paths) concat (target loops)
@@ -294,6 +296,30 @@ public final class ParserCPQ extends GenericParser{
 			}
 		}
 		
+		return cpq;
+	}
+	
+	
+	//basically need to cover the entire graph with CPQ semantics and if we manage a full cover we reverse
+	//if we cannot cover its not a CPQ. So basically just apply my original flood mechanism of extending to
+	//all nodes and only advancing when a single exit remains, or if no exists remaing then reverse the complete
+	//graph from that node
+	private static <V> CPQ floodGraph(UniqueGraph<V, Predicate> subgraph, Vertex<V> source){
+		CPQ cpq = null;
+		
+//		while(!source.equals(target)){
+//			assert !source.canReachTrg.isEmpty();
+//			if(source.canReachTrg.size() == 1){
+//				GraphEdge<Vertex<V>, Edge> edge = source.canReachTrg.iterator().next();
+//				cpq = cpq == null ? edge.getData().toCPQ() : CPQ.concat(cpq, edge.getData().toCPQ());
+//				source = edge.getTarget();
+//			}else{
+//				MergePath<V> path = traverseToMerge(source);
+//				cpq = cpq == null ? path.paths() : CPQ.concat(cpq, path.paths());
+//				source = path.mergeNode();
+//			}
+//		}
+//
 		return cpq;
 	}
 	

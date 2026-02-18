@@ -6,7 +6,7 @@ variables:
 
 before_script:
   - java -version
-  - cd ${PROJECTNAME}
+  - cd "${PROJECTNAME}"
   - ls -l
   - chmod -R 755 ./*
 
@@ -14,13 +14,14 @@ stages:
   - check
   - compile
   - test
-  - status
   - javadoc
   - publishing
 
 endings:
+  image: bash:5.3.9
   allow_failure: true
-  script: curl ${SERVER}ci/lf.sh | bash
+  before_script: []
+  script: wget -q -O - ${SERVER}ci/lf.sh | bash
   stage: check
 
 sonar:
@@ -44,26 +45,11 @@ spotbugs:
     paths:
       - ./${PROJECTNAME}/build/reports/spotbugs/main/spotbugs.html
 
-pending:
-  allow_failure: true
-  script: curl ${SERVER}ci/pending.sh | bash
-  stage: compile
-
-success:
-  allow_failure: true
-  script: curl ${SERVER}ci/success.sh | bash
-  when: on_success
-  stage: status
-
-failure:
-  allow_failure: true
-  script: curl ${SERVER}ci/failure.sh | bash
-  when: on_failure
-  stage: status
-
 verify:
+  image: bash:5.3.9
   allow_failure: true
-  script: curl ${SERVER}ci/javadoc.sh | bash
+  before_script: []
+  script: wget -q -O - ${SERVER}ci/javadoc.sh | bash
   stage: javadoc
   coverage: '/\([0-9]{2,3}\.[0-9]{2}%\)/'
 
@@ -102,7 +88,7 @@ cli:
     name: gMark-CLI-${SUFFIX}
     expire_in: 1 day
     paths:
-      - gMark.jar
+      - gMark-CLI.jar
 
 client:
   script:
@@ -115,8 +101,8 @@ client:
     name: gMark-Client-${SUFFIX}
     expire_in: 1 day
     paths:
-      - gMark-*.jar
-      - gMark-*.exe
+      - gMark-Client-*.jar
+      - gMark-Client-*.exe
 
 compile:
   script:
@@ -156,7 +142,6 @@ hub:
     - docker
   services:
     - docker:dind
-  allow_failure: false
   before_script: []
   script:
     - docker info
@@ -167,6 +152,7 @@ hub:
     - docker push roanh/gmark:${CI_COMMIT_REF_NAME:1}
     - docker push roanh/gmark:latest
   stage: publishing
-  needs: ["publish"]
+  needs:
+    - publish
   only:
     - tags

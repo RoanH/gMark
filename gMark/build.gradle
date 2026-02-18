@@ -2,10 +2,10 @@ plugins{
 	id 'java-library'
 	id 'maven-publish'
 	id 'signing'
-	id 'com.github.spotbugs' version '6.0.18'
-	id 'org.sonarqube' version '6.1.0.5360'
-	id 'com.gradleup.shadow' version '8.3.5' apply false
-	id 'edu.sc.seis.launch4j' version '3.0.6' apply false
+	id 'com.github.spotbugs' version '6.4.8'
+	id 'org.sonarqube' version '7.2.1.6560'
+	id 'com.gradleup.shadow' version '9.3.0' apply false
+	id 'edu.sc.seis.launch4j' version '4.0.0' apply false
 }
 
 import com.github.spotbugs.snom.Confidence
@@ -27,7 +27,7 @@ allprojects{
 	compileJava.options.encoding = 'UTF-8'
 	compileTestJava.options.encoding = 'UTF-8'
 	jacocoTestReport.reports.xml.required = true
-	sourceCompatibility = 1.21
+	java.sourceCompatibility = 1.21
 	javadoc.options.memberLevel = JavadocMemberLevel.PRIVATE
 	javadoc.options.encoding = 'UTF-8'
 
@@ -36,7 +36,7 @@ allprojects{
 		if(project.hasProperty("nexusPublic")){
 			maven{
 				allowInsecureProtocol = true
-				url "$nexusPublic"
+				url = "$nexusPublic"
 			}
 		}
 		mavenCentral()
@@ -73,10 +73,6 @@ ext.artifact = 'gmark'
 subprojects{
 	apply plugin: 'application'
 	apply plugin: 'com.gradleup.shadow'
-
-	shadowJar.archiveBaseName = 'gMark'
-	shadowJar.archiveVersion = 'v' + version
-	shadowJar.archiveClassifier = ''
 }
 
 project(':cli'){
@@ -96,10 +92,15 @@ project(':cli'){
 	}
 
 	eclipse.project.name = 'gMark-CLI'
+	shadowJar.archiveBaseName = 'gMark-CLI'
 	application.mainClass = 'dev.roanh.gmark.Main'
 
 	shadowJar{
 		mergeServiceFiles()
+		duplicatesStrategy = DuplicatesStrategy.FAIL
+		filesMatching(["META-INF/**", "OSGI-INF/**", "*.html"]){
+			duplicatesStrategy = DuplicatesStrategy.INCLUDE
+		}
 	}
 }
 
@@ -126,18 +127,23 @@ project(':client'){
 	}
 
 	eclipse.project.name = 'gMark-Client'
+	shadowJar.archiveBaseName = 'gMark-Client'
 	application.mainClass = 'dev.roanh.gmark.client.GraphMark'
 
 	shadowJar{
 		mergeServiceFiles()
+		duplicatesStrategy = DuplicatesStrategy.FAIL
+		filesMatching(["META-INF/**", "OSGI-INF/**", "*.html"]){
+			duplicatesStrategy = DuplicatesStrategy.INCLUDE
+		}
 	}
 
 	launch4j{
 		jarTask = project.tasks.shadowJar
 		mainClassName = application.mainClass
-		jreMinVersion = project.sourceCompatibility.toString()
+		jreMinVersion = project.java.sourceCompatibility.toString()
 		bundledJrePath = "%JAVA_HOME%"
-		outfile = 'gMark-v' + project.version + '.exe'
+		outfile = 'gMark-Client-v' + project.version + '.exe'
 		fileDescription = "gMark-Client"
 		productName = rootProject.name
 		version = project.version

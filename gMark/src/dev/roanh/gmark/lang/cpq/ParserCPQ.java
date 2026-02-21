@@ -275,7 +275,7 @@ public final class ParserCPQ extends GenericParser{
 				}
 			}
 			
-			for(GraphEdge<VertexData<V>, EdgeData> edge : to.getInEdges()){
+			for(GraphEdge<VertexData<V>, EdgeData> edge : from.getInEdges()){
 				if(edge.getSourceNode().equals(to)){
 					edge.getData().addParallel(path.inverse());
 					return;

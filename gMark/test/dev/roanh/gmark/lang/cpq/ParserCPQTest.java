@@ -119,6 +119,30 @@ public class ParserCPQTest{
 		assertEquivalentCPQ("1 ◦ (1 ∩ (2 ◦ (1 ∩ 2 ∩ 3) ◦ 2)) ◦ 1", CPQ.parse(graph, "1s", "6t"));
 	}
 	
+	@Test
+	public void parseGraphParallelPathsAndInverse(){
+		UniqueGraph<String, Predicate> graph = new UniqueGraph<String, Predicate>();
+
+		graph.addUniqueNode("1s");
+		graph.addUniqueNode("2");
+		graph.addUniqueNode("3");
+		graph.addUniqueNode("4");
+		graph.addUniqueNode("5");
+		graph.addUniqueNode("6");
+		graph.addUniqueNode("7t");
+		
+		graph.addUniqueEdge("1s", "2", l1);
+		graph.addUniqueEdge("3", "2", l2);
+		graph.addUniqueEdge("5", "2", l1);
+		graph.addUniqueEdge("3", "4", l1);
+		graph.addUniqueEdge("4", "3", l2);
+		graph.addUniqueEdge("3", "4", l3);
+		graph.addUniqueEdge("4", "6", l2);
+		graph.addUniqueEdge("6", "5", l3);
+		graph.addUniqueEdge("7t", "5", l1);
+		
+		assertEquivalentCPQ("1 ◦ (1⁻ ∩ (2⁻ ◦ (1 ∩ 2⁻ ∩ 3) ◦ 2 ◦ 3)) ◦ 1⁻", CPQ.parse(graph, "1s", "7t"));
+	}
 	
 	
 	

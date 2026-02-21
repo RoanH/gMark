@@ -126,6 +126,7 @@ public abstract interface CPQ extends ReachabilityQueryLanguageSyntax{
 	 */
 	public abstract boolean isLoop();
 	
+	//flips source and target
 	public abstract CPQ inverse();
 	
 	public default CPQ intersect(CPQ other){

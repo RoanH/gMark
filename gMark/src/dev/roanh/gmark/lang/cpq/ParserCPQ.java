@@ -1,4 +1,4 @@
-/*
+/*roma
  * gMark: A domain- and query language-independent query workload generator and query language utility library.
  * Copyright (C) 2021  Roan Hofland (roan@roanh.dev).  All rights reserved.
  * GitHub Repository: https://github.com/RoanH/gMark
@@ -155,10 +155,175 @@ public final class ParserCPQ extends GenericParser{
 		throw new IllegalArgumentException("Invalid CPQ.");
 	}
 	
-	
-	
-	
 	public static <V> CPQ parse(UniqueGraph<V, Predicate> queryGraph, V sourceVertex, V targetVertex){
+		if(!queryGraph.containsNode(sourceVertex) || !queryGraph.containsNode(targetVertex)){
+			throw new IllegalArgumentException("The given source and target vertex do not belong to the query graph.");
+		}
+		
+		ReductionGraph<V> graph = new ReductionGraph<V>(queryGraph, sourceVertex, targetVertex);
+		boolean changed;
+		do{
+			changed = false;
+			for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
+				if(v.getData().vertex == sourceVertex || v.getData().vertex == targetVertex){
+					continue;
+				}
+				
+				//reduce degree 2 vertices
+				if(v.getDegree() == 2){
+					if(v.getInCount() == 2){
+						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getInEdges().iterator();
+						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
+						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
+						graph.addParallel(
+							from.getSourceNode(),
+							to.getSourceNode(),
+							v.getData().concatAfter(from.getData().path).concat(to.getData().path.inverse())//from -> v loops -> to inverse
+						);
+					}else if(v.getOutCount() == 2){
+						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getOutEdges().iterator();
+						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
+						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
+						graph.addParallel(
+							from.getTargetNode(),
+							to.getTargetNode(),
+							v.getData().concatAfter(from.getData().path.inverse()).concat(to.getData().path)//from inverse -> v loops -> to
+						);
+					}else{
+						GraphEdge<VertexData<V>, EdgeData> from = v.getInEdges().iterator().next();
+						GraphEdge<VertexData<V>, EdgeData> to = v.getOutEdges().iterator().next();
+						graph.addParallel(
+							from.getSourceNode(),
+							to.getTargetNode(),
+							v.getData().concatAfter(from.getData().path).concat(to.getData().path)//from -> v loops -> to
+						);
+					}
+					
+					v.remove();
+					changed = true;
+				}
+				
+				//reduce degree 1 vertices
+				
+				
+			}
+		}while(changed);
+		
+		if(sourceVertex.equals(targetVertex) && graph.graph.getNodeCount() == 1 && graph.graph.getEdgeCount() == 0){
+			return graph.graph.getNodes().getFirst().getData().loops;
+		}else if(!sourceVertex.equals(targetVertex) && graph.graph.getNodeCount() == 2 && graph.graph.getEdgeCount() == 1){
+			CPQ path = graph.graph.getEdges().getFirst().getData().path;
+			if(graph.source.getInCount() == 1){
+				//flip the edges as we walked it from target to source
+				path = path.inverse();
+			}
+			
+			return graph.target.getData().concatAfter(graph.source.getData().concatBefore(path));//src loops -> path -> trg loops
+		}
+		
+		throw new IllegalArgumentException("The given input graph does represent a valid CPQ.");
+	}
+	
+	private static class ReductionGraph<V>{
+		private final UniqueGraph<VertexData<V>, EdgeData> graph = new UniqueGraph<ParserCPQ.VertexData<V>, ParserCPQ.EdgeData>();
+		private final GraphNode<VertexData<V>, EdgeData> source;
+		private final GraphNode<VertexData<V>, EdgeData> target;
+		
+		private ReductionGraph(UniqueGraph<V, Predicate> queryGraph, V source, V target){
+			Map<V, VertexData<V>> transform = new HashMap<V, VertexData<V>>();
+			
+			for(GraphNode<V, Predicate> node : queryGraph.getNodes()){
+				VertexData<V> data = new VertexData<V>(node.getData());
+				graph.addUniqueNode(data);
+				transform.put(data.vertex, data);
+			}
+			
+			this.source = graph.getNode(transform.get(source));
+			this.target = graph.getNode(transform.get(target));
+			
+			//collapse parallel edges
+			for(GraphEdge<V, Predicate> edge : queryGraph.getEdges()){
+				addParallel(
+					graph.getNode(transform.get(edge.getSource())),
+					graph.getNode(transform.get(edge.getTarget())),
+					CPQ.label(edge.getData())
+				);
+			}
+		}
+		
+		private List<GraphNode<VertexData<V>, EdgeData>> getNodes(){
+			//this has to be co-mod safe
+			return List.copyOf(graph.getNodes());
+		}
+		
+		private List<GraphEdge<VertexData<V>, EdgeData>> getEdges(){
+			//this has to be co-mod safe
+			return List.copyOf(graph.getEdges());
+		}
+		
+		private void addParallel(GraphNode<VertexData<V>, EdgeData> from, GraphNode<VertexData<V>, EdgeData> to, CPQ path){
+			GraphEdge<VertexData<V>, EdgeData> canon = from.getEdgeTo(to.getData());
+			if(canon != null){
+				canon.getData().addParallel(path);
+			}
+			
+			canon = to.getEdgeTo(from.getData());
+			if(canon != null){
+				canon.getData().addParallel(path.inverse());
+			}
+			
+			from.addUniqueEdgeTo(to, new EdgeData(path));
+		}
+	}
+	
+	private static class VertexData<V>{
+		private final V vertex;
+		private CPQ loops;
+		
+		private VertexData(V vertex){
+			this.vertex = vertex;
+		}
+		
+		private void addLoop(EdgeData edge){
+			if(loops == null){
+				loops = CPQ.id();
+			}
+			
+			loops = loops.intersect(edge.path);
+		}
+		
+		private CPQ concatAfter(CPQ first){
+			return loops == null ? first : first.concat(loops);
+		}
+		
+		private CPQ concatBefore(CPQ second){
+			return loops == null ? second : loops.concat(second);
+		}
+	}
+	
+	private static class EdgeData{
+		private CPQ path;
+		
+		private EdgeData(CPQ path){
+			this.path = path;
+		}
+		
+		private void addParallel(CPQ parallel){
+			path = path.intersect(parallel);
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	public static <V> CPQ parseOld(UniqueGraph<V, Predicate> queryGraph, V sourceVertex, V targetVertex){
 		UniqueGraph<Vertex<V>, Edge> graph = queryGraph.copy(Vertex::new, Edge::new);
 		graph.getNodes().forEach(n->n.getData().node = n);
 		
@@ -305,6 +470,7 @@ public final class ParserCPQ extends GenericParser{
 	//all nodes and only advancing when a single exit remains, or if no exists remaing then reverse the complete
 	//graph from that node
 	//actually no, the last path at the final node returns via the intersection of the others
+	//this should be SPII recognition
 	private static <V> CPQ floodGraph(UniqueGraph<V, Predicate> subgraph, Vertex<V> source){
 		CPQ cpq = null;
 		

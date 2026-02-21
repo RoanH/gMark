@@ -30,6 +30,7 @@ import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.lang.cq.CQ;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 
 /**
  * Interface for conjunctive path queries (CPQs).
@@ -310,5 +311,9 @@ public abstract interface CPQ extends ReachabilityQueryLanguageSyntax{
 		default:
 			throw new IllegalArgumentException("The given AST contains operations that are not part of the CPQ query language.");
 		}
+	}
+	
+	public static <V> CPQ parse(UniqueGraph<V, Predicate> queryGraph, V sourceVertex, V targetVertex){
+		return ParserCPQ.parse(queryGraph, sourceVertex, targetVertex);
 	}
 }

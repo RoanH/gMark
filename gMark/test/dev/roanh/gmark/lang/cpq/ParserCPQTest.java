@@ -21,6 +21,9 @@ package dev.roanh.gmark.lang.cpq;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +33,8 @@ import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 
 public class ParserCPQTest{
+	private static final Predicate l1 = new Predicate(1, "1");
+	private static final Predicate l2 = new Predicate(2, "2");
 
 	@Test
 	public void parse0(){
@@ -74,12 +79,31 @@ public class ParserCPQTest{
 		);
 	}
 	
+	@Test
+	public void parseGraphSimpleChain(){
+		UniqueGraph<String, Predicate> graph = new UniqueGraph<String, Predicate>();
+
+		graph.addUniqueNode("1s");
+		graph.addUniqueNode("2");
+		graph.addUniqueNode("3");
+		graph.addUniqueNode("4t");
+		
+		graph.addUniqueEdge("1s", "2", l1);
+		graph.addUniqueEdge("2", "3", l2);
+		graph.addUniqueEdge("3", "4t", l1);
+		
+		assertEquivalentCPQ(CPQ.parse("1 ◦ 2 ◦ 1", List.of(l1, l2)), CPQ.parse(graph, "1s", "4t"));
+	}
+	
+	
+	
+	
+	
+	
 	
 	@Test
-	public void parseGraph0(){
+	public void parseGraph10(){
 		UniqueGraph<String, Predicate> graph = new UniqueGraph<String, Predicate>();
-		Predicate l1 = new Predicate(1, "1");
-		Predicate l2 = new Predicate(2, "2");
 
 		graph.addUniqueNode("1s");
 		graph.addUniqueNode("2");
@@ -159,4 +183,9 @@ public class ParserCPQTest{
 	//TODO recog test with top level loop
 
 	//TODO random -> graph -> parse -> equals
+	
+	private static void assertEquivalentCPQ(CPQ expected, CPQ actual){
+		assertTrue(expected.isHomomorphicTo(actual), expected + " vs " + actual);
+		assertTrue(actual.isHomomorphicTo(expected), expected + " vs " + actual);
+	}
 }

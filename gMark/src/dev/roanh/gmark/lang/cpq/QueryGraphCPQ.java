@@ -342,6 +342,10 @@ public class QueryGraphCPQ{
 		//a non empty root implies query homomorphism
 		return maps.getData().matches.length != 0;
 	}
+	
+	public CPQ toCPQ(){
+		return CPQ.parse(toUniqueGraph(), source, target);
+	}
 		
 	/**
 	 * Computes mappings from the vertices and edges of this graph to similar

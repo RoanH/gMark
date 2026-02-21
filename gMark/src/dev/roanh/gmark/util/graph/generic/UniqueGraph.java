@@ -524,6 +524,17 @@ public class UniqueGraph<V, E>{
 		}
 		
 		/**
+		 * Gets the degree of node vertex, i.e., the sum of the number
+		 * of incoming edges and outgoing edges for this vertex.
+		 * @return The degree of this node
+		 * @see #getInCount()
+		 * @see #getOutCount()
+		 */
+		public int getDegree(){
+			return in.size() + out.size();
+		}
+		
+		/**
 		 * Gets all the outgoing edges for this node.
 		 * @return All the outgoing edges for this node.
 		 */

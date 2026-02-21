@@ -35,6 +35,7 @@ import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 public class ParserCPQTest{
 	private static final Predicate l1 = new Predicate(1, "1");
 	private static final Predicate l2 = new Predicate(2, "2");
+	private static final Predicate l3 = new Predicate(3, "3");
 
 	@Test
 	public void parse0(){
@@ -92,10 +93,31 @@ public class ParserCPQTest{
 		graph.addUniqueEdge("2", "3", l2);
 		graph.addUniqueEdge("3", "4t", l1);
 		
-		assertEquivalentCPQ(CPQ.parse("1 ◦ 2 ◦ 1", List.of(l1, l2)), CPQ.parse(graph, "1s", "4t"));
+		assertEquivalentCPQ("1 ◦ 2 ◦ 1", CPQ.parse(graph, "1s", "4t"));
 	}
 	
-	
+	@Test
+	public void parseGraphParallelPaths(){
+		UniqueGraph<String, Predicate> graph = new UniqueGraph<String, Predicate>();
+
+		graph.addUniqueNode("1s");
+		graph.addUniqueNode("2");
+		graph.addUniqueNode("3");
+		graph.addUniqueNode("4");
+		graph.addUniqueNode("5");
+		graph.addUniqueNode("6t");
+		
+		graph.addUniqueEdge("1s", "2", l1);
+		graph.addUniqueEdge("2", "3", l2);
+		graph.addUniqueEdge("2", "5", l1);
+		graph.addUniqueEdge("3", "4", l1);
+		graph.addUniqueEdge("3", "4", l2);
+		graph.addUniqueEdge("3", "4", l3);
+		graph.addUniqueEdge("4", "5", l2);
+		graph.addUniqueEdge("5", "6t", l1);
+		
+		assertEquivalentCPQ("1 ◦ (1 ∩ (2 ◦ (1 ∩ 2 ∩ 3) ◦ 2)) ◦ 1", CPQ.parse(graph, "1s", "6t"));
+	}
 	
 	
 	
@@ -184,8 +206,9 @@ public class ParserCPQTest{
 
 	//TODO random -> graph -> parse -> equals
 	
-	private static void assertEquivalentCPQ(CPQ expected, CPQ actual){
-		assertTrue(expected.isHomomorphicTo(actual), expected + " vs " + actual);
-		assertTrue(actual.isHomomorphicTo(expected), expected + " vs " + actual);
+	private static void assertEquivalentCPQ(String expected, CPQ actual){
+		CPQ exp = CPQ.parse(expected, List.of(l1, l2, l3));
+		assertTrue(exp.isHomomorphicTo(actual), exp + " vs " + actual);
+		assertTrue(actual.isHomomorphicTo(exp), exp + " vs " + actual);
 	}
 }

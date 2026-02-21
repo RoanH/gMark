@@ -192,6 +192,11 @@ public final class ParserCPQ extends GenericParser{
 					}else{
 						GraphEdge<VertexData<V>, EdgeData> from = v.getInEdges().iterator().next();
 						GraphEdge<VertexData<V>, EdgeData> to = v.getOutEdges().iterator().next();
+						if(from.getSourceNode().equals(to.getTargetNode())){
+							//self loops should not be handled here
+							continue;//TODO add a test that triggers this
+						}
+						
 						graph.addParallel(
 							from.getSourceNode(),
 							to.getTargetNode(),
@@ -201,6 +206,7 @@ public final class ParserCPQ extends GenericParser{
 					
 					v.remove();
 					changed = true;
+					continue;
 				}
 				
 				//reduce degree 1 vertices
@@ -221,7 +227,7 @@ public final class ParserCPQ extends GenericParser{
 			return graph.target.getData().concatAfter(graph.source.getData().concatBefore(path));//src loops -> path -> trg loops
 		}
 		
-		throw new IllegalArgumentException("The given input graph does represent a valid CPQ.");
+		throw new IllegalArgumentException("The given input graph does not represent a valid CPQ.");
 	}
 	
 	private static class ReductionGraph<V>{
@@ -262,14 +268,18 @@ public final class ParserCPQ extends GenericParser{
 		}
 		
 		private void addParallel(GraphNode<VertexData<V>, EdgeData> from, GraphNode<VertexData<V>, EdgeData> to, CPQ path){
-			GraphEdge<VertexData<V>, EdgeData> canon = from.getEdgeTo(to.getData());
-			if(canon != null){
-				canon.getData().addParallel(path);
+			for(GraphEdge<VertexData<V>, EdgeData> edge : from.getOutEdges()){
+				if(edge.getTargetNode().equals(to)){
+					edge.getData().addParallel(path);
+					return;
+				}
 			}
 			
-			canon = to.getEdgeTo(from.getData());
-			if(canon != null){
-				canon.getData().addParallel(path.inverse());
+			for(GraphEdge<VertexData<V>, EdgeData> edge : to.getInEdges()){
+				if(edge.getSourceNode().equals(to)){
+					edge.getData().addParallel(path.inverse());
+					return;
+				}
 			}
 			
 			from.addUniqueEdgeTo(to, new EdgeData(path));

@@ -691,7 +691,7 @@ public class UniqueGraph<V, E>{
 		
 		/**
 		 * Removes this node from the graph. After removal
-		 * this node still references remaining graph nodes.
+		 * this edge still references remaining graph nodes.
 		 */
 		public void remove(){
 			source.out.remove(this);

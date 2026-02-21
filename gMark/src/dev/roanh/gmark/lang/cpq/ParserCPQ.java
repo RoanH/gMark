@@ -164,6 +164,7 @@ public final class ParserCPQ extends GenericParser{
 		boolean changed;
 		do{
 			changed = false;
+			
 			for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
 				if(v.getData().vertex == sourceVertex || v.getData().vertex == targetVertex){
 					continue;
@@ -212,6 +213,14 @@ public final class ParserCPQ extends GenericParser{
 				//reduce degree 1 vertices
 				
 				
+			}
+			
+			//handle fully reduced loops
+			for(GraphEdge<VertexData<V>, EdgeData> edge : graph.getEdges()){
+				if(edge.getSourceNode().equals(edge.getTargetNode())){
+					edge.getSource().addLoop(edge.getData());
+					edge.remove();
+				}
 			}
 		}while(changed);
 		

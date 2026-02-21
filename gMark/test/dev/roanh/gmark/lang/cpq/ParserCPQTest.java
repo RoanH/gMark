@@ -144,7 +144,15 @@ public class ParserCPQTest{
 		assertEquivalentCPQ("1 ◦ (1⁻ ∩ (2⁻ ◦ (1 ∩ 2⁻ ∩ 3) ◦ 2 ◦ 3)) ◦ 1⁻", CPQ.parse(graph, "1s", "7t"));
 	}
 	
-	
+	@Test
+	public void parseGraphSimpleSelfLoop(){
+		UniqueGraph<String, Predicate> graph = new UniqueGraph<String, Predicate>();
+
+		graph.addUniqueNode("1st");
+		graph.addUniqueEdge("1st", "1st", l1);
+		
+		assertEquivalentCPQ("1 ∩ id", CPQ.parse(graph, "1st", "1st"));
+	}
 	
 	
 	@Test

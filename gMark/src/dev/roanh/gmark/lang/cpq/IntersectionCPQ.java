@@ -52,6 +52,11 @@ public class IntersectionCPQ implements CPQ{
 	}
 	
 	@Override
+	public CPQ inverse(){
+		return new IntersectionCPQ(cpq.stream().map(CPQ::inverse).toList());
+	}
+	
+	@Override
 	public void writeSQL(IndentWriter writer){
 		writer.println("SELECT src, trg FROM (", 2);
 		for(int i = 0; i < cpq.size(); i++){

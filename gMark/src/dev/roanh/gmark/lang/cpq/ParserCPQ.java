@@ -170,8 +170,8 @@ public final class ParserCPQ extends GenericParser{
 					continue;
 				}
 				
-				//reduce degree 2 vertices
 				if(v.getDegree() == 2){
+					//reduce degree 2 vertices
 					if(v.getInCount() == 2){
 						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getInEdges().iterator();
 						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
@@ -193,11 +193,6 @@ public final class ParserCPQ extends GenericParser{
 					}else{
 						GraphEdge<VertexData<V>, EdgeData> from = v.getInEdges().iterator().next();
 						GraphEdge<VertexData<V>, EdgeData> to = v.getOutEdges().iterator().next();
-						if(from.getSourceNode().equals(to.getTargetNode())){
-							//self loops should not be handled here
-							continue;//TODO add a test that triggers this
-						}
-						
 						graph.addParallel(
 							from.getSourceNode(),
 							to.getTargetNode(),
@@ -207,12 +202,23 @@ public final class ParserCPQ extends GenericParser{
 					
 					v.remove();
 					changed = true;
-					continue;
+				}else if(v.getDegree() == 1){
+					//reduce degree 1 vertices
+					GraphEdge<VertexData<V>, EdgeData> edge;
+					GraphNode<VertexData<V>, EdgeData> base;
+					if(v.getInCount() == 1){
+						edge = v.getInEdges().iterator().next();
+						base = edge.getSourceNode();
+					}else{
+						edge = v.getOutEdges().iterator().next();
+						base = edge.getTargetNode();
+					}
+					
+					//base --path-> v loops --path inv-> base
+					base.getData().addLoop(v.getData().concatAfter(edge.getData().path).concat(edge.getData().path.inverse()));
+					v.remove();
+					changed = true;
 				}
-				
-				//reduce degree 1 vertices
-				
-				
 			}
 			
 			//handle fully reduced loops
@@ -220,9 +226,20 @@ public final class ParserCPQ extends GenericParser{
 				if(edge.getSourceNode().equals(edge.getTargetNode())){
 					edge.getSource().addLoop(edge.getData());
 					edge.remove();
+					changed = true;
 				}
 			}
+			
+			
+//			GraphPanel.show(graph.graph.copy());
 		}while(changed);
+		
+//		try{
+//			Thread.sleep(Duration.ofMinutes(38279));
+//		}catch(InterruptedException e){
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		if(sourceVertex.equals(targetVertex) && graph.graph.getNodeCount() == 1 && graph.graph.getEdgeCount() == 0){
 			return graph.graph.getNodes().getFirst().getData().loops;
@@ -304,11 +321,15 @@ public final class ParserCPQ extends GenericParser{
 		}
 		
 		private void addLoop(EdgeData edge){
+			addLoop(edge.path);
+		}
+		
+		private void addLoop(CPQ path){
 			if(loops == null){
 				loops = CPQ.id();
 			}
 			
-			loops = loops.intersect(edge.path);
+			loops = loops.intersect(path);
 		}
 		
 		private CPQ concatAfter(CPQ first){

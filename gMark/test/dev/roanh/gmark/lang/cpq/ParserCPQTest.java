@@ -154,6 +154,73 @@ public class ParserCPQTest{
 		assertEquivalentCPQ("1 ∩ id", CPQ.parse(graph, "1st", "1st"));
 	}
 	
+	@Test
+	public void parseGraphInnerLoop(){
+		UniqueGraph<String, Predicate> graph = new UniqueGraph<String, Predicate>();
+
+		graph.addUniqueNode("1s");
+		graph.addUniqueNode("2");
+		graph.addUniqueNode("3t");
+		
+		graph.addUniqueEdge("1s", "2", l2);
+		graph.addUniqueEdge("2", "2", l1);
+		graph.addUniqueEdge("2", "3t", l3);
+		
+		assertEquivalentCPQ("2 ◦ (1 ∩ id) ◦ 3", CPQ.parse(graph, "1s", "3t"));
+	}
+	
+	@Test
+	public void parseGraphNestedLoops(){
+		UniqueGraph<String, Predicate> graph = new UniqueGraph<String, Predicate>();
+
+		graph.addUniqueNode("1s");
+		graph.addUniqueNode("2");
+		graph.addUniqueNode("3t");
+		graph.addUniqueNode("4");
+		graph.addUniqueNode("5");
+		
+		graph.addUniqueEdge("1s", "2", l1);
+		graph.addUniqueEdge("2", "2", l1);
+		graph.addUniqueEdge("3t", "2", l1);
+		graph.addUniqueEdge("4", "2", l2);
+		graph.addUniqueEdge("5", "2", l3);
+		graph.addUniqueEdge("4", "5", l2);
+		graph.addUniqueEdge("4", "4", l1);
+		graph.addUniqueEdge("4", "4", l2);
+		graph.addUniqueEdge("4", "4", l3);
+		
+		assertEquivalentCPQ("1 ◦ (1⁻ ∩ (2⁻ ◦ (1 ∩ 2⁻ ∩ 3 ∩ id) ◦ 2 ◦ 3) ∩ id) ◦ 1⁻", CPQ.parse(graph, "1s", "3t"));
+	}
+	
+	@Test
+	public void parseGraphReturnLoop(){
+		UniqueGraph<String, Predicate> graph = new UniqueGraph<String, Predicate>();
+
+		graph.addUniqueNode("1st");
+		graph.addUniqueNode("2");
+		graph.addUniqueNode("3");
+		
+		graph.addUniqueEdge("1st", "2", l1);
+		graph.addUniqueEdge("2", "3", l2);
+		graph.addUniqueEdge("3", "1st", l3);
+		
+		assertEquivalentCPQ("(1 ◦ 2 ◦ 3) ∩ id", CPQ.parse(graph, "1st", "1st"));
+	}
+	
+	@Test
+	public void parseGraphReturnLoopEdge(){
+		UniqueGraph<String, Predicate> graph = new UniqueGraph<String, Predicate>();
+
+		graph.addUniqueNode("1st");
+		graph.addUniqueNode("2");
+		
+		graph.addUniqueEdge("1st", "2", l1);
+		graph.addUniqueEdge("2", "1st", l3);
+		
+		assertEquivalentCPQ("(1 ◦ 3) ∩ id", CPQ.parse(graph, "1st", "1st"));
+	}
+	
+	
 	
 	@Test
 	public void parseGraph10(){

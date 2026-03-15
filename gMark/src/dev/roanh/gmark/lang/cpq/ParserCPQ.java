@@ -176,6 +176,7 @@ public final class ParserCPQ extends GenericParser{
 						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getInEdges().iterator();
 						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
 						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
+						System.out.println("reduce by parallel in 2");
 						graph.addParallel(
 							from.getSourceNode(),
 							to.getSourceNode(),
@@ -185,6 +186,7 @@ public final class ParserCPQ extends GenericParser{
 						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getOutEdges().iterator();
 						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
 						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
+						System.out.println("reduce by parallel out 2");
 						graph.addParallel(
 							from.getTargetNode(),
 							to.getTargetNode(),
@@ -193,6 +195,7 @@ public final class ParserCPQ extends GenericParser{
 					}else{
 						GraphEdge<VertexData<V>, EdgeData> from = v.getInEdges().iterator().next();
 						GraphEdge<VertexData<V>, EdgeData> to = v.getOutEdges().iterator().next();
+						System.out.println("reduce by parallel in-out / " + v.getData().vertex.toString() + " / " + from.getData().path + " | " + to.getData().path..);
 						graph.addParallel(
 							from.getSourceNode(),
 							to.getTargetNode(),
@@ -214,6 +217,8 @@ public final class ParserCPQ extends GenericParser{
 						base = edge.getTargetNode();
 					}
 					
+					System.out.println("reduce degree 1");
+					
 					//base --path-> v loops --path inv-> base
 					base.getData().addLoop(v.getData().concatAfter(edge.getData().path).concat(edge.getData().path.inverse()));
 					v.remove();
@@ -227,6 +232,7 @@ public final class ParserCPQ extends GenericParser{
 					edge.getSource().addLoop(edge.getData());
 					edge.remove();
 					changed = true;
+					System.out.println("reduce loop edge");
 				}
 			}
 			
@@ -260,6 +266,7 @@ public final class ParserCPQ extends GenericParser{
 		private final UniqueGraph<VertexData<V>, EdgeData> graph = new UniqueGraph<ParserCPQ.VertexData<V>, ParserCPQ.EdgeData>();
 		private final GraphNode<VertexData<V>, EdgeData> source;
 		private final GraphNode<VertexData<V>, EdgeData> target;
+		private final Set<GraphNode<VertexData<V>, EdgeData>> articulationPoints;
 		
 		private ReductionGraph(UniqueGraph<V, Predicate> queryGraph, V source, V target){
 			Map<V, VertexData<V>> transform = new HashMap<V, VertexData<V>>();
@@ -281,6 +288,10 @@ public final class ParserCPQ extends GenericParser{
 					CPQ.label(edge.getData())
 				);
 			}
+			
+			System.out.println("run");
+			
+			articulationPoints = new HashSet<GraphNode<VertexData<V>, EdgeData>>(Util.computeArticulationPoints(graph));
 		}
 		
 		private List<GraphNode<VertexData<V>, EdgeData>> getNodes(){
@@ -294,13 +305,14 @@ public final class ParserCPQ extends GenericParser{
 		}
 		
 		private void addParallel(GraphNode<VertexData<V>, EdgeData> from, GraphNode<VertexData<V>, EdgeData> to, CPQ path){
+			System.out.println("parallel: " + from + " / " + from.getID() + " - " + to + " / " + to.getID() + " as " + path);
 			for(GraphEdge<VertexData<V>, EdgeData> edge : from.getOutEdges()){
 				if(edge.getTargetNode().equals(to)){
 					edge.getData().addParallel(path);
 					return;
 				}
 			}
-			
+
 			for(GraphEdge<VertexData<V>, EdgeData> edge : from.getInEdges()){
 				if(edge.getSourceNode().equals(to)){
 					edge.getData().addParallel(path.inverse());
@@ -308,6 +320,10 @@ public final class ParserCPQ extends GenericParser{
 				}
 			}
 			
+			//TODO I can make an orientation rule that edges are always directed from low node ID to high node ID with inversions as needed
+			//then for parallel reduction I only need to check outgoing lists of a node
+			//fixing my current bug would mean preferring concat and loop reduction over parallel reduction
+				
 			from.addUniqueEdgeTo(to, new EdgeData(path));
 		}
 	}

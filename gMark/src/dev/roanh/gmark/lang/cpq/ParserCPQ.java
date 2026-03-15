@@ -25,6 +25,7 @@ import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_JOIN;
 import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -177,7 +178,7 @@ public final class ParserCPQ extends GenericParser{
 						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
 						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
 						System.out.println("reduce by parallel in 2");
-						graph.addParallel(
+						graph.addEdge(
 							from.getSourceNode(),
 							to.getSourceNode(),
 							v.getData().concatAfter(from.getData().path).concat(to.getData().path.inverse())//from -> v loops -> to inverse
@@ -187,7 +188,7 @@ public final class ParserCPQ extends GenericParser{
 						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
 						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
 						System.out.println("reduce by parallel out 2");
-						graph.addParallel(
+						graph.addEdge(
 							from.getTargetNode(),
 							to.getTargetNode(),
 							v.getData().concatAfter(from.getData().path.inverse()).concat(to.getData().path)//from inverse -> v loops -> to
@@ -195,8 +196,8 @@ public final class ParserCPQ extends GenericParser{
 					}else{
 						GraphEdge<VertexData<V>, EdgeData> from = v.getInEdges().iterator().next();
 						GraphEdge<VertexData<V>, EdgeData> to = v.getOutEdges().iterator().next();
-						System.out.println("reduce by parallel in-out / " + v.getData().vertex.toString() + " / " + from.getData().path + " | " + to.getData().path..);
-						graph.addParallel(
+						System.out.println("reduce by parallel in-out / " + v.getData().vertex.toString() + " / " + from.getData().path + " | " + to.getData().path);
+						graph.addEdge(
 							from.getSourceNode(),
 							to.getTargetNode(),
 							v.getData().concatAfter(from.getData().path).concat(to.getData().path)//from -> v loops -> to
@@ -236,6 +237,26 @@ public final class ParserCPQ extends GenericParser{
 				}
 			}
 			
+			if(!changed){
+				for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
+					if(v.getOutEdges().size() >= 2){
+						Iterator<GraphEdge<VertexData<V>, EdgeData>> edges = v.getOutEdges().stream().sorted(Comparator.comparingInt(e->e.getTargetNode().getID())).iterator();
+						
+						GraphEdge<VertexData<V>, EdgeData> last = edges.next();
+						while(edges.hasNext()){
+							GraphEdge<VertexData<V>, EdgeData> next = edges.next();
+							if(next.getTargetNode().getID() == last.getTargetNode().getID()){
+								last.getData().addParallel(next.getData().path);
+								next.remove();
+								changed = true;
+								System.out.println("collapse parallel");
+							}else{
+								last = next;
+							}
+						}
+					}
+				}
+			}
 			
 //			GraphPanel.show(graph.graph.copy());
 		}while(changed);
@@ -280,9 +301,8 @@ public final class ParserCPQ extends GenericParser{
 			this.source = graph.getNode(transform.get(source));
 			this.target = graph.getNode(transform.get(target));
 			
-			//collapse parallel edges
 			for(GraphEdge<V, Predicate> edge : queryGraph.getEdges()){
-				addParallel(
+				addEdge(
 					graph.getNode(transform.get(edge.getSource())),
 					graph.getNode(transform.get(edge.getTarget())),
 					CPQ.label(edge.getData())
@@ -304,6 +324,16 @@ public final class ParserCPQ extends GenericParser{
 			return List.copyOf(graph.getEdges());
 		}
 		
+		//orient edges from low ID to high ID (invert if needed)
+		private void addEdge(GraphNode<VertexData<V>, EdgeData> from, GraphNode<VertexData<V>, EdgeData> to, CPQ path){
+			if(from.getID() <= to.getID()){
+				from.addUniqueEdgeTo(to, new EdgeData(path));
+			}else{
+				to.addUniqueEdgeTo(from, new EdgeData(path.inverse()));
+			}
+		}
+		
+		@Deprecated
 		private void addParallel(GraphNode<VertexData<V>, EdgeData> from, GraphNode<VertexData<V>, EdgeData> to, CPQ path){
 			System.out.println("parallel: " + from + " / " + from.getID() + " - " + to + " / " + to.getID() + " as " + path);
 			for(GraphEdge<VertexData<V>, EdgeData> edge : from.getOutEdges()){

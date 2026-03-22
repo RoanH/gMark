@@ -174,6 +174,7 @@ public final class ParserCPQ extends GenericParser{
 				if(v.getDegree() == 2){
 					//reduce degree 2 vertices
 					if(v.getInCount() == 2){
+						//from -> v loops -> to inverse
 						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getInEdges().iterator();
 						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
 						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
@@ -181,9 +182,14 @@ public final class ParserCPQ extends GenericParser{
 						graph.addEdge(
 							from.getSourceNode(),
 							to.getSourceNode(),
-							v.getData().concatAfter(from.getData().path).concat(to.getData().path.inverse())//from -> v loops -> to inverse
+							concat(
+								from.getData().path,
+								v.getData().loops,
+								to.getData().path.inverse()
+							)
 						);
 					}else if(v.getOutCount() == 2){
+						//from inverse -> v loops -> to
 						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getOutEdges().iterator();
 						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
 						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
@@ -191,16 +197,25 @@ public final class ParserCPQ extends GenericParser{
 						graph.addEdge(
 							from.getTargetNode(),
 							to.getTargetNode(),
-							v.getData().concatAfter(from.getData().path.inverse()).concat(to.getData().path)//from inverse -> v loops -> to
+							concat(
+								from.getData().path.inverse(),
+								v.getData().loops,
+								to.getData().path
+							)
 						);
 					}else{
+						//from -> v loops -> to
 						GraphEdge<VertexData<V>, EdgeData> from = v.getInEdges().iterator().next();
 						GraphEdge<VertexData<V>, EdgeData> to = v.getOutEdges().iterator().next();
 						System.out.println("reduce by parallel in-out / " + v.getData().vertex.toString() + " / " + from.getData().path + " | " + to.getData().path);
 						graph.addEdge(
 							from.getSourceNode(),
 							to.getTargetNode(),
-							v.getData().concatAfter(from.getData().path).concat(to.getData().path)//from -> v loops -> to
+							concat(
+								from.getData().path,
+								v.getData().loops,
+								to.getData().path
+							)
 						);
 					}
 					
@@ -211,11 +226,19 @@ public final class ParserCPQ extends GenericParser{
 					if(v.getInCount() == 1){
 						//base --path-> v loops --path inv-> base
 						GraphEdge<VertexData<V>, EdgeData> edge = v.getInEdges().iterator().next();
-						edge.getSourceNode().getData().addLoop(v.getData().concatAfter(edge.getData().path).concat(edge.getData().path.inverse()));
+						edge.getSourceNode().getData().addLoop(concat(
+							edge.getData().path,
+							v.getData().loops,
+							edge.getData().path.inverse()
+						));
 					}else{
 						//base --path inv-> v loops --path-> base
 						GraphEdge<VertexData<V>, EdgeData> edge = v.getOutEdges().iterator().next();
-						edge.getTargetNode().getData().addLoop(v.getData().concatAfter(edge.getData().path.inverse()).concat(edge.getData().path));
+						edge.getTargetNode().getData().addLoop(concat(
+							edge.getData().path.inverse(),
+							v.getData().loops,
+							edge.getData().path
+						));
 					}
 					
 					System.out.println("reduce degree 1");
@@ -254,16 +277,7 @@ public final class ParserCPQ extends GenericParser{
 					}
 				}
 			}
-			
-//			GraphPanel.show(graph.graph.copy());
 		}while(changed);
-		
-//		try{
-//			Thread.sleep(Duration.ofMinutes(38279));
-//		}catch(InterruptedException e){
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 		
 		if(sourceVertex.equals(targetVertex) && graph.graph.getNodeCount() == 1 && graph.graph.getEdgeCount() == 0){
 			return graph.graph.getNodes().getFirst().getData().loops;
@@ -274,17 +288,35 @@ public final class ParserCPQ extends GenericParser{
 				path = path.inverse();
 			}
 			
-			return graph.target.getData().concatAfter(graph.source.getData().concatBefore(path));//src loops -> path -> trg loops
+			//src loops -> path -> trg loops
+			return concat(
+				graph.source.getData().loops,
+				path,
+				graph.target.getData().loops
+			);
 		}
 		
 		throw new IllegalArgumentException("The given input graph does not represent a valid CPQ.");
+	}
+	
+	private static CPQ concat(CPQ first, CPQ second, CPQ third){
+		CPQ q = first;
+		
+		if(second != null){
+			q = q == null ? second : CPQ.concat(q, second);
+		}
+		
+		if(third != null){
+			q = q == null ? third : CPQ.concat(q, third);
+		}
+		
+		return q;
 	}
 	
 	private static class ReductionGraph<V>{
 		private final UniqueGraph<VertexData<V>, EdgeData> graph = new UniqueGraph<ParserCPQ.VertexData<V>, ParserCPQ.EdgeData>();
 		private final GraphNode<VertexData<V>, EdgeData> source;
 		private final GraphNode<VertexData<V>, EdgeData> target;
-		private final Set<GraphNode<VertexData<V>, EdgeData>> articulationPoints;
 		
 		private ReductionGraph(UniqueGraph<V, Predicate> queryGraph, V source, V target){
 			Map<V, VertexData<V>> transform = new HashMap<V, VertexData<V>>();
@@ -307,8 +339,6 @@ public final class ParserCPQ extends GenericParser{
 			}
 			
 			System.out.println("run");
-			
-			articulationPoints = new HashSet<GraphNode<VertexData<V>, EdgeData>>(Util.computeArticulationPoints(graph));
 		}
 		
 		private List<GraphNode<VertexData<V>, EdgeData>> getNodes(){
@@ -372,16 +402,16 @@ public final class ParserCPQ extends GenericParser{
 				loops = CPQ.id();
 			}
 			
-			loops = loops.intersect(path);
+			loops = CPQ.intersect(loops, path);
 		}
 		
-		private CPQ concatAfter(CPQ first){
-			return loops == null ? first : first.concat(loops);
-		}
-		
-		private CPQ concatBefore(CPQ second){
-			return loops == null ? second : loops.concat(second);
-		}
+//		private CPQ concatAfter(CPQ first){
+//			return loops == null ? first : first.concat(loops);
+//		}
+//
+//		private CPQ concatBefore(CPQ second){
+//			return loops == null ? second : loops.concat(second);
+//		}
 	}
 	
 	private static class EdgeData{
@@ -392,7 +422,7 @@ public final class ParserCPQ extends GenericParser{
 		}
 		
 		private void addParallel(CPQ parallel){
-			path = path.intersect(parallel);
+			path = CPQ.intersect(path, parallel);
 		}
 	}
 	

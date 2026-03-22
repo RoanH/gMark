@@ -264,7 +264,7 @@ public class ParserCPQTest{
 	
 	@Test
 	public void parseGraphCQ(){
-		QueryGraphCQ q = CQ.parse("(src, trg) ← 1(src, b1), 1(b1, trg), 2(src, b2), 2(b2, trg)").toQueryGraph();
+		QueryGraphCQ q = CQ.parse("(src, trg) ← 1(src, b1), 1(b1, trg), 2(src, b2), 2(b2, trg)", List.of(l1, l2, l3)).toQueryGraph();
 		assertEquivalentCPQ("((2◦2) ∩ (1◦1))", CPQ.parse(q.toUniqueGraph().copy(Function.identity(), AtomCQ::getLabel), q.getVariable("src"), q.getVariable("trg")));
 	}
 	

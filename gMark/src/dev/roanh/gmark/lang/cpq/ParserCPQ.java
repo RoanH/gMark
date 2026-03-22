@@ -1,4 +1,4 @@
-/*roma
+/*
  * gMark: A domain- and query language-independent query workload generator and query language utility library.
  * Copyright (C) 2021  Roan Hofland (roan@roanh.dev).  All rights reserved.
  * GitHub Repository: https://github.com/RoanH/gMark
@@ -178,7 +178,7 @@ public final class ParserCPQ extends GenericParser{
 						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getInEdges().iterator();
 						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
 						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
-						System.out.println("reduce by parallel in 2");
+//						System.out.println("reduce by parallel in 2");
 						graph.addEdge(
 							from.getSourceNode(),
 							to.getSourceNode(),
@@ -193,7 +193,7 @@ public final class ParserCPQ extends GenericParser{
 						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getOutEdges().iterator();
 						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
 						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
-						System.out.println("reduce by parallel out 2");
+//						System.out.println("reduce by parallel out 2");
 						graph.addEdge(
 							from.getTargetNode(),
 							to.getTargetNode(),
@@ -207,7 +207,7 @@ public final class ParserCPQ extends GenericParser{
 						//from -> v loops -> to
 						GraphEdge<VertexData<V>, EdgeData> from = v.getInEdges().iterator().next();
 						GraphEdge<VertexData<V>, EdgeData> to = v.getOutEdges().iterator().next();
-						System.out.println("reduce by parallel in-out / " + v.getData().vertex.toString() + " / " + from.getData().path + " | " + to.getData().path);
+//						System.out.println("reduce by parallel in-out / " + v.getData().vertex.toString() + " / " + from.getData().path + " | " + to.getData().path);
 						graph.addEdge(
 							from.getSourceNode(),
 							to.getTargetNode(),
@@ -241,7 +241,7 @@ public final class ParserCPQ extends GenericParser{
 						));
 					}
 					
-					System.out.println("reduce degree 1");
+//					System.out.println("reduce degree 1");
 					v.remove();
 					changed = true;
 				}
@@ -253,7 +253,7 @@ public final class ParserCPQ extends GenericParser{
 					edge.getSource().addLoop(edge.getData());
 					edge.remove();
 					changed = true;
-					System.out.println("reduce loop edge");
+//					System.out.println("reduce loop edge");
 				}
 			}
 			
@@ -271,7 +271,7 @@ public final class ParserCPQ extends GenericParser{
 								last.getData().addParallel(next.getData().path);
 								next.remove();
 								changed = true;
-								System.out.println("collapse parallel");
+//								System.out.println("collapse parallel");
 							}else{
 								last = next;
 							}

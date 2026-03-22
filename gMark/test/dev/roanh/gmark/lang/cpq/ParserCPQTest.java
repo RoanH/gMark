@@ -24,12 +24,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.function.Function;
 
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.ast.EdgeQueryAtom;
 import dev.roanh.gmark.ast.QueryTree;
+import dev.roanh.gmark.lang.cq.AtomCQ;
+import dev.roanh.gmark.lang.cq.CQ;
+import dev.roanh.gmark.lang.cq.QueryGraphCQ;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 
@@ -245,12 +249,23 @@ public class ParserCPQTest{
 		assertEquivalentCPQ("(id ∩ (3⁻◦3))", CPQ.parse(graph, "1st", "1st"));
 	}
 	
-	
-	
 	@Test
-	public void test(){
+	public void parseGraphSelfReturnLoop3(){
 		CPQ q = CPQ.parse("(id ∩ (3◦3⁻))", List.of(l1, l2, l3));
 		assertEquivalentCPQ(q, q.toQueryGraph().toCPQ());
+	}
+	
+	@Test
+	public void parseGraphNotCPQ(){
+		QueryGraphCQ q = CQ.parse("(src, trg) ← 1(src, b1), 1(b1, trg), 2(src, b2), 2(b2, trg), 3(b1, b2)").toQueryGraph();
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()->CPQ.parse(q.toUniqueGraph().copy(Function.identity(), AtomCQ::getLabel), q.getVariable("src"), q.getVariable("trg")));
+		assertEquals("The given input graph does not represent a valid CPQ.", e.getMessage());
+	}
+	
+	@Test
+	public void parseGraphCQ(){
+		QueryGraphCQ q = CQ.parse("(src, trg) ← 1(src, b1), 1(b1, trg), 2(src, b2), 2(b2, trg)").toQueryGraph();
+		assertEquivalentCPQ("((2◦2) ∩ (1◦1))", CPQ.parse(q.toUniqueGraph().copy(Function.identity(), AtomCQ::getLabel), q.getVariable("src"), q.getVariable("trg")));
 	}
 	
 	

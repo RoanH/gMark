@@ -21,7 +21,6 @@ package dev.roanh.gmark.lang.cq;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +49,7 @@ public final class CQ implements QueryLanguageSyntax{
 	/**
 	 * Set of variables that appear in the CQ.
 	 */
-	private final Set<VarCQ> variables;
+	private final Map<String, VarCQ> variables;
 	/**
 	 * List of formulae that appear in the CQ, these correspond to graph edges.
 	 */
@@ -60,7 +59,7 @@ public final class CQ implements QueryLanguageSyntax{
 	 * Constructs a new empty CQ.
 	 */
 	private CQ(){
-		variables = new HashSet<VarCQ>();
+		variables = new HashMap<String, VarCQ>();
 		formulae = new ArrayList<AtomCQ>();
 	}
 	
@@ -69,20 +68,24 @@ public final class CQ implements QueryLanguageSyntax{
 	 * @param variables The variables that appear in the CQ.
 	 * @param formulae The formulae corresponding to graph edges.
 	 */
-	protected CQ(Set<VarCQ> variables, List<AtomCQ> formulae){
-		this.variables = variables;
-		this.formulae = formulae;
+	protected CQ(Map<String, VarCQ> variables, List<AtomCQ> formulae){
+		this.variables = new HashMap<String, VarCQ>(variables);
+		this.formulae = new ArrayList<AtomCQ>(formulae);
 	}
 	
 	/**
 	 * Adds a new free (projected) variable to this CQ.
 	 * @param name The name of the variable.
 	 * @return The newly added variable.
+	 * @throws IllegalArgumentException When a variable with the given name already exists.
 	 * @see VarCQ
 	 */
-	public VarCQ addFreeVariable(String name){
+	public VarCQ addFreeVariable(String name) throws IllegalArgumentException{
 		VarCQ v = new VarCQ(name, true);
-		variables.add(v);
+		if(variables.put(name, v) != null){
+			throw new IllegalArgumentException("A variable with the given name already exists.");
+		}
+		
 		return v;
 	}
 	
@@ -90,12 +93,25 @@ public final class CQ implements QueryLanguageSyntax{
 	 * Adds a new bound (body only) variable to this CQ.
 	 * @param name The name of the variable.
 	 * @return The newly added variable.
+	 * @throws IllegalArgumentException When a variable with the given name already exists.
 	 * @see VarCQ
 	 */
-	public VarCQ addBoundVariable(String name){
+	public VarCQ addBoundVariable(String name) throws IllegalArgumentException{
 		VarCQ v = new VarCQ(name, false);
-		variables.add(v);
+		if(variables.put(name, v) != null){
+			throw new IllegalArgumentException("A variable with the given name already exists.");
+		}
+		
 		return v;
+	}
+	
+	/**
+	 * Gets the CQ variable with the given name.
+	 * @param name The name of the variable.
+	 * @return The variable with the given name or null if one does not exist.
+	 */
+	public VarCQ getVariable(String name){
+		return variables.get(name);
 	}
 	
 	/**
@@ -123,7 +139,7 @@ public final class CQ implements QueryLanguageSyntax{
 	 * @see VarCQ
 	 */
 	public Set<VarCQ> getFreeVariables(){
-		return variables.stream().filter(VarCQ::isFree).collect(Collectors.toSet());
+		return variables.values().stream().filter(VarCQ::isFree).collect(Collectors.toSet());
 	}
 	
 	/**
@@ -132,7 +148,7 @@ public final class CQ implements QueryLanguageSyntax{
 	 * @see VarCQ
 	 */
 	public Set<VarCQ> getBoundVariables(){
-		return variables.stream().filter(VarCQ::isBound).collect(Collectors.toSet());
+		return variables.values().stream().filter(VarCQ::isBound).collect(Collectors.toSet());
 	}
 	
 	@Override
@@ -249,7 +265,7 @@ public final class CQ implements QueryLanguageSyntax{
 	public String toFormalSyntax(){
 		//free variables
 		StringJoiner head = new StringJoiner(", ", "(", ") " + QueryLanguageSyntax.CHAR_ASSIGN + " ");
-		variables.stream().filter(VarCQ::isFree).map(VarCQ::getName).sorted().forEach(head::add);
+		getFreeVariables().stream().map(VarCQ::getName).sorted().forEach(head::add);
 
 		//body
 		StringJoiner body = new StringJoiner(", ", head.toString(), "");
@@ -262,7 +278,7 @@ public final class CQ implements QueryLanguageSyntax{
 	public void writeXML(IndentWriter writer){
 		writer.println("<cq>", 2);
 		writer.println("<variables>", 2);
-		variables.stream().sorted(Comparator.comparing(VarCQ::getName)).forEach(v->v.writeXML(writer));
+		variables.values().stream().sorted(Comparator.comparing(VarCQ::getName)).forEach(v->v.writeXML(writer));
 		writer.println(2, "</variables>");
 		writer.println("<formulae>", 2);
 		formulae.forEach(atom->atom.writeXML(writer));
@@ -331,7 +347,7 @@ public final class CQ implements QueryLanguageSyntax{
 			throw new IllegalArgumentException("The given AST contains operations that are not part of the CQ query language.");
 		}
 
-		Set<VarCQ> variables = new HashSet<VarCQ>();
+		Map<String, VarCQ> variables = new HashMap<String, VarCQ>();
 		List<AtomCQ> formulae = new ArrayList<AtomCQ>();
 		for(int i = 0; i < ast.getArity(); i++){
 			QueryTree op = ast.getOperand(i);
@@ -342,8 +358,8 @@ public final class CQ implements QueryLanguageSyntax{
 			EdgeQueryAtom atom = op.getEdgeAtom();
 			VarCQ source = new VarCQ(atom.getSource());
 			VarCQ target = new VarCQ(atom.getTarget());
-			variables.add(source);
-			variables.add(target);
+			variables.put(source.getName(), source);
+			variables.put(target.getName(), target);
 			formulae.add(new AtomCQ(source, atom.getLabel(), target));
 		}
 		

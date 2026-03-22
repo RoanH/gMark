@@ -229,7 +229,7 @@ public class QueryGraphCPQ{
 		}
 		
 		return new QueryGraphCQ(
-			new HashSet<VarCQ>(variables.values()),
+			Set.copyOf(variables.values()),
 			edges.stream().map(edge->new AtomCQ(
 				variables.get(edge.src),
 				edge.label,

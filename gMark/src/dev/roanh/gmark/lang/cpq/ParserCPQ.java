@@ -257,7 +257,9 @@ public final class ParserCPQ extends GenericParser{
 				}
 			}
 			
+			//concatenation always has to be applied first or small cycles might be collapsed
 			if(!changed){
+				//collapse (intersect) edges between the same source and target vertex
 				for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
 					if(v.getOutEdges().size() >= 2){
 						Iterator<GraphEdge<VertexData<V>, EdgeData>> edges = v.getOutEdges().stream().sorted(Comparator.comparingInt(e->e.getTargetNode().getID())).iterator();
@@ -351,37 +353,20 @@ public final class ParserCPQ extends GenericParser{
 			return List.copyOf(graph.getEdges());
 		}
 		
-		//orient edges from low ID to high ID (invert if needed)
+		/**
+		 * Adds a new edge to this reduction graph, edges are created such that
+		 * the path is always oriented from low ID to high ID to facilitate easier searches.
+		 * @param from The source node for the path (low ID node).
+		 * @param to The target node for the path (high ID node).
+		 * @param path The path between the from and to nodes, will be inverted and the from
+		 *        and to nodes swapped if the input does not follow the ID requirements.
+		 */
 		private void addEdge(GraphNode<VertexData<V>, EdgeData> from, GraphNode<VertexData<V>, EdgeData> to, CPQ path){
 			if(from.getID() <= to.getID()){
 				from.addUniqueEdgeTo(to, new EdgeData(path));
 			}else{
 				to.addUniqueEdgeTo(from, new EdgeData(path.inverse()));
 			}
-		}
-		
-		@Deprecated
-		private void addParallel(GraphNode<VertexData<V>, EdgeData> from, GraphNode<VertexData<V>, EdgeData> to, CPQ path){
-			System.out.println("parallel: " + from + " / " + from.getID() + " - " + to + " / " + to.getID() + " as " + path);
-			for(GraphEdge<VertexData<V>, EdgeData> edge : from.getOutEdges()){
-				if(edge.getTargetNode().equals(to)){
-					edge.getData().addParallel(path);
-					return;
-				}
-			}
-
-			for(GraphEdge<VertexData<V>, EdgeData> edge : from.getInEdges()){
-				if(edge.getSourceNode().equals(to)){
-					edge.getData().addParallel(path.inverse());
-					return;
-				}
-			}
-			
-			//TODO I can make an orientation rule that edges are always directed from low node ID to high node ID with inversions as needed
-			//then for parallel reduction I only need to check outgoing lists of a node
-			//fixing my current bug would mean preferring concat and loop reduction over parallel reduction
-				
-			from.addUniqueEdgeTo(to, new EdgeData(path));
 		}
 	}
 	
@@ -404,14 +389,6 @@ public final class ParserCPQ extends GenericParser{
 			
 			loops = CPQ.intersect(loops, path);
 		}
-		
-//		private CPQ concatAfter(CPQ first){
-//			return loops == null ? first : first.concat(loops);
-//		}
-//
-//		private CPQ concatBefore(CPQ second){
-//			return loops == null ? second : loops.concat(second);
-//		}
 	}
 	
 	private static class EdgeData{
@@ -535,24 +512,6 @@ public final class ParserCPQ extends GenericParser{
 		}
 	}
 	
-	//(source loops) intersect (paths) intersect (target loops) intersect identity
-	private static <V> CPQ traverseLoops(V sourceTarget, Map<V, List<UniqueGraph<V, Predicate>>> componentMap){
-		List<UniqueGraph<V, Predicate>> subComponents = componentMap.get(sourceTarget);
-		if(subComponents.size() <= 1){
-			//wasn't an articulation point, or there was only one component
-			subComponents = Util.splitOnNodes(subComponents.getFirst(), Set.of(sourceTarget));
-		}
-		
-		CPQ cpq = CPQ.id();
-		for(UniqueGraph<V, Predicate> component : subComponents){
-//			cpq = CPQ.intersect(cpq, )
-		}
-		
-		
-		
-		
-		return null;
-	}
 	
 	
 		
@@ -577,31 +536,6 @@ public final class ParserCPQ extends GenericParser{
 		return cpq;
 	}
 	
-	
-	//basically need to cover the entire graph with CPQ semantics and if we manage a full cover we reverse
-	//if we cannot cover its not a CPQ. So basically just apply my original flood mechanism of extending to
-	//all nodes and only advancing when a single exit remains, or if no exists remaing then reverse the complete
-	//graph from that node
-	//actually no, the last path at the final node returns via the intersection of the others
-	//this should be SPII recognition
-	private static <V> CPQ floodGraph(UniqueGraph<V, Predicate> subgraph, Vertex<V> source){
-		CPQ cpq = null;
-		
-//		while(!source.equals(target)){
-//			assert !source.canReachTrg.isEmpty();
-//			if(source.canReachTrg.size() == 1){
-//				GraphEdge<Vertex<V>, Edge> edge = source.canReachTrg.iterator().next();
-//				cpq = cpq == null ? edge.getData().toCPQ() : CPQ.concat(cpq, edge.getData().toCPQ());
-//				source = edge.getTarget();
-//			}else{
-//				MergePath<V> path = traverseToMerge(source);
-//				cpq = cpq == null ? path.paths() : CPQ.concat(cpq, path.paths());
-//				source = path.mergeNode();
-//			}
-//		}
-//
-		return cpq;
-	}
 	
 	private static <V> MergePath<V> traverseToMerge(Vertex<V> source){
 		System.out.println("reversing iterators: " + source.canReachTrg.size() + " from " + source);
@@ -699,11 +633,6 @@ public final class ParserCPQ extends GenericParser{
 		}
 	}
 	
-//	private static CPQ addLoops(List<UniqueGraph<V, Predicate>>)
-	
-	
-	
-	
 	
 	
 	
@@ -717,8 +646,6 @@ public final class ParserCPQ extends GenericParser{
 		private GraphNode<Vertex<V>, Edge> node;
 		
 		private CPQ loops;
-		@Deprecated
-		private int arrivals = 0;
 		
 		private Vertex(V data){
 			this.data = data;
@@ -753,42 +680,6 @@ public final class ParserCPQ extends GenericParser{
 			
 		}
 		
-//		public GraphEdge<Vertex<V>, Edge> getInEdge(){
-//			GraphEdge<Vertex<V>, Edge> min = null;
-//
-//			for(GraphEdge<Vertex<V>, Edge> edge : node.getInEdges()){
-//				if(min == null || min.getData().srcDisc > edge.getData().srcDisc){
-//					min = edge;
-//				}
-//			}
-//
-//			for(GraphEdge<Vertex<V>, Edge> edge : node.getOutEdges()){
-//				if(min == null || min.getData().srcDisc > edge.getData().srcDisc){
-//					min = edge;
-//				}
-//			}
-//
-//			return min;
-//		}
-//
-//		public GraphEdge<Vertex<V>, Edge> getOutEdge(){
-//			GraphEdge<Vertex<V>, Edge> min = null;
-//
-//			for(GraphEdge<Vertex<V>, Edge> edge : node.getInEdges()){
-//				if(min == null || min.getData().trgDisc > edge.getData().trgDisc){
-//					min = edge;
-//				}
-//			}
-//
-//			for(GraphEdge<Vertex<V>, Edge> edge : node.getOutEdges()){
-//				if(min == null || min.getData().trgDisc > edge.getData().trgDisc){
-//					min = edge;
-//				}
-//			}
-//
-//			return min;
-//		}
-
 		@Override
 		public boolean equals(Object obj){
 			return obj instanceof Vertex<?> v && data.equals(v.data);
@@ -806,25 +697,14 @@ public final class ParserCPQ extends GenericParser{
 	}
 	
 	private static class Component<V>{
-		private final UniqueGraph<Vertex<V>, Edge> graph;
 		
 		private Component(UniqueGraph<Vertex<V>, Edge> graph){
-			this.graph = graph;
 		}
-		
-//		public CPQ loopOn(Vertex<V> vertex){
-//
-//		}
-		
 		
 	}
 	
 	private static class Edge{
 		private final Predicate predicate;
-		@Deprecated
-		private boolean traversed = false;
-//		private int srcDisc = -1;
-//		private int trgDisc = -1;
 		
 		private Edge(Predicate predicate){
 			this.predicate = predicate;
@@ -833,19 +713,7 @@ public final class ParserCPQ extends GenericParser{
 		public CPQ toCPQ(){
 			return CPQ.label(predicate);
 		}
-		
-//		public void updateSourceDiscovery(int num){
-//			if(srcDisc == -1){
-//				srcDisc = num;
-//			}
-//		}
-//
-//		public void updateTargetDiscovery(int num){
-//			if(trgDisc == -1){
-//				trgDisc = num;
-//			}
-//		}
-		
+
 		@Override
 		public String toString(){
 			// TODO Auto-generated method stub

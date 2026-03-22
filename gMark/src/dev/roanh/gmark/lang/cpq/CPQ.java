@@ -129,14 +129,6 @@ public abstract interface CPQ extends ReachabilityQueryLanguageSyntax{
 	//flips source and target
 	public abstract CPQ inverse();
 	
-//	public default CPQ intersect(CPQ other){
-//		return intersect(this, other);
-//	}
-//
-//	public default CPQ concat(CPQ other){
-//		return concat(this, other);
-//	}
-	
 	/**
 	 * Returns the identity CPQ.
 	 * @return The identity CPQ.

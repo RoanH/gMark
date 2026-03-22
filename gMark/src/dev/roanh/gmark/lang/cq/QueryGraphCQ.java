@@ -19,7 +19,9 @@
 package dev.roanh.gmark.lang.cq;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
@@ -36,7 +38,7 @@ public class QueryGraphCQ{
 	/**
 	 * The set of vertices (variables) for the graph.
 	 */
-	private final Set<VarCQ> vertices;
+	private final Map<String, VarCQ> vertices;
 	/**
 	 * The set of edges (formulae) for the graph.
 	 */
@@ -48,8 +50,8 @@ public class QueryGraphCQ{
 	 * @param edges The graph edges (formulae).
 	 */
 	public QueryGraphCQ(Set<VarCQ> vertices, List<AtomCQ> edges){
-		this.vertices = vertices;
-		this.edges = edges;
+		this.vertices = vertices.stream().collect(Collectors.toMap(VarCQ::getName, Function.identity()));
+		this.edges = List.copyOf(edges);
 	}
 	
 	/**
@@ -57,10 +59,27 @@ public class QueryGraphCQ{
 	 * @param graph The graph structure to parse into a CQ query graph.
 	 */
 	public QueryGraphCQ(UniqueGraph<VarCQ, AtomCQ> graph){
-		this(
-			graph.getNodes().stream().map(GraphNode::getData).collect(Collectors.toSet()),
-			graph.getEdges().stream().map(GraphEdge::getData).toList()
-		);
+		this.vertices = graph.getNodes().stream().map(GraphNode::getData).collect(Collectors.toMap(VarCQ::getName, Function.identity()));
+		this.edges = graph.getEdges().stream().map(GraphEdge::getData).toList();
+	}
+
+	/**
+	 * Constructs a new CQ query graph with the given vertices and edges.
+	 * @param vertices The graph vertices (variables).
+	 * @param edges The graph edges (formulae).
+	 */
+	protected QueryGraphCQ(Map<String, VarCQ> vertices, List<AtomCQ> edges){
+		this.vertices = Map.copyOf(vertices);
+		this.edges = List.copyOf(edges);
+	}
+	
+	/**
+	 * Gets the CQ variable with the given name.
+	 * @param name The name of the variable.
+	 * @return The variable with the given name or null if one does not exist.
+	 */
+	public VarCQ getVariable(String name){
+		return vertices.get(name);
 	}
 	
 	/**
@@ -94,7 +113,7 @@ public class QueryGraphCQ{
 	public UniqueGraph<VarCQ, AtomCQ> toUniqueGraph(){
 		UniqueGraph<VarCQ, AtomCQ> graph = new UniqueGraph<VarCQ, AtomCQ>();
 		
-		for(VarCQ v : vertices){
+		for(VarCQ v : vertices.values()){
 			graph.addUniqueNode(v);
 		}
 		

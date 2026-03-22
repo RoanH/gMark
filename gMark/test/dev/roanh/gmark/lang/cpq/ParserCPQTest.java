@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.ast.EdgeQueryAtom;
@@ -220,6 +221,37 @@ public class ParserCPQTest{
 		assertEquivalentCPQ("(1 ◦ 3) ∩ id", CPQ.parse(graph, "1st", "1st"));
 	}
 	
+	@Test
+	public void parseGraphSelfReturnLoop1(){
+		UniqueGraph<String, Predicate> graph = new UniqueGraph<String, Predicate>();
+
+		graph.addUniqueNode("1st");
+		graph.addUniqueNode("2");
+		
+		graph.addUniqueEdge("1st", "2", l3);
+		
+		assertEquivalentCPQ("(id ∩ (3◦3⁻))", CPQ.parse(graph, "1st", "1st"));
+	}
+	
+	@Test
+	public void parseGraphSelfReturnLoop2(){
+		UniqueGraph<String, Predicate> graph = new UniqueGraph<String, Predicate>();
+
+		graph.addUniqueNode("1st");
+		graph.addUniqueNode("2");
+		
+		graph.addUniqueEdge("2", "1st", l3);
+		
+		assertEquivalentCPQ("(id ∩ (3⁻◦3))", CPQ.parse(graph, "1st", "1st"));
+	}
+	
+	
+	
+	@Test
+	public void test(){
+		CPQ q = CPQ.parse("(id ∩ (3◦3⁻))", List.of(l1, l2, l3));
+		assertEquivalentCPQ(q, q.toQueryGraph().toCPQ());
+	}
 	
 	
 	@Test
@@ -301,13 +333,22 @@ public class ParserCPQTest{
 
 	}
 	
+	@RepeatedTest(1000)
+	public void parseGraphRandom(){
+		CPQ q = GeneratorCPQ.generatePlainCPQ(50, List.of(l1, l2, l3));
+		assertEquivalentCPQ(q, q.toQueryGraph().toCPQ());
+	}
+	
 	//TODO recog test with top level loop
 
 	//TODO random -> graph -> parse -> equals
 	
 	private static void assertEquivalentCPQ(String expected, CPQ actual){
-		CPQ exp = CPQ.parse(expected, List.of(l1, l2, l3));
-		assertTrue(exp.isHomomorphicTo(actual), exp + " vs " + actual);
-		assertTrue(actual.isHomomorphicTo(exp), exp + " vs " + actual);
+		assertEquivalentCPQ(CPQ.parse(expected, List.of(l1, l2, l3)), actual);
+	}
+		
+	private static void assertEquivalentCPQ(CPQ expected, CPQ actual){
+		assertTrue(expected.isHomomorphicTo(actual), expected + " vs " + actual);
+		assertTrue(actual.isHomomorphicTo(expected), expected + " vs " + actual);
 	}
 }

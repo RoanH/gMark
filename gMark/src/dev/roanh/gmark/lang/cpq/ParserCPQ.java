@@ -208,20 +208,17 @@ public final class ParserCPQ extends GenericParser{
 					changed = true;
 				}else if(v.getDegree() == 1){
 					//reduce degree 1 vertices
-					GraphEdge<VertexData<V>, EdgeData> edge;
-					GraphNode<VertexData<V>, EdgeData> base;
 					if(v.getInCount() == 1){
-						edge = v.getInEdges().iterator().next();
-						base = edge.getSourceNode();
+						//base --path-> v loops --path inv-> base
+						GraphEdge<VertexData<V>, EdgeData> edge = v.getInEdges().iterator().next();
+						edge.getSourceNode().getData().addLoop(v.getData().concatAfter(edge.getData().path).concat(edge.getData().path.inverse()));
 					}else{
-						edge = v.getOutEdges().iterator().next();
-						base = edge.getTargetNode();
+						//base --path inv-> v loops --path-> base
+						GraphEdge<VertexData<V>, EdgeData> edge = v.getOutEdges().iterator().next();
+						edge.getTargetNode().getData().addLoop(v.getData().concatAfter(edge.getData().path.inverse()).concat(edge.getData().path));
 					}
 					
 					System.out.println("reduce degree 1");
-					
-					//base --path-> v loops --path inv-> base
-					base.getData().addLoop(v.getData().concatAfter(edge.getData().path).concat(edge.getData().path.inverse()));
 					v.remove();
 					changed = true;
 				}

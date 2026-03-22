@@ -44,7 +44,7 @@ import dev.roanh.gmark.type.schema.Predicate;
 public enum QueryLanguage{
 	/**
 	 * The language of Conjunctive Path Queries.
-	 * <b>
+	 * <p>
 	 * Note that CPQ is an extension of series parallel graphs
 	 * with the addition of identity and inverse.
 	 * @see CPQ

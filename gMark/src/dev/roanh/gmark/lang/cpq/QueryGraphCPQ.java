@@ -343,6 +343,11 @@ public class QueryGraphCPQ{
 		return maps.getData().matches.length != 0;
 	}
 	
+	/**
+	 * Converts this CPQ query graph back to its formal syntax.
+	 * @return The CPQ syntax form of this query graph.
+	 * @see CPQ#parse(UniqueGraph, Object, Object)
+	 */
 	public CPQ toCPQ(){
 		return CPQ.parse(toUniqueGraph(), source, target);
 	}

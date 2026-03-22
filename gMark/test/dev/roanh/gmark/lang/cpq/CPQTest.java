@@ -110,4 +110,14 @@ public class CPQTest{
 	public void inverse2(){
 		assertEquals("(b⁻◦a)", CPQ.parse("a⁻ ◦ b").inverse().toString());
 	}
+	
+	@Test
+	public void inverse3(){
+		assertEquals("id", CPQ.parse("id").inverse().toString());
+	}
+	
+	@Test
+	public void inverse4(){
+		assertEquals("(b⁻◦(a⁻ ∩ b⁻))", CPQ.parse("(a ∩ b) ◦ b").inverse().toString());
+	}
 }

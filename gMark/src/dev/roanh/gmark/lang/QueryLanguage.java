@@ -32,7 +32,6 @@ import dev.roanh.gmark.lang.cq.CQ;
 import dev.roanh.gmark.lang.cq.ParserCQ;
 import dev.roanh.gmark.lang.rpq.ParserRPQ;
 import dev.roanh.gmark.lang.rpq.RPQ;
-import dev.roanh.gmark.lang.sp.SP;
 import dev.roanh.gmark.type.schema.Predicate;
 
 /**
@@ -46,7 +45,7 @@ public enum QueryLanguage{
 	/**
 	 * The language of Conjunctive Path Queries.
 	 * <b>
-	 * Note that CPQ is an extension of {@link #SP}
+	 * Note that CPQ is an extension of series parallel graphs
 	 * with the addition of identity and inverse.
 	 * @see CPQ
 	 */
@@ -60,12 +59,7 @@ public enum QueryLanguage{
 	 * The language of Conjunctive Queries.
 	 * @see CQ
 	 */
-	CQ(ParserCQ::parse, ParserCQ::parse),
-	/**
-	 * The language of Series-Parallel Queries.
-	 * @see SP
-	 */
-	SP(null, null);
+	CQ(ParserCQ::parse, ParserCQ::parse);
 	
 	/**
 	 * The function to use to parse a query without a given label set.

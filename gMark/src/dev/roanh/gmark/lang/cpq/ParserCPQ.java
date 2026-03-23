@@ -161,6 +161,8 @@ public final class ParserCPQ extends GenericParser{
 					continue;
 				}
 				
+				System.out.println("v is " + v.getData().vertex);
+				
 				if(v.getDegree() == 2){
 					//reduce degree 2 vertices
 					if(v.getInCount() == 2){
@@ -168,7 +170,7 @@ public final class ParserCPQ extends GenericParser{
 						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getInEdges().iterator();
 						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
 						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
-//						System.out.println("reduce by parallel in 2");
+						System.out.println("reduce by concat in 2");
 						graph.addEdge(
 							from.getSourceNode(),
 							to.getSourceNode(),
@@ -183,7 +185,7 @@ public final class ParserCPQ extends GenericParser{
 						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getOutEdges().iterator();
 						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
 						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
-//						System.out.println("reduce by parallel out 2");
+						System.out.println("reduce by concat out 2");
 						graph.addEdge(
 							from.getTargetNode(),
 							to.getTargetNode(),
@@ -197,7 +199,7 @@ public final class ParserCPQ extends GenericParser{
 						//from -> v loops -> to
 						GraphEdge<VertexData<V>, EdgeData> from = v.getInEdges().iterator().next();
 						GraphEdge<VertexData<V>, EdgeData> to = v.getOutEdges().iterator().next();
-//						System.out.println("reduce by parallel in-out / " + v.getData().vertex.toString() + " / " + from.getData().path + " | " + to.getData().path);
+						System.out.println("reduce by concat in-out / " + v.getData().vertex.toString() + " / " + from.getData().path + " | " + to.getData().path);
 						graph.addEdge(
 							from.getSourceNode(),
 							to.getTargetNode(),
@@ -231,7 +233,7 @@ public final class ParserCPQ extends GenericParser{
 						));
 					}
 					
-//					System.out.println("reduce degree 1");
+					System.out.println("reduce degree 1");
 					v.remove();
 					changed = true;
 				}
@@ -243,14 +245,43 @@ public final class ParserCPQ extends GenericParser{
 					edge.getSource().addLoop(edge.getData());
 					edge.remove();
 					changed = true;
-//					System.out.println("reduce loop edge");
+					System.out.println("reduce loop edge");
 				}
 			}
 			
 			//concatenation always has to be applied first or small cycles might be collapsed
 			if(!changed){
 				//collapse (intersect) edges between the same source and target vertex
-				for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
+				collapse: for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
+					if(v.getOutEdges().size() > 2){
+						Iterator<GraphEdge<VertexData<V>, EdgeData>> edges = v.getOutEdges().stream().sorted(Comparator.comparingInt(e->e.getTargetNode().getID())).iterator();
+						
+						int n = 1;
+						GraphEdge<VertexData<V>, EdgeData> last = edges.next();
+						while(edges.hasNext()){
+							GraphEdge<VertexData<V>, EdgeData> next = edges.next();
+							if(next.getTargetNode().getID() == last.getTargetNode().getID()){
+								n++;
+								if(n > 2){
+									last.getData().addParallel(next.getData().path);
+									next.remove();
+									changed = true;
+									System.out.println("collapse parallel (min): " + last.getData().path + " | " + next.getData().path);
+									break collapse;
+								}
+							}else{
+								last = next;
+								n = 1;
+							}
+						}
+					}
+				}
+			}
+			
+			//concatenation always has to be applied first or small cycles might be collapsed
+			if(!changed){
+				//collapse (intersect) edges between the same source and target vertex
+				collapse: for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
 					if(v.getOutEdges().size() >= 2){
 						Iterator<GraphEdge<VertexData<V>, EdgeData>> edges = v.getOutEdges().stream().sorted(Comparator.comparingInt(e->e.getTargetNode().getID())).iterator();
 						
@@ -261,7 +292,8 @@ public final class ParserCPQ extends GenericParser{
 								last.getData().addParallel(next.getData().path);
 								next.remove();
 								changed = true;
-//								System.out.println("collapse parallel");
+								System.out.println("collapse parallel (full): " + last.getData().path + " | " + next.getData().path);
+								break collapse;
 							}else{
 								last = next;
 							}

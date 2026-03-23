@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.function.Function;
 
@@ -31,10 +32,12 @@ import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.ast.EdgeQueryAtom;
 import dev.roanh.gmark.ast.QueryTree;
+import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.lang.cq.AtomCQ;
 import dev.roanh.gmark.lang.cq.CQ;
 import dev.roanh.gmark.lang.cq.QueryGraphCQ;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.graph.GraphPanel;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 
 public class ParserCPQTest{
@@ -268,7 +271,6 @@ public class ParserCPQTest{
 		assertEquivalentCPQ("((2◦2) ∩ (1◦1))", CPQ.parse(q.toUniqueGraph().copy(Function.identity(), AtomCQ::getLabel), q.getVariable("src"), q.getVariable("trg")));
 	}
 	
-	
 	@Test
 	public void parseGraph10(){
 		UniqueGraph<String, Predicate> graph = new UniqueGraph<String, Predicate>();
@@ -337,21 +339,92 @@ public class ParserCPQTest{
 		// \-----------------------/
 
 
+		//((2◦2) ∩ (1◦1))
+		
+		//(1 ◦ ((1 ◦ (id ∩ (1 ◦ 1 ◦ 1)) ◦ (1∩2)) ∩ (1◦1)) ◦ 1)
+		//(1 ◦ 1 ◦ ((1 ◦ (id ∩ 1 ∩ ((1∩2) ◦ (id ∩ 1) ◦ 1 ◦ 1)) ◦ 1⁻) ∩ id) ◦ 1)
+		//(1 ◦ (1∩2) ◦ 1)
+		
+		//(id ∩ 1) ◦ ((1 ◦ ((1 ◦ (id ∩ (1 ◦ 1 ◦ 1)) ◦ (1∩2)) ∩ (1◦1)) ◦ 1) ∩ (1 ◦ 1 ◦ ((1 ◦ (id ∩ 1 ∩ ((1∩2) ◦ (id ∩ 1) ◦ 1 ◦ 1)) ◦ 1⁻) ∩ id) ◦ 1) ∩ (1 ◦ (1∩2) ◦ 1)) ◦ (id ∩ 1)
 		
 		
+//		GraphPanel.show(graph);
+//		try{
+//			Thread.sleep(Duration.ofDays(1));
+//		}catch(InterruptedException e){
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		ParserCPQ.parse(graph, "1s", "15t");
 		
-		
-		
-		//TODO
-
+		assertEquivalentCPQ(
+			"""
+			(id ∩ 1) ◦
+			  (
+			    (1 ◦ ((1 ◦ (id ∩ (1⁻ ◦ 1 ◦ 1)) ◦ (1 ∩ 2)) ∩ (1 ◦ 1)) ◦ 1)
+			    ∩
+			    (1 ◦ 1 ◦ ((1 ◦ (id ∩ 1 ∩ ((1⁻ ∩ 2⁻) ◦ (id ∩ 1) ◦ 1⁻ ◦ 1)) ◦ 1⁻) ∩ id) ◦ 1)
+			    ∩
+			    (1 ◦ (1 ∩ 2) ◦ 1)
+			  )
+			◦ (id ∩ 1)
+			""",
+			CPQ.parse(graph, "1s", "15t")
+		);
 	}
 	
-	@RepeatedTest(1000)
+	@RepeatedTest(10000)
 	public void parseGraphRandom(){
-		CPQ q = GeneratorCPQ.generatePlainCPQ(50, List.of(l1, l2, l3));
+		CPQ q = GeneratorCPQ.generatePlainCPQ(10, List.of(l1, l2, l3)).computeCore().toCPQ();
 		assertEquivalentCPQ(q, q.toQueryGraph().toCPQ());
+	}
+	
+	public static void main(String[] args){
+		UniqueGraph<Vertex, Predicate> g = CPQ.parse("((id ∩ ((1⁻◦(2⁻ ∩ 2⁻))◦(1⁻ ∩ (id ∩ 3⁻)))) ∩ ((3◦(id ∩ ((id ∩ (((1⁻◦(2⁻ ∩ 1⁻)) ∩ 1) ∩ (2⁻◦2⁻)))◦(1⁻ ∩ 1⁻))))◦(2⁻◦(2⁻ ∩ 2⁻))))")
+			.toQueryGraph().computeCore().toUniqueGraph();
+		GraphPanel.show(
+			g,
+			v->g.getNode(v).getInEdges() + "|" + g.getNode(v).getOutEdges(),
+			e->e.getAlias()
+		);
+	}
+	
+	@RepeatedTest(10)
+	public void edgeCase(){
+//		GraphPanel.show(CPQ.parse("((id ∩ ((1⁻◦(2⁻ ∩ 2⁻))◦(1⁻ ∩ (id ∩ 3⁻)))) ∩ ((3◦(id ∩ ((id ∩ (((1⁻◦(2⁻ ∩ 1⁻)) ∩ 1) ∩ (2⁻◦2⁻)))◦(1⁻ ∩ 1⁻))))◦(2⁻◦(2⁻ ∩ 2⁻))))"));
+//		GraphPanel.show(CPQ.parse("((id ∩ ((1⁻◦(2⁻ ∩ 2⁻))◦(1⁻ ∩ (id ∩ 3⁻)))) ∩ ((3◦(id ∩ ((id ∩ (((1⁻◦(2⁻ ∩ 1⁻)) ∩ 1) ∩ (2⁻◦2⁻)))◦(1⁻ ∩ 1⁻))))◦(2⁻◦(2⁻ ∩ 2⁻))))").toQueryGraph().toCPQ());
+		
+		System.out.println("---");
+		QueryGraphCPQ pre = CPQ.parse("((((id ∩ ((3◦(id ∩ (1⁻◦1)))◦3⁻)) ∩ 1) ∩ 2)◦(1⁻◦((id ∩ 2⁻)◦2⁻)))").toQueryGraph();
+		QueryGraphCPQ g = pre.toCPQ().toQueryGraph();
+		int real = g.getEdgeCount();
+		
+		int should = 7;
+		
+		if(real != should){
+			System.out.println("BAD");
+			UniqueGraph<Vertex, Predicate> pg = pre.toUniqueGraph();
+			GraphPanel.show(pg, v->v.getID() + " | " + pg.getNode(v).getInCount() + " | " + pg.getNode(v).getOutCount(), e->e.getAlias());
+			GraphPanel.show(g.toUniqueGraph(), v->v.getID() + "", e->e.getAlias());
+			try{
+				Thread.sleep(Duration.ofDays(3));
+			}catch(InterruptedException e){
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else{
+			System.out.println("OK");
+		}
+		
+		assertEquals(should, real);
+		
+//		try{
+//			Thread.sleep(Duration.ofDays(4));
+//		}catch(InterruptedException e){
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 	
 	//TODO recog test with top level loop
@@ -363,7 +436,25 @@ public class ParserCPQTest{
 	}
 		
 	private static void assertEquivalentCPQ(CPQ expected, CPQ actual){
-		assertTrue(expected.isHomomorphicTo(actual), expected + " vs " + actual);
-		assertTrue(actual.isHomomorphicTo(expected), expected + " vs " + actual);
+//		GraphPanel.show(expected);
+//		System.out.println(actual.toQueryGraph().getEdgeCount());
+//		GraphPanel.show(actual);
+		
+//		try{
+//			Thread.sleep(Duration.ofDays(5));
+//		}catch(InterruptedException e){
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		//both equivalent at least and share the same core
+		QueryGraphCPQ exp = expected.toQueryGraph();
+		QueryGraphCPQ act = actual.toQueryGraph();
+		assertTrue(exp.isHomomorphicTo(act), expected + " vs " + actual);
+		assertTrue(act.isHomomorphicTo(exp), expected + " vs " + actual);
+		
+		//not really required, but interesting to see how much redundant structure we find
+		assertEquals(exp.getEdgeCount(), act.getEdgeCount(), expected + " vs " + actual);
+		assertEquals(exp.getVertexCount(), act.getVertexCount(), expected + " vs " + actual);
 	}
 }

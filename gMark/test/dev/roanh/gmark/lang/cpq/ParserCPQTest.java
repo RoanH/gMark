@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.Duration;
 import java.util.List;
@@ -257,6 +258,18 @@ public class ParserCPQTest{
 		CPQ q = CPQ.parse("(id ∩ (3◦3⁻))", List.of(l1, l2, l3));
 		assertEquivalentCPQ(q, q.toQueryGraph().toCPQ());
 	}
+
+	@Test
+	public void parseGraphDoubleNestedSelfReturnLoops(){
+		CPQ q = CPQ.parse("((((id ∩ ((3◦(id ∩ (1⁻◦1)))◦3⁻)) ∩ 1) ∩ 2)◦(1⁻◦((id ∩ 2⁻)◦2⁻)))", List.of(l1, l2, l3));
+		assertEquivalentCPQ(q, q.toQueryGraph().toCPQ());
+	}
+
+	@Test
+	public void parseGraphDoubledLoop(){
+		CPQ q = CPQ.parse("(id ∩ ((((3⁻ ∩ 2)◦2⁻) ∩ 2⁻)◦2⁻))", List.of(l1, l2, l3));
+		assertEquivalentCPQ(q, q.toQueryGraph().toCPQ());
+	}
 	
 	@Test
 	public void parseGraphNotCPQ(){
@@ -376,8 +389,13 @@ public class ParserCPQTest{
 	
 	@RepeatedTest(10000)
 	public void parseGraphRandom(){
-		CPQ q = GeneratorCPQ.generatePlainCPQ(10, List.of(l1, l2, l3)).computeCore().toCPQ();
-		assertEquivalentCPQ(q, q.toQueryGraph().toCPQ());
+		CPQ base = GeneratorCPQ.generatePlainCPQ(50, List.of(l1, l2, l3));
+		try{
+			CPQ q = base.computeCore().toCPQ();
+			assertEquivalentCPQ(q, q.toQueryGraph().toCPQ());
+		}catch(Exception e){
+			fail(e.getMessage() + ": " + base);
+		}
 	}
 	
 	public static void main(String[] args){
@@ -395,18 +413,26 @@ public class ParserCPQTest{
 //		GraphPanel.show(CPQ.parse("((id ∩ ((1⁻◦(2⁻ ∩ 2⁻))◦(1⁻ ∩ (id ∩ 3⁻)))) ∩ ((3◦(id ∩ ((id ∩ (((1⁻◦(2⁻ ∩ 1⁻)) ∩ 1) ∩ (2⁻◦2⁻)))◦(1⁻ ∩ 1⁻))))◦(2⁻◦(2⁻ ∩ 2⁻))))"));
 //		GraphPanel.show(CPQ.parse("((id ∩ ((1⁻◦(2⁻ ∩ 2⁻))◦(1⁻ ∩ (id ∩ 3⁻)))) ∩ ((3◦(id ∩ ((id ∩ (((1⁻◦(2⁻ ∩ 1⁻)) ∩ 1) ∩ (2⁻◦2⁻)))◦(1⁻ ∩ 1⁻))))◦(2⁻◦(2⁻ ∩ 2⁻))))").toQueryGraph().toCPQ());
 		
-		System.out.println("---");
-		QueryGraphCPQ pre = CPQ.parse("((((id ∩ ((3◦(id ∩ (1⁻◦1)))◦3⁻)) ∩ 1) ∩ 2)◦(1⁻◦((id ∩ 2⁻)◦2⁻)))").toQueryGraph();
-		QueryGraphCPQ g = pre.toCPQ().toQueryGraph();
-		int real = g.getEdgeCount();
+		int real = -1;
+		QueryGraphCPQ pre = CPQ.parse("(id ∩ ((((3⁻ ∩ 2)◦2⁻) ∩ 2⁻)◦2⁻))").toQueryGraph();
+		QueryGraphCPQ g = null;
+		try{
+			System.out.println("---");
+			g = pre.toCPQ().toQueryGraph();
+			real = g.getEdgeCount();
+		}catch(Exception e){
+			System.out.println("ERR");
+		}
 		
-		int should = 7;
+		int should = 5;
 		
 		if(real != should){
 			System.out.println("BAD");
 			UniqueGraph<Vertex, Predicate> pg = pre.toUniqueGraph();
-			GraphPanel.show(pg, v->v.getID() + " | " + pg.getNode(v).getInCount() + " | " + pg.getNode(v).getOutCount(), e->e.getAlias());
-			GraphPanel.show(g.toUniqueGraph(), v->v.getID() + "", e->e.getAlias());
+			GraphPanel.show(pg, v->v.getID() + " " + pre.getVertexLabel(v) + " | " + pg.getNode(v).getInCount() + " | " + pg.getNode(v).getOutCount(), e->e.getAlias());
+			if(g != null){
+				GraphPanel.show(g.toUniqueGraph(), v->v.getID() + "", e->e.getAlias());
+			}
 			try{
 				Thread.sleep(Duration.ofDays(3));
 			}catch(InterruptedException e){

@@ -157,63 +157,12 @@ public final class ParserCPQ extends GenericParser{
 			changed = false;
 			
 			for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
-				if(v.getData().vertex == sourceVertex || v.getData().vertex == targetVertex){
+				if(v.getData().isTerminal() || v.getDegree() != 1){
 					continue;
 				}
 				
-				System.out.println("v is " + v.getData().vertex);
+				println("v is " + v.getData().vertex);
 				
-				if(v.getDegree() == 2){
-					//reduce degree 2 vertices
-					if(v.getInCount() == 2){
-						//from -> v loops -> to inverse
-						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getInEdges().iterator();
-						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
-						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
-						System.out.println("reduce by concat in 2");
-						graph.addEdge(
-							from.getSourceNode(),
-							to.getSourceNode(),
-							concat(
-								from.getData().path,
-								v.getData().loops,
-								to.getData().path.inverse()
-							)
-						);
-					}else if(v.getOutCount() == 2){
-						//from inverse -> v loops -> to
-						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getOutEdges().iterator();
-						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
-						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
-						System.out.println("reduce by concat out 2");
-						graph.addEdge(
-							from.getTargetNode(),
-							to.getTargetNode(),
-							concat(
-								from.getData().path.inverse(),
-								v.getData().loops,
-								to.getData().path
-							)
-						);
-					}else{
-						//from -> v loops -> to
-						GraphEdge<VertexData<V>, EdgeData> from = v.getInEdges().iterator().next();
-						GraphEdge<VertexData<V>, EdgeData> to = v.getOutEdges().iterator().next();
-						System.out.println("reduce by concat in-out / " + v.getData().vertex.toString() + " / " + from.getData().path + " | " + to.getData().path);
-						graph.addEdge(
-							from.getSourceNode(),
-							to.getTargetNode(),
-							concat(
-								from.getData().path,
-								v.getData().loops,
-								to.getData().path
-							)
-						);
-					}
-					
-					v.remove();
-					changed = true;
-				}else if(v.getDegree() == 1){
 					//reduce degree 1 vertices
 					if(v.getInCount() == 1){
 						//base --path-> v loops --path inv-> base
@@ -233,10 +182,9 @@ public final class ParserCPQ extends GenericParser{
 						));
 					}
 					
-					System.out.println("reduce degree 1");
+					println("reduce degree 1");
 					v.remove();
 					changed = true;
-				}
 			}
 			
 			//handle fully reduced loops
@@ -245,7 +193,68 @@ public final class ParserCPQ extends GenericParser{
 					edge.getSource().addLoop(edge.getData());
 					edge.remove();
 					changed = true;
-					System.out.println("reduce loop edge");
+					println("reduce loop edge");
+				}
+			}
+			
+			if(!changed){
+				for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
+					if(v.getData().isTerminal() || v.getDegree() != 2){
+						continue;
+					}
+					
+					println("v is " + v.getData().vertex);
+					
+						//reduce degree 2 vertices
+						if(v.getInCount() == 2){
+							//from -> v loops -> to inverse
+							Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getInEdges().iterator();
+							GraphEdge<VertexData<V>, EdgeData> from = iter.next();
+							GraphEdge<VertexData<V>, EdgeData> to = iter.next();
+							println("reduce by concat in 2");
+							graph.addEdge(
+								from.getSourceNode(),
+								to.getSourceNode(),
+								concat(
+									from.getData().path,
+									v.getData().loops,
+									to.getData().path.inverse()
+								)
+							);
+						}else if(v.getOutCount() == 2){
+							//from inverse -> v loops -> to
+							Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getOutEdges().iterator();
+							GraphEdge<VertexData<V>, EdgeData> from = iter.next();
+							GraphEdge<VertexData<V>, EdgeData> to = iter.next();
+							println("reduce by concat out 2");
+							graph.addEdge(
+								from.getTargetNode(),
+								to.getTargetNode(),
+								concat(
+									from.getData().path.inverse(),
+									v.getData().loops,
+									to.getData().path
+								)
+							);
+						}else{
+							//from -> v loops -> to
+							GraphEdge<VertexData<V>, EdgeData> from = v.getInEdges().iterator().next();
+							GraphEdge<VertexData<V>, EdgeData> to = v.getOutEdges().iterator().next();
+							println("reduce by concat in-out / " + v.getData().vertex.toString() + " / " + from.getData().path + " | " + to.getData().path);
+							graph.addEdge(
+								from.getSourceNode(),
+								to.getTargetNode(),
+								concat(
+									from.getData().path,
+									v.getData().loops,
+									to.getData().path
+								)
+							);
+						}
+						
+						v.remove();
+						changed = true;
+						break;
 				}
 			}
 			
@@ -266,7 +275,7 @@ public final class ParserCPQ extends GenericParser{
 									last.getData().addParallel(next.getData().path);
 									next.remove();
 									changed = true;
-									System.out.println("collapse parallel (min): " + last.getData().path + " | " + next.getData().path);
+									println("collapse parallel (min): " + last.getData().path + " | " + next.getData().path);
 									break collapse;
 								}
 							}else{
@@ -292,7 +301,7 @@ public final class ParserCPQ extends GenericParser{
 								last.getData().addParallel(next.getData().path);
 								next.remove();
 								changed = true;
-								System.out.println("collapse parallel (full): " + last.getData().path + " | " + next.getData().path);
+									println("collapse parallel (full): " + last.getData().path + " | " + next.getData().path);
 								break collapse;
 							}else{
 								last = next;
@@ -323,6 +332,10 @@ public final class ParserCPQ extends GenericParser{
 		throw new IllegalArgumentException("The given input graph does not represent a valid CPQ.");
 	}
 	
+	private static void println(String arg){
+//		System.out.println(arg);
+	}
+	
 	private static CPQ concat(CPQ first, CPQ second, CPQ third){
 		CPQ q = first;
 		
@@ -346,7 +359,8 @@ public final class ParserCPQ extends GenericParser{
 			Map<V, VertexData<V>> transform = new HashMap<V, VertexData<V>>();
 			
 			for(GraphNode<V, Predicate> node : queryGraph.getNodes()){
-				VertexData<V> data = new VertexData<V>(node.getData());
+				V v = node.getData();
+				VertexData<V> data = new VertexData<V>(v, v.equals(source) || v.equals(target));
 				graph.addUniqueNode(data);
 				transform.put(data.vertex, data);
 			}
@@ -392,10 +406,16 @@ public final class ParserCPQ extends GenericParser{
 	
 	private static class VertexData<V>{
 		private final V vertex;
+		private final boolean terminal;
 		private CPQ loops;
 		
-		private VertexData(V vertex){
+		private VertexData(V vertex, boolean terminal){
 			this.vertex = vertex;
+			this.terminal = terminal;
+		}
+		
+		private boolean isTerminal(){
+			return terminal;
 		}
 		
 		private void addLoop(EdgeData edge){

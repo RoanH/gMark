@@ -22,6 +22,7 @@ import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_INTERSECTION;
 import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_INVERSE;
 import static dev.roanh.gmark.lang.QueryLanguageSyntax.CHAR_JOIN;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -160,31 +161,47 @@ public final class ParserCPQ extends GenericParser{
 				if(v.getData().isTerminal() || v.getDegree() != 1){
 					continue;
 				}
-				
+
 				println("v is " + v.getData().vertex);
-				
-					//reduce degree 1 vertices
-					if(v.getInCount() == 1){
-						//base --path-> v loops --path inv-> base
-						GraphEdge<VertexData<V>, EdgeData> edge = v.getInEdges().iterator().next();
+
+				//reduce degree 1 vertices
+				if(v.getInCount() == 1){
+					//base --path-> v loops --path inv-> base
+					GraphEdge<VertexData<V>, EdgeData> edge = v.getInEdges().iterator().next();
+					if(edge.getData().paths.size() == 1){
 						edge.getSourceNode().getData().addLoop(concat(
-							edge.getData().path,
+							edge.getData().getPath(),
 							v.getData().loops,
-							edge.getData().path.inverse()
+							edge.getData().getPath().inverse()
 						));
 					}else{
-						//base --path inv-> v loops --path-> base
-						GraphEdge<VertexData<V>, EdgeData> edge = v.getOutEdges().iterator().next();
-						edge.getTargetNode().getData().addLoop(concat(
-							edge.getData().path.inverse(),
+						edge.getSourceNode().getData().addLoop(concat(
+							edge.getData().paths.size() == 2 ? edge.getData().paths.getLast() : CPQ.intersect(edge.getData().paths.subList(1, edge.getData().paths.size())),
 							v.getData().loops,
-							edge.getData().path
+							edge.getData().paths.getFirst().inverse()
 						));
 					}
-					
-					println("reduce degree 1");
-					v.remove();
-					changed = true;
+				}else{
+					//base --path inv-> v loops --path-> base
+					GraphEdge<VertexData<V>, EdgeData> edge = v.getOutEdges().iterator().next();
+					if(edge.getData().paths.size() == 1){
+						edge.getTargetNode().getData().addLoop(concat(
+							edge.getData().getPath().inverse(),
+							v.getData().loops,
+							edge.getData().getPath()
+						));
+					}else{
+						edge.getTargetNode().getData().addLoop(concat(
+							edge.getData().paths.getFirst().inverse(),
+							v.getData().loops,
+							edge.getData().paths.size() == 2 ? edge.getData().paths.getLast() : CPQ.intersect(edge.getData().paths.subList(1, edge.getData().paths.size()))
+						));
+					}
+				}
+
+				println("reduce degree 1");
+				v.remove();
+				changed = true;
 			}
 			
 			//handle fully reduced loops
@@ -197,7 +214,7 @@ public final class ParserCPQ extends GenericParser{
 				}
 			}
 			
-			if(!changed){
+//			if(!changed){
 				for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
 					if(v.getData().isTerminal() || v.getDegree() != 2){
 						continue;
@@ -216,9 +233,9 @@ public final class ParserCPQ extends GenericParser{
 								from.getSourceNode(),
 								to.getSourceNode(),
 								concat(
-									from.getData().path,
+									from.getData().getPath(),
 									v.getData().loops,
-									to.getData().path.inverse()
+									to.getData().getPath().inverse()
 								)
 							);
 						}else if(v.getOutCount() == 2){
@@ -231,23 +248,23 @@ public final class ParserCPQ extends GenericParser{
 								from.getTargetNode(),
 								to.getTargetNode(),
 								concat(
-									from.getData().path.inverse(),
+									from.getData().getPath().inverse(),
 									v.getData().loops,
-									to.getData().path
+									to.getData().getPath()
 								)
 							);
 						}else{
 							//from -> v loops -> to
 							GraphEdge<VertexData<V>, EdgeData> from = v.getInEdges().iterator().next();
 							GraphEdge<VertexData<V>, EdgeData> to = v.getOutEdges().iterator().next();
-							println("reduce by concat in-out / " + v.getData().vertex.toString() + " / " + from.getData().path + " | " + to.getData().path);
+							println("reduce by concat in-out / " + v.getData().vertex.toString() + " / " + from.getData().getPath() + " | " + to.getData().getPath());
 							graph.addEdge(
 								from.getSourceNode(),
 								to.getTargetNode(),
 								concat(
-									from.getData().path,
+									from.getData().getPath(),
 									v.getData().loops,
-									to.getData().path
+									to.getData().getPath()
 								)
 							);
 						}
@@ -256,39 +273,39 @@ public final class ParserCPQ extends GenericParser{
 						changed = true;
 						break;
 				}
-			}
+//			}
 			
 			//concatenation always has to be applied first or small cycles might be collapsed
-			if(!changed){
-				//collapse (intersect) edges between the same source and target vertex
-				collapse: for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
-					if(v.getOutEdges().size() > 2){
-						Iterator<GraphEdge<VertexData<V>, EdgeData>> edges = v.getOutEdges().stream().sorted(Comparator.comparingInt(e->e.getTargetNode().getID())).iterator();
-						
-						int n = 1;
-						GraphEdge<VertexData<V>, EdgeData> last = edges.next();
-						while(edges.hasNext()){
-							GraphEdge<VertexData<V>, EdgeData> next = edges.next();
-							if(next.getTargetNode().getID() == last.getTargetNode().getID()){
-								n++;
-								if(n > 2){
-									last.getData().addParallel(next.getData().path);
-									next.remove();
-									changed = true;
-									println("collapse parallel (min): " + last.getData().path + " | " + next.getData().path);
-									break collapse;
-								}
-							}else{
-								last = next;
-								n = 1;
-							}
-						}
-					}
-				}
-			}
+//			if(!changed){
+//				//collapse (intersect) edges between the same source and target vertex
+//				collapse: for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
+//					if(v.getOutEdges().size() > 2){
+//						Iterator<GraphEdge<VertexData<V>, EdgeData>> edges = v.getOutEdges().stream().sorted(Comparator.comparingInt(e->e.getTargetNode().getID())).iterator();
+//
+//						int n = 1;
+//						GraphEdge<VertexData<V>, EdgeData> last = edges.next();
+//						while(edges.hasNext()){
+//							GraphEdge<VertexData<V>, EdgeData> next = edges.next();
+//							if(next.getTargetNode().getID() == last.getTargetNode().getID()){
+//								n++;
+//								if(n > 2){
+//									last.getData().addParallel(next.getData().getPath());
+//									next.remove();
+//									changed = true;
+//									println("collapse parallel (min): " + last.getData().getPath() + " | " + next.getData().getPath());
+//									break collapse;
+//								}
+//							}else{
+//								last = next;
+//								n = 1;
+//							}
+//						}
+//					}
+//				}
+//			}
 			
 			//concatenation always has to be applied first or small cycles might be collapsed
-			if(!changed){
+//			if(!changed){
 				//collapse (intersect) edges between the same source and target vertex
 				collapse: for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
 					if(v.getOutEdges().size() >= 2){
@@ -298,10 +315,10 @@ public final class ParserCPQ extends GenericParser{
 						while(edges.hasNext()){
 							GraphEdge<VertexData<V>, EdgeData> next = edges.next();
 							if(next.getTargetNode().getID() == last.getTargetNode().getID()){
-								last.getData().addParallel(next.getData().path);
+								last.getData().addParallel(next.getData().getPath());
 								next.remove();
 								changed = true;
-									println("collapse parallel (full): " + last.getData().path + " | " + next.getData().path);
+									println("collapse parallel (full): " + last.getData().getPath() + " | " + next.getData().getPath());
 								break collapse;
 							}else{
 								last = next;
@@ -309,13 +326,13 @@ public final class ParserCPQ extends GenericParser{
 						}
 					}
 				}
-			}
+//			}
 		}while(changed);
 		
 		if(sourceVertex.equals(targetVertex) && graph.graph.getNodeCount() == 1 && graph.graph.getEdgeCount() == 0){
 			return graph.graph.getNodes().getFirst().getData().loops;
 		}else if(!sourceVertex.equals(targetVertex) && graph.graph.getNodeCount() == 2 && graph.graph.getEdgeCount() == 1){
-			CPQ path = graph.graph.getEdges().getFirst().getData().path;
+			CPQ path = graph.graph.getEdges().getFirst().getData().getPath();
 			if(graph.source.getInCount() == 1){
 				//flip the edges as we walked it from target to source
 				path = path.inverse();
@@ -419,7 +436,7 @@ public final class ParserCPQ extends GenericParser{
 		}
 		
 		private void addLoop(EdgeData edge){
-			addLoop(edge.path);
+			addLoop(edge.getPath());
 		}
 		
 		private void addLoop(CPQ path){
@@ -432,14 +449,19 @@ public final class ParserCPQ extends GenericParser{
 	}
 	
 	private static class EdgeData{
-		private CPQ path;
+		private final List<CPQ> paths;
 		
 		private EdgeData(CPQ path){
-			this.path = path;
+			paths = new ArrayList<CPQ>();
+			paths.add(path);
 		}
 		
 		private void addParallel(CPQ parallel){
-			path = CPQ.intersect(path, parallel);
+			paths.add(parallel);
+		}
+		
+		private CPQ getPath(){
+			return paths.size() == 1 ? paths.getFirst() : CPQ.intersect(paths);
 		}
 	}
 }

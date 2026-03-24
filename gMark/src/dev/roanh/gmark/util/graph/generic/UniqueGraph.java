@@ -94,6 +94,11 @@ public class UniqueGraph<V, E>{
 		return edges;
 	}
 	
+	/**
+	 * Checks if there is a node in this graph associated with the given data.
+	 * @param data The data uniquely identifying the node.
+	 * @return True if a node associated with the given data exists in the graph.
+	 */
 	public boolean containsNode(V data){
 		return nodeMap.containsKey(data);
 	}

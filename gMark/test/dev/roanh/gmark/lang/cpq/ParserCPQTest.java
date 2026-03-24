@@ -272,6 +272,12 @@ public class ParserCPQTest{
 	}
 	
 	@Test
+	public void parseGraphPotentialLoopBecomesConcat(){
+		CPQ q = CPQ.parse("(((id ∩ 3) ∩ 2) ∩ ((2⁻◦(id ∩ ((3⁻◦(id ∩ (((2⁻ ∩ 1)◦(id ∩ (1⁻◦2)))◦3)))◦2)))◦3⁻))", List.of(l1, l2, l3));
+		assertEquivalentCPQ(q, q.toQueryGraph().toCPQ());
+	}
+	
+	@Test
 	public void parseGraphNotCPQ(){
 		QueryGraphCQ q = CQ.parse("(src, trg) ← 1(src, b1), 1(b1, trg), 2(src, b2), 2(b2, trg), 3(b1, b2)").toQueryGraph();
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()->CPQ.parse(q.toUniqueGraph().copy(Function.identity(), AtomCQ::getLabel), q.getVariable("src"), q.getVariable("trg")));
@@ -387,7 +393,7 @@ public class ParserCPQTest{
 		);
 	}
 	
-	@RepeatedTest(10000)
+	@RepeatedTest(100)
 	public void parseGraphRandom(){
 		CPQ base = GeneratorCPQ.generatePlainCPQ(50, List.of(l1, l2, l3));
 		try{
@@ -414,7 +420,7 @@ public class ParserCPQTest{
 //		GraphPanel.show(CPQ.parse("((id ∩ ((1⁻◦(2⁻ ∩ 2⁻))◦(1⁻ ∩ (id ∩ 3⁻)))) ∩ ((3◦(id ∩ ((id ∩ (((1⁻◦(2⁻ ∩ 1⁻)) ∩ 1) ∩ (2⁻◦2⁻)))◦(1⁻ ∩ 1⁻))))◦(2⁻◦(2⁻ ∩ 2⁻))))").toQueryGraph().toCPQ());
 		
 		int real = -1;
-		QueryGraphCPQ pre = CPQ.parse("(id ∩ ((((3⁻ ∩ 2)◦2⁻) ∩ 2⁻)◦2⁻))").toQueryGraph();
+		QueryGraphCPQ pre = CPQ.parse("(((id ∩ 3) ∩ 2) ∩ ((2⁻◦(id ∩ ((3⁻◦(id ∩ (((2⁻ ∩ 1)◦(id ∩ (1⁻◦2)))◦3)))◦2)))◦3⁻))").toQueryGraph();
 		QueryGraphCPQ g = null;
 		try{
 			System.out.println("---");

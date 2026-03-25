@@ -28,10 +28,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.generic.GenericParser;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphNode;
@@ -162,7 +165,7 @@ public final class ParserCPQ extends GenericParser{
 					continue;
 				}
 
-				println("v is " + v.getData().vertex);
+				println("[red 1] v is " + v.getData().vertex);
 
 				//reduce degree 1 vertices
 				if(v.getInCount() == 1){
@@ -214,12 +217,38 @@ public final class ParserCPQ extends GenericParser{
 				}
 			}
 			
+			//collapse (intersect) edges between the same source and target vertex
+			collapse: for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
+				if(v.getOutEdges().size() >= 2){
+					Iterator<GraphEdge<VertexData<V>, EdgeData>> edges = v.getOutEdges().stream().sorted(Comparator.comparingInt(e->e.getTargetNode().getID())).iterator();
+
+					GraphEdge<VertexData<V>, EdgeData> last = edges.next();
+					while(edges.hasNext()){
+						GraphEdge<VertexData<V>, EdgeData> next = edges.next();
+						if(next.getTargetNode().getID() == last.getTargetNode().getID()){
+							last.getData().addParallel(next.getData().getPath());
+							next.remove();
+							changed = true;
+							println("collapse parallel (full): " + last.getData().getPath() + " | " + next.getData().getPath());
+							break collapse;
+						}else{
+							last = next;
+						}
+					}
+				}
+			}
+			
 			for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
 				if(v.getData().isTerminal() || v.getDegree() != 2){
 					continue;
 				}
-
-				println("v is " + v.getData().vertex);
+				
+				if(changed && graph.articulation.contains(v) && 2 != Stream.concat(v.getInEdges().stream(), v.getOutEdges().stream()).mapToInt(e->e.getData().paths.size()).sum()){
+					//skip articulation points that interact with more than 2 edges until there are no other options
+					continue;
+				}
+				
+				println("[red 2] v is " + v.getData().vertex);
 
 				//reduce degree 2 vertices
 				if(v.getInCount() == 2){
@@ -272,27 +301,6 @@ public final class ParserCPQ extends GenericParser{
 				changed = true;
 				break;
 			}
-			
-			//collapse (intersect) edges between the same source and target vertex
-			collapse: for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
-				if(v.getOutEdges().size() >= 2){
-					Iterator<GraphEdge<VertexData<V>, EdgeData>> edges = v.getOutEdges().stream().sorted(Comparator.comparingInt(e->e.getTargetNode().getID())).iterator();
-
-					GraphEdge<VertexData<V>, EdgeData> last = edges.next();
-					while(edges.hasNext()){
-						GraphEdge<VertexData<V>, EdgeData> next = edges.next();
-						if(next.getTargetNode().getID() == last.getTargetNode().getID()){
-							last.getData().addParallel(next.getData().getPath());
-							next.remove();
-							changed = true;
-							println("collapse parallel (full): " + last.getData().getPath() + " | " + next.getData().getPath());
-							break collapse;
-						}else{
-							last = next;
-						}
-					}
-				}
-			}
 		}while(changed);
 		
 		if(sourceVertex.equals(targetVertex) && graph.graph.getNodeCount() == 1 && graph.graph.getEdgeCount() == 0){
@@ -337,6 +345,7 @@ public final class ParserCPQ extends GenericParser{
 		private final UniqueGraph<VertexData<V>, EdgeData> graph = new UniqueGraph<ParserCPQ.VertexData<V>, ParserCPQ.EdgeData>();
 		private final GraphNode<VertexData<V>, EdgeData> source;
 		private final GraphNode<VertexData<V>, EdgeData> target;
+		private final Set<GraphNode<VertexData<V>, EdgeData>> articulation;
 		
 		private ReductionGraph(UniqueGraph<V, Predicate> queryGraph, V source, V target){
 			Map<V, VertexData<V>> transform = new HashMap<V, VertexData<V>>();
@@ -358,6 +367,9 @@ public final class ParserCPQ extends GenericParser{
 					CPQ.label(edge.getData())
 				);
 			}
+			
+			articulation = Set.copyOf(Util.computeArticulationPoints(graph));
+			System.out.println("art points: " + articulation.stream().map(v->v.getID()).toList());
 		}
 		
 		private List<GraphNode<VertexData<V>, EdgeData>> getNodes(){

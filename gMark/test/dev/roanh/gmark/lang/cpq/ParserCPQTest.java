@@ -393,7 +393,7 @@ public class ParserCPQTest{
 		);
 	}
 	
-	@RepeatedTest(100)
+	@RepeatedTest(1000)
 	public void parseGraphRandom(){
 		CPQ base = GeneratorCPQ.generatePlainCPQ(50, List.of(l1, l2, l3));
 		try{

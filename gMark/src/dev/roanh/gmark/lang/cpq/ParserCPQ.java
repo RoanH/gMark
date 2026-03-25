@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import dev.roanh.gmark.lang.QueryLanguageSyntax;
 import dev.roanh.gmark.lang.generic.GenericParser;
@@ -243,8 +242,8 @@ public final class ParserCPQ extends GenericParser{
 					continue;
 				}
 				
-				if(changed && graph.articulation.contains(v) && 2 != Stream.concat(v.getInEdges().stream(), v.getOutEdges().stream()).mapToInt(e->e.getData().paths.size()).sum()){
-					//skip articulation points that interact with more than 2 edges until there are no other options
+				if(changed && graph.articulation.contains(v)){
+					//skip articulation points until there are no other options
 					continue;
 				}
 				

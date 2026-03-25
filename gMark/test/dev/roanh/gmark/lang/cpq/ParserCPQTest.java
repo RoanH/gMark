@@ -278,6 +278,12 @@ public class ParserCPQTest{
 	}
 	
 	@Test
+	public void parseGraphPotentialLoopBecomesConcatViaSimplePath(){
+		CPQ q = CPQ.parse("((3◦(((id ∩ 2⁻) ∩ 1⁻)◦(1⁻ ∩ 1)))◦(((id ∩ 3) ∩ (2⁻◦2⁻)) ∩ ((3⁻◦(id ∩ ((3◦((id ∩ 2) ∩ 1))◦3⁻)))◦3)))", List.of(l1, l2, l3));
+		assertEquivalentCPQ(q, q.toQueryGraph().toCPQ());
+	}
+	
+	@Test
 	public void parseGraphNotCPQ(){
 		QueryGraphCQ q = CQ.parse("(src, trg) ← 1(src, b1), 1(b1, trg), 2(src, b2), 2(b2, trg), 3(b1, b2)").toQueryGraph();
 		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()->CPQ.parse(q.toUniqueGraph().copy(Function.identity(), AtomCQ::getLabel), q.getVariable("src"), q.getVariable("trg")));
@@ -393,7 +399,7 @@ public class ParserCPQTest{
 		);
 	}
 	
-	@RepeatedTest(1000)
+	@RepeatedTest(10000)
 	public void parseGraphRandom(){
 		CPQ base = GeneratorCPQ.generatePlainCPQ(50, List.of(l1, l2, l3));
 		try{
@@ -419,8 +425,15 @@ public class ParserCPQTest{
 //		GraphPanel.show(CPQ.parse("((id ∩ ((1⁻◦(2⁻ ∩ 2⁻))◦(1⁻ ∩ (id ∩ 3⁻)))) ∩ ((3◦(id ∩ ((id ∩ (((1⁻◦(2⁻ ∩ 1⁻)) ∩ 1) ∩ (2⁻◦2⁻)))◦(1⁻ ∩ 1⁻))))◦(2⁻◦(2⁻ ∩ 2⁻))))"));
 //		GraphPanel.show(CPQ.parse("((id ∩ ((1⁻◦(2⁻ ∩ 2⁻))◦(1⁻ ∩ (id ∩ 3⁻)))) ∩ ((3◦(id ∩ ((id ∩ (((1⁻◦(2⁻ ∩ 1⁻)) ∩ 1) ∩ (2⁻◦2⁻)))◦(1⁻ ∩ 1⁻))))◦(2⁻◦(2⁻ ∩ 2⁻))))").toQueryGraph().toCPQ());
 		
+		//org.opentest4j.AssertionFailedError: (((((id ∩ 3) ∩ 2) ∩ ((1◦(id ∩ ((2⁻◦((id ∩ 1) ∩ (1◦3⁻)))◦2)))◦1⁻)) ∩ (2⁻◦(1◦((2⁻◦3) ∩ 2)))) ∩ ((((2◦(((id ∩ 1) ∩ 2) ∩ (2⁻◦3)))◦(3⁻◦2)) ∩ (3◦(3⁻◦3)) ∩ (2⁻◦2) ∩ (1⁻◦2) ∩ ((2◦((3◦2) ∩ 2⁻))◦2))◦((1⁻ ∩ 1 ∩ 3)◦(3◦((id ∩ 3⁻)◦2⁻))))) vs (((((id ∩ 2) ∩ 3) ∩ (((1◦2⁻)◦((id ∩ 1) ∩ (1◦3⁻)))◦(2◦1⁻))) ∩ (3⁻◦(2◦((1⁻◦2) ∩ 2)))) ∩ (((((2◦(((id ∩ 1) ∩ 2) ∩ (3⁻◦2)))◦(3⁻◦2)) ∩ ((2◦((id ∩ 3⁻)◦(3⁻◦(3⁻ ∩ 1 ∩ 1⁻)))) ∩ (2⁻◦2)) ∩ (1⁻◦2) ∩ ((2◦(2⁻ ∩ (3◦2)))◦2))◦3⁻)◦(3◦3⁻))) ==> expected: <37> but was: <39>
+//org.opentest4j.AssertionFailedError: (((id ∩ 2) ∩ ((1⁻◦(id ∩ ((2◦(id ∩ ((3◦(id ∩ 3))◦3⁻)))◦2⁻)))◦1))◦(((((2 ∩ 3)◦3)◦(2 ∩ 1⁻))◦(3⁻ ∩ (3◦2))) ∩ (3 ∩ 2))) vs (((id ∩ 2) ∩ (((1⁻◦2)◦(id ∩ ((3◦(id ∩ 3))◦3⁻)))◦(2⁻◦1)))◦(2 ∩ 3 ∩ ((3 ∩ 2)◦(3◦((2 ∩ 1⁻)◦(3⁻ ∩ (3◦2))))))) ==> expected: <15> but was: <17>
+//org.opentest4j.AssertionFailedError: ((3◦(((id ∩ 2⁻) ∩ 1⁻)◦(1⁻ ∩ 1)))◦(((id ∩ 3) ∩ (2⁻◦2⁻)) ∩ ((3⁻◦(id ∩ ((3◦((id ∩ 2) ∩ 1))◦3⁻)))◦3))) vs ((3◦(((id ∩ 2⁻) ∩ 1⁻)◦(1⁻ ∩ 1)))◦(((id ∩ 3) ∩ (((3⁻◦3)◦((id ∩ 2) ∩ 1))◦(3⁻◦3))) ∩ (2◦2))) ==> expected: <12> but was: <14>
+
+		//^ 1 in 200k at 20 rules
+		//^ 1 in 20k at 50 rules
+		
 		int real = -1;
-		QueryGraphCPQ pre = CPQ.parse("(((id ∩ 3) ∩ 2) ∩ ((2⁻◦(id ∩ ((3⁻◦(id ∩ (((2⁻ ∩ 1)◦(id ∩ (1⁻◦2)))◦3)))◦2)))◦3⁻))").toQueryGraph();
+		QueryGraphCPQ pre = CPQ.parse("((3◦(((id ∩ 2⁻) ∩ 1⁻)◦(1⁻ ∩ 1)))◦(((id ∩ 3) ∩ (2⁻◦2⁻)) ∩ ((3⁻◦(id ∩ ((3◦((id ∩ 2) ∩ 1))◦3⁻)))◦3)))").toQueryGraph();
 		QueryGraphCPQ g = null;
 		try{
 			System.out.println("---");
@@ -430,7 +443,7 @@ public class ParserCPQTest{
 			System.out.println("ERR");
 		}
 		
-		int should = 5;
+		int should = 12;
 		
 		if(real != should){
 			System.out.println("BAD");

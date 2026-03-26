@@ -238,12 +238,7 @@ public final class ParserCPQ extends GenericParser{
 			}
 			
 			for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
-				if(v.getData().isTerminal() || v.getDegree() != 2){
-					continue;
-				}
-				
-				if(changed && graph.articulation.contains(v)){
-					//skip articulation points until there are no other options
+				if(v.getData().isTerminal() || v.getDegree() != 2 || graph.articulation.contains(v)){
 					continue;
 				}
 				
@@ -299,6 +294,67 @@ public final class ParserCPQ extends GenericParser{
 				v.remove();
 				changed = true;
 				break;
+			}
+			
+			if(!changed){
+				for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
+					if(v.getData().isTerminal() || v.getDegree() != 2 || !graph.articulation.contains(v)){
+						continue;
+					}
+					
+					println("[red 2 art] v is " + v.getData().vertex);
+
+					//reduce degree 2 vertices
+					if(v.getInCount() == 2){
+						//from -> v loops -> to inverse
+						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getInEdges().iterator();
+						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
+						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
+						println("reduce by concat in 2");
+						graph.addEdge(
+							from.getSourceNode(),
+							to.getSourceNode(),
+							concat(
+								from.getData().getPath(),
+								v.getData().loops,
+								to.getData().getPath().inverse()
+								)
+							);
+					}else if(v.getOutCount() == 2){
+						//from inverse -> v loops -> to
+						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getOutEdges().iterator();
+						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
+						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
+						println("reduce by concat out 2");
+						graph.addEdge(
+							from.getTargetNode(),
+							to.getTargetNode(),
+							concat(
+								from.getData().getPath().inverse(),
+								v.getData().loops,
+								to.getData().getPath()
+								)
+							);
+					}else{
+						//from -> v loops -> to
+						GraphEdge<VertexData<V>, EdgeData> from = v.getInEdges().iterator().next();
+						GraphEdge<VertexData<V>, EdgeData> to = v.getOutEdges().iterator().next();
+						println("reduce by concat in-out / " + v.getData().vertex.toString() + " / " + from.getData().getPath() + " | " + to.getData().getPath());
+						graph.addEdge(
+							from.getSourceNode(),
+							to.getTargetNode(),
+							concat(
+								from.getData().getPath(),
+								v.getData().loops,
+								to.getData().getPath()
+								)
+							);
+					}
+
+					v.remove();
+					changed = true;
+					break;
+				}
 			}
 		}while(changed);
 		

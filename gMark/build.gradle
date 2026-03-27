@@ -27,7 +27,7 @@ allprojects{
 	compileJava.options.encoding = 'UTF-8'
 	compileTestJava.options.encoding = 'UTF-8'
 	jacocoTestReport.reports.xml.required = true
-	java.sourceCompatibility = 1.21
+	java.sourceCompatibility = 1.25
 	javadoc.options.memberLevel = JavadocMemberLevel.PRIVATE
 	javadoc.options.encoding = 'UTF-8'
 

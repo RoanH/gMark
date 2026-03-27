@@ -92,7 +92,6 @@ project(':cli'){
 	}
 
 	eclipse.project.name = 'gMark-CLI'
-	shadowJar.archiveBaseName = 'gMark-CLI'
 	application.mainClass = 'dev.roanh.gmark.Main'
 
 	shadowJar{
@@ -127,7 +126,6 @@ project(':client'){
 	}
 
 	eclipse.project.name = 'gMark-Client'
-	shadowJar.archiveBaseName = 'gMark-Client'
 	application.mainClass = 'dev.roanh.gmark.client.GraphMark'
 
 	shadowJar{
@@ -143,7 +141,7 @@ project(':client'){
 		mainClassName = application.mainClass
 		jreMinVersion = project.java.sourceCompatibility.toString()
 		bundledJrePath = "%JAVA_HOME%"
-		outfile = 'gMark-Client-v' + project.version + '.exe'
+		outfile = 'gMark-v' + project.version + '.exe'
 		fileDescription = "gMark-Client"
 		productName = rootProject.name
 		version = project.version

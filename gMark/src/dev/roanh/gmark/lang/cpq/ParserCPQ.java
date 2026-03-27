@@ -154,82 +154,78 @@ public final class ParserCPQ extends GenericParser{
 			throw new IllegalArgumentException("The given source and target vertex do not belong to the query graph.");
 		}
 		
-		ReductionGraph<V> graph = new ReductionGraph<V>(queryGraph, sourceVertex, targetVertex);
+		ReductionGraph graph = new ReductionGraph(queryGraph, sourceVertex, targetVertex);
 		boolean changed;
 		do{
 			changed = false;
 			
-			for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
-				if(v.getData().isTerminal() || v.getDegree() != 1){
+			//reduce degree 1 vertices
+			for(GraphNode<VertexData, EdgeData> v : graph.getNodes()){
+				if(graph.isTerminal(v) || v.getDegree() != 1){
 					continue;
 				}
 
-				println("[red 1] v is " + v.getData().vertex);
-
-				//reduce degree 1 vertices
 				if(v.getInCount() == 1){
 					//base --path-> v loops --path inv-> base
-					GraphEdge<VertexData<V>, EdgeData> edge = v.getInEdges().iterator().next();
-					if(edge.getData().paths.size() == 1){
-						edge.getSourceNode().getData().addLoop(concat(
-							edge.getData().getPath(),
+					GraphEdge<VertexData, EdgeData> edge = v.getInEdges().iterator().next();
+					EdgeData data = edge.getData();
+					if(data.paths.size() == 1){
+						edge.getSource().addLoop(concat(
+							data.getPath(),
 							v.getData().loops,
-							edge.getData().getPath().inverse()
+							data.getPath().inverse()
 						));
 					}else{
-						edge.getSourceNode().getData().addLoop(concat(
-							edge.getData().getBundledPath(),
+						edge.getSource().addLoop(concat(
+							data.getBundledPath(),
 							v.getData().loops,
-							edge.getData().getSinglePath().inverse()
+							data.getSinglePath().inverse()
 						));
 					}
 				}else{
 					//base --path inv-> v loops --path-> base
-					GraphEdge<VertexData<V>, EdgeData> edge = v.getOutEdges().iterator().next();
-					if(edge.getData().paths.size() == 1){
-						edge.getTargetNode().getData().addLoop(concat(
-							edge.getData().getPath().inverse(),
+					GraphEdge<VertexData, EdgeData> edge = v.getOutEdges().iterator().next();
+					EdgeData data = edge.getData();
+					if(data.paths.size() == 1){
+						edge.getTarget().addLoop(concat(
+							data.getPath().inverse(),
 							v.getData().loops,
-							edge.getData().getPath()
+							data.getPath()
 						));
 					}else{
-						edge.getTargetNode().getData().addLoop(concat(
-							edge.getData().getSinglePath().inverse(),
+						edge.getTarget().addLoop(concat(
+							data.getSinglePath().inverse(),
 							v.getData().loops,
-							edge.getData().getBundledPath()
+							data.getBundledPath()
 						));
 					}
 				}
 
-				println("reduce degree 1");
 				v.remove();
 				changed = true;
 			}
 			
-			//handle fully reduced loops
-			for(GraphEdge<VertexData<V>, EdgeData> edge : graph.getEdges()){
+			//handle fully reduced loops by moving them to vertex metadata
+			for(GraphEdge<VertexData, EdgeData> edge : graph.getEdges()){
 				if(edge.getSourceNode().equals(edge.getTargetNode())){
 					edge.getSource().addLoop(edge.getData());
 					edge.remove();
 					changed = true;
-					println("reduce loop edge");
 				}
 			}
 			
 			//collapse (intersect) edges between the same source and target vertex
-			collapse: for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
+			for(GraphNode<VertexData, EdgeData> v : graph.getNodes()){
 				if(v.getOutEdges().size() >= 2){
-					Iterator<GraphEdge<VertexData<V>, EdgeData>> edges = v.getOutEdges().stream().sorted(Comparator.comparingInt(e->e.getTargetNode().getID())).iterator();
+					Iterator<GraphEdge<VertexData, EdgeData>> edges = v.getOutEdges().stream().sorted(Comparator.comparingInt(e->e.getTargetNode().getID())).iterator();
 
-					GraphEdge<VertexData<V>, EdgeData> last = edges.next();
+					GraphEdge<VertexData, EdgeData> last = edges.next();
 					while(edges.hasNext()){
-						GraphEdge<VertexData<V>, EdgeData> next = edges.next();
+						GraphEdge<VertexData, EdgeData> next = edges.next();
 						if(next.getTargetNode().getID() == last.getTargetNode().getID()){
 							last.getData().addParallel(next.getData().getPath());
 							next.remove();
 							changed = true;
-							println("collapse parallel (full): " + last.getData().getPath() + " | " + next.getData().getPath());
-							break collapse;
 						}else{
 							last = next;
 						}
@@ -237,123 +233,22 @@ public final class ParserCPQ extends GenericParser{
 				}
 			}
 			
-			for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
-				if(v.getData().isTerminal() || v.getDegree() != 2 || graph.articulation.contains(v)){
-					continue;
+			//reduce degree 2 vertices that aren't articulation points
+			for(GraphNode<VertexData, EdgeData> v : graph.getNodes()){
+				if(!graph.isTerminal(v) && v.getDegree() == 2 && !graph.isArticulationPoint(v)){
+					graph.contractVertexDegree2(v);
+					changed = true;
 				}
-				
-				println("[red 2] v is " + v.getData().vertex);
-
-				//reduce degree 2 vertices
-				if(v.getInCount() == 2){
-					//from -> v loops -> to inverse
-					Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getInEdges().iterator();
-					GraphEdge<VertexData<V>, EdgeData> from = iter.next();
-					GraphEdge<VertexData<V>, EdgeData> to = iter.next();
-					println("reduce by concat in 2");
-					graph.addEdge(
-						from.getSourceNode(),
-						to.getSourceNode(),
-						concat(
-							from.getData().getPath(),
-							v.getData().loops,
-							to.getData().getPath().inverse()
-							)
-						);
-				}else if(v.getOutCount() == 2){
-					//from inverse -> v loops -> to
-					Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getOutEdges().iterator();
-					GraphEdge<VertexData<V>, EdgeData> from = iter.next();
-					GraphEdge<VertexData<V>, EdgeData> to = iter.next();
-					println("reduce by concat out 2");
-					graph.addEdge(
-						from.getTargetNode(),
-						to.getTargetNode(),
-						concat(
-							from.getData().getPath().inverse(),
-							v.getData().loops,
-							to.getData().getPath()
-							)
-						);
-				}else{
-					//from -> v loops -> to
-					GraphEdge<VertexData<V>, EdgeData> from = v.getInEdges().iterator().next();
-					GraphEdge<VertexData<V>, EdgeData> to = v.getOutEdges().iterator().next();
-					println("reduce by concat in-out / " + v.getData().vertex.toString() + " / " + from.getData().getPath() + " | " + to.getData().getPath());
-					graph.addEdge(
-						from.getSourceNode(),
-						to.getTargetNode(),
-						concat(
-							from.getData().getPath(),
-							v.getData().loops,
-							to.getData().getPath()
-							)
-						);
-				}
-
-				v.remove();
-				changed = true;
-				break;
 			}
 			
+			//reduce degree 2 vertices that are articulation points only if there are no alternative actions
 			if(!changed){
-				for(GraphNode<VertexData<V>, EdgeData> v : graph.getNodes()){
-					if(v.getData().isTerminal() || v.getDegree() != 2 || !graph.articulation.contains(v)){
-						continue;
+				for(GraphNode<VertexData, EdgeData> v : graph.getNodes()){
+					if(!graph.isTerminal(v) && v.getDegree() == 2 && graph.isArticulationPoint(v)){
+						graph.contractVertexDegree2(v);
+						changed = true;
+						break;
 					}
-					
-					println("[red 2 art] v is " + v.getData().vertex);
-
-					//reduce degree 2 vertices
-					if(v.getInCount() == 2){
-						//from -> v loops -> to inverse
-						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getInEdges().iterator();
-						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
-						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
-						println("reduce by concat in 2");
-						graph.addEdge(
-							from.getSourceNode(),
-							to.getSourceNode(),
-							concat(
-								from.getData().getPath(),
-								v.getData().loops,
-								to.getData().getPath().inverse()
-								)
-							);
-					}else if(v.getOutCount() == 2){
-						//from inverse -> v loops -> to
-						Iterator<GraphEdge<VertexData<V>, EdgeData>> iter = v.getOutEdges().iterator();
-						GraphEdge<VertexData<V>, EdgeData> from = iter.next();
-						GraphEdge<VertexData<V>, EdgeData> to = iter.next();
-						println("reduce by concat out 2");
-						graph.addEdge(
-							from.getTargetNode(),
-							to.getTargetNode(),
-							concat(
-								from.getData().getPath().inverse(),
-								v.getData().loops,
-								to.getData().getPath()
-								)
-							);
-					}else{
-						//from -> v loops -> to
-						GraphEdge<VertexData<V>, EdgeData> from = v.getInEdges().iterator().next();
-						GraphEdge<VertexData<V>, EdgeData> to = v.getOutEdges().iterator().next();
-						println("reduce by concat in-out / " + v.getData().vertex.toString() + " / " + from.getData().getPath() + " | " + to.getData().getPath());
-						graph.addEdge(
-							from.getSourceNode(),
-							to.getTargetNode(),
-							concat(
-								from.getData().getPath(),
-								v.getData().loops,
-								to.getData().getPath()
-								)
-							);
-					}
-
-					v.remove();
-					changed = true;
-					break;
 				}
 			}
 		}while(changed);
@@ -378,10 +273,6 @@ public final class ParserCPQ extends GenericParser{
 		throw new IllegalArgumentException("The given input graph does not represent a valid CPQ.");
 	}
 	
-	private static void println(String arg){
-//		System.out.println(arg);
-	}
-	
 	private static CPQ concat(CPQ first, CPQ second, CPQ third){
 		CPQ q = first;
 		
@@ -396,20 +287,20 @@ public final class ParserCPQ extends GenericParser{
 		return q;
 	}
 	
-	private static class ReductionGraph<V>{
-		private final UniqueGraph<VertexData<V>, EdgeData> graph = new UniqueGraph<ParserCPQ.VertexData<V>, ParserCPQ.EdgeData>();
-		private final GraphNode<VertexData<V>, EdgeData> source;
-		private final GraphNode<VertexData<V>, EdgeData> target;
-		private final Set<GraphNode<VertexData<V>, EdgeData>> articulation;
+	private static class ReductionGraph{
+		private final UniqueGraph<VertexData, EdgeData> graph = new UniqueGraph<VertexData, EdgeData>();
+		private final GraphNode<VertexData, EdgeData> source;
+		private final GraphNode<VertexData, EdgeData> target;
+		private final Set<GraphNode<VertexData, EdgeData>> articulation;
 		
-		private ReductionGraph(UniqueGraph<V, Predicate> queryGraph, V source, V target){
-			Map<V, VertexData<V>> transform = new HashMap<V, VertexData<V>>();
+		private <V> ReductionGraph(UniqueGraph<V, Predicate> queryGraph, V source, V target){
+			Map<V, VertexData> transform = new HashMap<V, VertexData>();
 			
 			for(GraphNode<V, Predicate> node : queryGraph.getNodes()){
 				V v = node.getData();
-				VertexData<V> data = new VertexData<V>(v, v.equals(source) || v.equals(target));
+				VertexData data = new VertexData();
 				graph.addUniqueNode(data);
-				transform.put(data.vertex, data);
+				transform.put(v, data);
 			}
 			
 			this.source = graph.getNode(transform.get(source));
@@ -424,15 +315,69 @@ public final class ParserCPQ extends GenericParser{
 			}
 			
 			articulation = Set.copyOf(Util.computeArticulationPoints(graph));
-			System.out.println("art points: " + articulation.stream().map(v->v.getID()).toList());
 		}
 		
-		private List<GraphNode<VertexData<V>, EdgeData>> getNodes(){
+		private boolean isTerminal(GraphNode<VertexData, EdgeData> vertex){
+			return vertex.equals(source) || vertex.equals(target);
+		}
+		
+		private boolean isArticulationPoint(GraphNode<VertexData, EdgeData> vertex){
+			return articulation.contains(vertex);
+		}
+		
+		private void contractVertexDegree2(GraphNode<VertexData, EdgeData> vertex){
+			if(vertex.getInCount() == 2){
+				//from -> v loops -> to inverse
+				Iterator<GraphEdge<VertexData, EdgeData>> iter = vertex.getInEdges().iterator();
+				GraphEdge<VertexData, EdgeData> from = iter.next();
+				GraphEdge<VertexData, EdgeData> to = iter.next();
+				addEdge(
+					from.getSourceNode(),
+					to.getSourceNode(),
+					concat(
+						from.getData().getPath(),
+						vertex.getData().loops,
+						to.getData().getPath().inverse()
+					)
+				);
+			}else if(vertex.getOutCount() == 2){
+				//from inverse -> v loops -> to
+				Iterator<GraphEdge<VertexData, EdgeData>> iter = vertex.getOutEdges().iterator();
+				GraphEdge<VertexData, EdgeData> from = iter.next();
+				GraphEdge<VertexData, EdgeData> to = iter.next();
+				addEdge(
+					from.getTargetNode(),
+					to.getTargetNode(),
+					concat(
+						from.getData().getPath().inverse(),
+						vertex.getData().loops,
+						to.getData().getPath()
+					)
+				);
+			}else{
+				//from -> v loops -> to
+				GraphEdge<VertexData, EdgeData> from = vertex.getInEdges().iterator().next();
+				GraphEdge<VertexData, EdgeData> to = vertex.getOutEdges().iterator().next();
+				addEdge(
+					from.getSourceNode(),
+					to.getTargetNode(),
+					concat(
+						from.getData().getPath(),
+						vertex.getData().loops,
+						to.getData().getPath()
+					)
+				);
+			}
+			
+			vertex.remove();
+		}
+		
+		private List<GraphNode<VertexData, EdgeData>> getNodes(){
 			//this has to be co-mod safe
 			return List.copyOf(graph.getNodes());
 		}
 		
-		private List<GraphEdge<VertexData<V>, EdgeData>> getEdges(){
+		private List<GraphEdge<VertexData, EdgeData>> getEdges(){
 			//this has to be co-mod safe
 			return List.copyOf(graph.getEdges());
 		}
@@ -445,7 +390,7 @@ public final class ParserCPQ extends GenericParser{
 		 * @param path The path between the from and to nodes, will be inverted and the from
 		 *        and to nodes swapped if the input does not follow the ID requirements.
 		 */
-		private void addEdge(GraphNode<VertexData<V>, EdgeData> from, GraphNode<VertexData<V>, EdgeData> to, CPQ path){
+		private void addEdge(GraphNode<VertexData, EdgeData> from, GraphNode<VertexData, EdgeData> to, CPQ path){
 			if(from.getID() <= to.getID()){
 				from.addUniqueEdgeTo(to, new EdgeData(path));
 			}else{
@@ -454,18 +399,10 @@ public final class ParserCPQ extends GenericParser{
 		}
 	}
 	
-	private static class VertexData<V>{
-		private final V vertex;
-		private final boolean terminal;
+	private static class VertexData{
 		private CPQ loops;
 		
-		private VertexData(V vertex, boolean terminal){
-			this.vertex = vertex;
-			this.terminal = terminal;
-		}
-		
-		private boolean isTerminal(){
-			return terminal;
+		private VertexData(){
 		}
 		
 		private void addLoop(EdgeData edge){

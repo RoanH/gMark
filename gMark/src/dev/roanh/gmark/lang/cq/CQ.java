@@ -155,13 +155,13 @@ public final class CQ implements QueryLanguageSyntax{
 			
 			atomsForVariable.computeIfAbsent(
 				atom.getSource(),
-				k->new ArrayList<AtomCQ>()
+				_->new ArrayList<AtomCQ>()
 			).add(atom);
 			
 			if(!atom.getSource().equals(atom.getTarget())){
 				atomsForVariable.computeIfAbsent(
 					atom.getTarget(),
-					k->new ArrayList<AtomCQ>()
+					_->new ArrayList<AtomCQ>()
 				).add(atom);
 			}
 		}

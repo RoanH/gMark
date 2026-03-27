@@ -30,7 +30,7 @@ public enum DistributionType{
 	/**
 	 * Indicates that the distribution is not known.
 	 */
-	UNDEFINED("undefined", e->Distribution.UNDEFINED),
+	UNDEFINED("undefined", _->Distribution.UNDEFINED),
 	/**
 	 * Represents a uniform distribution where
 	 * number are uniformly distributed between

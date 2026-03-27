@@ -172,8 +172,8 @@ public class Query implements OutputSQL, OutputFormal, OutputXML{
 		Map<Conjunct, Integer> idMap = new HashMap<Conjunct, Integer>();
 		for(int i = 0; i < n; i++){
 			Conjunct conj = body.getConjuncts().get(i);
-			varMap.computeIfAbsent(conj.getSource(), v->new ArrayList<Conjunct>()).add(conj);
-			varMap.computeIfAbsent(conj.getTarget(), v->new ArrayList<Conjunct>()).add(conj);
+			varMap.computeIfAbsent(conj.getSource(), _->new ArrayList<Conjunct>()).add(conj);
+			varMap.computeIfAbsent(conj.getTarget(), _->new ArrayList<Conjunct>()).add(conj);
 			idMap.put(conj, i);
 		}
 		

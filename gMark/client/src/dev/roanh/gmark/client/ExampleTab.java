@@ -71,7 +71,7 @@ public class ExampleTab extends JPanel{
 			JTabbedPane tabs = new JTabbedPane();
 			tabs.addTab("Config Graph", new GraphPanel<Type, Predicate>(new ConfigGraph(config), Type::getAlias, Predicate::getAlias));
 			tabs.addTab("Schema Graph", new GraphPanel<SelectivityType, Predicate>(gs, SelectivityType::toString, Predicate::getAlias));
-			tabs.addTab("Selectivity Graph", new GraphPanel<SelectivityType, SelectivityClass>(new SelectivityGraph(config.getSchema(), 3), SelectivityType::toString, c->""));
+			tabs.addTab("Selectivity Graph", new GraphPanel<SelectivityType, SelectivityClass>(new SelectivityGraph(config.getSchema(), 3), SelectivityType::toString, _->""));
 			tabs.addTab("Edge Graph", new GraphPanel<EdgeGraphData, Void>(eg));
 
 			this.add(new JLabel("On this tab we visually display some of the core structures used in gmark. You can drag graph nodes around with the mouse."), BorderLayout.PAGE_START);

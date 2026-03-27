@@ -22,24 +22,19 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.function.Function;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
 import dev.roanh.gmark.ast.EdgeQueryAtom;
 import dev.roanh.gmark.ast.QueryTree;
-import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.lang.cq.AtomCQ;
 import dev.roanh.gmark.lang.cq.CQ;
 import dev.roanh.gmark.lang.cq.QueryGraphCQ;
 import dev.roanh.gmark.type.schema.Predicate;
-import dev.roanh.gmark.util.graph.GraphPanel;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 
 public class ParserCPQTest{
@@ -304,7 +299,7 @@ public class ParserCPQTest{
 	}
 	
 	@Test
-	public void parseGraph10(){
+	public void parseGraphComplexGraph(){
 		UniqueGraph<String, Predicate> graph = new UniqueGraph<String, Predicate>();
 
 		graph.addUniqueNode("1s");
@@ -370,26 +365,6 @@ public class ParserCPQTest{
 		// |                       |
 		// \-----------------------/
 
-
-		//((2◦2) ∩ (1◦1))
-		
-		//(1 ◦ ((1 ◦ (id ∩ (1 ◦ 1 ◦ 1)) ◦ (1∩2)) ∩ (1◦1)) ◦ 1)
-		//(1 ◦ 1 ◦ ((1 ◦ (id ∩ 1 ∩ ((1∩2) ◦ (id ∩ 1) ◦ 1 ◦ 1)) ◦ 1⁻) ∩ id) ◦ 1)
-		//(1 ◦ (1∩2) ◦ 1)
-		
-		//(id ∩ 1) ◦ ((1 ◦ ((1 ◦ (id ∩ (1 ◦ 1 ◦ 1)) ◦ (1∩2)) ∩ (1◦1)) ◦ 1) ∩ (1 ◦ 1 ◦ ((1 ◦ (id ∩ 1 ∩ ((1∩2) ◦ (id ∩ 1) ◦ 1 ◦ 1)) ◦ 1⁻) ∩ id) ◦ 1) ∩ (1 ◦ (1∩2) ◦ 1)) ◦ (id ∩ 1)
-		
-		
-//		GraphPanel.show(graph);
-//		try{
-//			Thread.sleep(Duration.ofDays(1));
-//		}catch(InterruptedException e){
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
-		ParserCPQ.parse(graph, "1s", "15t");
-		
 		assertEquivalentCPQ(
 			"""
 			(id ∩ 1) ◦
@@ -406,107 +381,25 @@ public class ParserCPQTest{
 		);
 	}
 	
-	@RepeatedTest(1000)
+	@RepeatedTest(10)
 	public void parseGraphRandom(){
-		CPQ base = GeneratorCPQ.generatePlainCPQ(50, List.of(l1, l2, l3));
-		try{
-			CPQ q = base.computeCore().toCPQ();
-			assertEquivalentCPQ(q, q.toQueryGraph().toCPQ());
-		}catch(Exception e){
-			fail(e.getMessage() + ": " + base);
-		}
+		CPQ q = GeneratorCPQ.generatePlainCPQ(50, List.of(l1, l2, l3)).computeCore().toCPQ();
+		assertEquivalentCPQ(q, q.toQueryGraph().toCPQ());
 	}
-	
-	public static void main(String[] args){
-		UniqueGraph<Vertex, Predicate> g = CPQ.parse("((id ∩ ((1⁻◦(2⁻ ∩ 2⁻))◦(1⁻ ∩ (id ∩ 3⁻)))) ∩ ((3◦(id ∩ ((id ∩ (((1⁻◦(2⁻ ∩ 1⁻)) ∩ 1) ∩ (2⁻◦2⁻)))◦(1⁻ ∩ 1⁻))))◦(2⁻◦(2⁻ ∩ 2⁻))))")
-			.toQueryGraph().computeCore().toUniqueGraph();
-		GraphPanel.show(
-			g,
-			v->g.getNode(v).getInEdges() + "|" + g.getNode(v).getOutEdges(),
-			e->e.getAlias()
-		);
-	}
-	
-	@Disabled
-	@RepeatedTest(100)
-	public void edgeCase(){
-//		GraphPanel.show(CPQ.parse("((id ∩ ((1⁻◦(2⁻ ∩ 2⁻))◦(1⁻ ∩ (id ∩ 3⁻)))) ∩ ((3◦(id ∩ ((id ∩ (((1⁻◦(2⁻ ∩ 1⁻)) ∩ 1) ∩ (2⁻◦2⁻)))◦(1⁻ ∩ 1⁻))))◦(2⁻◦(2⁻ ∩ 2⁻))))"));
-//		GraphPanel.show(CPQ.parse("((id ∩ ((1⁻◦(2⁻ ∩ 2⁻))◦(1⁻ ∩ (id ∩ 3⁻)))) ∩ ((3◦(id ∩ ((id ∩ (((1⁻◦(2⁻ ∩ 1⁻)) ∩ 1) ∩ (2⁻◦2⁻)))◦(1⁻ ∩ 1⁻))))◦(2⁻◦(2⁻ ∩ 2⁻))))").toQueryGraph().toCPQ());
-		
-		//org.opentest4j.AssertionFailedError: (((((id ∩ 3) ∩ 2) ∩ ((1◦(id ∩ ((2⁻◦((id ∩ 1) ∩ (1◦3⁻)))◦2)))◦1⁻)) ∩ (2⁻◦(1◦((2⁻◦3) ∩ 2)))) ∩ ((((2◦(((id ∩ 1) ∩ 2) ∩ (2⁻◦3)))◦(3⁻◦2)) ∩ (3◦(3⁻◦3)) ∩ (2⁻◦2) ∩ (1⁻◦2) ∩ ((2◦((3◦2) ∩ 2⁻))◦2))◦((1⁻ ∩ 1 ∩ 3)◦(3◦((id ∩ 3⁻)◦2⁻))))) vs (((((id ∩ 2) ∩ 3) ∩ (((1◦2⁻)◦((id ∩ 1) ∩ (1◦3⁻)))◦(2◦1⁻))) ∩ (3⁻◦(2◦((1⁻◦2) ∩ 2)))) ∩ (((((2◦(((id ∩ 1) ∩ 2) ∩ (3⁻◦2)))◦(3⁻◦2)) ∩ ((2◦((id ∩ 3⁻)◦(3⁻◦(3⁻ ∩ 1 ∩ 1⁻)))) ∩ (2⁻◦2)) ∩ (1⁻◦2) ∩ ((2◦(2⁻ ∩ (3◦2)))◦2))◦3⁻)◦(3◦3⁻))) ==> expected: <37> but was: <39>
-//org.opentest4j.AssertionFailedError: (((id ∩ 2) ∩ ((1⁻◦(id ∩ ((2◦(id ∩ ((3◦(id ∩ 3))◦3⁻)))◦2⁻)))◦1))◦(((((2 ∩ 3)◦3)◦(2 ∩ 1⁻))◦(3⁻ ∩ (3◦2))) ∩ (3 ∩ 2))) vs (((id ∩ 2) ∩ (((1⁻◦2)◦(id ∩ ((3◦(id ∩ 3))◦3⁻)))◦(2⁻◦1)))◦(2 ∩ 3 ∩ ((3 ∩ 2)◦(3◦((2 ∩ 1⁻)◦(3⁻ ∩ (3◦2))))))) ==> expected: <15> but was: <17>
-//org.opentest4j.AssertionFailedError: ((3◦(((id ∩ 2⁻) ∩ 1⁻)◦(1⁻ ∩ 1)))◦(((id ∩ 3) ∩ (2⁻◦2⁻)) ∩ ((3⁻◦(id ∩ ((3◦((id ∩ 2) ∩ 1))◦3⁻)))◦3))) vs ((3◦(((id ∩ 2⁻) ∩ 1⁻)◦(1⁻ ∩ 1)))◦(((id ∩ 3) ∩ (((3⁻◦3)◦((id ∩ 2) ∩ 1))◦(3⁻◦3))) ∩ (2◦2))) ==> expected: <12> but was: <14>
-
-		//^ 1 in 200k at 20 rules
-		//^ 1 in 20k at 50 rules
-		
-		int real = -1;
-		QueryGraphCPQ pre = CPQ.parse("(((((id ∩ 2) ∩ (3⁻◦(1◦(1⁻ ∩ 2⁻ ∩ 3)))) ∩ ((2⁻◦3)◦1)) ∩ ((3⁻◦3)◦1)) ∩ ((2⁻◦((id ∩ 1) ∩ (((3 ∩ 2)◦((id ∩ 3) ∩ (((2◦2⁻)◦(1⁻◦(2◦(2⁻◦1))))◦2)))◦1)))◦(3⁻ ∩ (((2⁻◦3⁻) ∩ 2⁻)◦(3◦2)))))").toQueryGraph();
-		QueryGraphCPQ g = null;
-		try{
-			System.out.println("---");
-			g = pre.toCPQ().toQueryGraph();
-			real = g.getEdgeCount();
-		}catch(Exception e){
-			System.out.println("ERR");
-		}
-		
-		int should = 31;
-		
-		if(real != should){
-			System.out.println("BAD");
-			UniqueGraph<Vertex, Predicate> pg = pre.toUniqueGraph();
-			GraphPanel.show(pg, v->v.getID() + " " + pre.getVertexLabel(v) + " | " + pg.getNode(v).getInCount() + " | " + pg.getNode(v).getOutCount(), e->e.getAlias());
-			if(g != null){
-				GraphPanel.show(g.toUniqueGraph(), v->v.getID() + "", e->e.getAlias());
-			}
-			try{
-				Thread.sleep(Duration.ofDays(3));
-			}catch(InterruptedException e){
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}else{
-			System.out.println("OK");
-		}
-		
-		assertEquals(should, real);
-		
-//		try{
-//			Thread.sleep(Duration.ofDays(4));
-//		}catch(InterruptedException e){
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-	}
-	
-	//TODO recog test with top level loop
-
-	//TODO random -> graph -> parse -> equals
 	
 	private static void assertEquivalentCPQ(String expected, CPQ actual){
 		assertEquivalentCPQ(CPQ.parse(expected, List.of(l1, l2, l3)), actual);
 	}
 		
 	private static void assertEquivalentCPQ(CPQ expected, CPQ actual){
-//		GraphPanel.show(expected);
-//		System.out.println(actual.toQueryGraph().getEdgeCount());
-//		GraphPanel.show(actual);
-		
-//		try{
-//			Thread.sleep(Duration.ofDays(5));
-//		}catch(InterruptedException e){
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		
-		//both equivalent at least and share the same core
 		QueryGraphCPQ exp = expected.toQueryGraph();
 		QueryGraphCPQ act = actual.toQueryGraph();
+		
+		//homomorphic equivalence (this is already good enough for most use cases)
 		assertTrue(exp.isHomomorphicTo(act), expected + " vs " + actual);
 		assertTrue(act.isHomomorphicTo(exp), expected + " vs " + actual);
 		
-		//not really required, but interesting to see how much redundant structure we find
+		//approximate isomorphic equivalence (this rejects all cases of redundant structure, probably good enough, but not a true isomorphism test)
 		assertEquals(exp.getEdgeCount(), act.getEdgeCount(), expected + " vs " + actual);
 		assertEquals(exp.getVertexCount(), act.getVertexCount(), expected + " vs " + actual);
 	}

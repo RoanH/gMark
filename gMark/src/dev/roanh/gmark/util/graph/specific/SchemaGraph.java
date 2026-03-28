@@ -74,7 +74,7 @@ public class SchemaGraph extends UniqueGraph<SelectivityType, Predicate>{
 	 * @return The graph node associated with the given selectivity type.
 	 */
 	private GraphNode<SelectivityType, Predicate> resolve(Type type, SelectivityClass sel){
-		return index.get(type).computeIfAbsent(sel, k->addUniqueNode(new SelectivityType(type, sel)));
+		return index.get(type).computeIfAbsent(sel, _->addUniqueNode(new SelectivityType(type, sel)));
 	}
 	
 	/**

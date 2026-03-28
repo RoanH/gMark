@@ -96,7 +96,7 @@ public class SelectivityGraph extends UniqueGraph<SelectivityType, SelectivityCl
 	 * @return The graph node associated with the given selectivity type.
 	 */
 	private GraphNode<SelectivityType, SelectivityClass> resolve(Type type, SelectivityClass sel){
-		return index.get(type).computeIfAbsent(sel, k->addUniqueNode(new SelectivityType(type, sel)));
+		return index.get(type).computeIfAbsent(sel, _->addUniqueNode(new SelectivityType(type, sel)));
 	}
 	
 	/**
@@ -123,7 +123,7 @@ public class SelectivityGraph extends UniqueGraph<SelectivityType, SelectivityCl
 	 * Randomly generates a path through the selectivity graph with
 	 * the requested length that ends at a node with the given
 	 * selectivity (meaning that this is also the selectivity of
-	 * the path as a whole). Optionally a starting selectivity 
+	 * the path as a whole). Optionally a starting selectivity
 	 * type can be provided. Finally, the multiplicity of the path
 	 * can be specified (Kleene star probability).
 	 * @param selectivity The selectivity of the path to generate.
@@ -323,7 +323,7 @@ public class SelectivityGraph extends UniqueGraph<SelectivityType, SelectivityCl
 		/**
 		 * Constructs a new distance matrix with the given
 		 * dimensions. Note that these dimensions only apply
-		 * to the type part of the selectivity types stored 
+		 * to the type part of the selectivity types stored
 		 * in this matrix.
 		 * @param rows The number of rows in the matrix.
 		 * @param cols The number of columns in the matrix.

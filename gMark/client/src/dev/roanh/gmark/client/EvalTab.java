@@ -151,7 +151,7 @@ public class EvalTab extends JPanel{
 		langPanel.add(new JLabel("Language"));
 		langPanel.add(lang);
 		
-		run.addActionListener(e->{
+		run.addActionListener(_->{
 			try{
 				if(evaluator == null){
 					Dialog.showMessageDialog("Please load a database graph first.");
@@ -199,7 +199,7 @@ public class EvalTab extends JPanel{
 
 		for(String symb : QUERY_SYMBOLS){
 			JButton button = new JButton(symb);
-			button.addActionListener(e->{
+			button.addActionListener(_->{
 				try{
 					query.getDocument().insertString(query.getCaretPosition(), symb, null);
 					query.requestFocus();

@@ -132,7 +132,7 @@ public abstract class GenericParser{
 		}).collect(Collectors.toUnmodifiableMap(
 			Predicate::getAlias,
 			Function.identity(),
-			(p1, p2)->p1
+			(p1, _)->p1
 		));
 	}
 }

@@ -84,4 +84,11 @@
     <Bug pattern="AA_ASSERTION_OF_ARGUMENTS"/>
   </Match>
   
+  <Match>
+    <!-- Intentional, this is making it more specific -->
+    <Class name="dev.roanh.gmark.exception.GenerationException$GenerationRunnable"/>
+    <Method name="run"/>
+    <Bug pattern="THROWS_METHOD_THROWS_CLAUSE_BASIC_EXCEPTION"/>
+  </Match>
+  
 </FindBugsFilter>

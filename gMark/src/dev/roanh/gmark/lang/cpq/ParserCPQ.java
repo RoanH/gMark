@@ -149,7 +149,7 @@ public final class ParserCPQ extends GenericParser{
 		throw new IllegalArgumentException("Invalid CPQ.");
 	}
 	
-	public static <V> CPQ parse(UniqueGraph<V, Predicate> queryGraph, V sourceVertex, V targetVertex){
+	public static <V> CPQ parse(UniqueGraph<V, Predicate> queryGraph, V sourceVertex, V targetVertex) throws IllegalArgumentException{
 		if(!queryGraph.containsNode(sourceVertex) || !queryGraph.containsNode(targetVertex)){
 			throw new IllegalArgumentException("The given source and target vertex do not belong to the query graph.");
 		}
@@ -161,48 +161,10 @@ public final class ParserCPQ extends GenericParser{
 			
 			//reduce degree 1 vertices
 			for(GraphNode<VertexData, EdgeData> v : graph.getNodes()){
-				if(graph.isTerminal(v) || v.getDegree() != 1){
-					continue;
+				if(!graph.isTerminal(v) && v.getDegree() == 1){
+					graph.contractVertexDegree1(v);
+					changed = true;
 				}
-
-				if(v.getInCount() == 1){
-					//base --path-> v loops --path inv-> base
-					GraphEdge<VertexData, EdgeData> edge = v.getInEdges().iterator().next();
-					EdgeData data = edge.getData();
-					if(data.paths.size() == 1){
-						edge.getSource().addLoop(concat(
-							data.getPath(),
-							v.getData().loops,
-							data.getPath().inverse()
-						));
-					}else{
-						edge.getSource().addLoop(concat(
-							data.getBundledPath(),
-							v.getData().loops,
-							data.getSinglePath().inverse()
-						));
-					}
-				}else{
-					//base --path inv-> v loops --path-> base
-					GraphEdge<VertexData, EdgeData> edge = v.getOutEdges().iterator().next();
-					EdgeData data = edge.getData();
-					if(data.paths.size() == 1){
-						edge.getTarget().addLoop(concat(
-							data.getPath().inverse(),
-							v.getData().loops,
-							data.getPath()
-						));
-					}else{
-						edge.getTarget().addLoop(concat(
-							data.getSinglePath().inverse(),
-							v.getData().loops,
-							data.getBundledPath()
-						));
-					}
-				}
-
-				v.remove();
-				changed = true;
 			}
 			
 			//handle fully reduced loops by moving them to vertex metadata
@@ -287,12 +249,38 @@ public final class ParserCPQ extends GenericParser{
 		return q;
 	}
 	
+	/**
+	 * CPQ Query Graph that is being reduced for parsing.
+	 * @author Roan
+	 * @see VertexData
+	 * @see EdgeData
+	 */
 	private static class ReductionGraph{
+		/**
+		 * The actual graph data.
+		 */
 		private final UniqueGraph<VertexData, EdgeData> graph = new UniqueGraph<VertexData, EdgeData>();
+		/**
+		 * The source vertex of the CPQ query graph.
+		 */
 		private final GraphNode<VertexData, EdgeData> source;
+		/**
+		 * The target vertex of the CPQ query graph.
+		 */
 		private final GraphNode<VertexData, EdgeData> target;
+		/**
+		 * The articulation points in the graph. That is, the cut vertices
+		 * of the graph, removing one of these vertices causes the graph becomes disconnected.
+		 */
 		private final Set<GraphNode<VertexData, EdgeData>> articulation;
 		
+		/**
+		 * Constructed a new reduction graph for the given query graph.
+		 * @param <V> The graph vertex data type.
+		 * @param queryGraph The query graph.
+		 * @param source The source vertex of the query graph.
+		 * @param target The target vertex of the query graph.
+		 */
 		private <V> ReductionGraph(UniqueGraph<V, Predicate> queryGraph, V source, V target){
 			Map<V, VertexData> transform = new HashMap<V, VertexData>();
 			
@@ -317,12 +305,62 @@ public final class ParserCPQ extends GenericParser{
 			articulation = Set.copyOf(Util.computeArticulationPoints(graph));
 		}
 		
+		/**
+		 * Checks if the given vertex is the source or target vertex of this graph.
+		 * @param vertex The vertex to check.
+		 * @return True if the given vertex is a terminal node.
+		 */
 		private boolean isTerminal(GraphNode<VertexData, EdgeData> vertex){
 			return vertex.equals(source) || vertex.equals(target);
 		}
 		
+		/**
+		 * Checks if the given vertex is an articulation vertex of the graph.
+		 * @param vertex The vertex to check.
+		 * @return True if the given vertex is an articulation point.
+		 */
 		private boolean isArticulationPoint(GraphNode<VertexData, EdgeData> vertex){
 			return articulation.contains(vertex);
+		}
+		
+		private void contractVertexDegree1(GraphNode<VertexData, EdgeData> vertex){
+			if(vertex.getInCount() == 1){
+				//base --path-> v loops --path inv-> base
+				GraphEdge<VertexData, EdgeData> edge = vertex.getInEdges().iterator().next();
+				EdgeData data = edge.getData();
+				if(data.paths.size() == 1){
+					edge.getSource().addLoop(concat(
+						data.getPath(),
+						vertex.getData().loops,
+						data.getPath().inverse()
+					));
+				}else{
+					edge.getSource().addLoop(concat(
+						data.getBundledPath(),
+						vertex.getData().loops,
+						data.getSinglePath().inverse()
+					));
+				}
+			}else{
+				//base --path inv-> v loops --path-> base
+				GraphEdge<VertexData, EdgeData> edge = vertex.getOutEdges().iterator().next();
+				EdgeData data = edge.getData();
+				if(data.paths.size() == 1){
+					edge.getTarget().addLoop(concat(
+						data.getPath().inverse(),
+						vertex.getData().loops,
+						data.getPath()
+					));
+				}else{
+					edge.getTarget().addLoop(concat(
+						data.getSinglePath().inverse(),
+						vertex.getData().loops,
+						data.getBundledPath()
+					));
+				}
+			}
+
+			vertex.remove();
 		}
 		
 		private void contractVertexDegree2(GraphNode<VertexData, EdgeData> vertex){

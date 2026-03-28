@@ -10,8 +10,8 @@ ADD gMark/src/ /gMark/src/
 ADD gMark/build.gradle /gMark/
 ADD gMark/gradlew /gMark/
 ADD gMark/settings.gradle /gMark/
-ADD gMark/cli/src/ gMark/cli/src/
-ADD gMark/client/src/ gMark/client/src/
+ADD gMark/cli/ gMark/cli/
+ADD gMark/client/ gMark/client/
 RUN chmod -R 755 ./
 RUN ./gradlew -PrefName=v$version cli:shadowJar
 

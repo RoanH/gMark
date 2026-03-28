@@ -13,6 +13,7 @@ ADD gMark/settings.gradle /gMark/
 ADD gMark/cli/ gMark/cli/
 ADD gMark/client/ gMark/client/
 RUN chmod -R 755 ./
+RUN ls -R /gMark
 RUN ./gradlew -PrefName=v$version cli:shadowJar
 
 FROM eclipse-temurin:25

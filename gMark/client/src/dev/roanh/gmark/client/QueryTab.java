@@ -44,13 +44,13 @@ import dev.roanh.gmark.gen.workload.ConfigParser;
 import dev.roanh.gmark.gen.workload.Configuration;
 import dev.roanh.gmark.gen.workload.OutputWriter;
 import dev.roanh.gmark.gen.workload.QueryGenerator;
-import dev.roanh.gmark.gen.workload.Workload;
 import dev.roanh.gmark.gen.workload.QueryGenerator.ProgressListener;
+import dev.roanh.gmark.gen.workload.Workload;
 import dev.roanh.gmark.output.ConcreteSyntax;
 import dev.roanh.gmark.query.Query;
-import dev.roanh.gmark.util.Util;
 import dev.roanh.gmark.query.QuerySet;
 import dev.roanh.gmark.type.Selectivity;
+import dev.roanh.gmark.util.Util;
 import dev.roanh.util.Dialog;
 import dev.roanh.util.FileSelector;
 import dev.roanh.util.FileSelector.FileExtension;
@@ -109,11 +109,11 @@ public class QueryTab extends JPanel{
 		
 		JButton open = new JButton("Open Configuration");
 		buttons.add(open);
-		open.addActionListener(e->openWorkload());
+		open.addActionListener(_->openWorkload());
 		
 		save.setEnabled(false);
 		buttons.add(save);
-		save.addActionListener(e->saveWorkload());
+		save.addActionListener(_->saveWorkload());
 		
 		this.add(buttons, BorderLayout.PAGE_END);
 	}
@@ -162,7 +162,7 @@ public class QueryTab extends JPanel{
 
 					JButton gen = new JButton("Generate queries");
 					wlInfo.add(gen, BorderLayout.PAGE_END);
-					gen.addActionListener(e->genWorkload(wl));
+					gen.addActionListener(_->genWorkload(wl));
 
 					info.add(wlInfo);
 				}
@@ -182,7 +182,7 @@ public class QueryTab extends JPanel{
 		executor.execute(()->{
 			try{
 				JProgressBar progress = new JProgressBar(0, wl.getSize());
-				ProgressListener listener = (done, total)->{
+				ProgressListener listener = (done, _)->{
 					progress.setValue(done);
 					progress.repaint();
 				};

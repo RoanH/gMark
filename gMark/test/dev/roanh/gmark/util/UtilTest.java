@@ -424,7 +424,7 @@ public class UtilTest{
 	
 	@Test
 	public void testSubsets1(){
-		Util.computeAllSubsets(new ArrayList<String>(), s->fail());
+		Util.computeAllSubsets(new ArrayList<String>(), _->fail());
 	}
 	
 	@Test

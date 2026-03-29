@@ -149,6 +149,20 @@ public final class ParserCPQ extends GenericParser{
 		throw new IllegalArgumentException("Invalid CPQ.");
 	}
 	
+	/**
+	 * Parses the given graph with the indicated source and target vertices into a CPQ instance.
+	 * <p>
+	 * The constructed CPQ instance is guaranteed to have a query graph that is query homomorphically
+	 * equivalent to the input query graph and also has the same number of vertices and edges.
+	 * @param <V> The vertex data type.
+	 * @param queryGraph The CPQ query graph to parse.
+	 * @param sourceVertex The source vertex of the CPQ query graph.
+	 * @param targetVertex The target vertex of the CPQ query graph.
+	 * @return The parsed CPQ instance.
+	 * @throws IllegalArgumentException When the given source and target vertices do not exist in the
+	 *         given query graph, or when the given query graph does not represent a valid CPQ instance.
+	 * @see QueryGraphCPQ
+	 */
 	public static <V> CPQ parse(UniqueGraph<V, Predicate> queryGraph, V sourceVertex, V targetVertex) throws IllegalArgumentException{
 		if(!queryGraph.containsNode(sourceVertex) || !queryGraph.containsNode(targetVertex)){
 			throw new IllegalArgumentException("The given source and target vertex do not belong to the query graph.");

@@ -484,49 +484,98 @@ public final class ParserCPQ extends GenericParser{
 		/**
 		 * The looping paths present on this vertex
 		 */
-		private final List<CPQ> loops = new ArrayList<CPQ>();
+		private final List<CPQ> loops;
 		
+		/**
+		 * Constructs new vertex data without any loops.
+		 */
 		private VertexData(){
+			loops = new ArrayList<CPQ>();
 			loops.add(CPQ.id());
 		}
 		
+		/**
+		 * Adds a new loop to this vertex.
+		 * @param edge The self loop edge with the looping path.
+		 */
 		private void addLoop(EdgeData edge){
 			loops.add(edge.getPath());
 		}
 		
+		/**
+		 * Adds a new loop to this vertex.
+		 * @param path The looping CPQ.
+		 */
 		private void addLoop(CPQ path){
 			loops.add(path);
 		}
 		
+		/**
+		 * Gets the looping paths on this vertex, if any.
+		 * @return A CPQ with loops on this vertex or null if there are none.
+		 */
 		private CPQ getLoops(){
 			return loops.size() == 1 ? null : CPQ.intersect(loops);
 		}
 	}
 	
+	/**
+	 * Metadata for an edge.
+	 * @author Roan
+	 */
 	private static class EdgeData{
+		/**
+		 * The CPQ paths represented by this edge.
+		 */
 		private final List<CPQ> paths;
 		
+		/**
+		 * Constructs new vertex metadata with the given initial path.
+		 * @param path The initial edge CPQ.
+		 */
 		private EdgeData(CPQ path){
 			paths = new ArrayList<CPQ>();
 			paths.add(path);
 		}
 		
+		/**
+		 * Adds a parallel CPQ to be represented by this edge.
+		 * @param parallel The parallel CPQ to add.
+		 */
 		private void addParallel(CPQ parallel){
 			paths.add(parallel);
 		}
 		
+		/**
+		 * Gets the CPQ representing all the paths captured by this edge.
+		 * @return The CPQ for this edge.
+		 */
 		private CPQ getPath(){
 			return paths.size() == 1 ? paths.getFirst() : CPQ.intersect(paths);
 		}
 		
+		/**
+		 * Gets a single CPQ path represented by this edge.
+		 * @return A single CPQ path represented by this edge.
+		 * @see #getBundledPath()
+		 */
 		private CPQ getSinglePath(){
 			return paths.getFirst();
 		}
 		
+		/**
+		 * Gets the intersection of all but the first path represented by this CPQ.
+		 * @return The remaining CPQs represented by this edge.
+		 * @see #getSinglePath()
+		 */
 		private CPQ getBundledPath(){
 			return paths.size() == 2 ? paths.getLast() : CPQ.intersect(paths.subList(1, paths.size()));
 		}
 		
+		/**
+		 * Checks if this edge represents only a single CPQ path (i.e., no parallel CPQs).
+		 * @return True if this edge presents only a single path.
+		 */
 		private boolean isSinglePath(){
 			return paths.size() == 1;
 		}

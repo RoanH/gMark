@@ -249,6 +249,13 @@ public final class ParserCPQ extends GenericParser{
 		throw new IllegalArgumentException("The given input graph does not represent a valid CPQ.");
 	}
 	
+	/**
+	 * Concatenates the given CPQs ignoring CPQs that are null.
+	 * @param first The first CPQ.
+	 * @param second The second CPQ.
+	 * @param third The third CPQ.
+	 * @return The concatenation in order of the given non-null CPQs.
+	 */
 	private static CPQ concat(CPQ first, CPQ second, CPQ third){
 		CPQ q = first;
 		
@@ -337,6 +344,11 @@ public final class ParserCPQ extends GenericParser{
 			return articulation.contains(vertex);
 		}
 		
+		/**
+		 * Reduces the given degree 1 vertex by moving all paths through it to a loop
+		 * on the only vertex it has an edge to.
+		 * @param vertex The vertex to reduce.
+		 */
 		private void contractVertexDegree1(GraphNode<VertexData, EdgeData> vertex){
 			if(vertex.getInCount() == 1){
 				//base --path-> v loops --path inv-> base
@@ -377,6 +389,11 @@ public final class ParserCPQ extends GenericParser{
 			vertex.remove();
 		}
 		
+		/**
+		 * Reduces the given degree 2 vertex by moving the paths through it to a new direct edge
+		 * between the two vertices it is connected to.
+		 * @param vertex The vertex to reduce.
+		 */
 		private void contractVertexDegree2(GraphNode<VertexData, EdgeData> vertex){
 			if(vertex.getInCount() == 2){
 				//from -> v loops -> to inverse
@@ -424,11 +441,19 @@ public final class ParserCPQ extends GenericParser{
 			vertex.remove();
 		}
 		
+		/**
+		 * Gets a list of all the vertices remaining in the graph.
+		 * @return A list of all graph nodes.
+		 */
 		private List<GraphNode<VertexData, EdgeData>> getNodes(){
 			//this has to be co-mod safe
 			return List.copyOf(graph.getNodes());
 		}
 		
+		/**
+		 * Gets a list of all the edges remaining in the graph.
+		 * @return A list of all graph edges.
+		 */
 		private List<GraphEdge<VertexData, EdgeData>> getEdges(){
 			//this has to be co-mod safe
 			return List.copyOf(graph.getEdges());
@@ -451,7 +476,14 @@ public final class ParserCPQ extends GenericParser{
 		}
 	}
 	
+	/**
+	 * Vertex metadata instance tracking accumulated self loops.
+	 * @author Roan
+	 */
 	private static class VertexData{
+		/**
+		 * The looping paths present on this vertex
+		 */
 		private CPQ loops;
 		
 		private VertexData(){
@@ -468,6 +500,11 @@ public final class ParserCPQ extends GenericParser{
 			
 			loops = CPQ.intersect(loops, path);
 		}
+		
+		//TODO combine loop steps
+//		private CPQ getLoops(){
+//
+//		}
 	}
 	
 	private static class EdgeData{

@@ -230,7 +230,7 @@ public final class ParserCPQ extends GenericParser{
 		}while(changed);
 		
 		if(sourceVertex.equals(targetVertex) && graph.graph.getNodeCount() == 1 && graph.graph.getEdgeCount() == 0){
-			return graph.graph.getNodes().getFirst().getData().loops;
+			return graph.graph.getNodes().getFirst().getData().getLoops();
 		}else if(!sourceVertex.equals(targetVertex) && graph.graph.getNodeCount() == 2 && graph.graph.getEdgeCount() == 1){
 			CPQ path = graph.graph.getEdges().getFirst().getData().getPath();
 			if(graph.source.getInCount() == 1){
@@ -240,9 +240,9 @@ public final class ParserCPQ extends GenericParser{
 			
 			//src loops -> path -> trg loops
 			return concat(
-				graph.source.getData().loops,
+				graph.source.getData().getLoops(),
 				path,
-				graph.target.getData().loops
+				graph.target.getData().getLoops()
 			);
 		}
 		
@@ -354,16 +354,16 @@ public final class ParserCPQ extends GenericParser{
 				//base --path-> v loops --path inv-> base
 				GraphEdge<VertexData, EdgeData> edge = vertex.getInEdges().iterator().next();
 				EdgeData data = edge.getData();
-				if(data.paths.size() == 1){
+				if(data.isSinglePath()){
 					edge.getSource().addLoop(concat(
 						data.getPath(),
-						vertex.getData().loops,
+						vertex.getData().getLoops(),
 						data.getPath().inverse()
 					));
 				}else{
 					edge.getSource().addLoop(concat(
 						data.getBundledPath(),
-						vertex.getData().loops,
+						vertex.getData().getLoops(),
 						data.getSinglePath().inverse()
 					));
 				}
@@ -371,16 +371,16 @@ public final class ParserCPQ extends GenericParser{
 				//base --path inv-> v loops --path-> base
 				GraphEdge<VertexData, EdgeData> edge = vertex.getOutEdges().iterator().next();
 				EdgeData data = edge.getData();
-				if(data.paths.size() == 1){
+				if(data.isSinglePath()){
 					edge.getTarget().addLoop(concat(
 						data.getPath().inverse(),
-						vertex.getData().loops,
+						vertex.getData().getLoops(),
 						data.getPath()
 					));
 				}else{
 					edge.getTarget().addLoop(concat(
 						data.getSinglePath().inverse(),
-						vertex.getData().loops,
+						vertex.getData().getLoops(),
 						data.getBundledPath()
 					));
 				}
@@ -405,7 +405,7 @@ public final class ParserCPQ extends GenericParser{
 					to.getSourceNode(),
 					concat(
 						from.getData().getPath(),
-						vertex.getData().loops,
+						vertex.getData().getLoops(),
 						to.getData().getPath().inverse()
 					)
 				);
@@ -419,7 +419,7 @@ public final class ParserCPQ extends GenericParser{
 					to.getTargetNode(),
 					concat(
 						from.getData().getPath().inverse(),
-						vertex.getData().loops,
+						vertex.getData().getLoops(),
 						to.getData().getPath()
 					)
 				);
@@ -432,7 +432,7 @@ public final class ParserCPQ extends GenericParser{
 					to.getTargetNode(),
 					concat(
 						from.getData().getPath(),
-						vertex.getData().loops,
+						vertex.getData().getLoops(),
 						to.getData().getPath()
 					)
 				);
@@ -484,27 +484,23 @@ public final class ParserCPQ extends GenericParser{
 		/**
 		 * The looping paths present on this vertex
 		 */
-		private CPQ loops;
+		private final List<CPQ> loops = new ArrayList<CPQ>();
 		
 		private VertexData(){
+			loops.add(CPQ.id());
 		}
 		
 		private void addLoop(EdgeData edge){
-			addLoop(edge.getPath());
+			loops.add(edge.getPath());
 		}
 		
 		private void addLoop(CPQ path){
-			if(loops == null){
-				loops = CPQ.id();
-			}
-			
-			loops = CPQ.intersect(loops, path);
+			loops.add(path);
 		}
 		
-		//TODO combine loop steps
-//		private CPQ getLoops(){
-//
-//		}
+		private CPQ getLoops(){
+			return loops.size() == 1 ? null : CPQ.intersect(loops);
+		}
 	}
 	
 	private static class EdgeData{
@@ -529,6 +525,10 @@ public final class ParserCPQ extends GenericParser{
 		
 		private CPQ getBundledPath(){
 			return paths.size() == 2 ? paths.getLast() : CPQ.intersect(paths.subList(1, paths.size()));
+		}
+		
+		private boolean isSinglePath(){
+			return paths.size() == 1;
 		}
 	}
 }

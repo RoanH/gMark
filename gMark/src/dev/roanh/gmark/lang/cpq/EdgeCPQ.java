@@ -39,6 +39,11 @@ public class EdgeCPQ extends GenericEdge implements CPQ{
 	}
 	
 	@Override
+	public CPQ inverse(){
+		return new EdgeCPQ(symbol.getInverse());
+	}
+	
+	@Override
 	public QueryGraphCPQ toQueryGraph(Vertex source, Vertex target){
 		return new QueryGraphCPQ(symbol, source, target);
 	}

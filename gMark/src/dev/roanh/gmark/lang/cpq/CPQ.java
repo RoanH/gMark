@@ -30,6 +30,7 @@ import dev.roanh.gmark.lang.ReachabilityQueryLanguageSyntax;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.lang.cq.CQ;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 
 /**
  * Interface for conjunctive path queries (CPQs).
@@ -124,6 +125,19 @@ public abstract interface CPQ extends ReachabilityQueryLanguageSyntax{
 	 * @see QueryGraphCPQ
 	 */
 	public abstract boolean isLoop();
+	
+	/**
+	 * Computes the inverse of this CPQ. This effectively flip the
+	 * source and target node of the CPQ similar to how the inverse
+	 * of a single edge works. For example, the inverse of a chain
+	 * of edges is the CPQ where all the edges in the chain are traversed
+	 * in reverse order an in the reverse direction. Note that this
+	 * means that the inverse of a CPQ with a top level intersection
+	 * with identity is identical to the original CPQ.
+	 * @return The inverse CPQ for this CPQ.
+	 * @see Predicate#getInverse()
+	 */
+	public abstract CPQ inverse();
 	
 	/**
 	 * Returns the identity CPQ.
@@ -300,5 +314,23 @@ public abstract interface CPQ extends ReachabilityQueryLanguageSyntax{
 		default:
 			throw new IllegalArgumentException("The given AST contains operations that are not part of the CPQ query language.");
 		}
+	}
+	
+	/**
+	 * Parses the given graph with the indicated source and target vertices into a CPQ instance.
+	 * <p>
+	 * The constructed CPQ instance is guaranteed to have a query graph that is query homomorphically
+	 * equivalent to the input query graph and also has the same number of vertices and edges.
+	 * @param <V> The vertex data type.
+	 * @param queryGraph The CPQ query graph to parse.
+	 * @param sourceVertex The source vertex of the CPQ query graph.
+	 * @param targetVertex The target vertex of the CPQ query graph.
+	 * @return The parsed CPQ instance.
+	 * @throws IllegalArgumentException When the given source and target vertices do not exist in the
+	 *         given query graph, or when the given query graph does not represent a valid CPQ instance.
+	 * @see QueryGraphCPQ
+	 */
+	public static <V> CPQ parse(UniqueGraph<V, Predicate> queryGraph, V sourceVertex, V targetVertex){
+		return ParserCPQ.parse(queryGraph, sourceVertex, targetVertex);
 	}
 }

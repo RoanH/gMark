@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import dev.roanh.gmark.type.IDable;
@@ -91,6 +92,15 @@ public class UniqueGraph<V, E>{
 	 */
 	public List<GraphEdge<V, E>> getEdges(){
 		return edges;
+	}
+	
+	/**
+	 * Checks if there is a node in this graph associated with the given data.
+	 * @param data The data uniquely identifying the node.
+	 * @return True if a node associated with the given data exists in the graph.
+	 */
+	public boolean containsNode(V data){
+		return nodeMap.containsKey(data);
 	}
 	
 	/**
@@ -265,7 +275,7 @@ public class UniqueGraph<V, E>{
 	
 	/**
 	 * Computes the adjacency list representation of this graph. For this the
-	 * unique ID of every graph node is used (see {@link GraphNode#getID()}.
+	 * unique ID of every graph node is used (see {@link GraphNode#getID()}).
 	 * The adjacency list is returned as a 2-dimensional array, the first dimension
 	 * has as many indices as there were nodes added to the graph. Each of these indices
 	 * corresponds to the unique ID of one of the nodes in the graph. Indices for
@@ -286,14 +296,35 @@ public class UniqueGraph<V, E>{
 	 * @return The copy of this graph.
 	 */
 	public UniqueGraph<V, E> copy(){
-		UniqueGraph<V, E> copy = new UniqueGraph<V, E>();
+		return copy(Function.identity(), Function.identity());
+	}
+	
+	/**
+	 * Makes a structurally equivalent deep copy of this graph with transformed vertices.
+	 * @param nodeTransform The transform to use to construct the new graph nodes, this function
+	 *        must generate unique values for distinct input vertices.
+	 * @param edgeTransform The transform to use to construct the new graph edges.
+	 * @param <T> The transformed graph vertex type.
+	 * @param <U> The transformed graph edge type.
+	 * @return The copy of this graph.
+	 * @throws IllegalArgumentException When the given node transformation function does
+	 *         not preserve the uniqueness of the graph nodes.
+	 * @see Function#identity()
+	 */
+	public <T, U> UniqueGraph<T, U> copy(Function<V, T> nodeTransform, Function<E, U> edgeTransform) throws IllegalArgumentException{
+		UniqueGraph<T, U> copy = new UniqueGraph<T, U>();
 		
+		Map<V, T> index = new HashMap<V, T>();
 		for(GraphNode<V, E> node : nodes){
-			copy.addUniqueNode(node.getData());
+			T vertex = nodeTransform.apply(node.getData());
+			copy.addUniqueNode(vertex);
+			if(index.put(node.getData(), vertex) != null){
+				throw new IllegalArgumentException("The given node transform does not preserve node uniqueness.");
+			}
 		}
 		
 		for(GraphEdge<V, E> edge : edges){
-			copy.addUniqueEdge(edge.getSource(), edge.getTarget(), edge.getData());
+			copy.addUniqueEdge(index.get(edge.getSource()), index.get(edge.getTarget()), edgeTransform.apply(edge.getData()));
 		}
 		
 		return copy;
@@ -482,6 +513,18 @@ public class UniqueGraph<V, E>{
 		}
 		
 		/**
+		 * Gets the degree of node vertex, i.e., the sum of the number
+		 * of incoming edges and outgoing edges for this vertex. Note
+		 * that this definition will double count self loops.
+		 * @return The degree of this node
+		 * @see #getInCount()
+		 * @see #getOutCount()
+		 */
+		public int getDegree(){
+			return in.size() + out.size();
+		}
+		
+		/**
 		 * Gets all the outgoing edges for this node.
 		 * @return All the outgoing edges for this node.
 		 */
@@ -638,7 +681,7 @@ public class UniqueGraph<V, E>{
 		
 		/**
 		 * Removes this node from the graph. After removal
-		 * this node still references remaining graph nodes.
+		 * this edge still references remaining graph nodes.
 		 */
 		public void remove(){
 			source.out.remove(this);

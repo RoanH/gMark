@@ -18,7 +18,9 @@
  */
 package dev.roanh.gmark.lang.cpq;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.lang.generic.GenericConcatenation;
@@ -40,6 +42,17 @@ public class ConcatCPQ extends GenericConcatenation<CPQ> implements CPQ{
 	 */
 	public ConcatCPQ(List<CPQ> cpqs) throws IllegalArgumentException{
 		super(cpqs);
+	}
+	
+	@Override
+	public CPQ inverse(){
+		List<CPQ> chain = new ArrayList<CPQ>(elements.size());
+		ListIterator<CPQ> iter = elements.listIterator(elements.size());
+		while(iter.hasPrevious()){
+			chain.add(iter.previous().inverse());
+		}
+		
+		return new ConcatCPQ(chain);
 	}
 	
 	@Override

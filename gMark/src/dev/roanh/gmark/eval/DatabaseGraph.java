@@ -69,7 +69,7 @@ public class DatabaseGraph{
 	/**
 	 * Source-Label-Target (SLT) is a data structure that encodes all edges in the complete
 	 * database graph. The general design for this data structure is heavily inspired
-	 * by a compressed spare row matrix (CSR) and primarily intended to minimise CPU
+	 * by a compressed sparse row matrix (CSR) and primarily intended to minimise CPU
 	 * cache misses. The SLT is represented using a single array, meaning it is designed
 	 * to be able to use a single contiguous block of memory.
 	 * <p>
@@ -338,7 +338,7 @@ public class DatabaseGraph{
 	
 	/**
 	 * Selects if present the single edge with the given label from this database graph
-	 * that start at the given source vertex and ends at the given target vertex. 
+	 * that start at the given source vertex and ends at the given target vertex.
 	 * @param source The ID of the vertex edges need to start at.
 	 * @param label The label to find (potentially inverted).
 	 * @param target The ID of the vertex edges need to end at.

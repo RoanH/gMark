@@ -95,4 +95,29 @@ public class CPQTest{
 		assertEquals(b, ast.getOperand(0).getEdgeAtom().getLabel());
 		assertEquals(OperationType.IDENTITY, ast.getOperand(1).getOperation());
 	}
+	
+	@Test
+	public void inverse0(){
+		assertEquals("a⁻", CPQ.parse("a").inverse().toString());
+	}
+	
+	@Test
+	public void inverse1(){
+		assertEquals("(a⁻ ∩ b⁻)", CPQ.parse("a ∩ b").inverse().toString());
+	}
+	
+	@Test
+	public void inverse2(){
+		assertEquals("(b⁻◦a)", CPQ.parse("a⁻ ◦ b").inverse().toString());
+	}
+	
+	@Test
+	public void inverse3(){
+		assertEquals("id", CPQ.parse("id").inverse().toString());
+	}
+	
+	@Test
+	public void inverse4(){
+		assertEquals("(b⁻◦(a⁻ ∩ b⁻))", CPQ.parse("(a ∩ b) ◦ b").inverse().toString());
+	}
 }

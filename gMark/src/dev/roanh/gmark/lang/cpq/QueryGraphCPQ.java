@@ -229,7 +229,7 @@ public class QueryGraphCPQ{
 		}
 		
 		return new QueryGraphCQ(
-			new HashSet<VarCQ>(variables.values()),
+			Set.copyOf(variables.values()),
 			edges.stream().map(edge->new AtomCQ(
 				variables.get(edge.src),
 				edge.label,
@@ -341,6 +341,15 @@ public class QueryGraphCPQ{
 		
 		//a non empty root implies query homomorphism
 		return maps.getData().matches.length != 0;
+	}
+	
+	/**
+	 * Converts this CPQ query graph back to its formal syntax.
+	 * @return The CPQ syntax form of this query graph.
+	 * @see CPQ#parse(UniqueGraph, Object, Object)
+	 */
+	public CPQ toCPQ(){
+		return CPQ.parse(toUniqueGraph(), source, target);
 	}
 		
 	/**

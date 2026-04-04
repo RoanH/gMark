@@ -18,8 +18,8 @@
  */
 package dev.roanh.gmark.lang.cpq;
 
-import dev.roanh.gmark.ast.QueryAtom;
 import dev.roanh.gmark.ast.OperationType;
+import dev.roanh.gmark.ast.QueryAtom;
 import dev.roanh.gmark.ast.QueryVariable;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.lang.generic.GenericVariable;
@@ -36,6 +36,11 @@ public final class IdentityCPQ implements CPQ, QueryAtom{
 	 * Prevent outside construction.
 	 */
 	protected IdentityCPQ(){
+	}
+	
+	@Override
+	public CPQ inverse(){
+		return this;
 	}
 	
 	@Override

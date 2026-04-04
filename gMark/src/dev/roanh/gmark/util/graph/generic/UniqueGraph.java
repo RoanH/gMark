@@ -275,7 +275,7 @@ public class UniqueGraph<V, E>{
 	
 	/**
 	 * Computes the adjacency list representation of this graph. For this the
-	 * unique ID of every graph node is used (see {@link GraphNode#getID()}.
+	 * unique ID of every graph node is used (see {@link GraphNode#getID()}).
 	 * The adjacency list is returned as a 2-dimensional array, the first dimension
 	 * has as many indices as there were nodes added to the graph. Each of these indices
 	 * corresponds to the unique ID of one of the nodes in the graph. Indices for

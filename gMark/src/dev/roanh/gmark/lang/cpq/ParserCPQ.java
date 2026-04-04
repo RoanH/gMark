@@ -306,10 +306,9 @@ public final class ParserCPQ extends GenericParser{
 			Map<V, VertexData> transform = new HashMap<V, VertexData>();
 			
 			for(GraphNode<V, Predicate> node : queryGraph.getNodes()){
-				V v = node.getData();
 				VertexData data = new VertexData();
 				graph.addUniqueNode(data);
-				transform.put(v, data);
+				transform.put(node.getData(), data);
 			}
 			
 			this.source = graph.getNode(transform.get(source));

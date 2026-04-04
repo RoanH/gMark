@@ -496,22 +496,6 @@ public class UniqueGraph<V, E>{
 			return null;
 		}
 		
-		public boolean hasSelfLoop(){
-			for(GraphEdge<V, E> edge : out){
-				if(edge.target.equals(this)){
-					return true;
-				}
-			}
-			
-			for(GraphEdge<V, E> edge : in){
-				if(edge.source.equals(this)){
-					return true;
-				}
-			}
-			
-			return false;
-		}
-		
 		/**
 		 * Gets the total number of outgoing edges this node has.
 		 * @return The total number of outgoing edges this node has.
@@ -530,7 +514,8 @@ public class UniqueGraph<V, E>{
 		
 		/**
 		 * Gets the degree of node vertex, i.e., the sum of the number
-		 * of incoming edges and outgoing edges for this vertex.
+		 * of incoming edges and outgoing edges for this vertex. Note
+		 * that this definition will double count self loops.
 		 * @return The degree of this node
 		 * @see #getInCount()
 		 * @see #getOutCount()

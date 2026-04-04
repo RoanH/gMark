@@ -220,7 +220,7 @@ public final class ParserCPQ extends GenericParser{
 			//reduce degree 2 vertices that are articulation points only if there are no alternative actions
 			if(!changed){
 				for(GraphNode<VertexData, EdgeData> v : graph.getNodes()){
-					if(!graph.isTerminal(v) && v.getDegree() == 2 && graph.isArticulationPoint(v)){
+					if(!graph.isTerminal(v) && v.getDegree() == 2){
 						graph.contractVertexDegree2(v);
 						changed = true;
 						break;

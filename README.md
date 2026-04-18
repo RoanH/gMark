@@ -6,6 +6,7 @@ The current state of the repository is the result of several research projects, 
 
 - [Indexing Conjunctive Path Queries for Accelerated Query Evaluation](https://thesis.roanh.dev/), this is my master's thesis on constructing a CPQ-native Graph Database Index. This document currently contains the most extensive and detailed write-up of how CPQs are structured, and contains the specification for the algorithms in gMark for CPQ Query Graph Computation, Query Homomorphism testing, CPQ Core Computation, and [various other utility algorithms](https://github.com/RoanH/gMark/releases/tag/v1.2). The reference implementation for the CPQ-native Index itself can be found at [RoanH/CPQ-native-index](https://github.com/RoanH/CPQ-native-index).
 - [Graph Database & Query Evaluation Terminology](https://research.roanh.dev/Graph%20Database%20&%20Query%20Evaluation%20Terminology%20v1.3.pdf), this report focuses on bridging the gap between query languages and query evaluation. All of the database operations implemented in gMark are described in detail in this report, as well as the construction of RPQ and CPQ queries, and AST creation. More detailed information on this topic can be found in the [Querying Graphs](https://perso.liris.cnrs.fr/angela.bonifati/pubs/book-Bonifati-et-al-18.pdf) and [Database System Concepts](https://www.db-book.com/) books.
+- [Recognising Conjunctive Path Queries](https://research.roanh.dev/Recognising%20Conjunctive%20Path%20Queries%20v1.0.pdf), this reports contains the theory behind the algorithm used to parse arbitrary graphs into CPQs.
 - [CPQ Keys: a survey of graph canonization algorithms](https://research.roanh.dev/cpqkeys/CPQ%20Keys%20v1.1.pdf), the main purpose of this literature survey was to find suitable algorithms to use for CPQ core canonization. Within gMark the CPQ API was implemented for this purpose, including CPQ parsing, the initial Query Graph construction, and random CPQ generation. More details about the project can be found on its [site](https://cpqkeys.roanh.dev/) and in its repository at [RoanH/CPQKeys](https://github.com/RoanH/CPQKeys).
 - [Conjunctive Path Query Generation for Benchmarking](https://research.roanh.dev/Conjunctive%20Path%20Query%20Generation%20for%20Benchmarking%20v2.8.pdf), this report was the original motivation for this gMark rewrite and contains details on the CPQ workload generation algorithms and data structures. The current GUI for gMark was also written primarily with the use case in this report in mind.
 - [gMark: Schema-Driven Generation of Graphs and Queries](https://arxiv.org/abs/1511.08386), this is the paper for the original version of gMark which details the motivation behind all the original design choices.
@@ -80,8 +81,8 @@ An example configuration XML file can be found both [in this repository](gMark/c
 ### Executable download
 gMark is available as a standalone portable executable that has both a graphical interface and a command line interface. The graphical interface will only be launched when no command line arguments are passed. This version of gMark requires Java 25 or higher to run.
    
-- [Windows executable download](https://github.com/RoanH/gMark/releases/download/v2.1/gMark-v2.1.exe)    
-- [Runnable Java archive (JAR) download](https://github.com/RoanH/gMark/releases/download/v2.1/gMark-v2.1.jar)
+- [Windows executable download](https://github.com/RoanH/gMark/releases/download/v2.2/gMark-v2.2.exe)    
+- [Runnable Java archive (JAR) download](https://github.com/RoanH/gMark/releases/download/v2.2/gMark-v2.2.jar)
 
 All releases: [releases](https://github.com/RoanH/gMark/releases)    
 GitHub repository: [RoanH/gMark](https://github.com/RoanH/gMark)
@@ -124,7 +125,7 @@ repositories{
 }
 
 dependencies{
-	implementation 'dev.roanh.gmark:gmark:2.1'
+	implementation 'dev.roanh.gmark:gmark:2.2'
 }
 ```
 
@@ -133,7 +134,7 @@ dependencies{
 <dependency>
 	<groupId>dev.roanh.gmark</groupId>
 	<artifactId>gmark</artifactId>
-	<version>2.1</version>
+	<version>2.2</version>
 </dependency>
 ```
 
@@ -146,13 +147,17 @@ Predicate a = new Predicate(0, "a");
 CPQ query = CPQ.parse("a ∩ a");
 CPQ query = CPQ.intersect(a, a);
 CPQ query = CPQ.generateRandomCPQ(4, 1);
+CPQ query = CPQ.parse(graph, source, target);
+CPQ query = CPQ.parse(ast);
 
 RPQ query = RPQ.parse("a ◦ a");
 RPQ query = RPQ.disjunct(RPQ.concat(a, a), a);
 RPQ query = RPQ.generateRandomRPQ(4, 1);
+RPQ query = RPQ.parse(ast);
 
 CQ query = CQ.parse("(f1, f2) ← one(b1, f2), zero(f1, b1)");
 CQ query = CPQ.parse("a ∩ a").toCQ();
+CQ query = CQ.parse(ast);
 CQ query = CQ.empty();
 query.addAtom(
 	query.addFreeVariable("f1"),
@@ -183,13 +188,15 @@ Other notable utilities for CPQ, RPQ, and CQ are:
 
 ```java
 CPQ query = ...;
+QueryGraphCPQ graph = ...;
 
 String sql = query.toSQL();
 String formal = query.toFormalSyntax();
 QueryTree ast = query.toAbstractSyntaxTree();
+CPQ querySyntax = graph.toCPQ();
 ```
 
-Note that CPQs, RPQs, and CQs can also be constructed from an AST, which can sometimes be used to convert between query languages:
+Note that since CPQs, RPQs, and CQs can also be constructed from an AST, this can sometimes be used to convert between query languages:
 
 ```java
 RPQ rpq = RPQ.parse("a ◦ a");
@@ -200,7 +207,7 @@ CQ cq = cpq.toCQ();
 All more general utilities can be found under the `dev.roanh.gmark.util` package.
 
 ## Development of gMark
-This repository contain an [Eclipse](https://www.eclipse.org/) & [Gradle](https://gradle.org/) project with [Util](https://github.com/RoanH/Util) and [Apache Commons CLI](https://commons.apache.org/proper/commons-cli/introduction.html) as the only dependencies. Development work can be done using the Eclipse IDE or using any other Gradle compatible IDE. Continuous integration will check that all source files use Unix style line endings (LF) and that all functions and fields have valid documentation. Unit testing is employed to test core functionality, CI will also check for regressions using these tests. A hosted version of the javadoc for gMark can be found at [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/). Compiling the runnable Java archive (JAR) release of gMark using Gradle can be done using the following command in the `gMark` directory:
+This repository contain an [Eclipse](https://www.eclipse.org/) & [Gradle](https://gradle.org/) project. Development work can be done using the Eclipse IDE or using any other Gradle compatible IDE. Unit testing is employed to test core functionality, CI will also check for regressions using these tests. A hosted version of the javadoc for gMark can be found at [gmark.docs.roanh.dev](https://gmark.docs.roanh.dev/). Compiling the runnable Java archive (JAR) release of gMark using Gradle can be done using the following command in the `gMark` directory:
 
 ```sh
 ./gradlew client:shadowJar

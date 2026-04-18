@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 title: gMark
-version: 2.1
-date-released: 2025-06-15
+version: 2.2
+date-released: 2026-04-18
 message: "If you use this software, please cite it using the metadata from this file."
 type: software
 authors:
@@ -39,6 +39,14 @@ references:
     type: report
     url: 'https://research.roanh.dev/Graph%20Database%20&%20Query%20Evaluation%20Terminology%20v1.3.pdf'
     date-published: 2024-09-23
+  - title: "Recognising Conjunctive Path Queries"
+    authors:
+    - given-names: Roan
+      family-names: Hofland
+      email: roan@roanh.dev
+    type: report
+    url: 'https://research.roanh.dev/Recognising%20Conjunctive%20Path%20Queries%20v1.0.pdf'
+    date-published: 2026-04-18
   - title: "Conjunctive Path Query Generation for Benchmarking"
     authors:
     - given-names: Roan

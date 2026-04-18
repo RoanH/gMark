@@ -42,6 +42,7 @@ import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphNode;
  * Parser for CPQs (Conjunctive Path Queries).
  * @author Roan
  * @see CPQ
+ * @see <a href="https://research.roanh.dev/Recognising%20Conjunctive%20Path%20Queries%20v1.0.pdf">Recognising Conjunctive Path Queries</a>
  */
 public final class ParserCPQ extends GenericParser{
 	

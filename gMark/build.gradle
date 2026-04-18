@@ -193,13 +193,32 @@ publishing{
 
 	repositories{
 		maven{
-			url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+			url "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
 			credentials{
 				username findProperty("OSSRH_USER")
 				password findProperty("OSSRH_PASS")
 			}
 		}
 	}
+}
+
+tasks.register("centralPortalUpload"){
+	doLast{
+		def token = findProperty("CENTRAL_PORTAL_TOKEN")
+
+		def url = new URL("https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/dev.roanh.gmark")
+		def conn = (HttpURLConnection) url.openConnection()
+
+		conn.setRequestMethod("POST")
+		conn.setRequestProperty("Authorization", "Bearer ${token}")
+		conn.doOutput = true
+
+		println "Central Portal response: ${conn.responseCode}"
+	}
+}
+
+tasks.named("publish"){
+	finalizedBy("centralPortalUpload")
 }
 
 jar{

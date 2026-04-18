@@ -202,25 +202,6 @@ publishing{
 	}
 }
 
-tasks.register("centralPortalUpload"){
-	doLast{
-		def token = findProperty("CENTRAL_PORTAL_TOKEN")
-
-		def url = new URL("https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/dev.roanh.gmark")
-		def conn = (HttpURLConnection) url.openConnection()
-
-		conn.setRequestMethod("POST")
-		conn.setRequestProperty("Authorization", "Bearer ${token}")
-		conn.doOutput = true
-
-		println "Central Portal response: ${conn.responseCode}"
-	}
-}
-
-tasks.named("publish"){
-	finalizedBy("centralPortalUpload")
-}
-
 jar{
 	into("META-INF/maven/$project.group/$project.artifact"){
 		from{

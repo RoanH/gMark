@@ -144,6 +144,8 @@ staging:
     - maven_central
   needs:
     - publish
+  only:
+    - tags
 
 hub:
   image: docker:latest

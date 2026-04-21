@@ -69,8 +69,6 @@ docker:
   variables:
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
-  tags:
-    - docker
   services:
     - docker:dind
   before_script: []
@@ -78,6 +76,8 @@ docker:
     - docker info
     - docker build -t gmark .
   stage: compile
+  tags:
+    - docker
 
 cli:
   script:
@@ -126,22 +126,22 @@ test:
       junit: ./${PROJECTNAME}/build/test-results/test/TEST-*.xml
 
 publish:
-  tags:
-    - maven_central
   allow_failure: false
   script: ./gradlew -PrefName=${CI_COMMIT_REF_NAME} publishAllPublicationsToMavenRepository
   when: manual
   stage: publishing
+  tags:
+    - maven_central
   only:
     - tags
 
 staging:
   image: bash:5.3.9
+  before_script: []
+  script: 'curl --request POST -H "Authorization: Bearer ${CENTRAL_PORTAL_TOKEN}" https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/dev.roanh.gmark'
+  stage: publishing
   tags:
     - maven_central
-  before_script: []
-  script: curl --request POST -H "Authorization: Bearer ${CENTRAL_PORTAL_TOKEN}" https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/dev.roanh.gmark
-  stage: publishing
   needs:
     - publish
 
@@ -150,8 +150,6 @@ hub:
   variables:
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
-  tags:
-    - docker
   services:
     - docker:dind
   before_script: []
@@ -164,6 +162,8 @@ hub:
     - docker push roanh/gmark:${CI_COMMIT_REF_NAME:1}
     - docker push roanh/gmark:latest
   stage: publishing
+  tags:
+    - docker
   needs:
     - publish
   only:

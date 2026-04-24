@@ -67,8 +67,7 @@ javadoc:
 docker:
   image: docker:latest
   variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_CERTDIR: /certs
   services:
     - docker:dind
   before_script: []
@@ -150,8 +149,7 @@ staging:
 hub:
   image: docker:latest
   variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_CERTDIR: /certs
   services:
     - docker:dind
   before_script: []

@@ -135,7 +135,7 @@ publish:
     - tags
 
 staging:
-  image: bash:5.3.9
+  image: curlimages/curl:8.19.0
   before_script: []
   script: 'curl --request POST -H "Authorization: Bearer ${CENTRAL_PORTAL_TOKEN}" https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/dev.roanh.gmark'
   stage: publishing

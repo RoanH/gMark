@@ -48,11 +48,11 @@ public class CanonForm{
 	/**
 	 * Maximum number of bits that will ever be required to encode a vertex label ID.
 	 */
-	private static final int MAX_LABEL_BITS = 5;
+	private static final int MAX_LABEL_BITS = 5;//TODO input validation
 	/**
 	 * Maximum number of bits that will ever be required to encode a vertex ID.
 	 */
-	private static final int MAX_VERTEX_BITS = 10;
+	private static final int MAX_VERTEX_BITS = 10;//TODO input validation
 	/**
 	 * The vertex ID of the source vertex of the CPQ.
 	 */
@@ -127,7 +127,7 @@ public class CanonForm{
 		ColoredGraph input = toColoredGraph(core);
 		
 		//compute the canonical labelling with nauty
-		int[] relabel = Nauty.computeCanonicalLabelling(input);
+		int[] relabel = Nauty.computeCanonicalLabelling(nauty, input);
 
 		//compute the inverse of the relabelling function.
 		int[] inv = new int[relabel.length];

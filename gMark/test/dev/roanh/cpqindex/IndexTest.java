@@ -179,7 +179,7 @@ public class IndexTest{
 		assertEquals(testIndex.query(cpq).size(), testIndex.computeResultCardinality(cpq), cpq.toString());
 	}
 	
-	public static void main(String[] args) throws IllegalArgumentException, InterruptedException{
+	public static void main9(String[] args) throws IllegalArgumentException, InterruptedException{
 		System.out.println("Run");
 		IndexTest test = new IndexTest();
 		for(int i = 0; i < 1000; i++){
@@ -199,6 +199,18 @@ public class IndexTest{
 			test.coresTest();
 		}
 		System.out.println("Done");
+	}
+	
+	public static void main(String[] args) throws IOException, IllegalStateException, InterruptedException{
+		Index idx = new Index(ClassLoader.getSystemResourceAsStream("base_index.idx"));
+		idx.setIntersections(2);
+		idx.setProgressListener(ProgressListener.LOG);
+		
+		System.out.println("Start");
+		idx.computeCores(1);
+		System.out.println("Done");
+		
+		
 	}
 	
 	@Test

@@ -34,8 +34,7 @@ import dev.roanh.nauty.struct.SparseGraph;
  */
 public class Nauty{
 
-	public static int[] computeCanonicalLabelling(ColoredGraph graph){
-		NautyApi nauty = new NautyApi();
+	public static int[] computeCanonicalLabelling(NautyApi nauty, ColoredGraph graph){
 		int[] lab = graph.computeLab();
 		try{
 			nauty.computeCanonicalLabelling2(graph.computeGraph(), lab, graph.computePtn());

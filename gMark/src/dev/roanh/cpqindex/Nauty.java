@@ -18,12 +18,14 @@
  */
 package dev.roanh.cpqindex;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.nauty.api.NautyApi;
+import dev.roanh.nauty.struct.SparseGraph;
 
 /**
  * This class provides and interface to the native binding for nauty.
@@ -31,6 +33,18 @@ import dev.roanh.gmark.type.schema.Predicate;
  *
  */
 public class Nauty{
+
+	public static int[] computeCanonicalLabelling(ColoredGraph graph){
+		NautyApi nauty = new NautyApi();
+		int[] lab = graph.computeLab();
+		try{
+			nauty.computeCanonicalLabelling2(graph.computeGraph(), lab, graph.computePtn());
+		}catch(InterruptedException e){
+			throw new IllegalStateException(e);
+		}
+		return lab;
+	}
+	
 	
 	/**
 	 * Computes a canonical labelling of the given coloured graph. The labelling
@@ -40,7 +54,7 @@ public class Nauty{
 	 * @param graph The graph to compute a canonical labelling of.
 	 * @return The computed relabelling mapping.
 	 */
-	public static int[] computeCanonicalLabelling(ColoredGraph graph){
+	public static int[] computeCanonicalLabellingNative(ColoredGraph graph){
 		int[] colors = prepareColors(graph);
 		return computeCanonSparse(graph.getAdjacencyList(), colors);
 	}
@@ -81,13 +95,13 @@ public class Nauty{
 		return colors;
 	}
 	
-	static{
-		try{
-			IndexUtil.loadNatives();
-		}catch(IOException e){
-			throw new LinkageError("Failed to extract native librray", e);
-		}
-	}
+//	static{
+//		try{
+//			IndexUtil.loadNatives();
+//		}catch(IOException e){
+//			throw new LinkageError("Failed to extract native librray", e);
+//		}
+//	}
 	
 	/**
 	 * Represents a coloured graph. Colours are assigned to 4 categories
@@ -105,7 +119,7 @@ public class Nauty{
 		/**
 		 * The adjacency list representing the graph.
 		 */
-		private int[][] graph;
+		private int[][] graph;//TODO simplegraph
 		/**
 		 * A collection of lists where each list has the
 		 * IDs of nodes with the same colour. The label
@@ -192,6 +206,69 @@ public class Nauty{
 			}
 			
 			return colors;
+		}
+		
+		public int[] computePtn(){
+			int[] ptn = new int[graph.length];
+			int off = 1;
+			
+			if(target != source){
+				off++;
+			}
+			
+			for(Entry<Predicate, int[]> entry : labels){
+				int len = entry.getValue().length;
+				Arrays.fill(ptn, off, off + len - 1, 1);
+				off += len;
+			}
+			
+			if(noLabel.length > 0){
+				Arrays.fill(ptn, off, off + noLabel.length - 1, 1);
+			}
+			
+			return ptn;
+		}
+		
+		public int[] computeLab(){
+			int[] lab = new int[graph.length];
+			int off = 0;
+			
+			lab[off++] = source;
+			if(target != source){
+				lab[off++] = target;
+			}
+			
+			for(Entry<Predicate, int[]> entry : labels){
+				int len = entry.getValue().length;
+				System.arraycopy(entry.getValue(), 0, lab, off, len);
+				off += len;
+			}
+			
+			if(noLabel.length > 0){
+				System.arraycopy(noLabel, 0, lab, off, noLabel.length);
+			}
+			
+			return lab;
+		}
+		
+		//TODO could probably be the regular data form inside
+		public SparseGraph computeGraph(){
+			int edges = 0;
+			for(int[] v : graph){
+				edges += v.length;
+			}
+			
+			SparseGraph g = new SparseGraph(graph.length, edges);
+			int off = 0;
+			for(int i = 0; i < graph.length; i++){
+				int[] v = graph[i];
+				g.d[i] = v.length;
+				g.v[i] = off;
+				System.arraycopy(v, 0, g.e, off, v.length);
+				off += v.length;
+			}
+			
+			return g;
 		}
 		
 		/**

@@ -40,6 +40,7 @@ import dev.roanh.cpqindex.Index.Block;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
+import dev.roanh.nauty.api.NautyApi;
 
 public class IndexTest{
 	private static UniqueGraph<Integer, Predicate> testGraph;
@@ -677,7 +678,7 @@ public class IndexTest{
 	private void checkCores(Block block, String... expected){
 		assertEquals(expected.length, block.getCanonCores().size(), "found: " + block.getCores());
 		for(String cpq : expected){
-			CoreHash canon = CanonForm.computeCanon(CPQ.parse(cpq, symbols), false).toHashCanon();
+			CoreHash canon = CanonForm.computeCanon(new NautyApi(), CPQ.parse(cpq, symbols), false).toHashCanon();
 			assertTrue(block.getCanonCores().contains(canon), "real: " + block.getCores() + " / " + canon + " | " + block.getCanonCores() + " | " + cpq);
 		}
 	}

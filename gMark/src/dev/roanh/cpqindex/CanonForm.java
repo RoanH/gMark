@@ -37,6 +37,7 @@ import dev.roanh.gmark.lang.cpq.QueryGraphCPQ;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Edge;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.nauty.api.NautyApi;
 
 /**
  * Utility class to compute and represent the canonical form of a CPQ.
@@ -118,7 +119,7 @@ public class CanonForm{
 	 * @param isCore If the given CPQ is guaranteed to be a core.
 	 * @return The computed canonical form.
 	 */
-	public static CanonForm computeCanon(CPQ cpq, boolean isCore){
+	public static CanonForm computeCanon(NautyApi nauty, CPQ cpq, boolean isCore){
 		QueryGraphCPQ original = cpq.toQueryGraph();
 		QueryGraphCPQ core = isCore ? original : original.computeCore();
 		

@@ -52,6 +52,7 @@ import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.RangeList;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
+import dev.roanh.nauty.api.NautyApi;
 
 /**
  * Implementation of a graph database index based on k-path-bisimulation
@@ -354,7 +355,7 @@ public class Index{
 		}
 		
 		return coreToBlock.getOrDefault(
-			CanonForm.computeCanon(cpq, false).toHashCanon(),
+			CanonForm.computeCanon(new NautyApi(), cpq, false).toHashCanon(),
 			Collections.emptyList()
 		).stream();
 	}
@@ -585,8 +586,9 @@ public class Index{
 			while(iter.hasPrevious()){
 				Block block = iter.previous();
 				executor.execute(()->{
+					NautyApi nauty = new NautyApi();
 					try{
-						block.computeCores();
+						block.computeCores(nauty);
 
 						if(done.incrementAndGet() == total){
 							lock.lock();
@@ -1084,14 +1086,14 @@ public class Index{
 		 * @param noSave True if the explicit form of this core
 		 *        does not need to be saved to {@link #cores}.
 		 */
-		private final void addCore(CPQ q, boolean noSave){
-			addCore(CanonForm.computeCanon(q, false), noSave);
+		private final void addCore(NautyApi nauty, CPQ q, boolean noSave){
+			addCore(CanonForm.computeCanon(nauty, q, false), noSave);
 		}
 		
 		/**
 		 * Computes all the CPQ cores for this block.
 		 */
-		private final void computeCores(){
+		private final void computeCores(NautyApi nauty){
 			//inherited from previous layer blocks
 			if(ancestor != null){//only need to go back one level since the previous level already collected the level before that
 				//these are by definition of a different diameter
@@ -1105,13 +1107,13 @@ public class Index{
 			
 			if(combinations.isEmpty()){
 				//for layer 1 the cores are the label sequences (which are distinct cores)
-				labels.stream().map(LabelSequence::getLabels).map(CPQ::labels).map(q->CanonForm.computeCanon(q, true)).forEach(c->this.addCore(c, false));
+				labels.stream().map(LabelSequence::getLabels).map(CPQ::labels).map(q->CanonForm.computeCanon(nauty, q, true)).forEach(c->this.addCore(c, false));
 			}else{
 				//all combinations of cores from previous layers (this can generate duplicates, but all are cores unless both cores are a loop)
 				for(BlockPair pair : combinations){
 					for(CPQ core1 : pair.first().cores){
 						for(CPQ core2 : pair.second().cores){
-							addCore(CPQ.concat(core1, core2), false);
+							addCore(nauty, CPQ.concat(core1, core2), false);
 						}
 					}
 				}
@@ -1148,11 +1150,11 @@ public class Index{
 						if(!conflicts[i].get(j)){
 							//this really only applies for k > 2, but any decrease in options is welcome
 							CPQ q = CPQ.intersect(cores.get(i), cores.get(j));
-							CanonForm canon = CanonForm.computeCanon(q, false);
+							CanonForm canon = CanonForm.computeCanon(nauty, q, false);
 							held.add(canon);
 							if(canon.wasCore()){
 								if(isLoop()){
-									held.add(CanonForm.computeCanon(CPQ.intersect(q, CPQ.id()), false));
+									held.add(CanonForm.computeCanon(nauty, CPQ.intersect(q, CPQ.id()), false));
 								}
 							}else{
 								conflicts[i].set(j);
@@ -1162,7 +1164,7 @@ public class Index{
 				}
 				
 				if(maxIntersections >= 3){
-					computeIntersectionCores(cores, 0, skip, max, new ArrayList<CPQ>(), new BitSet(cores.size()), conflicts, noSave, isLoop());
+					computeIntersectionCores(nauty, cores, 0, skip, max, new ArrayList<CPQ>(), new BitSet(cores.size()), conflicts, noSave, isLoop());
 				}
 				
 				for(CanonForm form : held){
@@ -1173,7 +1175,7 @@ public class Index{
 			//intersect with identity if possible, these are not always cores and not always unique (note that intersections were already handled so they are skipped)
 			if(isLoop()){
 				for(int i = skip; i < end; i++){
-					addCore(CPQ.intersect(cores.get(i), CPQ.id()), noSave);
+					addCore(nauty, CPQ.intersect(cores.get(i), CPQ.id()), noSave);
 				}
 			}
 			
@@ -1202,19 +1204,19 @@ public class Index{
 		 * @param noSave Whether explicit cores should be saved to {@link #cores}.
 		 * @param id True if this block is a loop so all computed cores also need to be intersected with identity.
 		 */
-		private final void computeIntersectionCores(List<CPQ> items, int offset, final int restricted, final int max, List<CPQ> set, BitSet selected, BitSet[] conflicts, final boolean noSave, final boolean id){
+		private final void computeIntersectionCores(NautyApi nauty, List<CPQ> items, int offset, final int restricted, final int max, List<CPQ> set, BitSet selected, BitSet[] conflicts, final boolean noSave, final boolean id){
 			if(offset >= max || set.size() == maxIntersections){
 				if(set.size() >= 3){
 					CPQ q = CPQ.intersect(new ArrayList<CPQ>(set));
-					CanonForm canon = CanonForm.computeCanon(q, false);
+					CanonForm canon = CanonForm.computeCanon(nauty, q, false);
 					addCore(canon, noSave);
 					if(id && canon.wasCore()){
-						addCore(CPQ.intersect(q, CPQ.id()), noSave);
+						addCore(nauty, CPQ.intersect(q, CPQ.id()), noSave);
 					}
 				}
 			}else{
 				//don't pick the element
-				computeIntersectionCores(items, offset + 1, restricted, max, set, selected, conflicts, noSave, id);
+				computeIntersectionCores(nauty, items, offset + 1, restricted, max, set, selected, conflicts, noSave, id);
 				
 				//pick the element
 				if(conflicts[offset].intersects(selected)){
@@ -1225,7 +1227,7 @@ public class Index{
 				selected.set(offset);
 				CPQ q = items.get(offset);
 				set.add(q);
-				computeIntersectionCores(items, offset < restricted ? restricted : (offset + 1), restricted, max, set, selected, conflicts, noSave, id);
+				computeIntersectionCores(nauty, items, offset < restricted ? restricted : (offset + 1), restricted, max, set, selected, conflicts, noSave, id);
 				set.remove(set.size() - 1);
 				selected.clear(offset);
 			}

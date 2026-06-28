@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.nauty.api.CanonicalResult;
 import dev.roanh.nauty.api.NautyApi;
 import dev.roanh.nauty.struct.SparseGraph;
 
@@ -34,14 +35,12 @@ import dev.roanh.nauty.struct.SparseGraph;
  */
 public class Nauty{
 
-	public static int[] computeCanonicalLabelling(NautyApi nauty, ColoredGraph graph){
-		int[] lab = graph.computeLab();
+	public static CanonicalResult computeCanonicalLabelling(NautyApi nauty, ColoredGraph graph){
 		try{
-			nauty.computeCanonicalLabelling2(graph.computeGraph(), lab, graph.computePtn());
+			return nauty.computeCanonicalLabelling(graph.computeGraph(), graph.computeLab(), graph.computePtn());
 		}catch(InterruptedException e){
 			throw new IllegalStateException(e);
 		}
-		return lab;
 	}
 	
 	
@@ -252,22 +251,7 @@ public class Nauty{
 		
 		//TODO could probably be the regular data form inside
 		public SparseGraph computeGraph(){
-			int edges = 0;
-			for(int[] v : graph){
-				edges += v.length;
-			}
-			
-			SparseGraph g = new SparseGraph(graph.length, edges);
-			int off = 0;
-			for(int i = 0; i < graph.length; i++){
-				int[] v = graph[i];
-				g.d[i] = v.length;
-				g.v[i] = off;
-				System.arraycopy(v, 0, g.e, off, v.length);
-				off += v.length;
-			}
-			
-			return g;
+			return new SparseGraph(graph);
 		}
 		
 		/**

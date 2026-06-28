@@ -190,6 +190,8 @@ public class Index{
 		k = in.readInt();
 		progress = ProgressListener.NONE;
 		
+		
+		
 		if(full){
 			predicates = new RangeList<Predicate>(in.readInt());
 			for(int i = 0; i < predicates.size(); i++){

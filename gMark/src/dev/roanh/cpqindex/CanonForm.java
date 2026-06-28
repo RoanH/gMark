@@ -37,6 +37,7 @@ import dev.roanh.gmark.lang.cpq.QueryGraphCPQ;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Edge;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.nauty.api.CanonicalResult;
 import dev.roanh.nauty.api.NautyApi;
 
 /**
@@ -127,13 +128,10 @@ public class CanonForm{
 		ColoredGraph input = toColoredGraph(core);
 		
 		//compute the canonical labelling with nauty
-		int[] relabel = Nauty.computeCanonicalLabelling(nauty, input);
+		CanonicalResult canon = Nauty.computeCanonicalLabelling(nauty, input);
 
 		//compute the inverse of the relabelling function.
-		int[] inv = new int[relabel.length];
- 		for(int i = 0; i < relabel.length; i++){
-			inv[relabel[i]] = i;
-		}
+		int[] inv = canon.getInverseRelabelling();
  		
  		//relabel the source and target node
  		int source = inv[core.getSourceVertex().getID()];
@@ -146,15 +144,7 @@ public class CanonForm{
  		}
  		
  		//relabel the graph itself
- 		int[][] graph = new int[relabel.length][];
-		for(int i = 0; i < relabel.length; i++){
-			int[] row = input.getAdjacencyList()[relabel[i]];
-			graph[i] = new int[row.length];
-			for(int j = 0; j < row.length; j++){
-				graph[i][j] = inv[row[j]];
-			}
-			Arrays.sort(graph[i]);
-		}
+ 		int[][] graph = canon.getCanonicalGraph().toAdjacencyLists();
 		
 		return new CanonForm(source, target, labels, graph, cpq, original.getEdgeCount() == core.getEdgeCount());
 	}

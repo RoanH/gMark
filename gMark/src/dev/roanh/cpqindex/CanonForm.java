@@ -69,9 +69,9 @@ public class CanonForm{
 	 */
 	private final Map<Predicate, Integer> labels;
 	/**
-	 * The adjacency list form of the canonically labelled transformed CPQ query graph.
+	 * The canonically labelled transformed CPQ query graph.
 	 */
-	private final int[][] graph;
+	private final SparseGraph graph;
 	/**
 	 * The CPQ this canonical form was constructed from.
 	 */
@@ -90,7 +90,7 @@ public class CanonForm{
 	 * @param cpq The original CPQ.
 	 * @param wasCore True if the original input was a core.
 	 */
-	private CanonForm(int source, int target, Map<Predicate, Integer> labels, int[][] graph, CPQ cpq, boolean wasCore){
+	private CanonForm(int source, int target, Map<Predicate, Integer> labels, SparseGraph graph, CPQ cpq, boolean wasCore){
 		this.source = source;
 		this.target = target;
 		this.labels = labels;
@@ -142,8 +142,7 @@ public class CanonForm{
  		}
  		
  		//relabel the graph itself
- 		int[][] graph = canon.getCanonicalGraph().toAdjacencyLists();
-		return new CanonForm(source, target, labels, graph, cpq, original.getEdgeCount() == core.getEdgeCount());
+		return new CanonForm(source, target, labels, canon.getCanonicalGraph(), cpq, original.getEdgeCount() == core.getEdgeCount());
 	}
 	
 	/**
@@ -253,15 +252,16 @@ public class CanonForm{
 			buf.append(",");
 		}
 		
-		for(int i = 0; i < graph.length; i++){
+		for(int i = 0; i < graph.nv; i++){
 			buf.append('e');
 			buf.append(i);
 			buf.append("={");
-			for(int v : graph[i]){
-				buf.append(v);
+			int voff = graph.v[i];
+			for(int v = 0; v < graph.d[i]; v++){
+				buf.append(graph.e[voff + v]);
 				buf.append(',');
 			}
-			if(graph[i].length != 0){
+			if(graph.d[i] != 0){
 				buf.deleteCharAt(buf.length() - 1);
 			}
 			buf.append("},");
@@ -279,19 +279,17 @@ public class CanonForm{
 	 */
 	public byte[] toBinaryCanon(){
 		//bits per vertex
-		int vb = (int)Math.ceil(Math.log(graph.length) / Math.log(2));
+		int vb = (int)Math.ceil(Math.log(graph.nv) / Math.log(2));
 		
 		//total required bits
 		int bits = MAX_VERTEX_BITS + vb * 2 + labels.size() * MAX_LABEL_BITS + MAX_LABEL_BITS + vb * labels.size();
 		
-		bits += graph.length * vb;
-		for(int[] edges : graph){
-			bits += edges.length * vb;
-		}
+		bits += graph.nv * vb;
+		bits += graph.nde * vb;
 				
 		//write canonical form
 		BitWriter out = new BitWriter(bits);
-		out.writeInt(graph.length, MAX_VERTEX_BITS);
+		out.writeInt(graph.nv, MAX_VERTEX_BITS);
 		out.writeInt(source, vb);
 		out.writeInt(target, vb);
 		
@@ -301,10 +299,12 @@ public class CanonForm{
 			out.writeInt(entry.getValue(), vb);
 		}
 		
-		for(int[] edges : graph){
-			out.writeInt(edges.length, vb);
-			for(int v : edges){
-				out.writeInt(v, vb);
+		for(int i = 0; i < graph.nv; i++){
+			int deg = graph.d[i];
+			out.writeInt(deg, vb);
+			int voff = graph.v[i];
+			for(int v = 0; v < deg; v++){
+				out.writeInt(graph.e[voff + v], vb);
 			}
 		}
 		

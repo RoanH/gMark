@@ -39,6 +39,7 @@ import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.nauty.api.CanonicalResult;
 import dev.roanh.nauty.api.NautyApi;
+import dev.roanh.nauty.struct.SparseGraph;
 
 /**
  * Utility class to compute and represent the canonical form of a CPQ.
@@ -130,12 +131,9 @@ public class CanonForm{
 		//compute the canonical labelling with nauty
 		CanonicalResult canon = Nauty.computeCanonicalLabelling(nauty, input);
 
-		//compute the inverse of the relabelling function.
-		int[] inv = canon.getInverseRelabelling();
- 		
  		//relabel the source and target node
- 		int source = inv[core.getSourceVertex().getID()];
- 		int target = inv[core.getTargetVertex().getID()];
+ 		int source = canon.remap(core.getSourceVertex().getID());
+ 		int target = canon.remap(core.getTargetVertex().getID());
  		
  		//relabel labels
  		Map<Predicate, Integer> labels = new LinkedHashMap<Predicate, Integer>();
@@ -145,7 +143,6 @@ public class CanonForm{
  		
  		//relabel the graph itself
  		int[][] graph = canon.getCanonicalGraph().toAdjacencyLists();
-		
 		return new CanonForm(source, target, labels, graph, cpq, original.getEdgeCount() == core.getEdgeCount());
 	}
 	
@@ -167,24 +164,29 @@ public class CanonForm{
 			colorMap.computeIfAbsent(edge.getLabel(), _->new LabelData()).idx++;
 		}
 		
-		//pre size arrays
-		int[][] adj = new int[graph.getVertexCount() + graph.getEdgeCount()][];
-		for(int i = 0; i < deg.length; i++){
-			adj[i] = new int[deg[i]];
+		//pre size arrays (offsets point to last index initially)
+		int[] voff = new int[graph.getVertexCount() + graph.getEdgeCount()];
+		int nde = deg[0];
+		voff[0] = nde;
+		for(int i = 1; i < deg.length; i++){
+			int len = deg[i];
+			voff[i] = voff[i - 1] + len;
+			nde += len;
 		}
+		int[] e = new int[nde];
 		
 		//pre size maps
 		for(LabelData lab : colorMap.values()){
 			lab.data = new int[lab.idx];
 		}
 		
-		//compute adjacencies
+		//compute adjacencies, fill from the end of the range
 		for(Edge edge : graph.getEdges()){
 			int eid = edge.getID();
 			int sid = edge.getSource().getID();
 			
-			adj[eid][--deg[eid]] = edge.getTarget().getID();
-			adj[sid][--deg[sid]] = eid;
+			e[--voff[eid]] = edge.getTarget().getID();
+			e[--voff[sid]] = eid;
 			
 			LabelData data = colorMap.get(edge.getLabel());
 			data.data[--data.idx] = eid;
@@ -201,11 +203,11 @@ public class CanonForm{
 		
 		//process label data
 		List<Entry<Predicate, int[]>> labels = new ArrayList<Entry<Predicate, int[]>>(colorMap.size());
-		colorMap.entrySet().stream().sorted(Entry.comparingByKey()).forEach(e->labels.add(Map.entry(e.getKey(), e.getValue().data)));
+		colorMap.entrySet().stream().sorted(Entry.comparingByKey()).forEach(entry->labels.add(Map.entry(entry.getKey(), entry.getValue().data)));
 		
 		//put together the final graph
 		return new ColoredGraph(
-			adj,
+			new SparseGraph(voff, deg, e),
 			graph.getSourceVertex().getID(),
 			graph.getTargetVertex().getID(),
 			labels,

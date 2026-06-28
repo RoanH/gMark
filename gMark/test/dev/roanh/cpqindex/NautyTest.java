@@ -26,6 +26,7 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 public class NautyTest{
+	//TODO move to nauty
 	private static final int[][] TEST_GRAPH = new int[][]{
 		new int[]{2, 3},
 		new int[]{},

@@ -13,6 +13,6 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CPQ-native Index"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Nauty"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/nauty"/>
 	<classpathentry kind="output" path="bin/default"/>
 </classpath>

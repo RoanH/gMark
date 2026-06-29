@@ -179,7 +179,7 @@ public class IndexTest{
 		assertEquals(testIndex.query(cpq).size(), testIndex.computeResultCardinality(cpq), cpq.toString());
 	}
 	
-	public static void main9(String[] args) throws IllegalArgumentException, InterruptedException{
+	public static void mainl(String[] args) throws IllegalArgumentException, InterruptedException{
 		System.out.println("Run");
 		IndexTest test = new IndexTest();
 		for(int i = 0; i < 1000; i++){

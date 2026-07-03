@@ -132,8 +132,8 @@ public class CanonForm{
 		CanonicalResult canon = Nauty.computeCanonicalLabelling(nauty, input);
 
  		//relabel the source and target node
- 		int source = canon.remap(core.getSourceVertex().getID());
- 		int target = canon.remap(core.getTargetVertex().getID());
+ 		int source = canon.relabel(core.getSourceVertex().getID());
+ 		int target = canon.relabel(core.getTargetVertex().getID());
  		
  		//relabel labels
  		Map<Predicate, Integer> labels = new LinkedHashMap<Predicate, Integer>();

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter xmlns="" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
+  <!-- https://spotbugs.readthedocs.io/en/stable/filter.html -->
+
+  <Match>
+    <Or>
+      <Bug pattern="EI_EXPOSE_REP"/>
+      <Bug pattern="EI_EXPOSE_REP2"/>
+      <Bug pattern="EI_EXPOSE_STATIC_REP2"/>
+      <Bug pattern="MS_CANNOT_BE_FINAL"/>
+      <Bug pattern="MS_EXPOSE_REP"/>
+      <Bug pattern="MS_PKGPROTECT"/>
+      <Bug pattern="REC_CATCH_EXCEPTION"/>
+      <Bug pattern="CI_CONFUSED_INHERITANCE"/>
+      <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Or>
+  </Match>
+  
+  <Match>
+    <!-- Intentionally ignored for performance reasons -->
+    <Or>
+      <Bug pattern="NP_EQUALS_SHOULD_HANDLE_NULL_ARGUMENT"/>
+      <Bug pattern="BC_EQUALS_METHOD_SHOULD_WORK_FOR_ALL_OBJECTS"/>
+    </Or>
+    <Or>
+      <Class name="dev.roanh.cpqindex.CanonForm$CoreHash"/>
+      <Class name="dev.roanh.cpqindex.LabelSequence"/>
+      <Class name="dev.roanh.cpqindex.Pair"/>
+      <Class name="dev.roanh.cpqindex.PathPair"/>
+      <Class name="dev.roanh.cpqindex.LabelledPath"/>
+    </Or>
+  </Match>
+  
+  <Match>
+    <!-- Valid, but the Index is not and is not intended to be threadsafe after configuration -->
+    <Bug pattern="AT_STALE_THREAD_WRITE_OF_PRIMITIVE"/>
+    <Class name="dev.roanh.cpqindex.Index"/>
+    <Or>
+      <Field name="computeCores"/>
+      <Field name="maxIntersections"/>
+    </Or>
+  </Match>
+  
+</FindBugsFilter>

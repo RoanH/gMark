@@ -1,0 +1,2 @@
+# Nauty
+This folder contains the JNI interface to nauty from [nauty & Traces](https://pallini.di.uniroma1.it/) release version 2.8.6, released on the 16th of November 2022. Nauty and Traces are released under the [Apache License v2.0](https://www.apache.org/licenses/LICENSE-2.0), an unaltered subset of files from the nauty & Traces 2.8.6 release is located in the [include/nauty](include/nauty) and [nauty](nauty) folders.

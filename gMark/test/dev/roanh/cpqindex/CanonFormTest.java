@@ -31,7 +31,7 @@ public class CanonFormTest{
 	private final NautyApi nauty = new NautyApi();
 	
 	@Test
-	public void canon0(){
+	public void canon0() throws InterruptedException{
 		Predicate l1 = new Predicate(0, "a");
 		Predicate l2 = new Predicate(1, "b");
 		Predicate l3 = new Predicate(2, "c");
@@ -48,7 +48,7 @@ public class CanonFormTest{
 	}
 
 	@Test
-	public void canon1(){
+	public void canon1() throws InterruptedException{
 		Predicate l1 = new Predicate(0, "a");
 		Predicate l2 = new Predicate(1, "b");
 		Predicate l3 = new Predicate(2, "c");
@@ -60,7 +60,7 @@ public class CanonFormTest{
 	}
 
 	@Test
-	public void canon2(){
+	public void canon2() throws InterruptedException{
 		Predicate l1 = new Predicate(0, "a");
 		Predicate l2 = new Predicate(1, "b");
 		Predicate l3 = new Predicate(2, "c");
@@ -72,7 +72,7 @@ public class CanonFormTest{
 	}
 	
 	@Test
-	public void canon3(){
+	public void canon3() throws InterruptedException{
 		Predicate l1 = new Predicate(0, "a");
 		Predicate l2 = new Predicate(1, "b");
 		Predicate l3 = new Predicate(2, "c");

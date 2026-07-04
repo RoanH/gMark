@@ -312,11 +312,12 @@ public class Index{
 	 * @return The paths matched by the query.
 	 * @throws IllegalArgumentException When the query has a diameter equal
 	 *         to 0 or larger than the diameter of this index.
+	 * @throws InterruptedException When the current thread is interrupted.
 	 * @see #setIntersections(int)
 	 * @see CPQ#getDiameter()
 	 * @see #computeResultCardinality(CPQ)
 	 */
-	public final List<Pair> query(CPQ cpq) throws IllegalArgumentException{
+	public final List<Pair> query(CPQ cpq) throws IllegalArgumentException, InterruptedException{
 		return streamBlocks(cpq).flatMap(b->b.getPaths().stream()).toList();
 	}
 
@@ -327,11 +328,12 @@ public class Index{
 	 * @return The number of paths matched by the query.
 	 * @throws IllegalArgumentException When the query has a diameter equal
 	 *         to 0 or larger than the diameter of this index.
+	 * @throws InterruptedException When the current thread is interrupted.
 	 * @see #setIntersections(int)
 	 * @see CPQ#getDiameter()
 	 * @see #query(CPQ)
 	 */
-	public final long computeResultCardinality(CPQ cpq) throws IllegalArgumentException{
+	public final long computeResultCardinality(CPQ cpq) throws IllegalArgumentException, InterruptedException{
 		return streamBlocks(cpq).mapToLong(Block::getPathCount).sum();
 	}
 	
@@ -342,9 +344,10 @@ public class Index{
 	 * @return A stream over the blocks matched by the given query.
 	 * @throws IllegalArgumentException When the query has a diameter equal
 	 *         to 0 or larger than the diameter of this index.
+		 * @throws InterruptedException When the current thread is interrupted.
 	 * @see #setIntersections(int)
 	 */
-	private final Stream<Block> streamBlocks(CPQ cpq) throws IllegalArgumentException{
+	private final Stream<Block> streamBlocks(CPQ cpq) throws IllegalArgumentException, InterruptedException{
 		if(cpq.getDiameter() > k || cpq.getDiameter() == 0){
 			throw new IllegalArgumentException("Query diameter equal to 0 or larger than index diameter.");
 		}
@@ -1080,15 +1083,17 @@ public class Index{
 		 *        is always computed first before adding.
 		 * @param noSave True if the explicit form of this core
 		 *        does not need to be saved to {@link #cores}.
+		 * @throws InterruptedException When the current thread is interrupted.
 		 */
-		private final void addCore(NautyApi nauty, CPQ q, boolean noSave){
+		private final void addCore(NautyApi nauty, CPQ q, boolean noSave) throws InterruptedException{
 			addCore(CanonForm.computeCanon(nauty, q, false), noSave);
 		}
 		
 		/**
 		 * Computes all the CPQ cores for this block.
+		 * @throws InterruptedException When the current thread is interrupted.
 		 */
-		private final void computeCores(NautyApi nauty){
+		private final void computeCores(NautyApi nauty) throws InterruptedException{
 			//inherited from previous layer blocks
 			if(ancestor != null){//only need to go back one level since the previous level already collected the level before that
 				//these are by definition of a different diameter
@@ -1102,7 +1107,10 @@ public class Index{
 			
 			if(combinations.isEmpty()){
 				//for layer 1 the cores are the label sequences (which are distinct cores)
-				labels.stream().map(LabelSequence::getLabels).map(CPQ::labels).map(q->CanonForm.computeCanon(nauty, q, true)).forEach(c->this.addCore(c, false));
+				for(LabelSequence seq : labels){
+					addCore(CanonForm.computeCanon(nauty, CPQ.labels(seq.getLabels()), true), false);
+					
+				}
 			}else{
 				//all combinations of cores from previous layers (this can generate duplicates, but all are cores unless both cores are a loop)
 				for(BlockPair pair : combinations){
@@ -1198,8 +1206,9 @@ public class Index{
 		 *        never be a core if intersected.
 		 * @param noSave Whether explicit cores should be saved to {@link #cores}.
 		 * @param id True if this block is a loop so all computed cores also need to be intersected with identity.
+		 * @throws InterruptedException When the current thread is interrupted.
 		 */
-		private final void computeIntersectionCores(NautyApi nauty, List<CPQ> items, int offset, final int restricted, final int max, List<CPQ> set, BitSet selected, BitSet[] conflicts, final boolean noSave, final boolean id){
+		private final void computeIntersectionCores(NautyApi nauty, List<CPQ> items, int offset, final int restricted, final int max, List<CPQ> set, BitSet selected, BitSet[] conflicts, final boolean noSave, final boolean id) throws IllegalArgumentException, InterruptedException{
 			if(offset >= max || set.size() == maxIntersections){
 				if(set.size() >= 3){
 					CPQ q = CPQ.intersect(new ArrayList<CPQ>(set));

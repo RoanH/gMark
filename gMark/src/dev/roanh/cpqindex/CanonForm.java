@@ -31,12 +31,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-import dev.roanh.cpqindex.Nauty.ColoredGraph;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Edge;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.nauty.Nauty;
 import dev.roanh.nauty.api.CanonicalResult;
 import dev.roanh.nauty.api.NautyApi;
 import dev.roanh.nauty.struct.SparseGraph;
@@ -120,8 +120,9 @@ public class CanonForm{
 	 * @param cpq The CPQ to compute a canonical form for.
 	 * @param isCore If the given CPQ is guaranteed to be a core.
 	 * @return The computed canonical form.
+	 * @throws InterruptedException When the current thread is interrupted.
 	 */
-	public static CanonForm computeCanon(NautyApi nauty, CPQ cpq, boolean isCore){
+	public static CanonForm computeCanon(NautyApi nauty, CPQ cpq, boolean isCore) throws InterruptedException{
 		QueryGraphCPQ original = cpq.toQueryGraph();
 		QueryGraphCPQ core = isCore ? original : original.computeCore();
 		
@@ -129,7 +130,7 @@ public class CanonForm{
 		ColoredGraph input = toColoredGraph(core);
 		
 		//compute the canonical labelling with nauty
-		CanonicalResult canon = Nauty.computeCanonicalLabelling(nauty, input);
+		CanonicalResult canon = input.computeCanonicalLabelling(nauty);
 
  		//relabel the source and target node
  		int source = canon.relabel(core.getSourceVertex().getID());

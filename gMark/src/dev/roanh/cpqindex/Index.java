@@ -940,7 +940,7 @@ public class Index{
 				}
 				
 				len = in.readInt();
-				canonCores = new HashSet<CoreHash>(len);
+				canonCores = HashSet.newHashSet(len);
 				for(int i = 0; i < len; i++){
 					canonCores.add(CoreHash.read(in));
 				}
@@ -1109,7 +1109,6 @@ public class Index{
 				//for layer 1 the cores are the label sequences (which are distinct cores)
 				for(LabelSequence seq : labels){
 					addCore(CanonForm.computeCanon(nauty, CPQ.labels(seq.getLabels()), true), false);
-					
 				}
 			}else{
 				//all combinations of cores from previous layers (this can generate duplicates, but all are cores unless both cores are a loop)

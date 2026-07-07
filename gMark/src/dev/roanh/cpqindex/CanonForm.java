@@ -50,11 +50,11 @@ public class CanonForm{
 	/**
 	 * Maximum number of bits that will ever be required to encode a vertex label ID.
 	 */
-	private static final int MAX_LABEL_BITS = 5;//TODO input validation
+	public static final int MAX_LABEL_BITS = 5;
 	/**
 	 * Maximum number of bits that will ever be required to encode a vertex ID.
 	 */
-	private static final int MAX_VERTEX_BITS = 10;//TODO input validation
+	private static final int MAX_VERTEX_BITS = 10;
 	/**
 	 * The vertex ID of the source vertex of the CPQ.
 	 */
@@ -281,6 +281,9 @@ public class CanonForm{
 	public byte[] toBinaryCanon(){
 		//bits per vertex
 		int vb = (int)Math.ceil(Math.log(graph.nv) / Math.log(2));
+		if(vb > MAX_VERTEX_BITS){
+			throw new IllegalStateException("More vertex bits required that available: " + vb + " (max " + MAX_VERTEX_BITS + ")");
+		}
 		
 		//total required bits
 		int bits = MAX_VERTEX_BITS + vb * 2 + labels.size() * MAX_LABEL_BITS + MAX_LABEL_BITS + vb * labels.size();

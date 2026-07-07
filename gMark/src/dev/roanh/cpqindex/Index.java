@@ -35,6 +35,8 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -152,7 +154,7 @@ public class Index{
 	 * @param maxIntersections The maximum number of same level CPQs allowed in intersections.
 	 *        Limiting intersection CPQs greatly decreases the number of cores that need to be computed.
 	 * @param listener The progress listener to send computation progress updates to.
-	 * @throws IllegalArgumentException When k is less than 1.
+	 * @throws IllegalArgumentException When k is less than 1 or when the graph has too many labels.
 	 * @throws InterruptedException When the current thread is interrupted during core computation.
 	 * @see #computeCores(int)
 	 * @see ProgressListener
@@ -189,8 +191,6 @@ public class Index{
 		maxIntersections = in.readInt();
 		k = in.readInt();
 		progress = ProgressListener.NONE;
-		
-		
 		
 		if(full){
 			predicates = new RangeList<Predicate>(in.readInt());
@@ -550,6 +550,14 @@ public class Index{
 		progress.computeBlocksEnd(k);
 	}
 	
+	private static class NautyThread extends Thread{
+		private final NautyApi nauty = new NautyApi();
+
+		public NautyThread(Runnable r){
+			super(r);
+		}
+	}
+	
 	/**
 	 * Computes CPQ cores for each block in this index. Note that if this index
 	 * was saved and read back that it is only possible to compute cores if the
@@ -570,8 +578,7 @@ public class Index{
 			throw new IllegalStateException("Cannot compute cores on an index that wasn't fully saved.");
 		}
 		
-//		ExecutorService executor = Executors.newFixedThreadPool(threads);
-		NautyApi nauty = new NautyApi();
+		ExecutorService executor = Executors.newFixedThreadPool(threads, NautyThread::new);
 
 		//process cores layer by layer
 		for(int i = 0; i < k; i++){
@@ -586,7 +593,7 @@ public class Index{
 				Block block = iter.previous();
 //				executor.execute(()->{
 //					try{
-						block.computeCores(nauty);
+						block.computeCores();
 //
 //						if(done.incrementAndGet() == total){
 //							lock.lock();
@@ -640,7 +647,7 @@ public class Index{
 	 * Partitions all the paths in the given graph according to k-path-bisimulation.
 	 * @param g The graph to partition.
 	 * @return The partitioned paths in the graph.
-	 * @throws IllegalArgumentException When the diameter of this index k is less than 1.
+	 * @throws IllegalArgumentException When the diameter of this index k is less than 1 or too many labels are in the graph.
 	 */
 	private final RangeList<List<LabelledPath>> partition(UniqueGraph<Integer, Predicate> g) throws IllegalArgumentException{
 		if(k <= 0){
@@ -656,6 +663,10 @@ public class Index{
 		//classes for 1-path-bisimulation
 		Map<Pair, LabelledPath> pathMap = new HashMap<Pair, LabelledPath>();
 		predicates = new RangeList<Predicate>(1 + g.getEdges().stream().mapToInt(e->e.getData().getID()).max().orElse(0));
+		if(Math.powExact(2, CanonForm.MAX_LABEL_BITS) < predicates.size()){
+			throw new IllegalArgumentException("More labels in the input graph than supported.");
+		}
+		
 		for(GraphEdge<Integer, Predicate> edge : g.getEdges()){
 			//forward and backward edges are just the labels on those edges
 			LabelledPath path = pathMap.computeIfAbsent(new Pair(edge.getSource(), edge.getTarget()), p->new LabelledPath(p, null));
@@ -1079,21 +1090,23 @@ public class Index{
 		
 		/**
 		 * Adds a new core to this index.
+		 * @param nauty The nauty instance to use for canonical labelling.
 		 * @param q The CPQ to add, the core of this CPQ
 		 *        is always computed first before adding.
 		 * @param noSave True if the explicit form of this core
 		 *        does not need to be saved to {@link #cores}.
 		 * @throws InterruptedException When the current thread is interrupted.
 		 */
-		private final void addCore(NautyApi nauty, CPQ q, boolean noSave) throws InterruptedException{
-			addCore(CanonForm.computeCanon(nauty, q, false), noSave);
+		private final void addCore(CPQ q, boolean noSave) throws InterruptedException{
+			addCore(CanonForm.computeCanon(((NautyThread)Thread.currentThread()).nauty, q, false), noSave);
 		}
 		
 		/**
 		 * Computes all the CPQ cores for this block.
+		 * @param nauty The nauty instance to use for canonical labelling.
 		 * @throws InterruptedException When the current thread is interrupted.
 		 */
-		private final void computeCores(NautyApi nauty) throws InterruptedException{
+		private final void computeCores() throws InterruptedException{
 			//inherited from previous layer blocks
 			if(ancestor != null){//only need to go back one level since the previous level already collected the level before that
 				//these are by definition of a different diameter
@@ -1108,14 +1121,14 @@ public class Index{
 			if(combinations.isEmpty()){
 				//for layer 1 the cores are the label sequences (which are distinct cores)
 				for(LabelSequence seq : labels){
-					addCore(CanonForm.computeCanon(nauty, CPQ.labels(seq.getLabels()), true), false);
+					addCore(CanonForm.computeCanon(CPQ.labels(seq.getLabels()), true), false);
 				}
 			}else{
 				//all combinations of cores from previous layers (this can generate duplicates, but all are cores unless both cores are a loop)
 				for(BlockPair pair : combinations){
 					for(CPQ core1 : pair.first().cores){
 						for(CPQ core2 : pair.second().cores){
-							addCore(nauty, CPQ.concat(core1, core2), false);
+							addCore(CPQ.concat(core1, core2), false);
 						}
 					}
 				}
@@ -1192,6 +1205,7 @@ public class Index{
 		/**
 		 * Computes intersection derived CPQ for this index. All sub sets of the given
 		 * list of CPQs need to be intersected and added as a potential core.
+		 * @param nauty The nauty instance to use for canonical labelling.
 		 * @param items The list of CPQs to intersect all sub sets of.
 		 * @param offset The current CPQ in the list of CPQs to pick of skip for the
 		 *        subset currently being constructed.
@@ -1205,6 +1219,7 @@ public class Index{
 		 *        never be a core if intersected.
 		 * @param noSave Whether explicit cores should be saved to {@link #cores}.
 		 * @param id True if this block is a loop so all computed cores also need to be intersected with identity.
+		 * @throws IllegalArgumentException When the current thread is interrupted.
 		 * @throws InterruptedException When the current thread is interrupted.
 		 */
 		private final void computeIntersectionCores(NautyApi nauty, List<CPQ> items, int offset, final int restricted, final int max, List<CPQ> set, BitSet selected, BitSet[] conflicts, final boolean noSave, final boolean id) throws IllegalArgumentException, InterruptedException{

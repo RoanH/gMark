@@ -62,7 +62,7 @@ import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
  *      "Language-aware indexing for conjunctive path queries", in IEEE 38th ICDE, 2022</a>
  * @see <a href="https://github.com/yuya-s/CPQ-aware-index">yuya-s/CPQ-aware-index</a>
  */
-public class Index{
+public class Index implements CPQIndex{
 	/**
 	 * Boolean indicating whether explicit representations of cores
 	 * and label sequences should be saved for the computed blocks.

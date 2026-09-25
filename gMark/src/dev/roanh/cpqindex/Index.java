@@ -37,6 +37,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -578,67 +583,68 @@ public class Index{
 			throw new IllegalStateException("Cannot compute cores on an index that wasn't fully saved.");
 		}
 		
-		ExecutorService executor = Executors.newFixedThreadPool(threads, NautyThread::new);
+		ExecutorService executor = Executors.newFixedThreadPool(threads);
+		ThreadLocal<NautyApi> nauty = ThreadLocal.withInitial(NautyApi::new);
 
 		//process cores layer by layer
 		for(int i = 0; i < k; i++){
 			progress.coresStart(i + 1);
 			
 			final int total = layers.get(i).size();
-//			Lock lock = new ReentrantLock();
-//			Condition cond = lock.newCondition();
-//			AtomicInteger done = new AtomicInteger(0);
+			Lock lock = new ReentrantLock();
+			Condition cond = lock.newCondition();
+			AtomicInteger done = new AtomicInteger(0);
 			ListIterator<Block> iter = layers.get(i).listIterator(total);
 			while(iter.hasPrevious()){
 				Block block = iter.previous();
-//				executor.execute(()->{
-//					try{
-						block.computeCores();
-//
-//						if(done.incrementAndGet() == total){
-//							lock.lock();
-//						}else if(!lock.tryLock()){
-//							return;
-//						}
-//
-//						try{
-//							cond.signal();
-//						}finally{
-//							lock.unlock();
-//						}
-//					}catch(Throwable t){
-//						System.err.println("FATAL");
-//						t.printStackTrace();
-//						progress.intermediateProgress(-1, -1, -1);
-//					}
-//				});
+				executor.execute(()->{
+					try{
+						block.computeCores(nauty.get());
+
+						if(done.incrementAndGet() == total){
+							lock.lock();
+						}else if(!lock.tryLock()){
+							return;
+						}
+
+						try{
+							cond.signal();
+						}finally{
+							lock.unlock();
+						}
+					}catch(Throwable t){
+						System.err.println("FATAL");
+						t.printStackTrace();
+						progress.intermediateProgress(-1, -1, -1);
+					}
+				});
 			}
 			
-//			long lastUpdate = 0;
-//			while(true){
-//				try{
-//					lock.lock();
-//					if(cond.await(10, TimeUnit.MINUTES)){
-//						int val = done.get();
-//						progress.coresBlocksDone(val, total);
-//						if(val == total){
-//							break;
-//						}
-//					}
-//
-//					if(lastUpdate < System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(10)){
-//						progress.intermediateProgress(blocks.stream().mapToInt(b->b.canonCores.size()).summaryStatistics().getSum(), done.get(), total);
-//						lastUpdate = System.currentTimeMillis();
-//					}
-//				}finally{
-//					lock.unlock();
-//				}
-//			}
+			long lastUpdate = 0;
+			while(true){
+				try{
+					lock.lock();
+					if(cond.await(10, TimeUnit.MINUTES)){
+						int val = done.get();
+						progress.coresBlocksDone(val, total);
+						if(val == total){
+							break;
+						}
+					}
+
+					if(lastUpdate < System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(10)){
+						progress.intermediateProgress(blocks.stream().mapToInt(b->b.canonCores.size()).summaryStatistics().getSum(), done.get(), total);
+						lastUpdate = System.currentTimeMillis();
+					}
+				}finally{
+					lock.unlock();
+				}
+			}
 			
 			progress.coresEnd(i + 1);
 		}
 		
-//		executor.shutdown();
+		executor.shutdown();
 		computeCores = true;
 		mapCoresToBlocks();
 	}
@@ -859,7 +865,7 @@ public class Index{
 		 */
 		private List<LabelSequence> labels;
 		/**
-		 * Explicit core informations for cores stored in this block.
+		 * Explicit core information for cores stored in this block.
 		 * This list is never restored for an index that was saved and
 		 * read back and is also cleared after core computation unless
 		 * saving labels is enabled.
@@ -1097,8 +1103,8 @@ public class Index{
 		 *        does not need to be saved to {@link #cores}.
 		 * @throws InterruptedException When the current thread is interrupted.
 		 */
-		private final void addCore(CPQ q, boolean noSave) throws InterruptedException{
-			addCore(CanonForm.computeCanon(((NautyThread)Thread.currentThread()).nauty, q, false), noSave);
+		private final void addCore(NautyApi nauty, CPQ q, boolean noSave) throws InterruptedException{
+			addCore(CanonForm.computeCanon(nauty, q, false), noSave);
 		}
 		
 		/**
@@ -1106,7 +1112,7 @@ public class Index{
 		 * @param nauty The nauty instance to use for canonical labelling.
 		 * @throws InterruptedException When the current thread is interrupted.
 		 */
-		private final void computeCores() throws InterruptedException{
+		private final void computeCores(NautyApi nauty) throws InterruptedException{
 			//inherited from previous layer blocks
 			if(ancestor != null){//only need to go back one level since the previous level already collected the level before that
 				//these are by definition of a different diameter
@@ -1121,14 +1127,14 @@ public class Index{
 			if(combinations.isEmpty()){
 				//for layer 1 the cores are the label sequences (which are distinct cores)
 				for(LabelSequence seq : labels){
-					addCore(CanonForm.computeCanon(CPQ.labels(seq.getLabels()), true), false);
+					addCore(CanonForm.computeCanon(nauty, CPQ.labels(seq.getLabels()), true), false);
 				}
 			}else{
 				//all combinations of cores from previous layers (this can generate duplicates, but all are cores unless both cores are a loop)
 				for(BlockPair pair : combinations){
 					for(CPQ core1 : pair.first().cores){
 						for(CPQ core2 : pair.second().cores){
-							addCore(CPQ.concat(core1, core2), false);
+							addCore(nauty, CPQ.concat(core1, core2), false);
 						}
 					}
 				}

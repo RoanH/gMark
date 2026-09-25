@@ -67,6 +67,11 @@ sourceSets{
 	}
 }
 
+dependencies{
+	//nauty
+	api 'dev.roanh.nauty:nauty:1.0'
+}
+
 group = 'dev.roanh.gmark'
 ext.artifact = 'gmark'
 

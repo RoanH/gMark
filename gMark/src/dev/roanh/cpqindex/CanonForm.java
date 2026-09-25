@@ -31,12 +31,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-import dev.roanh.cpqindex.Nauty.ColoredGraph;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Edge;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.nauty.Nauty;
+import dev.roanh.nauty.api.CanonicalResult;
+import dev.roanh.nauty.api.NautyApi;
+import dev.roanh.nauty.struct.SparseGraph;
 
 /**
  * Utility class to compute and represent the canonical form of a CPQ.
@@ -47,7 +50,7 @@ public class CanonForm{
 	/**
 	 * Maximum number of bits that will ever be required to encode a vertex label ID.
 	 */
-	private static final int MAX_LABEL_BITS = 5;
+	public static final int MAX_LABEL_BITS = 5;
 	/**
 	 * Maximum number of bits that will ever be required to encode a vertex ID.
 	 */
@@ -66,9 +69,9 @@ public class CanonForm{
 	 */
 	private final Map<Predicate, Integer> labels;
 	/**
-	 * The adjacency list form of the canonically labelled transformed CPQ query graph.
+	 * The canonically labelled transformed CPQ query graph.
 	 */
-	private final int[][] graph;
+	private final SparseGraph graph;
 	/**
 	 * The CPQ this canonical form was constructed from.
 	 */
@@ -87,7 +90,7 @@ public class CanonForm{
 	 * @param cpq The original CPQ.
 	 * @param wasCore True if the original input was a core.
 	 */
-	private CanonForm(int source, int target, Map<Predicate, Integer> labels, int[][] graph, CPQ cpq, boolean wasCore){
+	private CanonForm(int source, int target, Map<Predicate, Integer> labels, SparseGraph graph, CPQ cpq, boolean wasCore){
 		this.source = source;
 		this.target = target;
 		this.labels = labels;
@@ -117,8 +120,9 @@ public class CanonForm{
 	 * @param cpq The CPQ to compute a canonical form for.
 	 * @param isCore If the given CPQ is guaranteed to be a core.
 	 * @return The computed canonical form.
+	 * @throws InterruptedException When the current thread is interrupted.
 	 */
-	public static CanonForm computeCanon(CPQ cpq, boolean isCore){
+	public static CanonForm computeCanon(NautyApi nauty, CPQ cpq, boolean isCore) throws InterruptedException{
 		QueryGraphCPQ original = cpq.toQueryGraph();
 		QueryGraphCPQ core = isCore ? original : original.computeCore();
 		
@@ -126,17 +130,11 @@ public class CanonForm{
 		ColoredGraph input = toColoredGraph(core);
 		
 		//compute the canonical labelling with nauty
-		int[] relabel = Nauty.computeCanonicalLabelling(input);
+		CanonicalResult canon = input.computeCanonicalLabelling(nauty);
 
-		//compute the inverse of the relabelling function.
-		int[] inv = new int[relabel.length];
- 		for(int i = 0; i < relabel.length; i++){
-			inv[relabel[i]] = i;
-		}
- 		
  		//relabel the source and target node
- 		int source = inv[core.getSourceVertex().getID()];
- 		int target = inv[core.getTargetVertex().getID()];
+ 		int source = canon.relabel(core.getSourceVertex().getID());
+ 		int target = canon.relabel(core.getTargetVertex().getID());
  		
  		//relabel labels
  		Map<Predicate, Integer> labels = new LinkedHashMap<Predicate, Integer>();
@@ -145,17 +143,7 @@ public class CanonForm{
  		}
  		
  		//relabel the graph itself
- 		int[][] graph = new int[relabel.length][];
-		for(int i = 0; i < relabel.length; i++){
-			int[] row = input.getAdjacencyList()[relabel[i]];
-			graph[i] = new int[row.length];
-			for(int j = 0; j < row.length; j++){
-				graph[i][j] = inv[row[j]];
-			}
-			Arrays.sort(graph[i]);
-		}
-		
-		return new CanonForm(source, target, labels, graph, cpq, original.getEdgeCount() == core.getEdgeCount());
+		return new CanonForm(source, target, labels, canon.getCanonicalGraph(), cpq, original.getEdgeCount() == core.getEdgeCount());
 	}
 	
 	/**
@@ -176,24 +164,29 @@ public class CanonForm{
 			colorMap.computeIfAbsent(edge.getLabel(), _->new LabelData()).idx++;
 		}
 		
-		//pre size arrays
-		int[][] adj = new int[graph.getVertexCount() + graph.getEdgeCount()][];
-		for(int i = 0; i < deg.length; i++){
-			adj[i] = new int[deg[i]];
+		//pre size arrays (offsets point to last index initially)
+		int[] voff = new int[graph.getVertexCount() + graph.getEdgeCount()];
+		int nde = deg[0];
+		voff[0] = nde;
+		for(int i = 1; i < deg.length; i++){
+			int len = deg[i];
+			voff[i] = voff[i - 1] + len;
+			nde += len;
 		}
+		int[] e = new int[nde];
 		
 		//pre size maps
 		for(LabelData lab : colorMap.values()){
 			lab.data = new int[lab.idx];
 		}
 		
-		//compute adjacencies
+		//compute adjacencies, fill from the end of the range
 		for(Edge edge : graph.getEdges()){
 			int eid = edge.getID();
 			int sid = edge.getSource().getID();
 			
-			adj[eid][--deg[eid]] = edge.getTarget().getID();
-			adj[sid][--deg[sid]] = eid;
+			e[--voff[eid]] = edge.getTarget().getID();
+			e[--voff[sid]] = eid;
 			
 			LabelData data = colorMap.get(edge.getLabel());
 			data.data[--data.idx] = eid;
@@ -210,11 +203,11 @@ public class CanonForm{
 		
 		//process label data
 		List<Entry<Predicate, int[]>> labels = new ArrayList<Entry<Predicate, int[]>>(colorMap.size());
-		colorMap.entrySet().stream().sorted(Entry.comparingByKey()).forEach(e->labels.add(Map.entry(e.getKey(), e.getValue().data)));
+		colorMap.entrySet().stream().sorted(Entry.comparingByKey()).forEach(entry->labels.add(Map.entry(entry.getKey(), entry.getValue().data)));
 		
 		//put together the final graph
 		return new ColoredGraph(
-			adj,
+			new SparseGraph(voff, deg, e),
 			graph.getSourceVertex().getID(),
 			graph.getTargetVertex().getID(),
 			labels,
@@ -260,15 +253,16 @@ public class CanonForm{
 			buf.append(",");
 		}
 		
-		for(int i = 0; i < graph.length; i++){
+		for(int i = 0; i < graph.nv; i++){
 			buf.append('e');
 			buf.append(i);
 			buf.append("={");
-			for(int v : graph[i]){
-				buf.append(v);
+			int voff = graph.v[i];
+			for(int v = 0; v < graph.d[i]; v++){
+				buf.append(graph.e[voff + v]);
 				buf.append(',');
 			}
-			if(graph[i].length != 0){
+			if(graph.d[i] != 0){
 				buf.deleteCharAt(buf.length() - 1);
 			}
 			buf.append("},");
@@ -286,19 +280,20 @@ public class CanonForm{
 	 */
 	public byte[] toBinaryCanon(){
 		//bits per vertex
-		int vb = (int)Math.ceil(Math.log(graph.length) / Math.log(2));
+		int vb = (int)Math.ceil(Math.log(graph.nv) / Math.log(2));
+		if(vb > MAX_VERTEX_BITS){
+			throw new IllegalStateException("More vertex bits required than available: " + vb + " (max " + MAX_VERTEX_BITS + ")");
+		}
 		
 		//total required bits
 		int bits = MAX_VERTEX_BITS + vb * 2 + labels.size() * MAX_LABEL_BITS + MAX_LABEL_BITS + vb * labels.size();
 		
-		bits += graph.length * vb;
-		for(int[] edges : graph){
-			bits += edges.length * vb;
-		}
+		bits += graph.nv * vb;
+		bits += graph.nde * vb;
 				
 		//write canonical form
 		BitWriter out = new BitWriter(bits);
-		out.writeInt(graph.length, MAX_VERTEX_BITS);
+		out.writeInt(graph.nv, MAX_VERTEX_BITS);
 		out.writeInt(source, vb);
 		out.writeInt(target, vb);
 		
@@ -308,10 +303,12 @@ public class CanonForm{
 			out.writeInt(entry.getValue(), vb);
 		}
 		
-		for(int[] edges : graph){
-			out.writeInt(edges.length, vb);
-			for(int v : edges){
-				out.writeInt(v, vb);
+		for(int i = 0; i < graph.nv; i++){
+			int deg = graph.d[i];
+			out.writeInt(deg, vb);
+			int voff = graph.v[i];
+			for(int v = 0; v < deg; v++){
+				out.writeInt(graph.e[voff + v], vb);
 			}
 		}
 		

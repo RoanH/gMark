@@ -40,8 +40,10 @@ import dev.roanh.cpqindex.Index.Block;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
+import dev.roanh.nauty.api.NautyApi;
 
 public class IndexTest{
+	private static final NautyApi NAUTY = new NautyApi();
 	private static UniqueGraph<Integer, Predicate> testGraph;
 	private static Index testIndex;
 	private static List<Predicate> symbols = List.of(
@@ -156,7 +158,7 @@ public class IndexTest{
 	}
 	
 	@Test
-	public void evaluateQuery() throws IllegalArgumentException{
+	public void evaluateQuery() throws IllegalArgumentException, InterruptedException{
 		assertIterableEquals(List.of(new Pair(1, 2)), testIndex.query(CPQ.label(symbols.get(1))));
 	}
 	
@@ -172,7 +174,7 @@ public class IndexTest{
 	
 	@ParameterizedTest
 	@ValueSource(strings = {"0", "1", "0◦1"})
-	public void computeResultCardinality(String query) throws IllegalArgumentException{
+	public void computeResultCardinality(String query) throws IllegalArgumentException, InterruptedException{
 		CPQ cpq = CPQ.parse(query, symbols);
 		assertEquals(testIndex.query(cpq).size(), testIndex.computeResultCardinality(cpq), cpq.toString());
 	}
@@ -674,10 +676,10 @@ public class IndexTest{
 		}
 	}
 	
-	private void checkCores(Block block, String... expected){
+	private void checkCores(Block block, String... expected) throws IllegalArgumentException, InterruptedException{
 		assertEquals(expected.length, block.getCanonCores().size(), "found: " + block.getCores());
 		for(String cpq : expected){
-			CoreHash canon = CanonForm.computeCanon(CPQ.parse(cpq, symbols), false).toHashCanon();
+			CoreHash canon = CanonForm.computeCanon(NAUTY, CPQ.parse(cpq, symbols), false).toHashCanon();
 			assertTrue(block.getCanonCores().contains(canon), "real: " + block.getCores() + " / " + canon + " | " + block.getCanonCores() + " | " + cpq);
 		}
 	}

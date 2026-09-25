@@ -52,6 +52,7 @@ import dev.roanh.gmark.type.schema.Predicate;
 import dev.roanh.gmark.util.RangeList;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph;
 import dev.roanh.gmark.util.graph.generic.UniqueGraph.GraphEdge;
+import dev.roanh.nauty.api.NautyApi;
 
 /**
  * Implementation of a graph database index based on k-path-bisimulation
@@ -158,7 +159,7 @@ public class Index{
 	 * @param maxIntersections The maximum number of same level CPQs allowed in intersections.
 	 *        Limiting intersection CPQs greatly decreases the number of cores that need to be computed.
 	 * @param listener The progress listener to send computation progress updates to.
-	 * @throws IllegalArgumentException When k is less than 1.
+	 * @throws IllegalArgumentException When k is less than 1 or when the graph has too many labels.
 	 * @throws InterruptedException When the current thread is interrupted during core computation.
 	 * @see #computeCores(int)
 	 * @see ProgressListener
@@ -316,11 +317,12 @@ public class Index{
 	 * @return The paths matched by the query.
 	 * @throws IllegalArgumentException When the query has a diameter equal
 	 *         to 0 or larger than the diameter of this index.
+	 * @throws InterruptedException When the current thread is interrupted.
 	 * @see #setIntersections(int)
 	 * @see CPQ#getDiameter()
 	 * @see #computeResultCardinality(CPQ)
 	 */
-	public final List<Pair> query(CPQ cpq) throws IllegalArgumentException{
+	public final List<Pair> query(CPQ cpq) throws IllegalArgumentException, InterruptedException{
 		return streamBlocks(cpq).flatMap(b->b.getPaths().stream()).toList();
 	}
 
@@ -331,11 +333,12 @@ public class Index{
 	 * @return The number of paths matched by the query.
 	 * @throws IllegalArgumentException When the query has a diameter equal
 	 *         to 0 or larger than the diameter of this index.
+	 * @throws InterruptedException When the current thread is interrupted.
 	 * @see #setIntersections(int)
 	 * @see CPQ#getDiameter()
 	 * @see #query(CPQ)
 	 */
-	public final long computeResultCardinality(CPQ cpq) throws IllegalArgumentException{
+	public final long computeResultCardinality(CPQ cpq) throws IllegalArgumentException, InterruptedException{
 		return streamBlocks(cpq).mapToLong(Block::getPathCount).sum();
 	}
 	
@@ -346,15 +349,16 @@ public class Index{
 	 * @return A stream over the blocks matched by the given query.
 	 * @throws IllegalArgumentException When the query has a diameter equal
 	 *         to 0 or larger than the diameter of this index.
+		 * @throws InterruptedException When the current thread is interrupted.
 	 * @see #setIntersections(int)
 	 */
-	private final Stream<Block> streamBlocks(CPQ cpq) throws IllegalArgumentException{
+	private final Stream<Block> streamBlocks(CPQ cpq) throws IllegalArgumentException, InterruptedException{
 		if(cpq.getDiameter() > k || cpq.getDiameter() == 0){
 			throw new IllegalArgumentException("Query diameter equal to 0 or larger than index diameter.");
 		}
 		
 		return coreToBlock.getOrDefault(
-			CanonForm.computeCanon(cpq, false).toHashCanon(),
+			CanonForm.computeCanon(new NautyApi(), cpq, false).toHashCanon(),
 			Collections.emptyList()
 		).stream();
 	}
@@ -572,6 +576,7 @@ public class Index{
 		}
 		
 		ExecutorService executor = Executors.newFixedThreadPool(threads);
+		ThreadLocal<NautyApi> nauty = ThreadLocal.withInitial(NautyApi::new);
 
 		//process cores layer by layer
 		for(int i = 0; i < k; i++){
@@ -586,7 +591,7 @@ public class Index{
 				Block block = iter.previous();
 				executor.execute(()->{
 					try{
-						block.computeCores();
+						block.computeCores(nauty.get());
 
 						if(done.incrementAndGet() == total){
 							lock.lock();
@@ -640,7 +645,7 @@ public class Index{
 	 * Partitions all the paths in the given graph according to k-path-bisimulation.
 	 * @param g The graph to partition.
 	 * @return The partitioned paths in the graph.
-	 * @throws IllegalArgumentException When the diameter of this index k is less than 1.
+	 * @throws IllegalArgumentException When the diameter of this index k is less than 1 or too many labels are in the graph.
 	 */
 	private final RangeList<List<LabelledPath>> partition(UniqueGraph<Integer, Predicate> g) throws IllegalArgumentException{
 		if(k <= 0){
@@ -656,6 +661,10 @@ public class Index{
 		//classes for 1-path-bisimulation
 		Map<Pair, LabelledPath> pathMap = new HashMap<Pair, LabelledPath>();
 		predicates = new RangeList<Predicate>(1 + g.getEdges().stream().mapToInt(e->e.getData().getID()).max().orElse(0));
+		if(Math.powExact(2, CanonForm.MAX_LABEL_BITS) < predicates.size()){
+			throw new IllegalArgumentException("More labels in the input graph than supported.");
+		}
+		
 		for(GraphEdge<Integer, Predicate> edge : g.getEdges()){
 			//forward and backward edges are just the labels on those edges
 			LabelledPath path = pathMap.computeIfAbsent(new Pair(edge.getSource(), edge.getTarget()), p->new LabelledPath(p, null));
@@ -848,7 +857,7 @@ public class Index{
 		 */
 		private List<LabelSequence> labels;
 		/**
-		 * Explicit core informations for cores stored in this block.
+		 * Explicit core information for cores stored in this block.
 		 * This list is never restored for an index that was saved and
 		 * read back and is also cleared after core computation unless
 		 * saving labels is enabled.
@@ -940,7 +949,7 @@ public class Index{
 				}
 				
 				len = in.readInt();
-				canonCores = new HashSet<CoreHash>(len);
+				canonCores = HashSet.newHashSet(len);
 				for(int i = 0; i < len; i++){
 					canonCores.add(CoreHash.read(in));
 				}
@@ -1079,19 +1088,23 @@ public class Index{
 		
 		/**
 		 * Adds a new core to this index.
+		 * @param nauty The nauty instance to use for canonical labelling.
 		 * @param q The CPQ to add, the core of this CPQ
 		 *        is always computed first before adding.
 		 * @param noSave True if the explicit form of this core
 		 *        does not need to be saved to {@link #cores}.
+		 * @throws InterruptedException When the current thread is interrupted.
 		 */
-		private final void addCore(CPQ q, boolean noSave){
-			addCore(CanonForm.computeCanon(q, false), noSave);
+		private final void addCore(NautyApi nauty, CPQ q, boolean noSave) throws InterruptedException{
+			addCore(CanonForm.computeCanon(nauty, q, false), noSave);
 		}
 		
 		/**
 		 * Computes all the CPQ cores for this block.
+		 * @param nauty The nauty instance to use for canonical labelling.
+		 * @throws InterruptedException When the current thread is interrupted.
 		 */
-		private final void computeCores(){
+		private final void computeCores(NautyApi nauty) throws InterruptedException{
 			//inherited from previous layer blocks
 			if(ancestor != null){//only need to go back one level since the previous level already collected the level before that
 				//these are by definition of a different diameter
@@ -1105,13 +1118,15 @@ public class Index{
 			
 			if(combinations.isEmpty()){
 				//for layer 1 the cores are the label sequences (which are distinct cores)
-				labels.stream().map(LabelSequence::getLabels).map(CPQ::labels).map(q->CanonForm.computeCanon(q, true)).forEach(c->this.addCore(c, false));
+				for(LabelSequence seq : labels){
+					addCore(CanonForm.computeCanon(nauty, CPQ.labels(seq.getLabels()), true), false);
+				}
 			}else{
 				//all combinations of cores from previous layers (this can generate duplicates, but all are cores unless both cores are a loop)
 				for(BlockPair pair : combinations){
 					for(CPQ core1 : pair.first().cores){
 						for(CPQ core2 : pair.second().cores){
-							addCore(CPQ.concat(core1, core2), false);
+							addCore(nauty, CPQ.concat(core1, core2), false);
 						}
 					}
 				}
@@ -1148,11 +1163,11 @@ public class Index{
 						if(!conflicts[i].get(j)){
 							//this really only applies for k > 2, but any decrease in options is welcome
 							CPQ q = CPQ.intersect(cores.get(i), cores.get(j));
-							CanonForm canon = CanonForm.computeCanon(q, false);
+							CanonForm canon = CanonForm.computeCanon(nauty, q, false);
 							held.add(canon);
 							if(canon.wasCore()){
 								if(isLoop()){
-									held.add(CanonForm.computeCanon(CPQ.intersect(q, CPQ.id()), false));
+									held.add(CanonForm.computeCanon(nauty, CPQ.intersect(q, CPQ.id()), false));
 								}
 							}else{
 								conflicts[i].set(j);
@@ -1162,7 +1177,7 @@ public class Index{
 				}
 				
 				if(maxIntersections >= 3){
-					computeIntersectionCores(cores, 0, skip, max, new ArrayList<CPQ>(), new BitSet(cores.size()), conflicts, noSave, isLoop());
+					computeIntersectionCores(nauty, cores, 0, skip, max, new ArrayList<CPQ>(), new BitSet(cores.size()), conflicts, noSave, isLoop());
 				}
 				
 				for(CanonForm form : held){
@@ -1173,7 +1188,7 @@ public class Index{
 			//intersect with identity if possible, these are not always cores and not always unique (note that intersections were already handled so they are skipped)
 			if(isLoop()){
 				for(int i = skip; i < end; i++){
-					addCore(CPQ.intersect(cores.get(i), CPQ.id()), noSave);
+					addCore(nauty, CPQ.intersect(cores.get(i), CPQ.id()), noSave);
 				}
 			}
 			
@@ -1188,6 +1203,7 @@ public class Index{
 		/**
 		 * Computes intersection derived CPQ for this index. All sub sets of the given
 		 * list of CPQs need to be intersected and added as a potential core.
+		 * @param nauty The nauty instance to use for canonical labelling.
 		 * @param items The list of CPQs to intersect all sub sets of.
 		 * @param offset The current CPQ in the list of CPQs to pick of skip for the
 		 *        subset currently being constructed.
@@ -1201,20 +1217,22 @@ public class Index{
 		 *        never be a core if intersected.
 		 * @param noSave Whether explicit cores should be saved to {@link #cores}.
 		 * @param id True if this block is a loop so all computed cores also need to be intersected with identity.
+		 * @throws IllegalArgumentException When the current thread is interrupted.
+		 * @throws InterruptedException When the current thread is interrupted.
 		 */
-		private final void computeIntersectionCores(List<CPQ> items, int offset, final int restricted, final int max, List<CPQ> set, BitSet selected, BitSet[] conflicts, final boolean noSave, final boolean id){
+		private final void computeIntersectionCores(NautyApi nauty, List<CPQ> items, int offset, final int restricted, final int max, List<CPQ> set, BitSet selected, BitSet[] conflicts, final boolean noSave, final boolean id) throws IllegalArgumentException, InterruptedException{
 			if(offset >= max || set.size() == maxIntersections){
 				if(set.size() >= 3){
 					CPQ q = CPQ.intersect(new ArrayList<CPQ>(set));
-					CanonForm canon = CanonForm.computeCanon(q, false);
+					CanonForm canon = CanonForm.computeCanon(nauty, q, false);
 					addCore(canon, noSave);
 					if(id && canon.wasCore()){
-						addCore(CPQ.intersect(q, CPQ.id()), noSave);
+						addCore(nauty, CPQ.intersect(q, CPQ.id()), noSave);
 					}
 				}
 			}else{
 				//don't pick the element
-				computeIntersectionCores(items, offset + 1, restricted, max, set, selected, conflicts, noSave, id);
+				computeIntersectionCores(nauty, items, offset + 1, restricted, max, set, selected, conflicts, noSave, id);
 				
 				//pick the element
 				if(conflicts[offset].intersects(selected)){
@@ -1225,7 +1243,7 @@ public class Index{
 				selected.set(offset);
 				CPQ q = items.get(offset);
 				set.add(q);
-				computeIntersectionCores(items, offset < restricted ? restricted : (offset + 1), restricted, max, set, selected, conflicts, noSave, id);
+				computeIntersectionCores(nauty, items, offset < restricted ? restricted : (offset + 1), restricted, max, set, selected, conflicts, noSave, id);
 				set.remove(set.size() - 1);
 				selected.clear(offset);
 			}

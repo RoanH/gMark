@@ -179,40 +179,6 @@ public class IndexTest{
 		assertEquals(testIndex.query(cpq).size(), testIndex.computeResultCardinality(cpq), cpq.toString());
 	}
 	
-	public static void mainl(String[] args) throws IllegalArgumentException, InterruptedException{
-		System.out.println("Run");
-		IndexTest test = new IndexTest();
-		for(int i = 0; i < 1000; i++){
-			test.coresTest();
-		}
-		
-		try{
-			System.out.println("Sleep");
-			Thread.sleep(20000);
-			System.out.println("Start");
-		}catch(InterruptedException e){
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		for(int i = 0; i < 1000; i++){
-			test.coresTest();
-		}
-		System.out.println("Done");
-	}
-	
-	public static void main(String[] args) throws IOException, IllegalStateException, InterruptedException{
-		Index idx = new Index(ClassLoader.getSystemResourceAsStream("base_index.idx"));
-		idx.setIntersections(2);
-		idx.setProgressListener(ProgressListener.LOG);
-		
-		System.out.println("Start");
-		idx.computeCores(1);
-		System.out.println("Done");
-		
-		
-	}
-	
 	@Test
 	public void coresTest() throws IllegalArgumentException, InterruptedException{
 		Predicate l0 = new Predicate(0, "0");

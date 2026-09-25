@@ -555,14 +555,6 @@ public class Index{
 		progress.computeBlocksEnd(k);
 	}
 	
-	private static class NautyThread extends Thread{
-		private final NautyApi nauty = new NautyApi();
-
-		public NautyThread(Runnable r){
-			super(r);
-		}
-	}
-	
 	/**
 	 * Computes CPQ cores for each block in this index. Note that if this index
 	 * was saved and read back that it is only possible to compute cores if the

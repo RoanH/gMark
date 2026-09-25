@@ -282,7 +282,7 @@ public class CanonForm{
 		//bits per vertex
 		int vb = (int)Math.ceil(Math.log(graph.nv) / Math.log(2));
 		if(vb > MAX_VERTEX_BITS){
-			throw new IllegalStateException("More vertex bits required that available: " + vb + " (max " + MAX_VERTEX_BITS + ")");
+			throw new IllegalStateException("More vertex bits required than available: " + vb + " (max " + MAX_VERTEX_BITS + ")");
 		}
 		
 		//total required bits

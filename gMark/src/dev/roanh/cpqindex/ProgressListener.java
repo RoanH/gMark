@@ -137,6 +137,8 @@ public abstract interface ProgressListener{
 	 */
 	public abstract void computeBlocksEnd(int k);
 	
+	//CPQ native below
+	
 	/**
 	 * Called when cores for a new layer start being computed.
 	 * @param k The diameter for the layer cores are computed for.

@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import dev.roanh.cpqindex.Index.Block;
+import dev.roanh.gmark.index.bisim.BisimBlock;
 import dev.roanh.gmark.type.schema.Predicate;
 
 /**
@@ -61,9 +61,9 @@ public final class LabelledPath{
 	 */
 	private int segId = -1;
 	/**
-	 * After block are computed this is the block this segment is contained in.
+	 * After blocks are computed this is the block this segment is contained in.
 	 */
-	private Block block;
+	private BisimBlock block;
 	/**
 	 * Precomputed hash code value for this segment.
 	 */
@@ -149,7 +149,7 @@ public final class LabelledPath{
 	 * Sets the block for this segment.
 	 * @param block The block this segment is in.
 	 */
-	public void setBlock(Block block){
+	public void setBlock(BisimBlock block){
 		this.block = block;
 	}
 	
@@ -200,7 +200,7 @@ public final class LabelledPath{
 	 * Gets the block this segment is in, if set.
 	 * @return The block this segment is in.
 	 */
-	public Block getBlock(){
+	public BisimBlock getBlock(){
 		return block;
 	}
 	

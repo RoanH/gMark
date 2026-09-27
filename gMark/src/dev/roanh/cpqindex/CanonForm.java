@@ -36,6 +36,7 @@ import dev.roanh.gmark.lang.cpq.QueryGraphCPQ;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Edge;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ.Vertex;
 import dev.roanh.gmark.type.schema.Predicate;
+import dev.roanh.gmark.util.BitWriter;
 import dev.roanh.nauty.Nauty;
 import dev.roanh.nauty.api.CanonicalResult;
 import dev.roanh.nauty.api.NautyApi;

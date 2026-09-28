@@ -9,6 +9,7 @@ before_script:
   - cd "${PROJECTNAME}"
   - ls -l
   - chmod -R 755 ./*
+  - sed -i 's|https\\://services.gradle.org/distributions|http\\://roanh.dev:100/gradle|' gradle/wrapper/gradle-wrapper.properties
 
 stages:
   - check

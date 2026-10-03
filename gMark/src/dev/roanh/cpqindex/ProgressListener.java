@@ -169,10 +169,10 @@ public abstract interface ProgressListener{
 	public abstract void mapEnd();
 	
 	/**
-	 * Logs and intermediate progress update.
+	 * Logs an intermediate progress update.
 	 * @param cores The total number of cores computed so far.
 	 * @param blockDone The total number of blocks done.
-	 * @param totalBlocks THe total number of blocks.
+	 * @param totalBlocks The total number of blocks.
 	 */
 	public abstract void intermediateProgress(long cores, int blockDone, int totalBlocks);
 	

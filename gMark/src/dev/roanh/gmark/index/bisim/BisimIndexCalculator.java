@@ -27,6 +27,7 @@ public class BisimIndexCalculator{
 //	 * really relevant when printing the index with {@link #print()},
 //	 * calling {@link Block#getCores()} or calling {@link Block#getLabels()}.
 //	 */
+	@Deprecated//? full=yes, otherwise=no? should work
 	private boolean computeLabels;//default false
 	private boolean sorted;
 	/**
@@ -46,10 +47,23 @@ public class BisimIndexCalculator{
 		this.sorted = sorted;
 	}
 	
+	public void setProgressListener(BisimProgressListener listener){
+		progress = listener;
+	}
+
+	public BisimIndexFull computeFull(UniqueGraph<Integer, Predicate> g) throws IllegalArgumentException{
+		IndexData data = computeLayers(g);
+		return new BisimIndexFull(k, data.layers(), data.predicates());
+	}
 	
 //	 * @throws IllegalArgumentException When the diameter of this index k is less than 1 or too many labels are in the graph.
 
-	public BisimIndex compute(UniqueGraph<Integer, Predicate> g){
+	public BisimIndex compute(UniqueGraph<Integer, Predicate> g) throws IllegalArgumentException{
+		IndexData data = computeLayers(g);
+		return new BisimIndex(k, data.layers().get(k - 1), data.predicates());
+	}
+	
+	private IndexData computeLayers(UniqueGraph<Integer, Predicate> g) throws IllegalArgumentException{
 		if(k <= 0){
 			throw new IllegalArgumentException("Invalid value of k for bisimulation, has to be 1 or greater.");
 		}
@@ -59,12 +73,12 @@ public class BisimIndexCalculator{
 			throw new IllegalArgumentException("More labels in the input graph than supported.");
 		}
 		
-		List<BisimBlock> blocks = computeBlocks(partition(g, predicates));
+		RangeList<List<BisimBlock>> layers = computeBlocks(partition(g, predicates));
 		if(sorted){
-			sort(blocks);
+			sort(layers.get(k - 1));
 		}
 		
-		return new BisimIndex(k, blocks, predicates);
+		return new IndexData(layers, predicates);
 	}
 	
 	/**
@@ -183,7 +197,7 @@ public class BisimIndexCalculator{
 	 * @param segments The partitioned segments of the graph.
 	 * @see #partition(UniqueGraph)
 	 */
-	private final List<BisimBlock> computeBlocks(RangeList<List<LabelledPath>> segments){
+	private final RangeList<List<BisimBlock>> computeBlocks(RangeList<List<LabelledPath>> segments){
 		Map<Pair, LabelledPath> unused = new HashMap<Pair, LabelledPath>();
 		RangeList<List<BisimBlock>> layers = new RangeList<List<BisimBlock>>(k, ArrayList::new);
 		
@@ -242,7 +256,7 @@ public class BisimIndexCalculator{
 		}
 		
 		progress.computeBlocksEnd(k);
-		return lastLayerBlocks;
+		return layers;
 	}
 	
 	/**
@@ -329,5 +343,8 @@ public class BisimIndexCalculator{
 		}
 		
 		blocks.sort(Comparator.comparing(b->b.getPaths().get(0)));
+	}
+	
+	private static record IndexData(RangeList<List<BisimBlock>> layers, RangeList<Predicate> predicates){
 	}
 }

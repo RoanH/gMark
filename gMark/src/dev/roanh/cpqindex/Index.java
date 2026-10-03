@@ -31,17 +31,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -491,91 +483,7 @@ public class Index{
 		return coreToBlock.size();
 	}
 	
-	/**
-	 * Computes CPQ cores for each block in this index. Note that if this index
-	 * was saved and read back that it is only possible to compute cores if the
-	 * index was fully saved with extra state information.
-	 * @param threads The number of CPU threads to use to compute cores.
-	 * @throws InterruptedException When the current thread is interrupted.
-	 * @throws IllegalStateException When cores have already been computed for
-	 *         this index of when this index is read back and was not fully saved.
-	 * @see #setIntersections(int)
-	 * @see #setProgressListener(ProgressListener)
-	 * @see #write(OutputStream, boolean)
-	 * @see #Index(InputStream)
-	 */
-	public final void computeCores(int threads) throws InterruptedException, IllegalStateException{
-		if(computeCores){
-			throw new IllegalStateException("Cores have already been computed.");
-		}else if(predicates == null){
-			throw new IllegalStateException("Cannot compute cores on an index that wasn't fully saved.");
-		}
-		
-		ExecutorService executor = Executors.newFixedThreadPool(threads);
-		ThreadLocal<NautyApi> nauty = ThreadLocal.withInitial(NautyApi::new);
-
-		//process cores layer by layer
-		for(int i = 0; i < k; i++){
-			progress.coresStart(i + 1);
-			
-			final int total = layers.get(i).size();
-			Lock lock = new ReentrantLock();
-			Condition cond = lock.newCondition();
-			AtomicInteger done = new AtomicInteger(0);
-			ListIterator<Block> iter = layers.get(i).listIterator(total);
-			while(iter.hasPrevious()){
-				Block block = iter.previous();
-				executor.execute(()->{
-					try{
-						block.computeCores(nauty.get());
-
-						if(done.incrementAndGet() == total){
-							lock.lock();
-						}else if(!lock.tryLock()){
-							return;
-						}
-
-						try{
-							cond.signal();
-						}finally{
-							lock.unlock();
-						}
-					}catch(Throwable t){
-						System.err.println("FATAL");
-						t.printStackTrace();
-						progress.intermediateProgress(-1, -1, -1);
-					}
-				});
-			}
-			
-			long lastUpdate = 0;
-			while(true){
-				try{
-					lock.lock();
-					if(cond.await(10, TimeUnit.MINUTES)){
-						int val = done.get();
-						progress.coresBlocksDone(val, total);
-						if(val == total){
-							break;
-						}
-					}
-
-					if(lastUpdate < System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(10)){
-						progress.intermediateProgress(blocks.stream().mapToInt(b->b.canonCores.size()).summaryStatistics().getSum(), done.get(), total);
-						lastUpdate = System.currentTimeMillis();
-					}
-				}finally{
-					lock.unlock();
-				}
-			}
-			
-			progress.coresEnd(i + 1);
-		}
-		
-		executor.shutdown();
-		computeCores = true;
-		mapCoresToBlocks();
-	}
+	
 	
 	
 	

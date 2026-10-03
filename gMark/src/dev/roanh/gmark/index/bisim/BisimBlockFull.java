@@ -1,27 +1,61 @@
 package dev.roanh.gmark.index.bisim;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import dev.roanh.cpqindex.Index;
+import dev.roanh.cpqindex.LabelSequence;
+import dev.roanh.cpqindex.LabelledPath;
 import dev.roanh.cpqindex.Pair;
 
-public class BisimBlock{
+public class BisimBlockFull extends BisimBlock{
 	/**
-	 * The ID of this block.
+	 * A list of all label sequences that map to this block. This is
+	 * the same set of label sequences as computed in the original
+	 * paper on language aware indexing. This list may also be set
+	 * to null if its computation is not explicitly requested by
+	 * setting {@link Index#computeLabels} to true.
 	 */
-	private final int id;
+	private List<LabelSequence> labels;//opt
 	/**
-	 * The value of k for the index layer this core belongs to.
+	 * Blocks from previous layers that were combined to form this layer.
 	 */
-	private final int k;
+	private List<BlockPair> combinations;//opt
 	/**
-	 * A list of all paths stored at this block.
+	 * The block from the previous layer that the paths in this block were stored at.
+	 * @see #paths
 	 */
-	private final List<Pair> paths;//TODO switch to st pairs
+	private BisimBlockFull ancestor;//opt
 	
-	protected BisimBlock(int id, int k, List<Pair> paths){
-		this.id = id;
-		this.k = k;
-		this.paths = paths;
+	/**
+	 * Constructs a new index block for the given diameter and with the given paths.
+	 * @param k The diameter this block is for, corresponds to the index layer.
+	 * @param slice The paths to store at this block.
+	 */
+	protected BisimBlockFull(int k, boolean computeLabels, List<LabelledPath> slice){//TODO compute boolean input is weird
+		LabelledPath range = slice.get(0);
+		super(range.getSegmentId(), k, slice.stream().map(LabelledPath::getPair).collect(Collectors.toList()));
+		slice.forEach(s->s.setBlock(this));
+		combinations = range.getSegments().stream().map(BlockPair::new).collect(Collectors.toList());
+		
+		if(computeLabels || combinations.isEmpty()){
+			//we need labels to compute cores for k = 1 and in rare cases higher k where a k = 1 block did not get any higher k paths added
+			labels = new ArrayList<LabelSequence>();
+			labels.addAll(range.getLabels());
+		}else{
+			labels = null;
+		}
+		
+		//we inherit all labels from the previous layer block the paths in this block are a subset of
+		if(range.hasAncestor()){
+			ancestor = range.getAncestor().getBlock();
+			if(computeLabels){
+				labels.addAll(ancestor.labels);
+			}
+		}else{
+			ancestor = null;
+		}
 	}
 	
 //	/**
@@ -127,6 +161,16 @@ public class BisimBlock{
 	}
 	
 	/**
+	 * Gets the label sequences that map to this block.
+	 * @return The label sequences that map to this block.
+	 *         This value may be null unless label computation
+	 *         was explicitly requested via {@link Index#computeLabels}.
+	 */
+	public final List<LabelSequence> getLabels(){
+		return labels;
+	}
+	
+	/**
 	 * Checks if this block represents a loop, this means that
 	 * all paths in this block have the same source and target vertex.
 	 * @return True if this block represents a loop.
@@ -142,7 +186,15 @@ public class BisimBlock{
 		builder.append(id);
 		builder.append(",paths=");
 		builder.append(paths);
-		builder.append("]");
+		builder.append(",labels={");
+		if(labels != null){
+			for(LabelSequence seq : labels){
+				builder.append(seq.toString());
+				builder.append(",");
+			}
+			builder.delete(builder.length() - 1, builder.length());
+		}
+		builder.append("}]");
 		return builder.toString();
 	}
 }

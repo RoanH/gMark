@@ -30,7 +30,7 @@ import dev.roanh.gmark.util.RangeList;
  * @param first The first block.
  * @param second The second block.
  */
-public final record BlockPair(BisimBlock first, BisimBlock second){
+public final record BlockPair(BisimBlockFull first, BisimBlockFull second){
 	
 	/**
 	 * Constructs a new block pair from the given path pair.
@@ -46,7 +46,7 @@ public final record BlockPair(BisimBlock first, BisimBlock second){
 	 * @param blockMap A map of blocks read so far by ID.
 	 * @throws IOException When an IOException occurs.
 	 */
-	public BlockPair(DataInputStream in, RangeList<BisimBlock> blockMap) throws IOException{
+	public BlockPair(DataInputStream in, RangeList<BisimBlockFull> blockMap) throws IOException{
 		this(blockMap.get(in.readInt()), blockMap.get(in.readInt()));
 	}
 	

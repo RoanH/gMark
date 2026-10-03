@@ -11,14 +11,14 @@ public class BisimIndex{
 	 */
 	private final int k;
 	/**
+	 * List of predicates (labels) that appear in this index by ID.
+	 */
+	private final RangeList<Predicate> predicates;
+	/**
 	 * List of all blocks in the final layer of this index.
 	 * This is the layer for k equal to {@link #k}.
 	 */
 	private final List<BisimBlock> blocks;
-	/**
-	 * List of predicates (labels) that appear in this index by ID.
-	 */
-	private final RangeList<Predicate> predicates;
 	
 	protected BisimIndex(int k, List<BisimBlock> blocks, RangeList<Predicate> predicates){
 		this.k = k;
@@ -35,7 +35,7 @@ public class BisimIndex{
 	}
 	
 	/**
-	 * Gets all the blocks in this index.
+	 * Gets all the level k blocks in this index.
 	 * @return All the blocks in this index.
 	 */
 	public final List<BisimBlock> getBlocks(){

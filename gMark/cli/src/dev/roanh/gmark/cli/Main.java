@@ -26,6 +26,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import dev.roanh.gmark.cli.client.EvaluatorClient;
+import dev.roanh.gmark.cli.client.IndexClient;
 import dev.roanh.gmark.cli.client.WorkloadClient;
 import dev.roanh.util.Util;
 
@@ -44,7 +45,8 @@ public class Main{
 	 */
 	private static final Map<String, CommandLineClient> clients = List.of(
 		EvaluatorClient.INSTANCE,
-		WorkloadClient.INSTANCE
+		WorkloadClient.INSTANCE,
+		IndexClient.INSTANCE
 	).stream().collect(Collectors.toMap(CommandLineClient::getName, Function.identity()));
 
 	/**

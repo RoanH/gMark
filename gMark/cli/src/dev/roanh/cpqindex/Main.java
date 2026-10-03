@@ -51,7 +51,7 @@ import dev.roanh.util.Util;
  * Main class and CLI interface for the index.
  * @author Roan
  */
-public class Main{
+public class Main{//TODO move to CLI client
 	/**
 	 * The current version of the Index.
 	 */

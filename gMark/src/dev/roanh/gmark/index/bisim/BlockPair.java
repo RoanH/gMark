@@ -16,13 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dev.roanh.cpqindex;
+package dev.roanh.gmark.index.bisim;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import dev.roanh.gmark.index.bisim.BisimBlock;
 import dev.roanh.gmark.util.RangeList;
 
 /**

@@ -27,6 +27,7 @@ import java.io.IOException;
  * path or an st-pair.
  * @author Roan
  */
+@Deprecated
 public final class Pair implements Comparable<Pair>{//TODO -> SourceTargetPair
 	/**
 	 * The source vertex.

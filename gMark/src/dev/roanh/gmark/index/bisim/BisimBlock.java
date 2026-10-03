@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import dev.roanh.cpqindex.BlockPair;
 import dev.roanh.cpqindex.Index;
 import dev.roanh.cpqindex.LabelSequence;
 import dev.roanh.cpqindex.LabelledPath;

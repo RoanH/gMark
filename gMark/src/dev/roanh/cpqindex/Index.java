@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import dev.roanh.cpqindex.CanonForm.CoreHash;
+import dev.roanh.gmark.index.bisim.BlockPair;
 import dev.roanh.gmark.lang.cpq.CPQ;
 import dev.roanh.gmark.lang.cpq.QueryGraphCPQ;
 import dev.roanh.gmark.type.schema.Predicate;

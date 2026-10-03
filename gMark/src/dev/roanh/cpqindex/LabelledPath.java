@@ -24,6 +24,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import dev.roanh.gmark.index.bisim.BisimBlock;
+import dev.roanh.gmark.index.bisim.PathPair;
 import dev.roanh.gmark.type.schema.Predicate;
 
 /**
